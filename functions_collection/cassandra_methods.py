@@ -12,3 +12,10 @@ def cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, op
 
     process_id = get_process_id.process_id
     connect_to_ocds.execute(f"DELETE FROM orchestrator_operation_step WHERE process_id = '{process_id}';")
+
+
+def get_process_id_by_operation_id(connect_to_ocds, operation_id):
+    get_process_id = connect_to_ocds.execute(
+        f"SELECT * FROM orchestrator_operation WHERE operation_id = '{operation_id}';").one()
+    process_id = get_process_id.process_id
+    return process_id

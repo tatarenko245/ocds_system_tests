@@ -1,8 +1,14 @@
 import copy
+import csv
 import datetime
+import fnmatch
 import random
 import time
+from pathlib import Path
+from uuid import UUID
+
 import pytz
+import xlrd
 
 from data_collection.data_constant import cpv_category_tuple, cpv_goods_high_level_tuple, cpv_works_high_level_tuple, \
     cpv_services_high_level_tuple
@@ -98,3 +104,213 @@ def prepare_tender_classification_id():
     elif category == "services":
         tender_classification_id = random.choice(cpv_services_high_level_tuple)
     return tender_classification_id
+
+
+def is_it_uuid(uuid_to_test):
+    try:
+        uuid_obj = UUID(uuid_to_test)
+    except ValueError:
+        return False
+    return str(uuid_obj) == uuid_to_test
+
+
+# This function returns root dir.
+def get_project_root() -> Path:
+    return Path(__file__).parent.parent
+
+
+def get_value_from_cpvs_dictionary_csv(cpvs, language):
+    path = get_project_root()
+    with open(f'{path}/data_collection/CPVS_dictionary.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(';')
+            if cur_arr[0] == cpvs and cur_arr[3] == f'"{language}"':
+                return cur_arr[0].replace('"', ''), cur_arr[1].replace('"', ''), cur_arr[2].replace('"', ''), cur_arr[
+                    3].replace('"', '')
+
+
+def get_value_from_cpv_dictionary_xls(cpv, language):
+    path = get_project_root()
+    # Open current xlsx file.
+    excel_data_file = xlrd.open_workbook(f'{path}/data_collection/CPV_dictionary.xls')
+    # Take current page of the file.
+    sheet = excel_data_file.sheet_by_index(0)
+
+    # classification_description = []
+    # How mach rows contains into file?
+    rows_number = sheet.nrows
+    column_number = sheet.ncols
+    requested_row = list()
+    requested_column = list()
+    if rows_number > 0:
+        for row in range(0, rows_number):
+            if cpv in sheet.row(row)[0].value:
+                requested_row.append(row)
+
+    if column_number > 0:
+        for column in range(0, column_number):
+            if language.upper() in sheet.col(column)[0].value:
+                requested_column.append(column)
+    new_cpv = sheet.cell_value(rowx=int(requested_row[0]), colx=0)
+    description = sheet.cell_value(rowx=int(requested_row[0]), colx=int(requested_column[0]))
+    return new_cpv, description
+
+
+def get_value_from_classification_unit_dictionary_csv(unit_id, language):
+    path = get_project_root()
+    with open(f'{path}/data_collection/Units_dictionary.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(',')
+            if cur_arr[0] == f'{unit_id}' and cur_arr[4].replace(';', '') == f'"{language}"':
+                return cur_arr[0].replace("'", ""), cur_arr[2].replace('"', '')
+
+
+def generate_tender_classification_id(items_array):
+    list_of_keys = list()
+    list_of_values = list()
+    for o in items_array:
+        for id_ in o['classification']:
+            if id_ == "id":
+                list_of_keys.append(id_)
+                list_of_values.append(o['classification']['id'])
+    quantity = len(list_of_keys)
+    if quantity >= 2:
+        classification_1 = list_of_values[0]
+        classification_2 = list_of_values[1]
+        s_1 = fnmatch.fnmatch(classification_1[0], classification_2[0])
+        s_2 = fnmatch.fnmatch(classification_1[1], classification_2[1])
+        s_3 = fnmatch.fnmatch(classification_1[2], classification_2[2])
+        s_4 = fnmatch.fnmatch(classification_1[3], classification_2[3])
+        s_5 = fnmatch.fnmatch(classification_1[4], classification_2[4])
+        s_6 = fnmatch.fnmatch(classification_1[5], classification_2[5])
+        s_7 = fnmatch.fnmatch(classification_1[6], classification_2[6])
+        s_8 = fnmatch.fnmatch(classification_1[7], classification_2[7])
+        s_9 = fnmatch.fnmatch(classification_1[8], classification_2[8])
+        s_10 = fnmatch.fnmatch(classification_1[9], classification_2[9])
+        new = list()
+        if s_1 is True:
+            new.append(classification_1[0])
+        else:
+            new.append("0")
+        if s_2 is True:
+            new.append(classification_1[1])
+        else:
+            new.append("0")
+        if s_3 is True:
+            new.append(classification_1[2])
+        else:
+            new.append("0")
+        if s_4 is True:
+            new.append(classification_1[3])
+        else:
+            new.append("0")
+        if s_5 is True:
+            new.append(classification_1[4])
+        else:
+            new.append("0")
+        if s_6 is True:
+            new.append(classification_1[5])
+        else:
+            new.append("0")
+        if s_7 is True:
+            new.append(classification_1[6])
+        else:
+            new.append("0")
+        if s_8 is True:
+            new.append(classification_1[7])
+        else:
+            new.append("0")
+        if s_9 is True:
+            new.append(classification_1[8])
+        else:
+            new.append("0")
+        if s_10 is True:
+            new.append(classification_1[9])
+        else:
+            new.append("0")
+        new_classification_id = copy.deepcopy(
+            str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7]))
+        tender_classification_id = f"{new_classification_id[0:3]}00000"
+        iteration = quantity - 2
+        index = 1
+        while iteration > 0:
+            index += 1
+            classification_1 = new_classification_id
+            classification_2 = list_of_values[index]
+            s_1 = fnmatch.fnmatch(classification_1[0], classification_2[0])
+            s_2 = fnmatch.fnmatch(classification_1[1], classification_2[1])
+            s_3 = fnmatch.fnmatch(classification_1[2], classification_2[2])
+            s_4 = fnmatch.fnmatch(classification_1[3], classification_2[3])
+            s_5 = fnmatch.fnmatch(classification_1[4], classification_2[4])
+            s_6 = fnmatch.fnmatch(classification_1[5], classification_2[5])
+            s_7 = fnmatch.fnmatch(classification_1[6], classification_2[6])
+            s_8 = fnmatch.fnmatch(classification_1[7], classification_2[7])
+            new = list()
+            if s_1 is True:
+                new.append(classification_1[0])
+            else:
+                new.append("0")
+            if s_2 is True:
+                new.append(classification_1[1])
+            else:
+                new.append("0")
+            if s_3 is True:
+                new.append(classification_1[2])
+            else:
+                new.append("0")
+            if s_4 is True:
+                new.append(classification_1[3])
+            else:
+                new.append("0")
+            if s_5 is True:
+                new.append(classification_1[4])
+            else:
+                new.append("0")
+            if s_6 is True:
+                new.append(classification_1[5])
+            else:
+                new.append("0")
+            if s_7 is True:
+                new.append(classification_1[6])
+            else:
+                new.append("0")
+            if s_8 is True:
+                new.append(classification_1[7])
+            else:
+                new.append("0")
+            new_classification_id = copy.deepcopy(
+                str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7]))
+            iteration -= 1
+            tender_classification_id = f"{new_classification_id[0:4]}0000"
+    else:
+        tender_classification_id = f"{items_array[0]['classification']['id'][0:4]}0000"
+    return tender_classification_id
+
+
+def get_value_from_country_csv(country, language):
+    path = get_project_root()
+    with open(f'{path}/data_collection/country.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[0] == country and row[4] == language:
+                return row
+
+
+def get_value_from_region_csv(region, country, language):
+    path = get_project_root()
+    with open(f'{path}/data_collection/region.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[0] == region and row[4] == country and row[5] == language:
+                return row
+
+
+def get_value_from_locality_csv(locality, region, country, language):
+    path = get_project_root()
+    with open(f'{path}/data_collection/locality.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[0] == locality and row[4] == region and row[5] == country and row[6] == language:
+                return row

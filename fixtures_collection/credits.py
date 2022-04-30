@@ -29,6 +29,7 @@ def get_credits():
     allure.attach(tender_classification_id, "tenderClassificationId")
 
     yield \
+        environment,\
         hosts[0],\
         hosts[1],\
         hosts[2],\

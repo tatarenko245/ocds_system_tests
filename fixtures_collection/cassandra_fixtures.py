@@ -1,72 +1,62 @@
 """Prepare some fixtures."""
-
+import os
 import pytest
 from cassandra import ProtocolVersion
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
+from fixtures_collection.get_hosts import get_hosts
 
 
 @pytest.fixture(scope="class")
-def log_in_database(get_hosts, parse_cassandra_username, parse_cassandra_password):
+def log_in_database():
     """Log in the database."""
 
+    environment = os.getenv("ENVIRONMENT")
+    hosts = get_hosts(environment)
+    database_host = hosts[0]
+    cassandra_username = os.getenv("CASSANDRA_USERNAME")
+    cassandra_password = os.getenv("CASSANDRA_PASSWORD")
+
     auth_provider = PlainTextAuthProvider(
-        username=parse_cassandra_username,
-        password=parse_cassandra_password
+        username=cassandra_username,
+        password=cassandra_password
     )
 
     cluster = Cluster(
-        contact_points=[get_hosts[0]],
+        contact_points=[database_host],
         auth_provider=auth_provider,
         protocol_version=ProtocolVersion.V4)
     return cluster
 
 
 @pytest.fixture(scope="class")
-def connect_to_ocds(log_in_database):
-    """Connect to 'ocds' keyspace."""
+def connect_to_keyspace(log_in_database):
+    """Connect to  keyspace."""
 
     ocds_keyspace = log_in_database.connect('ocds')
-    yield ocds_keyspace
+    orchestrator_keyspace = log_in_database.connect('orchestrator')
+    access_keyspace = log_in_database.connect('access')
+    clarification_keyspace = log_in_database.connect('clarification')
+    dossier_keyspace = log_in_database.connect('dossier')
+
+    yield \
+        ocds_keyspace,\
+        orchestrator_keyspace,\
+        access_keyspace,\
+        clarification_keyspace, \
+        dossier_keyspace,\
+
     ocds_keyspace.shutdown()
     print(f"The connection to {ocds_keyspace} has been disconnected.")
 
-
-@pytest.fixture(scope="class")
-def connect_to_orchestrator(log_in_database):
-    """Connect to 'orchestrator' keyspace."""
-
-    orchestrator_keyspace = log_in_database.connect('orchestrator')
-    yield orchestrator_keyspace
     orchestrator_keyspace.shutdown()
     print(f"The connection to {orchestrator_keyspace} has been disconnected.")
 
-
-@pytest.fixture(scope="class")
-def connect_to_access(log_in_database):
-    """Connect to 'access' keyspace."""
-
-    access_keyspace = log_in_database.connect('access')
-    yield access_keyspace
     access_keyspace.shutdown()
     print(f"The connection to {access_keyspace} has been disconnected.")
 
-
-@pytest.fixture(scope="class")
-def connect_to_clarification(log_in_database):
-    """Connect to 'clarification' keyspace."""
-
-    clarification_keyspace = log_in_database.connect('clarification')
-    yield clarification_keyspace
     clarification_keyspace.shutdown()
     print(f"The connection to {clarification_keyspace} has been disconnected.")
 
-
-@pytest.fixture(scope="class")
-def connect_to_dossier(log_in_database):
-    """Connect to 'dossier' keyspace."""
-
-    dossier_keyspace = log_in_database.connect('dossier')
-    yield dossier_keyspace
     dossier_keyspace.shutdown()
     print(f"The connection to {dossier_keyspace} has been disconnected.")
