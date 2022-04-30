@@ -22,3 +22,21 @@ def create_ei_process(host, access_token, x_operation_id, country, language, pay
     allure.attach(f"{host}/do/ei", "URL")
     allure.attach(json.dumps(payload), "Prepared payload")
     return request
+
+
+@allure.step('# Prepared request: create FS.')
+def create_fs_process(host, cpid, access_token, x_operation_id, payload, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/fs/{cpid}",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json"},
+        params={
+            "testMode": test_mode
+        },
+        json=payload
+    )
+    allure.attach(f"{host}/do/fs/{cpid}", "URL")
+    allure.attach(json.dumps(payload), "Prepared payload")
+    return request

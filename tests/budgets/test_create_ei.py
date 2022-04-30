@@ -17,7 +17,7 @@ from releases_collection.budget.ei_release import ExpenditureItemRelease
 @allure.suite("Expenditure item")
 @allure.severity("Critical")
 @allure.testcase(url="")
-class TestCreateEi:
+class TestCreateEI:
     @allure.title("Check records: based on required data model.")
     def test_case_1(self, get_credits, connect_to_keyspace):
 
@@ -38,24 +38,24 @@ class TestCreateEi:
             """
             platform_one = PlatformAuthorization(bpe_host)
             access_token = platform_one.get_access_token_for_platform_one()
-            ei_operation_id = platform_one.get_x_operation_id(access_token)
+            operation_id = platform_one.get_x_operation_id(access_token)
 
         step_number += 1
         with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
             """
             Send api request to BPE host to create a CreateEi process.
-            And save in variable ei_ocid.
+            And save in variable cpid.
             """
             try:
                 """
-                Build payload for CreateEi process.
+                Build payload for Create EI process.
                 """
-                ei_payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(ExpenditureItemPayload(
                     buyer_id=0,
                     tender_classification_id=tender_classification_id)
                 )
 
-                ei_payload.delete_optional_fields(
+                payload.delete_optional_fields(
                     "tender.description",
                     "tender.items",
                     "planning.rationale",
@@ -67,20 +67,20 @@ class TestCreateEi:
                     "buyer.details"
                 )
 
-                ei_payload = ei_payload.build_expenditure_item_payload()
+                payload = payload.build_expenditure_item_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for CreateEi process.")
+                raise ValueError("Impossible to build payload for Create EI process.")
 
             synchronous_result = create_ei_process(
                 host=bpe_host,
                 access_token=access_token,
-                x_operation_id=ei_operation_id,
+                x_operation_id=operation_id,
                 country=country,
                 language=language,
-                payload=ei_payload,
+                payload=payload,
                 test_mode=True
             )
-            message = get_message_for_platform(ei_operation_id)
+            message = get_message_for_platform(operation_id)
             cpid = message['data']['ocid']
             allure.attach(str(message), "Message for platform.")
 
@@ -123,7 +123,7 @@ class TestCreateEi:
                     allure.attach(json.dumps(actual_message), "Actual message.")
                     allure.attach(json.dumps(expected_message), "Expected message.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, ei_operation_id)
+                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
 
                     assert actual_message == expected_message, \
                         allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
@@ -134,8 +134,8 @@ class TestCreateEi:
                 """
                 Compare actual EI release and expected EI release.
                 """
-                ei_url = f"{actual_message['data']['url']}/{cpid}"
-                actual_release = requests.get(url=ei_url).json()
+                url = f"{actual_message['data']['url']}/{cpid}"
+                actual_release = requests.get(url=url).json()
 
                 try:
                     """
@@ -145,7 +145,7 @@ class TestCreateEi:
                         environment=environment,
                         host_to_service=service_host,
                         language=language,
-                        ei_payload=ei_payload,
+                        ei_payload=payload,
                         ei_message=actual_message,
                         actual_ei_release=actual_release,
                         tender_classification_id=tender_classification_id
@@ -167,7 +167,7 @@ class TestCreateEi:
             CLean up the database.
             """
             # Clean after Crate Ei process:
-            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ei_operation_id)
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
         except ValueError:
             raise ValueError("Impossible to cLean up the database.")

@@ -314,3 +314,19 @@ def get_value_from_locality_csv(locality, region, country, language):
         for row in reader:
             if row[0] == locality and row[4] == region and row[5] == country and row[6] == language:
                 return row
+
+
+def get_unique_party_from_list_by_id(parties_array):
+    set_of_party_id = set()
+    dictionary_of_all_parties = dict()
+    for q in range(len(parties_array)):
+        mapper = {
+            parties_array[q]['id']: parties_array[q]
+        }
+        dictionary_of_all_parties.update(mapper)
+        set_of_party_id.add(parties_array[q]['id'])
+
+    unique_parties_array = list()
+    for q in set_of_party_id:
+        unique_parties_array.append(dictionary_of_all_parties[q])
+    return unique_parties_array
