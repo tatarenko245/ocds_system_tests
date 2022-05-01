@@ -154,7 +154,7 @@ class TestCreateEI:
                 except ValueError:
                     raise ValueError("Impossible to build expected EI release.")
 
-                with allure.step('Compare actual and expected releases.'):
+                with allure.step("Compare actual and expected releases."):
                     allure.attach(json.dumps(actual_release), "Actual release.")
                     allure.attach(json.dumps(expected_release), "Expected release.")
 
@@ -166,7 +166,7 @@ class TestCreateEI:
             """
             CLean up the database.
             """
-            # Clean after Crate Ei process:
+            # Clean after Crate EI process:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
         except ValueError:

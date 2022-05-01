@@ -1,22 +1,21 @@
 """Prepare the expected release of the create financial source process, budget."""
 import copy
-import json
 
-from functions_collection.some_functions import get_value_from_cpvs_dictionary_csv, is_it_uuid, \
-    get_value_from_cpv_dictionary_xls, get_value_from_classification_unit_dictionary_csv, \
-    generate_tender_classification_id, get_value_from_country_csv, get_value_from_region_csv, \
+from functions_collection.some_functions import is_it_uuid, get_value_from_country_csv, get_value_from_region_csv, \
     get_value_from_locality_csv, get_unique_party_from_list_by_id
 
 
 class FinancialSourceRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, host_to_service, language, cpid, fs_payload, fs_message, actual_fs_release):
+    def __init__(self, environment, host_to_service, language, cpid, ei_payload, fs_payload, fs_message,
+                 actual_fs_release):
 
         self.environment = environment
         self.host = host_to_service
         self.language = language
         self.cpid = cpid
+        self.ei_payload = ei_payload
         self.fs_payload = fs_payload
         self.fs_message = fs_message
         self.actual_fs_release = actual_fs_release
@@ -75,7 +74,7 @@ class FinancialSourceRelease:
                         "planning"
                     ],
                     "language": language,
-                    "initiationType":    "tender",
+                    "initiationType": "tender",
                     "tender": {
                         "id": "",
                         "status": "active",
@@ -178,7 +177,7 @@ class FinancialSourceRelease:
             ]
         }
 
-    def build_expected_fs_release(self, fs_payloads_list):
+    def build_expected_fs_release(self):
         """Build FS release."""
 
         # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
@@ -201,288 +200,259 @@ class FinancialSourceRelease:
         # Build the releases.parties array. Enrich or delete optional fields and enrich required fields:
         payer_role_array = list()
         funder_role_array = list()
-        for q_0 in range(len(fs_payloads_list)):
-            if "buyer" in fs_payloads_list[q_0]:
-                funder_role_array.append(copy.deepcopy(self.expected_fs_release['releases'][0]['parties'][0]))
 
-                funder_role_array[q_0]['id'] = f"{fs_payloads_list[q_0]['buyer']['identifier']['scheme']}-" \
-                                               f"{fs_payloads_list[q_0]['buyer']['identifier']['id']}"
+        if "buyer" in self.fs_payload:
 
-                funder_role_array[q_0]['name'] = fs_payloads_list[q_0]['buyer']['name']
-                funder_role_array[q_0]['identifier']['scheme'] = fs_payloads_list[q_0]['buyer']['identifier']['scheme']
-                funder_role_array[q_0]['identifier']['id'] = fs_payloads_list[q_0]['buyer']['identifier']['id']
+            funder_role_object = copy.deepcopy(self.expected_fs_release['releases'][0]['parties'][0])
 
-                funder_role_array[q_0]['identifier']['legalName'] = \
-                    fs_payloads_list[q_0]['buyer']['identifier']['legalName']
+            funder_role_object['id'] = f"{self.fs_payload['buyer']['identifier']['scheme']}-" \
+                                       f"{self.fs_payload['buyer']['identifier']['id']}"
 
-                funder_role_array[q_0]['address']['streetAddress'] = fs_payloads_list[q_0]['buyer']['address'][
-                    'streetAddress']
+            funder_role_object['name'] = self.fs_payload['buyer']['name']
+            funder_role_object['identifier']['scheme'] = self.fs_payload['buyer']['identifier']['scheme']
+            funder_role_object['identifier']['id'] = self.fs_payload['buyer']['identifier']['id']
 
-                if "postalCode" in fs_payloads_list[q_0]['buyer']['address']:
+            funder_role_object['identifier']['legalName'] = \
+                self.fs_payload['buyer']['identifier']['legalName']
 
-                    funder_role_array[q_0]['address']['postalCode'] = \
-                        fs_payloads_list[q_0]['buyer']['address']['postalCode']
-                else:
-                    del funder_role_array[q_0]['address']['postalCode']
+            funder_role_object['address']['streetAddress'] = self.fs_payload['buyer']['address']['streetAddress']
 
-                try:
-                    """
-                    Prepare addressDetails object for party with funder role.
-                    """
-                    funder_country_data = get_value_from_country_csv(
-                        country=fs_payloads_list[q_0]['buyer']['address']['addressDetails']['country']['id'],
-                        language=self.language
-                    )
-                    expected_funder_country_object = [{
-                        "scheme": funder_country_data[2],
-                        "id": fs_payloads_list[q_0]['buyer']['address']['addressDetails']['country']['id'],
-                        "description": funder_country_data[1],
-                        "uri": funder_country_data[3]
-                    }]
-
-                    funder_region_data = get_value_from_region_csv(
-                        region=fs_payloads_list[q_0]['buyer']['address']['addressDetails']['region']['id'],
-                        country=fs_payloads_list[q_0]['buyer']['address']['addressDetails']['country']['id'],
-                        language=self.language
-                    )
-                    expected_funder_region_object = [{
-                        "scheme": funder_region_data[2],
-                        "id": fs_payloads_list[q_0]['buyer']['address']['addressDetails']['region']['id'],
-                        "description": funder_region_data[1],
-                        "uri": funder_region_data[3]
-                    }]
-
-                    if fs_payloads_list[q_0]['buyer']['address']['addressDetails']['locality']['scheme'] == "CUATM":
-
-                        funder_locality_data = get_value_from_locality_csv(
-                            locality=fs_payloads_list[q_0]['buyer']['address']['addressDetails']['locality']['id'],
-                            region=fs_payloads_list[q_0]['buyer']['address']['addressDetails']['region']['id'],
-                            country=fs_payloads_list[q_0]['buyer']['address']['addressDetails']['country']['id'],
-                            language=self.language
-                        )
-                        expected_funder_locality_object = [{
-                            "scheme": funder_locality_data[2],
-                            "id": fs_payloads_list[q_0]['buyer']['address']['addressDetails']['locality']['id'],
-                            "description": funder_locality_data[1],
-                            "uri": funder_locality_data[3]
-                        }]
-                    else:
-                        expected_funder_locality_object = [{
-                            "scheme": fs_payloads_list[q_0]['buyer']['address']['addressDetails']['locality']['scheme'],
-                            "id": fs_payloads_list[q_0]['buyer']['address']['addressDetails']['locality']['id'],
-
-                            "description":
-                                fs_payloads_list[q_0]['buyer']['address']['addressDetails']['locality']['description']
-                        }]
-
-                    funder_role_array[q_0]['address']['addressDetails']['country'] = expected_funder_country_object[0]
-                    funder_role_array[q_0]['address']['addressDetails']['region'] = expected_funder_region_object[0]
-                    funder_role_array[q_0]['address']['addressDetails']['locality'] = expected_funder_locality_object[0]
-                except ValueError:
-                    raise ValueError(
-                        "Impossible to prepare addressDetails object for party with funder role.")
-
-                if "uri" in fs_payloads_list[q_0]['buyer']['identifier']:
-                    funder_role_array[q_0]['identifier']['uri'] = fs_payloads_list[q_0]['buyer']['identifier']['uri']
-                else:
-                    del funder_role_array[q_0]['identifier']['uri']
-
-                if "additionalIdentifiers" in fs_payloads_list[q_0]['buyer']:
-                    for p_0 in range(len(fs_payloads_list[q_0]['buyer']['additionalIdentifiers'])):
-                        funder_role_array[q_0]['additionalIdentifiers'][p_0]['scheme'] = \
-                            fs_payloads_list[q_0]['buyer']['additionalIdentifiers'][p_0]['scheme']
-
-                        funder_role_array[q_0]['additionalIdentifiers'][p_0]['id'] = \
-                            fs_payloads_list[q_0]['buyer']['additionalIdentifiers'][p_0]['id']
-
-                        funder_role_array[q_0]['additionalIdentifiers'][p_0]['legalName'] = \
-                            fs_payloads_list[q_0]['buyer']['additionalIdentifiers'][p_0]['legalName']
-
-                        funder_role_array[q_0]['additionalIdentifiers'][p_0]['uri'] = \
-                            fs_payloads_list[q_0]['buyer']['additionalIdentifiers'][p_0]['uri']
-                else:
-                    del funder_role_array[q_0]['additionalIdentifiers']
-
-                if "faxNumber" in fs_payloads_list[q_0]['buyer']['contactPoint']:
-
-                    funder_role_array[q_0]['contactPoint']['faxNumber'] = \
-                        fs_payloads_list[q_0]['buyer']['contactPoint']['faxNumber']
-                else:
-                    del funder_role_array[q_0]['contactPoint']['faxNumber']
-
-                if "url" in fs_payloads_list[q_0]['buyer']['contactPoint']:
-                    funder_role_array[q_0]['contactPoint']['url'] = fs_payloads_list[q_0]['buyer']['contactPoint'][
-                        'url']
-                else:
-                    del funder_role_array[q_0]['contactPoint']['url']
-
-                funder_role_array[q_0]['contactPoint']['name'] = \
-                    fs_payloads_list[q_0]['buyer']['contactPoint']['name']
-
-                funder_role_array[q_0]['contactPoint']['email'] = \
-                    fs_payloads_list[q_0]['buyer']['contactPoint']['email']
-
-                funder_role_array[q_0]['contactPoint']['telephone'] = \
-                    fs_payloads_list[q_0]['buyer']['contactPoint']['telephone']
-
-                funder_role_array[q_0]['roles'] = ["funder"]
-
-        for p_0 in range(len(fs_payloads_list)):
-            payer_role_array.append(copy.deepcopy(self.expected_fs_release['releases'][0]['parties'][0]))
-
-            payer_role_array[p_0]['id'] = \
-                f"{fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']['scheme']}-" \
-                f"{fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']['id']}"
-
-            payer_role_array[p_0]['name'] = fs_payloads_list[p_0]['tender']['procuringEntity']['name']
-
-            payer_role_array[p_0]['identifier']['scheme'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']['scheme']
-
-            payer_role_array[p_0]['identifier']['id'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']['id']
-
-            payer_role_array[p_0]['identifier']['legalName'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']['legalName']
-
-            payer_role_array[p_0]['address']['streetAddress'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['address']['streetAddress']
-
-            if "postalCode" in fs_payloads_list[p_0]['tender']['procuringEntity']['address']:
-
-                payer_role_array[p_0]['address']['postalCode'] = \
-                    fs_payloads_list[p_0]['tender']['procuringEntity']['address']['postalCode']
+            if "postalCode" in self.fs_payload['buyer']['address']:
+                funder_role_object['address']['postalCode'] = self.fs_payload['buyer']['address']['postalCode']
             else:
-                del payer_role_array[p_0]['address']['postalCode']
+                del funder_role_object['address']['postalCode']
 
             try:
                 """
-                Prepare addressDetails object for party with payer role.
+                Prepare addressDetails object for party with funder role.
                 """
-                payer_country_data = get_value_from_country_csv(
-                    country=fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                        'country']['id'],
-
+                funder_country_data = get_value_from_country_csv(
+                    country=self.fs_payload['buyer']['address']['addressDetails']['country']['id'],
                     language=self.language
                 )
-                expected_payer_country_object = [{
-                    "scheme": payer_country_data[2],
-
-                    "id": fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                        'country']['id'],
-
-                    "description": payer_country_data[1],
-                    "uri": payer_country_data[3]
+                expected_funder_country_object = [{
+                    "scheme": funder_country_data[2],
+                    "id": self.fs_payload['buyer']['address']['addressDetails']['country']['id'],
+                    "description": funder_country_data[1],
+                    "uri": funder_country_data[3]
                 }]
 
-                payer_region_data = get_value_from_region_csv(
-                    region=fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                        'region']['id'],
-
-                    country=fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                        'country']['id'],
-
+                funder_region_data = get_value_from_region_csv(
+                    region=self.fs_payload['buyer']['address']['addressDetails']['region']['id'],
+                    country=self.fs_payload['buyer']['address']['addressDetails']['country']['id'],
                     language=self.language
                 )
-                expected_payer_region_object = [{
-                    "scheme": payer_region_data[2],
-
-                    "id": fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                        'region']['id'],
-
-                    "description": payer_region_data[1],
-                    "uri": payer_region_data[3]
+                expected_funder_region_object = [{
+                    "scheme": funder_region_data[2],
+                    "id": self.fs_payload['buyer']['address']['addressDetails']['region']['id'],
+                    "description": funder_region_data[1],
+                    "uri": funder_region_data[3]
                 }]
 
-                if fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                        'locality']['scheme'] == "CUATM":
+                if self.fs_payload['buyer']['address']['addressDetails']['locality']['scheme'] == "CUATM":
 
-                    payer_locality_data = get_value_from_locality_csv(
-                        locality=fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['id'],
-
-                        region=fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'region']['id'],
-
-                        country=fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'country']['id'],
-
+                    funder_locality_data = get_value_from_locality_csv(
+                        locality=self.fs_payload['buyer']['address']['addressDetails']['locality']['id'],
+                        region=self.fs_payload['buyer']['address']['addressDetails']['region']['id'],
+                        country=self.fs_payload['buyer']['address']['addressDetails']['country']['id'],
                         language=self.language
                     )
-                    expected_payer_locality_object = [{
-                        "scheme": payer_locality_data[2],
-                        "id": fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['id'],
-
-                        "description": payer_locality_data[1],
-                        "uri": payer_locality_data[3]
+                    expected_funder_locality_object = [{
+                        "scheme": funder_locality_data[2],
+                        "id": self.fs_payload['buyer']['address']['addressDetails']['locality']['id'],
+                        "description": funder_locality_data[1],
+                        "uri": funder_locality_data[3]
                     }]
                 else:
-                    expected_payer_locality_object = [{
-                        "scheme": fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['scheme'],
-
-                        "id": fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['id'],
-
-                        "description": fs_payloads_list[p_0]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['description']
+                    expected_funder_locality_object = [{
+                        "scheme": self.fs_payload['buyer']['address']['addressDetails']['locality']['scheme'],
+                        "id": self.fs_payload['buyer']['address']['addressDetails']['locality']['id'],
+                        "description": self.fs_payload['buyer']['address']['addressDetails']['locality']['description']
                     }]
 
-                payer_role_array[p_0]['address']['addressDetails']['country'] = expected_payer_country_object[0]
-                payer_role_array[p_0]['address']['addressDetails']['region'] = expected_payer_region_object[0]
-                payer_role_array[p_0]['address']['addressDetails']['locality'] = expected_payer_locality_object[0]
+                funder_role_object['address']['addressDetails']['country'] = expected_funder_country_object[0]
+                funder_role_object['address']['addressDetails']['region'] = expected_funder_region_object[0]
+                funder_role_object['address']['addressDetails']['locality'] = expected_funder_locality_object[0]
             except ValueError:
                 raise ValueError(
                     "Impossible to prepare addressDetails object for party with funder role.")
 
-            if "uri" in fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']:
-
-                payer_role_array[p_0]['identifier']['uri'] = \
-                    fs_payloads_list[p_0]['tender']['procuringEntity']['identifier']['uri']
+            if "uri" in self.fs_payload['buyer']['identifier']:
+                funder_role_object['identifier']['uri'] = self.fs_payload['buyer']['identifier']['uri']
             else:
-                del payer_role_array[p_0]['identifier']['uri']
+                del funder_role_object['identifier']['uri']
 
-            if "additionalIdentifiers" in fs_payloads_list[p_0]['tender']['procuringEntity']:
-                for p_1 in range(len(fs_payloads_list[p_0]['tender']['procuringEntity']['additionalIdentifiers'])):
-                    payer_role_array[p_0]['additionalIdentifiers'][p_1]['scheme'] = \
-                        fs_payloads_list[p_0]['tender']['procuringEntity']['additionalIdentifiers'][p_1]['scheme']
+            if "additionalIdentifiers" in self.fs_payload['buyer']:
+                for p_0 in range(len(self.fs_payload['buyer']['additionalIdentifiers'])):
 
-                    payer_role_array[p_0]['additionalIdentifiers'][p_1]['id'] = \
-                        fs_payloads_list[p_0]['tender']['procuringEntity']['additionalIdentifiers'][p_1]['id']
+                    funder_role_object['additionalIdentifiers'][p_0]['scheme'] = \
+                        self.fs_payload['buyer']['additionalIdentifiers'][p_0]['scheme']
 
-                    payer_role_array[p_0]['additionalIdentifiers'][p_1]['legalName'] = \
-                        fs_payloads_list[p_0]['tender']['procuringEntity']['additionalIdentifiers'][p_1]['legalName']
+                    funder_role_object['additionalIdentifiers'][p_0]['id'] = \
+                        self.fs_payload['buyer']['additionalIdentifiers'][p_0]['id']
 
-                    payer_role_array[p_0]['additionalIdentifiers'][p_1]['uri'] = \
-                        fs_payloads_list[p_0]['tender']['procuringEntity']['additionalIdentifiers'][p_1]['uri']
+                    funder_role_object['additionalIdentifiers'][p_0]['legalName'] = \
+                        self.fs_payload['buyer']['additionalIdentifiers'][p_0]['legalName']
+
+                    funder_role_object['additionalIdentifiers'][p_0]['uri'] = \
+                        self.fs_payload['buyer']['additionalIdentifiers'][p_0]['uri']
             else:
-                del payer_role_array[p_0]['additionalIdentifiers']
+                del funder_role_object['additionalIdentifiers']
 
-            if "faxNumber" in fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']:
-
-                payer_role_array[p_0]['contactPoint']['faxNumber'] = \
-                    fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']['faxNumber']
+            if "faxNumber" in self.fs_payload['buyer']['contactPoint']:
+                funder_role_object['contactPoint']['faxNumber'] = self.fs_payload['buyer']['contactPoint']['faxNumber']
             else:
-                del payer_role_array[p_0]['contactPoint']['faxNumber']
+                del funder_role_object['contactPoint']['faxNumber']
 
-            if "url" in fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']:
-
-                payer_role_array[p_0]['contactPoint']['url'] = \
-                    fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']['url']
+            if "url" in self.fs_payload['buyer']['contactPoint']:
+                funder_role_object['contactPoint']['url'] = self.fs_payload['buyer']['contactPoint']['url']
             else:
-                del payer_role_array[p_0]['contactPoint']['url']
+                del funder_role_object['contactPoint']['url']
 
-            payer_role_array[p_0]['contactPoint']['name'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']['name']
+            funder_role_object['contactPoint']['name'] = self.fs_payload['buyer']['contactPoint']['name']
+            funder_role_object['contactPoint']['email'] = self.fs_payload['buyer']['contactPoint']['email']
+            funder_role_object['contactPoint']['telephone'] = self.fs_payload['buyer']['contactPoint']['telephone']
+            funder_role_object['roles'] = ["funder"]
 
-            payer_role_array[p_0]['contactPoint']['email'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']['email']
+            funder_role_array.append(funder_role_object)
 
-            payer_role_array[p_0]['contactPoint']['telephone'] = \
-                fs_payloads_list[p_0]['tender']['procuringEntity']['contactPoint']['telephone']
+        payer_role_object = copy.deepcopy(self.expected_fs_release['releases'][0]['parties'][0])
 
-            payer_role_array[p_0]['roles'] = ["payer"]
+        payer_role_object['id'] = \
+            f"{self.fs_payload['tender']['procuringEntity']['identifier']['scheme']}-" \
+            f"{self.fs_payload['tender']['procuringEntity']['identifier']['id']}"
+
+        payer_role_object['name'] = self.fs_payload['tender']['procuringEntity']['name']
+        payer_role_object['identifier']['scheme'] = self.fs_payload['tender']['procuringEntity']['identifier']['scheme']
+        payer_role_object['identifier']['id'] = self.fs_payload['tender']['procuringEntity']['identifier']['id']
+
+        payer_role_object['identifier']['legalName'] = \
+            self.fs_payload['tender']['procuringEntity']['identifier']['legalName']
+
+        payer_role_object['address']['streetAddress'] = \
+            self.fs_payload['tender']['procuringEntity']['address']['streetAddress']
+
+        if "postalCode" in self.fs_payload['tender']['procuringEntity']['address']:
+
+            payer_role_object['address']['postalCode'] = \
+                self.fs_payload['tender']['procuringEntity']['address']['postalCode']
+        else:
+            del payer_role_object['address']['postalCode']
+
+        try:
+            """
+            Prepare addressDetails object for party with payer role.
+            """
+            payer_country_data = get_value_from_country_csv(
+                country=self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+                language=self.language
+            )
+            expected_payer_country_object = [{
+                "scheme": payer_country_data[2],
+                "id": self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+                "description": payer_country_data[1],
+                "uri": payer_country_data[3]
+            }]
+
+            payer_region_data = get_value_from_region_csv(
+                region=self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+                country=self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+                language=self.language
+            )
+            expected_payer_region_object = [{
+                "scheme": payer_region_data[2],
+                "id": self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+                "description": payer_region_data[1],
+                "uri": payer_region_data[3]
+            }]
+
+            if self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme'] == \
+                    "CUATM":
+
+                payer_locality_data = get_value_from_locality_csv(
+                    locality=self.fs_payload['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['id'],
+
+                    region=self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+
+                    country=self.fs_payload['tender']['procuringEntity']['address']['addressDetails'][
+                        'country']['id'],
+
+                    language=self.language
+                )
+                expected_payer_locality_object = [{
+                    "scheme": payer_locality_data[2],
+                    "id": self.fs_payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+                    "description": payer_locality_data[1],
+                    "uri": payer_locality_data[3]
+                }]
+            else:
+                expected_payer_locality_object = [{
+                    "scheme": self.fs_payload['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['scheme'],
+
+                    "id": self.fs_payload['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['id'],
+
+                    "description": self.fs_payload['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['description']
+                }]
+
+            payer_role_object['address']['addressDetails']['country'] = expected_payer_country_object[0]
+            payer_role_object['address']['addressDetails']['region'] = expected_payer_region_object[0]
+            payer_role_object['address']['addressDetails']['locality'] = expected_payer_locality_object[0]
+        except ValueError:
+            raise ValueError(
+                "Impossible to prepare addressDetails object for party with funder role.")
+
+        if "uri" in self.fs_payload['tender']['procuringEntity']['identifier']:
+
+            payer_role_object['identifier']['uri'] = \
+                self.fs_payload['tender']['procuringEntity']['identifier']['uri']
+        else:
+            del payer_role_object['identifier']['uri']
+
+        if "additionalIdentifiers" in self.fs_payload['tender']['procuringEntity']:
+            for p_1 in range(len(self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'])):
+                payer_role_object['additionalIdentifiers'][p_1]['scheme'] = \
+                    self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['scheme']
+
+                payer_role_object['additionalIdentifiers'][p_1]['id'] = \
+                    self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['id']
+
+                payer_role_object['additionalIdentifiers'][p_1]['legalName'] = \
+                    self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['legalName']
+
+                payer_role_object['additionalIdentifiers'][p_1]['uri'] = \
+                    self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['uri']
+        else:
+            del payer_role_object['additionalIdentifiers']
+
+        if "faxNumber" in self.fs_payload['tender']['procuringEntity']['contactPoint']:
+
+            payer_role_object['contactPoint']['faxNumber'] = \
+                self.fs_payload['tender']['procuringEntity']['contactPoint']['faxNumber']
+        else:
+            del payer_role_object['contactPoint']['faxNumber']
+
+        if "url" in self.fs_payload['tender']['procuringEntity']['contactPoint']:
+
+            payer_role_object['contactPoint']['url'] = \
+                self.fs_payload['tender']['procuringEntity']['contactPoint']['url']
+        else:
+            del payer_role_object['contactPoint']['url']
+
+        payer_role_object['contactPoint']['name'] = \
+            self.fs_payload['tender']['procuringEntity']['contactPoint']['name']
+
+        payer_role_object['contactPoint']['email'] = \
+            self.fs_payload['tender']['procuringEntity']['contactPoint']['email']
+
+        payer_role_object['contactPoint']['telephone'] = \
+            self.fs_payload['tender']['procuringEntity']['contactPoint']['telephone']
+
+        payer_role_object['roles'] = ["payer"]
+        payer_role_array.append(payer_role_object)
 
         unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
         unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
@@ -534,25 +504,120 @@ class FinancialSourceRelease:
             raise ValueError("Quantity of objects into actual ms release doesn't equal "
                              "quantity of objects into prepared parties array")
 
-        print("\nActual parties array")
-        print(json.dumps(self.actual_fs_release['releases'][0]['parties']))
-        print("\nExpected parties array")
-        print(json.dumps(expected_parties_array))
-
         self.expected_fs_release['releases'][0]['parties'] = expected_parties_array
 
-        # # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
-        # self.expected_fs_release['releases'][0]['planning']['budget']['id'] = self.tender_classification_id
-        #
-        # self.expected_fs_release['releases'][0]['planning']['budget']['period']['startDate'] = \
-        #     self.fs_payload['planning']['budget']['period']['startDate']
-        #
-        # self.expected_fs_release['releases'][0]['planning']['budget']['period']['endDate'] = \
-        #     self.fs_payload['planning']['budget']['period']['endDate']
-        #
-        # if "rationale" in self.fs_payload['planning']:
-        #     self.expected_fs_release['releases'][0]['planning']['rationale'] = self.fs_payload['planning']['rationale']
-        # else:
-        #     del self.expected_fs_release['releases'][0]['planning']['rationale']
-        #
-        # return self.expected_fs_release
+        # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
+        if "id" in self.fs_payload['planning']['budget']:
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['id'] = \
+                self.fs_payload['planning']['budget']['id']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['budget']['id']
+
+        if "description" in self.fs_payload['planning']['budget']:
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['description'] = \
+                self.fs_payload['planning']['budget']['description']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['budget']['description']
+
+        self.expected_fs_release['releases'][0]['planning']['budget']['period']['startDate'] = \
+            self.fs_payload['planning']['budget']['period']['startDate']
+
+        self.expected_fs_release['releases'][0]['planning']['budget']['period']['endDate'] = \
+            self.fs_payload['planning']['budget']['period']['endDate']
+
+        self.expected_fs_release['releases'][0]['planning']['budget']['amount']['amount'] = \
+            self.fs_payload['planning']['budget']['amount']['amount']
+
+        self.expected_fs_release['releases'][0]['planning']['budget']['amount']['currency'] = \
+            self.fs_payload['planning']['budget']['amount']['currency']
+
+        self.expected_fs_release['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] = \
+            self.fs_payload['planning']['budget']['isEuropeanUnionFunded']
+
+        if self.expected_fs_release['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] is True:
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding'][
+                'projectIdentifier'] = \
+                self.fs_payload['planning']['budget']['europeanUnionFunding']['projectIdentifier']
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']['projectName'] = \
+                self.fs_payload['planning']['budget']['europeanUnionFunding']['projectName']
+
+            if "uri" in self.fs_payload['planning']['budget']['europeanUnionFunding']:
+
+                self.expected_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']['uri'] = \
+                    self.fs_payload['planning']['budget']['europeanUnionFunding']['uri']
+            else:
+                del self.expected_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']['uri']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']
+
+        if "buyer" in self.fs_payload:
+            self.expected_fs_release['releases'][0]['tender']['status'] = "active"
+            self.expected_fs_release['releases'][0]['planning']['budget']['verified'] = True
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['sourceEntity']['id'] = \
+                f"{self.fs_payload['buyer']['identifier']['scheme']}-{self.fs_payload['buyer']['identifier']['id']}"
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['sourceEntity']['name'] = \
+                self.fs_payload['buyer']['name']
+        else:
+            self.expected_fs_release['releases'][0]['tender']['status'] = "planning"
+            self.expected_fs_release['releases'][0]['planning']['budget']['verified'] = False
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['sourceEntity']['id'] = \
+                f"{self.ei_payload['buyer']['identifier']['scheme']}-{self.ei_payload['buyer']['identifier']['id']}"
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['sourceEntity']['name'] = \
+                self.ei_payload['buyer']['name']
+
+        if "project" in self.fs_payload['planning']['budget']:
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['project'] = \
+                self.fs_payload['planning']['budget']['project']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['budget']['project']
+
+        if "projectID" in self.fs_payload['planning']['budget']:
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['projectID'] = \
+                self.fs_payload['planning']['budget']['projectID']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['budget']['projectID']
+
+        if "uri" in self.fs_payload['planning']['budget']:
+
+            self.expected_fs_release['releases'][0]['planning']['budget']['uri'] = \
+                self.fs_payload['planning']['budget']['uri']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['budget']['uri']
+
+        if "rationale" in self.fs_payload['planning']:
+            self.expected_fs_release['releases'][0]['planning']['rationale'] = self.fs_payload['planning']['rationale']
+        else:
+            del self.expected_fs_release['releases'][0]['planning']['rationale']
+
+        # Build the releases.relatedProcesses array. Enrich or delete optional fields and enrich required fields:
+        try:
+            """Set permanent id."""
+
+            is_permanent_id_correct = is_it_uuid(self.actual_fs_release['releases'][0]['relatedProcesses'][0]['id'])
+            if is_permanent_id_correct is True:
+
+                self.expected_fs_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                    self.actual_fs_release['releases'][0]['relatedProcesses'][0]['id']
+            else:
+                raise ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
+        except KeyError:
+            raise KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
+
+        self.expected_fs_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "parent"
+        self.expected_fs_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
+        self.expected_fs_release['releases'][0]['relatedProcesses'][0]['identifier'] = self.cpid
+
+        self.expected_fs_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+            f"{self.metadata_budget_url}/{self.cpid}/{self.cpid}"
+
+        return self.expected_fs_release

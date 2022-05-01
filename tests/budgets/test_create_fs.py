@@ -1,21 +1,19 @@
 import copy
 import json
 import random
-
 import allure
 import requests
 
+from deepdiff import DeepDiff
 from class_collection.platform_authorization import PlatformAuthorization
 from data_collection.data_constant import currency_tuple
 from functions_collection.cassandra_methods import get_process_id_by_operation_id, \
-    cleanup_table_of_services_for_expenditure_item, cleanup_ocds_orchestrator_operation_step_by_operation_id
+    cleanup_ocds_orchestrator_operation_step_by_operation_id, cleanup_table_of_services_for_financial_source
 from functions_collection.get_message_for_platform import get_message_for_platform
-from functions_collection.requests_collection import create_ei_process, create_fs_process
-from messages_collection.budget.create_ei_message import ExpenditureItemMessage
+from functions_collection.requests_collection import create_fs_process
+from functions_collection.some_functions import is_it_uuid
 from messages_collection.budget.create_fs_message import FinancialSourceMessage
-from payloads_collection.budget.ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.fs_payload import FinancialSourcePayload
-from releases_collection.budget.ei_release import ExpenditureItemRelease
 from releases_collection.budget.fs_release import FinancialSourceRelease
 
 
@@ -30,15 +28,18 @@ class TestCreateFS:
         environment = get_credits[0]
         bpe_host = get_credits[2]
         service_host = get_credits[3]
-        country = get_credits[4]
         language = get_credits[5]
-        tender_classification_id = get_credits[9]
+
         connect_to_ocds = connect_to_keyspace[0]
 
         ei_payload = create_ei_tc_1[0]
         cpid = create_ei_tc_1[1]
+        ei_message = create_ei_tc_1[2]
+
+        url = f"{ei_message['data']['url']}/{cpid}"
+        actual_ei_release_before_fs_creating = requests.get(url=url).json()
+
         currency = f"{random.choice(currency_tuple)}"
-        fs_payloads_list = list()
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Create FS process."):
             """
@@ -65,32 +66,22 @@ class TestCreateFS:
                     payer_id=1,
                     funder_id=2)
                 )
-                # payload.delete_optional_fields(
-                #     "tender.procuringEntity.identifier.uri",
-                #     "tender.procuringEntity.address.postalCode",
-                #     "tender.procuringEntity.additionalIdentifiers",
-                #     "tender.procuringEntity.additionalIdentifiers.uri",
-                #     "tender.procuringEntity.contactPoint.faxNumber",
-                #     "tender.procuringEntity.contactPoint.url",
-                #     "planning.budget.id",
-                #     "planning.budget.description",
-                #     "planning.budget.europeanUnionFunding",
-                #     "planning.budget.europeanUnionFunding.uri",
-                #     "planning.budget.project",
-                #     "planning.budget.projectID",
-                #     "planning.budget.uri",
-                #     "planning.rationale",
-                #     "buyer",
-                #     "buyer.identifier.uri",
-                #     "buyer.address.postalCode",
-                #     "buyer.additionalIdentifiers",
-                #     "buyer.additionalIdentifiers.uri",
-                #     "buyer.contactPoint.faxNumber",
-                #     "buyer.contactPoint.url",
-                #
-                # )
+                payload.delete_optional_fields(
+                    "tender.procuringEntity.identifier.uri",
+                    "tender.procuringEntity.address.postalCode",
+                    "tender.procuringEntity.additionalIdentifiers",
+                    "tender.procuringEntity.contactPoint.faxNumber",
+                    "tender.procuringEntity.contactPoint.url",
+                    "planning.budget.id",
+                    "planning.budget.description",
+                    "planning.budget.europeanUnionFunding",
+                    "planning.budget.project",
+                    "planning.budget.projectID",
+                    "planning.budget.uri",
+                    "planning.rationale",
+                    "buyer"
+                )
                 payload = payload.build_financial_source_payload()
-                fs_payloads_list.append(payload)
             except ValueError:
                 raise ValueError("Impossible to build payload for Create Fs process.")
 
@@ -159,8 +150,7 @@ class TestCreateFS:
                 """
                 url = f"{actual_message['data']['url']}/{ocid}"
                 actual_release = requests.get(url=url).json()
-                print("actual_release")
-                print(json.dumps(actual_release))
+
                 try:
                     """
                     Build expected FS release.
@@ -170,28 +160,133 @@ class TestCreateFS:
                         host_to_service=service_host,
                         language=language,
                         cpid=cpid,
+                        ei_payload=ei_payload,
                         fs_payload=payload,
                         fs_message=actual_message,
                         actual_fs_release=actual_release
                     ))
-                    expected_release = expected_release.build_expected_fs_release(fs_payloads_list)
+                    expected_release = expected_release.build_expected_fs_release()
                 except ValueError:
                     raise ValueError("Impossible to build expected FS release.")
-        #
-        #         with allure.step('Compare actual and expected releases.'):
-        #             allure.attach(json.dumps(actual_release), "Actual release.")
-        #             allure.attach(json.dumps(expected_release), "Expected release.")
-        #
-        #             assert actual_release == expected_release, \
-        #                 allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-        #                               f"process_id = '{process_id}' ALLOW FILTERING;",
-        #                               "Cassandra DataBase: steps of process.")
-        # try:
-        #     """
-        #     CLean up the database.
-        #     """
-        #     # Clean after Crate Ei process:
-        #     cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ei_operation_id)
-        #     cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
-        # except ValueError:
-        #     raise ValueError("Impossible to cLean up the database.")
+
+                with allure.step('Compare actual and expected releases.'):
+                    allure.attach(json.dumps(actual_release), "Actual release.")
+                    allure.attach(json.dumps(expected_release), "Expected release.")
+
+                    assert actual_release == expected_release, \
+                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
+                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                                      "Cassandra DataBase: steps of process.")
+
+            with allure.step(f'# {step_number}.4. Check EI release.'):
+                """
+                Compare actual EI release before and after FS creating.
+                """
+                url = f"{ei_message['data']['url']}/{cpid}"
+                actual_ei_release_after_fs_creating = requests.get(url=url).json()
+
+                actual_result_of_comparing_releases = dict(DeepDiff(
+                    actual_ei_release_before_fs_creating,
+                    actual_ei_release_after_fs_creating
+                ))
+
+                dictionary_item_added_was_cleaned = \
+                    str(actual_result_of_comparing_releases['dictionary_item_added']).replace('root', '')[1:-1]
+
+                actual_result_of_comparing_releases['dictionary_item_added'] = dictionary_item_added_was_cleaned
+                actual_result_of_comparing_releases = dict(actual_result_of_comparing_releases)
+
+                expected_result_of_comparing_releases = {
+                    "dictionary_item_added": "['releases'][0]['relatedProcesses'], "
+                                             "['releases'][0]['planning']['budget']['amount']",
+                    "values_changed": {
+                        "root['releases'][0]['id']": {
+                            "new_value": f"{cpid}-{actual_ei_release_after_fs_creating['releases'][0]['id'][29:42]}",
+                            "old_value": actual_ei_release_before_fs_creating['releases'][0]['id']
+                        },
+                        "root['releases'][0]['date']": {
+                            "new_value": actual_message['data']['operationDate'],
+                            "old_value": actual_ei_release_before_fs_creating['releases'][0]['date']
+                        }
+                    }
+                }
+
+                actual_related_processes_array = \
+                    actual_ei_release_after_fs_creating['releases'][0]['relatedProcesses']
+                try:
+                    """Prepare expected 'releases[0].relatedProcesses' array."""
+
+                    try:
+                        """Set permanent id."""
+
+                        is_permanent_id_correct = is_it_uuid(
+                            actual_ei_release_after_fs_creating['releases'][0]['relatedProcesses'][0]['id'])
+                        if is_permanent_id_correct is True:
+                            related_processes_id = \
+                                actual_ei_release_after_fs_creating['releases'][0]['relatedProcesses'][0]['id']
+                        else:
+                            raise ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
+                    except KeyError:
+                        raise KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
+
+                    if environment == "dev":
+                        metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
+                    elif environment == "sandbox":
+                        metadata_budget_url = "http://public.eprocurement.systems/budgets"
+
+                    expected_related_processes_array = [{
+                        "id": related_processes_id,
+                        "relationship": ["x_fundingSource"],
+                        "scheme": "ocid",
+                        "identifier": ocid,
+                        "uri": f"{metadata_budget_url}/{cpid}/{ocid}"
+                    }]
+                except ValueError:
+                    raise ValueError("Impossible to prepare expected 'releases[0].relatedProcesses' array.")
+
+                actual_amount_object = \
+                    actual_ei_release_after_fs_creating['releases'][0]['planning']['budget']['amount']
+                try:
+                    """Prepare expected 'releases[0].planning.budget.amount' object."""
+                    expected_amount_object = {
+                        "amount": payload['planning']['budget']['amount']['amount'],
+                        "currency": payload['planning']['budget']['amount']['currency']
+                    }
+                except ValueError:
+                    raise ValueError("Impossible to prepare expected 'releases[0].planning.budget.amount' object.")
+
+                with allure.step("Compare actual and expected results of comparing EI releases."):
+                    allure.attach(json.dumps(actual_result_of_comparing_releases), "Actual result.")
+                    allure.attach(json.dumps(expected_result_of_comparing_releases), "Expected result.")
+
+                    assert actual_result_of_comparing_releases == expected_result_of_comparing_releases, \
+                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
+                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                                      "Cassandra DataBase: steps of process.")
+
+                with allure.step("'Compare actual and expected 'releases[0].relatedProcesses' array."):
+                    allure.attach(json.dumps(actual_related_processes_array), "Actual result.")
+                    allure.attach(json.dumps(expected_related_processes_array), "Expected result.")
+
+                    assert actual_related_processes_array == expected_related_processes_array, \
+                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
+                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                                      "Cassandra DataBase: steps of process.")
+
+                with allure.step("'Compare actual and expected 'releases[0].planning.budget.amount' object."):
+                    allure.attach(json.dumps(actual_amount_object), "Actual result.")
+                    allure.attach(json.dumps(expected_amount_object), "Expected result.")
+
+                    assert actual_amount_object == expected_amount_object, \
+                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
+                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                                      "Cassandra DataBase: steps of process.")
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Crate FS process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+            cleanup_table_of_services_for_financial_source(connect_to_ocds, cpid)
+        except ValueError:
+            raise ValueError("Impossible to cLean up the database.")
