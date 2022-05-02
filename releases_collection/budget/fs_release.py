@@ -50,6 +50,7 @@ class FinancialSourceRelease:
         except ValueError:
             raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
+        # BR-4.16, BR-4.242, BR-4.243, BR-4.244, BR-4.246:
         self.expected_fs_release = {
             "uri": f"{self.metadata_budget_url}/{cpid}/{fs_message['data']['outcomes']['fs'][0]['id']}",
 
@@ -181,6 +182,7 @@ class FinancialSourceRelease:
         """Build FS release."""
 
         # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
+        # BR-4.12:
         try:
             """Set permanent id."""
 
@@ -198,6 +200,7 @@ class FinancialSourceRelease:
         self.expected_fs_release['releases'][0]['tender']['statusDetails'] = "empty"
 
         # Build the releases.parties array. Enrich or delete optional fields and enrich required fields:
+        # BR-4.17:
         payer_role_array = list()
         funder_role_array = list()
 
@@ -507,6 +510,7 @@ class FinancialSourceRelease:
         self.expected_fs_release['releases'][0]['parties'] = expected_parties_array
 
         # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
+        # BR-4.253:
         if "id" in self.fs_payload['planning']['budget']:
 
             self.expected_fs_release['releases'][0]['planning']['budget']['id'] = \
@@ -600,6 +604,7 @@ class FinancialSourceRelease:
             del self.expected_fs_release['releases'][0]['planning']['rationale']
 
         # Build the releases.relatedProcesses array. Enrich or delete optional fields and enrich required fields:
+        # BR-4.13, BR-4.247, BR-4.248, BR-4.14, BR-4.249, BR-4.15:
         try:
             """Set permanent id."""
 

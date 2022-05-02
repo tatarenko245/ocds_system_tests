@@ -196,6 +196,7 @@ class TestCreateFS:
                 actual_result_of_comparing_releases['dictionary_item_added'] = dictionary_item_added_was_cleaned
                 actual_result_of_comparing_releases = dict(actual_result_of_comparing_releases)
 
+                # BR-2.1.3.6, BR-2.1.3.5, BR-2.1.3.4, BR-2.1.3.3, BR-2.1.3.2, BR-2.1.3.1
                 expected_result_of_comparing_releases = {
                     "dictionary_item_added": "['releases'][0]['relatedProcesses'], "
                                              "['releases'][0]['planning']['budget']['amount']",
@@ -211,6 +212,7 @@ class TestCreateFS:
                     }
                 }
 
+                # BR-2.1.3.9, BR-2.1.3.10, BR-2.1.3.11, BR-2.1.3.12, BR-2.1.3.13, BR-2.1.3.14
                 actual_related_processes_array = \
                     actual_ei_release_after_fs_creating['releases'][0]['relatedProcesses']
                 try:
@@ -244,6 +246,7 @@ class TestCreateFS:
                 except ValueError:
                     raise ValueError("Impossible to prepare expected 'releases[0].relatedProcesses' array.")
 
+                # BR-2.1.3.7, BR-2.1.3.8:
                 actual_amount_object = \
                     actual_ei_release_after_fs_creating['releases'][0]['planning']['budget']['amount']
                 try:

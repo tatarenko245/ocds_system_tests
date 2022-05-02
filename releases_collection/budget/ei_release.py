@@ -51,6 +51,7 @@ class ExpenditureItemRelease:
         except ValueError:
             raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
+        # BR-4.228, BR-4.229, BR-4.230, BR-4.232, BR-4.234, BR-4.235,
         self.expected_ei_release = {
             "uri": f"{self.metadata_budget_url}/{ei_message['data']['ocid']}/"
                    f"{ei_message['data']['outcomes']['ei'][0]['id']}",
@@ -217,6 +218,7 @@ class ExpenditureItemRelease:
         """Build EI release."""
 
         # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
+        # BR-4.233
         if "items" in self.ei_payload['tender']:
             try:
                 """
@@ -470,12 +472,15 @@ class ExpenditureItemRelease:
         except ValueError:
             raise ValueError("Impossible to enrich releases.tender.classification object.")
 
+        # Build the releases.buyer object. Enrich or delete optional fields and enrich required fields:
+        # BR-4.5:
         self.expected_ei_release['releases'][0]['buyer']['id'] = \
             f"{self.ei_payload['buyer']['identifier']['scheme']}-{self.ei_payload['buyer']['identifier']['id']}"
 
         self.expected_ei_release['releases'][0]['buyer']['name'] = self.ei_payload['buyer']['name']
 
         # Build the releases.parties array. Enrich or delete optional fields and enrich required fields:
+        # BR-4.2:
         buyer_role_array = list()
         buyer_role_array.append(copy.deepcopy(self.expected_ei_release['releases'][0]['parties'][0]))
 
@@ -610,6 +615,7 @@ class ExpenditureItemRelease:
         self.expected_ei_release['releases'][0]['parties'] = buyer_role_array
 
         # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
+        # BR-4.233:
         self.expected_ei_release['releases'][0]['planning']['budget']['id'] = self.tender_classification_id
 
         self.expected_ei_release['releases'][0]['planning']['budget']['period']['startDate'] = \
