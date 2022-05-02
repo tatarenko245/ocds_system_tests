@@ -224,7 +224,7 @@ currency_tuple = (
     "MDL",
 )
 
-legalBasis_tuple = (
+legal_basis_tuple = (
     "DIRECTIVE_2014_23_EU",
     "DIRECTIVE_2014_24_EU",
     "DIRECTIVE_2014_25_EU",
@@ -233,7 +233,7 @@ legalBasis_tuple = (
     "NATIONAL_PROCUREMENT_LAW",
 )
 
-documentType_tuple = (
+document_type_tuple = (
     "tenderNotice",
     "biddingDocuments",
     "technicalSpecifications",

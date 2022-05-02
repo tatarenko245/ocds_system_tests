@@ -330,3 +330,64 @@ def get_unique_party_from_list_by_id(parties_array):
     for q in set_of_party_id:
         unique_parties_array.append(dictionary_of_all_parties[q])
     return unique_parties_array
+
+
+def generate_lots_array(quantity_of_object, lot_object):
+    copy.deepcopy(lot_object)
+    lots_array = []
+    for i in range(quantity_of_object):
+        lot_json = copy.deepcopy(lot_object)
+        lot_json['id'] = str(i)
+
+        if "value" in lot_object:
+            lot_json['value']['amount'] = round(float(lot_object['value']['amount'] / quantity_of_object), 2)
+
+        lots_array.append(lot_json)
+
+    new_array_lots = []
+    for quantity_of_object in range(quantity_of_object):
+        val = lots_array[quantity_of_object]
+        new_array_lots.append(copy.deepcopy(val))
+    return new_array_lots
+
+
+def get_sum_of_lot(lots_array):
+    """
+    This function returns result of sum all lots into payload.
+    """
+    sum_of_lot = list()
+    for lot_object in lots_array:
+        if "value" in lot_object:
+            if "amount" in lot_object['value']:
+                sum_of_lot.append(lot_object['value']['amount'])
+            else:
+                raise KeyError("Check lot_object['value']['amount']")
+        else:
+            raise KeyError("Check lot_object['value']")
+    s = float(format(sum(sum_of_lot), '.2f'))
+    return s
+
+
+def get_contract_period_for_ms_release(lots_array):
+    start_date = list()
+    end_date = list()
+    for lot_object in lots_array:
+        if "contractPeriod" in lot_object:
+            if "startDate" in lot_object['contractPeriod']:
+                date = datetime.datetime.strptime(lot_object['contractPeriod']['startDate'], "%Y-%m-%dT%H:%M:%SZ")
+                start_date.append(date)
+            else:
+                raise KeyError("Check lot_object['contractPeriod']['startDate']")
+
+            if "endDate" in lot_object['contractPeriod']:
+                date = datetime.datetime.strptime(lot_object['contractPeriod']['endDate'], "%Y-%m-%dT%H:%M:%SZ")
+                end_date.append(date)
+            else:
+                raise KeyError("Check lot_object['contractPeriod']['endDate']")
+        else:
+            raise KeyError("Check lot_object['contractPeriod']")
+    minimum_date = min(start_date)
+    start_date_for_ms_release = minimum_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    maximum_date = max(end_date)
+    end_date_for_ms_release = maximum_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return start_date_for_ms_release, end_date_for_ms_release

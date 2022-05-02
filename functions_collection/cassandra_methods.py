@@ -28,3 +28,12 @@ def cleanup_table_of_services_for_financial_source(connect_to_ocds, cp_id):
     connect_to_ocds.execute(f"DELETE FROM notice_budget_release WHERE cp_id='{cp_id}';")
     connect_to_ocds.execute(f"DELETE FROM notice_budget_offset WHERE cp_id='{cp_id}';")
     connect_to_ocds.execute(f"DELETE FROM notice_budget_compiled_release WHERE cp_id='{cp_id}';")
+
+
+def cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cp_id):
+    connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cp_id}';").one()
+    connect_to_ocds.execute(f"DELETE FROM budget_fs WHERE cp_id='{cp_id}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cp_id}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cp_id}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cp_id}';")
+    connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cp_id}';")
