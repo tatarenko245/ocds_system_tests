@@ -11,21 +11,21 @@ class ExpenditureItemPayload:
     def __init__(self, buyer_id, tender_classification_id):
 
         __ei_period = ei_period()
-        self.__tenderClassificationId = tender_classification_id
+        self.__tender_classification_id = tender_classification_id
 
         self.__payload = {
             "tender": {
                 "title": "create ei: tender.title",
                 "description": "create ei: tender.description",
                 "classification": {
-                    "id": self.__tenderClassificationId
+                    "id": self.__tender_classification_id
                 },
                 "items": [
                     {
                         "id": "0",
                         "description": f"create ei: tender.items0.description",
                         "classification": {
-                            "id": self.__tenderClassificationId
+                            "id": self.__tender_classification_id
                         },
                         "additionalClassifications": [
                             {
@@ -120,7 +120,7 @@ class ExpenditureItemPayload:
         return self.__payload
 
     def get_tender_classification_id(self):
-        return self.__tenderClassificationId
+        return self.__tender_classification_id
 
     def delete_optional_fields(self, *args, item_position=0, additional_classification_position=0,
                                buyer_additional_identifiers_position=0):
@@ -178,7 +178,7 @@ class ExpenditureItemPayload:
         new_items_array = generate_items_array(
             quantity_of_object=quantity_of_items,
             item_object=copy.deepcopy(self.__payload['tender']['items'][0]),
-            tender_classification_id=self.__tenderClassificationId
+            tender_classification_id=self.__tender_classification_id
         )
 
         for q_0 in range(quantity_of_items):

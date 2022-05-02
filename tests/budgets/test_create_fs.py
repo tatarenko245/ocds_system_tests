@@ -23,7 +23,7 @@ from releases_collection.budget.fs_release import FinancialSourceRelease
 @allure.testcase(url="")
 class TestCreateFS:
     @allure.title("Check records: based on required data model.")
-    def test_case_1(self, create_ei_tc_1, get_credits, connect_to_keyspace):
+    def test_case_1(self, get_credits, connect_to_keyspace, create_ei_tc_1):
 
         environment = get_credits[0]
         bpe_host = get_credits[2]
@@ -63,9 +63,8 @@ class TestCreateFS:
                     ei_payload=ei_payload,
                     amount=89999.89,
                     currency=currency,
-                    payer_id=1,
-                    funder_id=2)
-                )
+                    payer_id=1
+                ))
                 payload.delete_optional_fields(
                     "tender.procuringEntity.identifier.uri",
                     "tender.procuringEntity.address.postalCode",
