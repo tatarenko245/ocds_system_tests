@@ -37,3 +37,19 @@ def cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_ac
     connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cp_id}';")
     connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cp_id}';")
     connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cp_id}';")
+
+
+def get_max_duration_of_fa_from_access_rules(connect_to_access, country, pmd):
+    value = connect_to_access.execute(
+        f"""SELECT value FROM access.rules WHERE 
+        country ='{country}' and pmd='{pmd}' and operation_type='all' and parameter ='maxDurationOfFA' 
+        ALLOW FILTERING;""").one()
+    return value.value
+
+
+def cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid):
+    connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
+    connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")

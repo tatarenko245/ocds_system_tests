@@ -5,11 +5,13 @@ import pytest
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_ocds_orchestrator_operation_step_by_operation_id, \
     cleanup_table_of_services_for_expenditure_item, cleanup_table_of_services_for_financial_source, \
-    cleanup_table_of_services_for_planning_notice
+    cleanup_table_of_services_for_planning_notice, get_max_duration_of_fa_from_access_rules
 from functions_collection.get_message_for_platform import get_message_for_platform
-from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process
+from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
+    create_ap_process
 from payloads_collection.budget.ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.fs_payload import FinancialSourcePayload
+from payloads_collection.framework_agreement.ap_payload import AggregatedPlan
 from payloads_collection.framework_agreement.pn_payload import PlanningNoticePayload
 
 
@@ -448,7 +450,7 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
             payload = payload.build_plan_payload()
 
         except ValueError:
-            raise ValueError("Impossible to build payload for CreatePlanningNotice process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -549,7 +551,7 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
             payload = payload.build_plan_payload()
 
         except ValueError:
-            raise ValueError("Impossible to build payload for CreatePlanningNotice process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -571,6 +573,173 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
             CLean up the database.
             """
             # Clean after Crate PN process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
+        except ValueError:
+            raise ValueError("Impossible to cLean up the database.")
+
+
+@pytest.fixture(scope="function")
+def create_first_ap_tc_1(get_parameters, connect_to_keyspace):
+    bpe_host = get_parameters[2]
+    service_host = get_parameters[3]
+    country = get_parameters[4]
+    language = get_parameters[5]
+    pmd = get_parameters[6]
+
+    connect_to_ocds = connect_to_keyspace[0]
+    connect_to_access = connect_to_keyspace[2]
+
+    step_number = 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
+        """
+        Tender platform authorization for Create AP process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
+        """
+        Send api request to BPE host to create a Create AP process.
+        And save in variable cpid and token..
+        """
+        try:
+            """
+            Build payload for Create AP process.
+            """
+            max_duration_of_fa = get_max_duration_of_fa_from_access_rules(
+                connect_to_access,
+                country,
+                pmd
+            )
+
+            payload = copy.deepcopy(AggregatedPlan(
+                central_purchasing_body_id=55,
+                host_to_service=service_host,
+                max_duration_of_fa=max_duration_of_fa
+            ))
+
+            payload.customize_tender_procuring_entity_additional_identifiers(
+                quantity_of_tender_procuring_entity_additional_identifiers=3
+            )
+
+            payload.customize_tender_documents(
+                quantity_of_documents=3
+            )
+
+            payload = payload.build_aggregated_plan_payload()
+        except ValueError:
+            raise ValueError("Impossible to build payload for Create AP process.")
+
+        create_ap_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=payload,
+            test_mode=True,
+            country=country,
+            language=language,
+            pmd=pmd
+        )
+
+        message = get_message_for_platform(operation_id)
+        cpid = message['data']['outcomes']['ap'][0]['id']
+        token = message['data']['outcomes']['ap'][0]['X-TOKEN']
+        allure.attach(str(message), "Message for platform.")
+
+        yield payload, cpid, token, message
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Crate AP process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
+        except ValueError:
+            raise ValueError("Impossible to cLean up the database.")
+
+
+@pytest.fixture(scope="function")
+def create_first_ap_tc_2(get_parameters, connect_to_keyspace):
+    bpe_host = get_parameters[2]
+    service_host = get_parameters[3]
+    country = get_parameters[4]
+    language = get_parameters[5]
+    pmd = get_parameters[6]
+
+    connect_to_ocds = connect_to_keyspace[0]
+    connect_to_access = connect_to_keyspace[2]
+
+    step_number = 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
+        """
+        Tender platform authorization for Create AP process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
+        """
+        Send api request to BPE host to create a Create AP process.
+        And save in variable cpid and token..
+        """
+        try:
+            """
+            Build payload for Create AP process.
+            """
+            max_duration_of_fa = get_max_duration_of_fa_from_access_rules(
+                connect_to_access,
+                country,
+                pmd
+            )
+
+            payload = copy.deepcopy(AggregatedPlan(
+                central_purchasing_body_id=55,
+                host_to_service=service_host,
+                max_duration_of_fa=max_duration_of_fa
+            ))
+
+            payload.delete_optional_fields(
+                "tender.procurementMethodRationale",
+                "tender.procuringEntity.additionalIdentifiers",
+                "tender.procuringEntity.address.postalCode",
+                "tender.procuringEntity.contactPoint.faxNumber",
+                "tender.procuringEntity.contactPoint.url",
+                "tender.documents"
+            )
+
+            payload = payload.build_aggregated_plan_payload()
+        except ValueError:
+            raise ValueError("Impossible to build payload for Create AP process.")
+
+        create_ap_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=payload,
+            test_mode=True,
+            country=country,
+            language=language,
+            pmd=pmd
+        )
+
+        message = get_message_for_platform(operation_id)
+        cpid = message['data']['outcomes']['ap'][0]['id']
+        token = message['data']['outcomes']['ap'][0]['X-TOKEN']
+        allure.attach(str(message), "Message for platform.")
+
+        yield payload, cpid, token, message
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Crate AP process:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
