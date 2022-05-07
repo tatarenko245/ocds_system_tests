@@ -160,7 +160,7 @@ class PlanningNoticePayload:
 
     def delete_optional_fields(
             self, *args, lot_position=0, item_position=0, additional_classification_position=0, document_position=0):
-        """Delete option fields from payload."""
+        """Call this method last! Delete option fields from payload."""
 
         for a in args:
             if a == "planning.rationale":

@@ -286,19 +286,26 @@ class FinancialSourceRelease:
                 del funder_role_object['identifier']['uri']
 
             if "additionalIdentifiers" in self.fs_payload['buyer']:
+                del funder_role_object['additionalIdentifiers'][0]
+                additional_identifiers = list()
                 for p_0 in range(len(self.fs_payload['buyer']['additionalIdentifiers'])):
+                    additional_identifiers.append(copy.deepcopy(
+                        self.expected_fs_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                    ))
 
-                    funder_role_object['additionalIdentifiers'][p_0]['scheme'] = \
+                    additional_identifiers[p_0]['scheme'] =\
                         self.fs_payload['buyer']['additionalIdentifiers'][p_0]['scheme']
 
-                    funder_role_object['additionalIdentifiers'][p_0]['id'] = \
+                    additional_identifiers[p_0]['id'] = \
                         self.fs_payload['buyer']['additionalIdentifiers'][p_0]['id']
 
-                    funder_role_object['additionalIdentifiers'][p_0]['legalName'] = \
+                    additional_identifiers[p_0]['legalName'] = \
                         self.fs_payload['buyer']['additionalIdentifiers'][p_0]['legalName']
 
-                    funder_role_object['additionalIdentifiers'][p_0]['uri'] = \
+                    additional_identifiers[p_0]['uri'] = \
                         self.fs_payload['buyer']['additionalIdentifiers'][p_0]['uri']
+
+                    funder_role_object['additionalIdentifiers'] = additional_identifiers
             else:
                 del funder_role_object['additionalIdentifiers']
 
@@ -416,18 +423,27 @@ class FinancialSourceRelease:
             del payer_role_object['identifier']['uri']
 
         if "additionalIdentifiers" in self.fs_payload['tender']['procuringEntity']:
+            del payer_role_object['additionalIdentifiers'][0]
+            additional_identifiers = list()
             for p_1 in range(len(self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'])):
-                payer_role_object['additionalIdentifiers'][p_1]['scheme'] = \
+
+                additional_identifiers.append(copy.deepcopy(
+                    self.expected_fs_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                ))
+
+                additional_identifiers[p_1]['scheme'] = \
                     self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['scheme']
 
-                payer_role_object['additionalIdentifiers'][p_1]['id'] = \
+                additional_identifiers[p_1]['id'] = \
                     self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['id']
 
-                payer_role_object['additionalIdentifiers'][p_1]['legalName'] = \
+                additional_identifiers[p_1]['legalName'] = \
                     self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['legalName']
 
-                payer_role_object['additionalIdentifiers'][p_1]['uri'] = \
+                additional_identifiers[p_1]['uri'] = \
                     self.fs_payload['tender']['procuringEntity']['additionalIdentifiers'][p_1]['uri']
+
+                payer_role_object['additionalIdentifiers'] = additional_identifiers
         else:
             del payer_role_object['additionalIdentifiers']
 

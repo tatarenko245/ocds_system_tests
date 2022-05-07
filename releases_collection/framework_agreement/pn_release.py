@@ -1078,18 +1078,27 @@ class PlanningNoticeRelease:
             del buyer_role_array[0]['identifier']['uri']
 
         if "additionalIdentifiers" in ei_payload['buyer']:
+            del buyer_role_array[0]['additionalIdentifiers'][0]
+            additional_identifiers = list()
             for q_1 in range(len(ei_payload['buyer']['additionalIdentifiers'])):
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['scheme'] = \
+
+                additional_identifiers.append(copy.deepcopy(
+                    self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                ))
+
+                additional_identifiers[q_1]['scheme'] = \
                     ei_payload['buyer']['additionalIdentifiers'][q_1]['scheme']
 
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['id'] = \
+                additional_identifiers[q_1]['id'] = \
                     ei_payload['buyer']['additionalIdentifiers'][q_1]['id']
 
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['legalName'] = \
+                additional_identifiers[q_1]['legalName'] = \
                     ei_payload['buyer']['additionalIdentifiers'][q_1]['legalName']
 
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['uri'] = \
+                additional_identifiers[q_1]['uri'] = \
                     ei_payload['buyer']['additionalIdentifiers'][q_1]['uri']
+
+                buyer_role_array[0]['additionalIdentifiers'] = additional_identifiers
         else:
             del buyer_role_array[0]['additionalIdentifiers']
 
@@ -1218,18 +1227,26 @@ class PlanningNoticeRelease:
                     del funder_role_array[q_2]['identifier']['uri']
 
                 if "additionalIdentifiers" in fs_payloads_list[q_2]['buyer']:
+                    del funder_role_array[q_2]['additionalIdentifiers'][0]
+                    additional_identifiers = list()
                     for q_3 in range(len(fs_payloads_list[q_2]['buyer']['additionalIdentifiers'])):
-                        funder_role_array[q_2]['additionalIdentifiers'][q_3]['scheme'] = \
+                        additional_identifiers.append(copy.deepcopy(
+                            self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                        ))
+
+                        additional_identifiers[q_3]['scheme'] = \
                             fs_payloads_list[q_2]['buyer']['additionalIdentifiers'][q_3]['scheme']
 
-                        funder_role_array[q_2]['additionalIdentifiers'][q_3]['id'] = \
+                        additional_identifiers[q_3]['id'] = \
                             fs_payloads_list[q_2]['buyer']['additionalIdentifiers'][q_3]['id']
 
-                        funder_role_array[q_2]['additionalIdentifiers'][q_3]['legalName'] = \
+                        additional_identifiers[q_3]['legalName'] = \
                             fs_payloads_list[q_2]['buyer']['additionalIdentifiers'][q_3]['legalName']
 
-                        funder_role_array[q_2]['additionalIdentifiers'][q_3]['uri'] = \
+                        additional_identifiers[q_3]['uri'] = \
                             fs_payloads_list[q_2]['buyer']['additionalIdentifiers'][q_3]['uri']
+
+                        funder_role_array[q_2]['additionalIdentifiers'] = additional_identifiers
                 else:
                     del funder_role_array[q_2]['additionalIdentifiers']
 
@@ -1375,18 +1392,27 @@ class PlanningNoticeRelease:
                 del payer_role_array[q_3]['identifier']['uri']
 
             if "additionalIdentifiers" in fs_payloads_list[q_3]['tender']['procuringEntity']:
+                del payer_role_array[q_3]['additionalIdentifiers'][0]
+                additional_identifiers = list()
                 for q_4 in range(len(fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'])):
-                    payer_role_array[q_3]['additionalIdentifiers'][q_4]['scheme'] = \
+
+                    additional_identifiers.append(copy.deepcopy(
+                        self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                    ))
+
+                    additional_identifiers[q_4]['scheme'] = \
                         fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'][q_4]['scheme']
 
-                    payer_role_array[q_3]['additionalIdentifiers'][q_4]['id'] = \
+                    additional_identifiers[q_4]['id'] = \
                         fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'][q_4]['id']
 
-                    payer_role_array[q_3]['additionalIdentifiers'][q_4]['legalName'] = \
+                    additional_identifiers[q_4]['legalName'] = \
                         fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'][q_4]['legalName']
 
-                    payer_role_array[q_3]['additionalIdentifiers'][q_4]['uri'] = \
+                    additional_identifiers[q_4]['uri'] = \
                         fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'][q_4]['uri']
+
+                    payer_role_array[q_3]['additionalIdentifiers'] = additional_identifiers
             else:
                 del payer_role_array[q_3]['additionalIdentifiers']
 

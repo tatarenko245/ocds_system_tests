@@ -8,7 +8,7 @@ from functions_collection.some_functions import prepare_tender_classification_id
 
 
 @pytest.fixture(scope="class")
-def get_credits():
+def get_parameters():
     environment = os.getenv("ENVIRONMENT")
     country = os.getenv("COUNTRY")
     language = os.getenv("LANGUAGE")

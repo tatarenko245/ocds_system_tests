@@ -124,6 +124,7 @@ class FinancialSourcePayload:
     def delete_optional_fields(
             self, *args, procuring_entity_additional_identifiers_position=0,
             buyer_additional_identifiers_position=0):
+        """Call this method last!"""
         for a in args:
             if a == "tender.procuringEntity.identifier.uri":
                 del self.__payload['tender']['procuringEntity']['identifier']['uri']
