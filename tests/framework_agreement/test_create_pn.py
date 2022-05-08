@@ -9,8 +9,8 @@ from functions_collection.cassandra_methods import get_process_id_by_operation_i
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_pn_process
 from messages_collection.framework_agreement.create_pn_message import PlanningNoticeMessage
-from payloads_collection.framework_agreement.pn_payload import PlanningNoticePayload
-from releases_collection.framework_agreement.pn_release import PlanningNoticeRelease
+from payloads_collection.framework_agreement.create_pn_payload import PlanningNoticePayload
+from releases_collection.framework_agreement.create_pn_release import PlanningNoticeRelease
 
 
 @allure.parent_suite("Framework Agreement")
@@ -92,7 +92,7 @@ class TestCreatePN:
                     lot_id_list=lot_id_list,
                     quantity_of_documents=5
                 )
-                payload = payload.build_plan_payload()
+                payload = payload.build_payload()
 
             except ValueError:
                 raise ValueError("Impossible to build payload for CreatePlanningNotice process.")
@@ -306,7 +306,7 @@ class TestCreatePN:
                     "tender.items",
                     "tender.documents"
                 )
-                payload = payload.build_plan_payload()
+                payload = payload.build_payload()
 
             except ValueError:
                 raise ValueError("Impossible to build payload for CreatePlanningNotice process.")

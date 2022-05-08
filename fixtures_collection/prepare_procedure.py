@@ -1,18 +1,21 @@
 import copy
+import random
+
 import allure
 import pytest
 
 from class_collection.platform_authorization import PlatformAuthorization
+from data_collection.data_constant import pmd_for_pn_framework_agreement
 from functions_collection.cassandra_methods import cleanup_ocds_orchestrator_operation_step_by_operation_id, \
     cleanup_table_of_services_for_expenditure_item, cleanup_table_of_services_for_financial_source, \
     cleanup_table_of_services_for_planning_notice, get_max_duration_of_fa_from_access_rules
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
     create_ap_process
-from payloads_collection.budget.ei_payload import ExpenditureItemPayload
-from payloads_collection.budget.fs_payload import FinancialSourcePayload
-from payloads_collection.framework_agreement.ap_payload import AggregatedPlan
-from payloads_collection.framework_agreement.pn_payload import PlanningNoticePayload
+from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
+from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
+from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
+from payloads_collection.framework_agreement.create_pn_payload import PlanningNoticePayload
 
 
 @pytest.fixture(scope="function")
@@ -52,7 +55,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
                 quantity_of_items=3,
                 quantity_of_items_additional_classifications=3
             )
-            payload = payload.build_expenditure_item_payload()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create EI process.")
 
@@ -125,7 +128,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
                 "buyer.details"
             )
 
-            payload = payload.build_expenditure_item_payload()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create EI process.")
 
@@ -195,7 +198,7 @@ def create_first_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, 
             payload.customize_tender_procuring_entity_additional_identifiers(
                 quantity_of_tender_procuring_entity_additional_identifiers=3
             )
-            payload = payload.build_financial_source_payload()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create Fs process.")
 
@@ -272,7 +275,7 @@ def create_first_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, 
                 "planning.rationale",
                 "buyer"
             )
-            payload = payload.build_financial_source_payload()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create Fs process.")
 
@@ -349,7 +352,7 @@ def create_second_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency,
                 "planning.rationale",
                 "buyer"
             )
-            payload = payload.build_financial_source_payload()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create Fs process.")
 
@@ -383,7 +386,7 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
     service_host = get_parameters[3]
     country = get_parameters[4]
     language = get_parameters[5]
-    pmd = get_parameters[6]
+    pmd = f"{random.choice(pmd_for_pn_framework_agreement)}"
     tender_classification_id = get_parameters[9]
 
     connect_to_ocds = connect_to_keyspace[0]
@@ -447,7 +450,7 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
                 lot_id_list=lot_id_list,
                 quantity_of_documents=5
             )
-            payload = payload.build_plan_payload()
+            payload = payload.build_payload()
 
         except ValueError:
             raise ValueError("Impossible to build payload for Create PN process.")
@@ -466,7 +469,7 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
         cpid = message['data']['outcomes']['pn'][0]['id']
         token = message['data']['outcomes']['pn'][0]['X-TOKEN']
         allure.attach(str(message), "Message for platform.")
-        yield payload, cpid, token, message, currency
+        yield payload, cpid, token, message, currency, tender_classification_id
         try:
             """
             CLean up the database.
@@ -484,7 +487,7 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
     service_host = get_parameters[3]
     country = get_parameters[4]
     language = get_parameters[5]
-    pmd = get_parameters[6]
+    pmd = f"{random.choice(pmd_for_pn_framework_agreement)}"
     tender_classification_id = get_parameters[9]
 
     connect_to_ocds = connect_to_keyspace[0]
@@ -548,7 +551,7 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
                 "tender.items",
                 "tender.documents"
             )
-            payload = payload.build_plan_payload()
+            payload = payload.build_payload()
 
         except ValueError:
             raise ValueError("Impossible to build payload for Create PN process.")
@@ -567,7 +570,7 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
         cpid = message['data']['outcomes']['pn'][0]['id']
         token = message['data']['outcomes']['pn'][0]['X-TOKEN']
         allure.attach(str(message), "Message for platform.")
-        yield payload, cpid, token, message, currency
+        yield payload, cpid, token, message, currency, tender_classification_id
         try:
             """
             CLean up the database.
@@ -580,7 +583,7 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
 
 
 @pytest.fixture(scope="function")
-def create_first_ap_tc_1(get_parameters, connect_to_keyspace):
+def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc_1):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -589,6 +592,8 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace):
 
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_access = connect_to_keyspace[2]
+
+    currency = create_first_pn_tc_1[4]
 
     step_number = 1
     with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
@@ -629,8 +634,8 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace):
             payload.customize_tender_documents(
                 quantity_of_documents=3
             )
-
-            payload = payload.build_aggregated_plan_payload()
+            tender_classification_id = payload.get_tender_classification_id()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create AP process.")
 
@@ -646,11 +651,14 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace):
         )
 
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['outcomes']['ap'][0]['id']
+        cpid = message['data']['ocid']
+        ocid = message['data']['outcomes']['ap'][0]['id']
         token = message['data']['outcomes']['ap'][0]['X-TOKEN']
+        ap_url = f"{message['data']['url']}/{ocid}"
+        ms_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, token, message
+        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, ms_url
         try:
             """
             CLean up the database.
@@ -663,7 +671,7 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace):
 
 
 @pytest.fixture(scope="function")
-def create_first_ap_tc_2(get_parameters, connect_to_keyspace):
+def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc_2):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -672,6 +680,8 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace):
 
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_access = connect_to_keyspace[2]
+
+    currency = create_first_pn_tc_2[4]
 
     step_number = 1
     with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
@@ -713,8 +723,8 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace):
                 "tender.procuringEntity.contactPoint.url",
                 "tender.documents"
             )
-
-            payload = payload.build_aggregated_plan_payload()
+            tender_classification_id = payload.get_tender_classification_id()
+            payload = payload.build_payload()
         except ValueError:
             raise ValueError("Impossible to build payload for Create AP process.")
 
@@ -730,11 +740,14 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace):
         )
 
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['outcomes']['ap'][0]['id']
+        cpid = message['data']['cpid']
+        ocid = message['data']['outcomes']['ap'][0]['id']
         token = message['data']['outcomes']['ap'][0]['X-TOKEN']
+        ap_url = f"{message['data']['url']}/{ocid}"
+        ms_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, token, message
+        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, ms_url
         try:
             """
             CLean up the database.

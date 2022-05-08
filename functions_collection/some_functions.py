@@ -29,12 +29,12 @@ def generate_items_array(quantity_of_object, item_object, tender_classification_
         items_array.append(item_json)
 
     new_array_items = []
-    for quantity_of_object in range(quantity_of_object):
+    for i in range(quantity_of_object):
         if lots_array is not None:
             for o in items_array:
                 for r in o:
                     if r == "relatedLot":
-                        items_array[quantity_of_object]['relatedLot'] = lots_array[quantity_of_object]['id']
+                        items_array[i]['relatedLot'] = lots_array[i]['id']
                     else:
                         pass
         else:
@@ -68,8 +68,8 @@ def generate_items_array(quantity_of_object, item_object, tender_classification_
             item_classification_id = f"{random.choice(cpv_services_low_level_98_tuple)}"
         else:
             Exception("Error: check your 'tender.classification.id'")
-        items_array[quantity_of_object]['classification']['id'] = item_classification_id
-        val = items_array[quantity_of_object]
+        items_array[i]['classification']['id'] = item_classification_id
+        val = items_array[i]
         new_array_items.append(copy.deepcopy(val))
     return new_array_items
 

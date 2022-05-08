@@ -154,7 +154,7 @@ class PlanningNoticePayload:
             }
         }
 
-    def build_plan_payload(self):
+    def build_payload(self):
         """Build payload."""
         return self.__payload
 

@@ -20,15 +20,15 @@ class AggregatedPlan:
         self.__document_one_was_uploaded = __document_one.uploading_document()
         self.__host = host_to_service
 
-        __tender_classification_id = tender_classification_id
-        if __tender_classification_id is None:
+        self.__tender_classification_id = tender_classification_id
+        if self.__tender_classification_id is None:
             __category = random.choice(cpv_category_tuple)
             if __category == "goods":
-                __tender_classification_id = random.choice(cpv_goods_high_level_tuple)
+                self.__tender_classification_id = random.choice(cpv_goods_high_level_tuple)
             elif __category == "works":
-                __tender_classification_id = random.choice(cpv_works_high_level_tuple)
+                self.__tender_classification_id = random.choice(cpv_works_high_level_tuple)
             elif __category == "services":
-                __tender_classification_id = random.choice(cpv_services_high_level_tuple)
+                self.__tender_classification_id = random.choice(cpv_services_high_level_tuple)
 
         if currency is None:
             currency = f"{random.choice(currency_tuple)}"
@@ -40,7 +40,7 @@ class AggregatedPlan:
                 "legalBasis": f"{random.choice(legal_basis_tuple)}",
                 "procurementMethodRationale": "create ap: tender.procurementMethodRationale",
                 "classification": {
-                    "id": __tender_classification_id
+                    "id": self.__tender_classification_id
                 },
                 "tenderPeriod": {
                     "startDate": __pn_period
@@ -103,13 +103,13 @@ class AggregatedPlan:
             }
         }
 
-    def build_aggregated_plan_payload(self):
+    def build_payload(self):
         """Build payload."""
         return self.__payload
 
     def delete_optional_fields(
             self, *args, procuring_entity_additional_identifiers_position=0, document_position=0):
-        """ Delete optional fields from payload."""
+        """Call this method last! Delete option fields from payload."""
 
         for a in args:
             if a == "tender.procurementMethodRationale":
@@ -178,6 +178,9 @@ class AggregatedPlan:
             new_documents_array[q_0]['description'] = f"create pn: tender.documents{q_0}.description"
 
         self.__payload['tender']['documents'] = new_documents_array
+
+    def get_tender_classification_id(self):
+        return self.__tender_classification_id
 
     def __del__(self):
         print(f"The instance of AggregatedPlan class: {__name__} was deleted.")

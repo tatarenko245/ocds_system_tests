@@ -10,8 +10,8 @@ from functions_collection.cassandra_methods import get_process_id_by_operation_i
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ap_process
 from messages_collection.framework_agreement.create_ap_message import AggregatedPlanMessage
-from payloads_collection.framework_agreement.ap_payload import AggregatedPlan
-from releases_collection.framework_agreement.ap_release import CreateAggregatedPlanRelease
+from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
+from releases_collection.framework_agreement.create_ap_release import CreateAggregatedPlanRelease
 
 
 @allure.parent_suite("Framework Agreement")
@@ -72,7 +72,7 @@ class TestCreateAP:
                     quantity_of_documents=3
                 )
 
-                payload = payload.build_aggregated_plan_payload()
+                payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Create AP process.")
 
@@ -106,7 +106,7 @@ class TestCreateAP:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create PN process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create AP process.'):
                 """
                 Check the message for platform.
                 """
@@ -139,7 +139,7 @@ class TestCreateAP:
 
             with allure.step(f'# {step_number}.3. Check AP release.'):
                 """
-                Compare actual PN release and expected PN release.
+                Compare actual AP release and expected AP release.
                 """
                 ap_url = f"{actual_message['data']['url']}/{actual_message['data']['outcomes']['ap'][0]['id']}"
                 actual_ap_release = requests.get(url=ap_url).json()
@@ -149,7 +149,7 @@ class TestCreateAP:
 
                 try:
                     """
-                    Build expected PN release.
+                    Build expected AP release.
                     """
                     expected_release = copy.deepcopy(CreateAggregatedPlanRelease(
                         environment=environment,
@@ -259,7 +259,7 @@ class TestCreateAP:
                     "tender.documents"
                 )
 
-                payload = payload.build_aggregated_plan_payload()
+                payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Create AP process.")
 
@@ -293,7 +293,7 @@ class TestCreateAP:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create PN process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create AP process.'):
                 """
                 Check the message for platform.
                 """
@@ -326,7 +326,7 @@ class TestCreateAP:
 
             with allure.step(f'# {step_number}.3. Check AP release.'):
                 """
-                Compare actual PN release and expected PN release.
+                Compare actual AP release and expected AP release.
                 """
                 ap_url = f"{actual_message['data']['url']}/{actual_message['data']['outcomes']['ap'][0]['id']}"
                 actual_ap_release = requests.get(url=ap_url).json()
@@ -336,7 +336,7 @@ class TestCreateAP:
 
                 try:
                     """
-                    Build expected PN release.
+                    Build expected AP release.
                     """
                     expected_release = copy.deepcopy(CreateAggregatedPlanRelease(
                         environment=environment,

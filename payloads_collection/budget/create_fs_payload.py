@@ -118,13 +118,13 @@ class FinancialSourcePayload:
             }
         }
 
-    def build_financial_source_payload(self):
+    def build_payload(self):
         return self.__payload
 
     def delete_optional_fields(
             self, *args, procuring_entity_additional_identifiers_position=0,
             buyer_additional_identifiers_position=0):
-        """Call this method last!"""
+        """Call this method last! Delete option fields from payload."""
         for a in args:
             if a == "tender.procuringEntity.identifier.uri":
                 del self.__payload['tender']['procuringEntity']['identifier']['uri']

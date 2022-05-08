@@ -88,7 +88,7 @@ cpv_goods_low_level_03_tuple = (
 cpv_goods_low_level_1_tuple = (
     "14612300-7",
     "14612400-8",
-    "14630000-6",
+    "14612400-8",
     "14613100-2",
     "14621110-4",
     "14621120-7",
@@ -331,4 +331,10 @@ qualificationSystemMethod_tuple = (
 reductionCriteria_tuple = (
     "scoring",
     "none",
+)
+
+pmd_for_pn_framework_agreement = (
+    "TEST_DCO",
+    "TEST_RFQ",
+    "TEST_MC",
 )

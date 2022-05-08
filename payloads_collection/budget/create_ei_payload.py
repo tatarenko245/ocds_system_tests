@@ -116,7 +116,7 @@ class ExpenditureItemPayload:
             }
         }
 
-    def build_expenditure_item_payload(self):
+    def build_payload(self):
         return self.__payload
 
     def get_tender_classification_id(self):
@@ -124,7 +124,7 @@ class ExpenditureItemPayload:
 
     def delete_optional_fields(self, *args, item_position=0, additional_classification_position=0,
                                buyer_additional_identifiers_position=0):
-        """Call this method last!"""
+        """Call this method last! Delete option fields from payload."""
         for a in args:
             if a == "tender.description":
                 del self.__payload['tender']['description']

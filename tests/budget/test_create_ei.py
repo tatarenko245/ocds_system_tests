@@ -9,8 +9,8 @@ from functions_collection.cassandra_methods import get_process_id_by_operation_i
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ei_process
 from messages_collection.budget.create_ei_message import ExpenditureItemMessage
-from payloads_collection.budget.ei_payload import ExpenditureItemPayload
-from releases_collection.budget.ei_release import ExpenditureItemRelease
+from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
+from releases_collection.budget.create_ei_release import ExpenditureItemRelease
 
 
 @allure.parent_suite("Budget")
@@ -59,7 +59,7 @@ class TestCreateEI:
                     quantity_of_items=3,
                     quantity_of_items_additional_classifications=3
                 )
-                payload = payload.build_expenditure_item_payload()
+                payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Create EI process.")
 
@@ -213,7 +213,7 @@ class TestCreateEI:
                     "buyer.details"
                 )
 
-                payload = payload.build_expenditure_item_payload()
+                payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Create EI process.")
 

@@ -13,8 +13,8 @@ from functions_collection.get_message_for_platform import get_message_for_platfo
 from functions_collection.requests_collection import create_fs_process
 from functions_collection.some_functions import is_it_uuid
 from messages_collection.budget.create_fs_message import FinancialSourceMessage
-from payloads_collection.budget.fs_payload import FinancialSourcePayload
-from releases_collection.budget.fs_release import FinancialSourceRelease
+from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
+from releases_collection.budget.create_fs_release import FinancialSourceRelease
 
 
 @allure.parent_suite("Budget")
@@ -73,7 +73,7 @@ class TestCreateFS:
                 payload.customize_tender_procuring_entity_additional_identifiers(
                     quantity_of_tender_procuring_entity_additional_identifiers=3
                 )
-                payload = payload.build_financial_source_payload()
+                payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Create Fs process.")
 
@@ -344,7 +344,7 @@ class TestCreateFS:
                     "planning.rationale",
                     "buyer"
                 )
-                payload = payload.build_financial_source_payload()
+                payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Create Fs process.")
 
