@@ -183,7 +183,7 @@ class TestOutsourcingPN:
                                       f"fa = '{cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check AP release.'):
+            with allure.step(f'# {step_number}.5. Check AP release.'):
                 """
                 Compare actual AP release and expected AP release.
                 """
@@ -204,7 +204,7 @@ class TestOutsourcingPN:
                                       f"fa = '{cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check FA release.'):
+            with allure.step(f'# {step_number}.6. Check FA release.'):
                 """
                 Compare actual FA release and expected FA release.
                 """
@@ -408,7 +408,7 @@ class TestOutsourcingPN:
                                       f"fa = '{cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check AP release.'):
+            with allure.step(f'# {step_number}.5. Check AP release.'):
                 """
                 Compare actual AP release and expected AP release.
                 """
@@ -429,7 +429,7 @@ class TestOutsourcingPN:
                                       f"fa = '{cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check FA release.'):
+            with allure.step(f'# {step_number}.6. Check FA release.'):
                 """
                 Compare actual FA release and expected FA release.
                 """
