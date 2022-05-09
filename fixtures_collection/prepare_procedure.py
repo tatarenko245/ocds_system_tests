@@ -466,10 +466,11 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
             pmd=pmd
         )
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['outcomes']['pn'][0]['id']
+        cpid = message['data']['ocid']
+        ocid = message['data']['outcomes']['pn'][0]['id']
         token = message['data']['outcomes']['pn'][0]['X-TOKEN']
         allure.attach(str(message), "Message for platform.")
-        yield payload, cpid, token, message, currency, tender_classification_id
+        yield payload, cpid, ocid, token, message, currency, tender_classification_id
         try:
             """
             CLean up the database.
@@ -567,10 +568,11 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
             pmd=pmd
         )
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['outcomes']['pn'][0]['id']
+        cpid = message['data']['ocid']
+        ocid = message['data']['outcomes']['pn'][0]['id']
         token = message['data']['outcomes']['pn'][0]['X-TOKEN']
         allure.attach(str(message), "Message for platform.")
-        yield payload, cpid, token, message, currency, tender_classification_id
+        yield payload, cpid, ocid, token, message, currency, tender_classification_id
         try:
             """
             CLean up the database.
@@ -593,7 +595,15 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_access = connect_to_keyspace[2]
 
-    currency = create_first_pn_tc_1[4]
+    pn_cpid = create_first_pn_tc_1[1]
+    pn_ocid = create_first_pn_tc_1[2]
+    pn_token = create_first_pn_tc_1[3]
+    pn_message = create_first_pn_tc_1[4]
+    currency = create_first_pn_tc_1[5]
+    tender_classification_id = create_first_pn_tc_1[6]
+
+    pn_url = f"{pn_message['data']['url']}/{pn_message['data']['outcomes']['pn'][0]['id']}"
+    ms_url = f"{pn_message['data']['url']}/{pn_message['data']['ocid']}"
 
     step_number = 1
     with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
@@ -624,7 +634,9 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
             payload = copy.deepcopy(AggregatedPlan(
                 central_purchasing_body_id=55,
                 host_to_service=service_host,
-                max_duration_of_fa=max_duration_of_fa
+                max_duration_of_fa=max_duration_of_fa,
+                tender_classification_id=tender_classification_id,
+                currency=currency
             ))
 
             payload.customize_tender_procuring_entity_additional_identifiers(
@@ -655,10 +667,11 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
         ocid = message['data']['outcomes']['ap'][0]['id']
         token = message['data']['outcomes']['ap'][0]['X-TOKEN']
         ap_url = f"{message['data']['url']}/{ocid}"
-        ms_url = f"{message['data']['url']}/{cpid}"
+        fa_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, ms_url
+        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, fa_url, pn_cpid,\
+            pn_ocid, pn_token, pn_url, ms_url
         try:
             """
             CLean up the database.
@@ -681,7 +694,15 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_access = connect_to_keyspace[2]
 
-    currency = create_first_pn_tc_2[4]
+    pn_cpid = create_first_pn_tc_2[1]
+    pn_ocid = create_first_pn_tc_2[2]
+    pn_token = create_first_pn_tc_2[3]
+    pn_message = create_first_pn_tc_2[4]
+    currency = create_first_pn_tc_2[5]
+    tender_classification_id = create_first_pn_tc_2[6]
+
+    pn_url = f"{pn_message['data']['url']}/{pn_message['data']['outcomes']['pn'][0]['id']}"
+    ms_url = f"{pn_message['data']['url']}/{pn_message['data']['ocid']}"
 
     step_number = 1
     with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
@@ -712,7 +733,9 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
             payload = copy.deepcopy(AggregatedPlan(
                 central_purchasing_body_id=55,
                 host_to_service=service_host,
-                max_duration_of_fa=max_duration_of_fa
+                max_duration_of_fa=max_duration_of_fa,
+                tender_classification_id=tender_classification_id,
+                currency=currency
             ))
 
             payload.delete_optional_fields(
@@ -740,14 +763,15 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
         )
 
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['cpid']
+        cpid = message['data']['ocid']
         ocid = message['data']['outcomes']['ap'][0]['id']
         token = message['data']['outcomes']['ap'][0]['X-TOKEN']
         ap_url = f"{message['data']['url']}/{ocid}"
-        ms_url = f"{message['data']['url']}/{cpid}"
+        fa_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, ms_url
+        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, fa_url, pn_cpid, \
+            pn_ocid, pn_token, pn_url, ms_url
         try:
             """
             CLean up the database.
