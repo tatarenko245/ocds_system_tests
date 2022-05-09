@@ -3,7 +3,7 @@ import copy
 
 from functions_collection.some_functions import get_value_from_cpvs_dictionary_csv, is_it_uuid, \
     get_value_from_cpv_dictionary_xls, get_value_from_classification_unit_dictionary_csv, \
-    generate_tender_classification_id, get_value_from_country_csv, get_value_from_region_csv, \
+    get_value_from_country_csv, get_value_from_region_csv, \
     get_value_from_locality_csv
 
 
@@ -450,21 +450,16 @@ class ExpenditureItemRelease:
         except KeyError:
             raise KeyError("Could not parse tender.classification.id.")
 
+        # BR-12.2.1:
         try:
             """
             Enrich releases.tender.classification object, depends on items into payload.
             """
-            if "items" in self.ei_payload['tender']:
 
-                expected_cpv_data = get_value_from_cpv_dictionary_xls(
-                    cpv=generate_tender_classification_id(self.ei_payload['tender']['items']),
-                    language=self.language
-                )
-            else:
-                expected_cpv_data = get_value_from_cpv_dictionary_xls(
-                    cpv=self.tender_classification_id,
-                    language=self.language
-                )
+            expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                cpv=self.tender_classification_id,
+                language=self.language
+            )
 
             self.expected_ei_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
             self.expected_ei_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
