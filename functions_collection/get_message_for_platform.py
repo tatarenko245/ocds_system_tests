@@ -18,7 +18,7 @@ def get_message_for_platform(operation_id=None, ocid=None, initiator=None):
     elif ocid is not None and initiator is not None:
         url = f"{host}:{port}/ocid/{ocid}/{initiator}"
 
-    time.sleep(3)
+    time.sleep(7)
     status_code = requests.get(url).status_code
 
     if status_code == 404:
