@@ -53,3 +53,15 @@ def cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_ac
     connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")
+
+
+def cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid):
+    connect_to_orchestrator.execute(f"DELETE FROM steps WHERE cpid = '{cpid}';")
+
+
+def cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, cpid):
+    connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
+    connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")

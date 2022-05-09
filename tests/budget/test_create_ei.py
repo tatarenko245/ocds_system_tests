@@ -27,8 +27,7 @@ class TestCreateEI:
         country = get_parameters[4]
         language = get_parameters[5]
         tender_classification_id = get_parameters[9]
-        print("tender_classification_id")
-        print(tender_classification_id)
+
         connect_to_ocds = connect_to_keyspace[0]
 
         step_number = 1
