@@ -22,7 +22,7 @@ from releases_collection.framework_agreement.update_ap_release import UpdateAggr
 @allure.testcase(url="")
 class TestUpdateAP:
     @allure.title("Check records: based on full data model.")
-    def test_case_1(self, get_parameters, connect_to_keyspace, create_first_ap_tc_1):
+    def test_case_1(self, get_parameters, connect_to_keyspace, create_ap_tc_1):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
@@ -34,14 +34,14 @@ class TestUpdateAP:
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_access = connect_to_keyspace[2]
 
-        create_ap_payload = create_first_ap_tc_1[0]
-        cpid = create_first_ap_tc_1[1]
-        ocid = create_first_ap_tc_1[2]
-        token = create_first_ap_tc_1[3]
-        currency = create_first_ap_tc_1[5]
-        tender_classification_id = create_first_ap_tc_1[6]
-        ap_url = create_first_ap_tc_1[7]
-        ms_url = create_first_ap_tc_1[8]
+        create_ap_payload = create_ap_tc_1[0]
+        cpid = create_ap_tc_1[1]
+        ocid = create_ap_tc_1[2]
+        token = create_ap_tc_1[3]
+        currency = create_ap_tc_1[5]
+        tender_classification_id = create_ap_tc_1[6]
+        ap_url = create_ap_tc_1[7]
+        ms_url = create_ap_tc_1[8]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_ms_release = requests.get(url=ms_url).json()

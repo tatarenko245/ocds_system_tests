@@ -101,6 +101,25 @@ def outsourcing_pn_process(host, access_token, x_operation_id, cpid, ocid, token
     return request
 
 
+@allure.step('# Prepared request: Relation AP.')
+def relation_ap_process(host, access_token, x_operation_id, cpid, ocid, token, cp, pn, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/relation/{cpid}/{ocid}",
+        params={
+            "testMode": test_mode,
+            "CP": cp,
+            "PN": pn
+        },
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json",
+            "X-TOKEN": token}
+    )
+    allure.attach(f"{host}/do/relation/{cpid}/{ocid}", 'URL')
+    return request
+
+
 @allure.step('# Prepared request: Update AP.')
 def update_ap_process(host, access_token, x_operation_id, payload, cpid, ocid, token, test_mode=False):
     request = requests.post(

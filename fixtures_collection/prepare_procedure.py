@@ -19,6 +19,7 @@ from payloads_collection.framework_agreement.create_pn_payload import PlanningNo
 
 
 @pytest.fixture(scope="function")
+# Create EI: full data model
 def create_ei_tc_1(get_parameters, connect_to_keyspace):
     bpe_host = get_parameters[2]
     country = get_parameters[4]
@@ -84,6 +85,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
 
 
 @pytest.fixture(scope="function")
+# Create EI: required data model
 def create_ei_tc_2(get_parameters, connect_to_keyspace):
     bpe_host = get_parameters[2]
     country = get_parameters[4]
@@ -157,7 +159,8 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
 
 
 @pytest.fixture(scope="function")
-def create_first_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_1):
+# Create EI: full data model, create FS: full data model.
+def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_1):
     bpe_host = get_parameters[2]
     connect_to_ocds = connect_to_keyspace[0]
     ei_payload = create_ei_tc_1[0]
@@ -227,7 +230,8 @@ def create_first_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, 
 
 
 @pytest.fixture(scope="function")
-def create_first_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2):
+# Create EI: required data model, create FS: required data model.
+def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2):
     bpe_host = get_parameters[2]
     connect_to_ocds = connect_to_keyspace[0]
     ei_payload = create_ei_tc_2[0]
@@ -304,7 +308,8 @@ def create_first_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, 
 
 
 @pytest.fixture(scope="function")
-def create_second_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2, ):
+# Create EI: required data model, create FS: required data model.
+def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2, ):
     bpe_host = get_parameters[2]
     connect_to_ocds = connect_to_keyspace[0]
     ei_payload = create_ei_tc_2[0]
@@ -381,7 +386,8 @@ def create_second_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency,
 
 
 @pytest.fixture(scope="function")
-def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc_1):
+# Create EI: full data model, create FS: full data model, create PN: full data model.
+def create_pn_tc_1(get_parameters, connect_to_keyspace, create_fs_tc_1):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -396,10 +402,10 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
     fs_payloads_list = list()
     fs_message_list = list()
 
-    fs_1_payload = create_first_fs_tc_1[0]
-    ocid = create_first_fs_tc_1[1]
-    fs_1_message = create_first_fs_tc_1[2]
-    currency = create_first_fs_tc_1[3]
+    fs_1_payload = create_fs_tc_1[0]
+    ocid = create_fs_tc_1[1]
+    fs_1_message = create_fs_tc_1[2]
+    currency = create_fs_tc_1[3]
     fs_ocid_list.append(ocid)
     fs_payloads_list.append(fs_1_payload)
     fs_message_list.append(fs_1_message)
@@ -483,7 +489,8 @@ def create_first_pn_tc_1(get_parameters, connect_to_keyspace, create_first_fs_tc
 
 
 @pytest.fixture(scope="function")
-def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc_2, create_second_fs_tc_2):
+# Create EI: required data model, create FS: required data model, create PN: required data model.
+def create_pn_tc_2(get_parameters, connect_to_keyspace, create_fs_tc_2, create_fs_tc_3):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -498,17 +505,17 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
     fs_payloads_list = list()
     fs_message_list = list()
 
-    fs_1_payload = create_first_fs_tc_2[0]
-    ocid = create_first_fs_tc_2[1]
-    fs_1_message = create_first_fs_tc_2[2]
-    currency = create_first_fs_tc_2[3]
+    fs_1_payload = create_fs_tc_2[0]
+    ocid = create_fs_tc_2[1]
+    fs_1_message = create_fs_tc_2[2]
+    currency = create_fs_tc_2[3]
     fs_ocid_list.append(ocid)
     fs_payloads_list.append(fs_1_payload)
     fs_message_list.append(fs_1_message)
 
-    fs_2_payload = create_second_fs_tc_2[0]
-    ocid = create_second_fs_tc_2[1]
-    fs_2_message = create_second_fs_tc_2[2]
+    fs_2_payload = create_fs_tc_3[0]
+    ocid = create_fs_tc_3[1]
+    fs_2_message = create_fs_tc_3[2]
     fs_ocid_list.append(ocid)
     fs_payloads_list.append(fs_2_payload)
     fs_message_list.append(fs_2_message)
@@ -585,7 +592,9 @@ def create_first_pn_tc_2(get_parameters, connect_to_keyspace, create_first_fs_tc
 
 
 @pytest.fixture(scope="function")
-def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc_1):
+# Create EI: full data model, create FS: full data model, create PN: full data model,
+# create AP: full data model.
+def create_ap_tc_1(get_parameters, connect_to_keyspace, create_pn_tc_1):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -595,12 +604,13 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_access = connect_to_keyspace[2]
 
-    pn_cpid = create_first_pn_tc_1[1]
-    pn_ocid = create_first_pn_tc_1[2]
-    pn_token = create_first_pn_tc_1[3]
-    pn_message = create_first_pn_tc_1[4]
-    currency = create_first_pn_tc_1[5]
-    tender_classification_id = create_first_pn_tc_1[6]
+    pn_payload = create_pn_tc_1[0]
+    pn_cpid = create_pn_tc_1[1]
+    pn_ocid = create_pn_tc_1[2]
+    pn_token = create_pn_tc_1[3]
+    pn_message = create_pn_tc_1[4]
+    currency = create_pn_tc_1[5]
+    tender_classification_id = create_pn_tc_1[6]
 
     pn_url = f"{pn_message['data']['url']}/{pn_message['data']['outcomes']['pn'][0]['id']}"
     ms_url = f"{pn_message['data']['url']}/{pn_message['data']['ocid']}"
@@ -609,7 +619,7 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
     with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
         """
         Tender platform authorization for Create AP process.
-        As result get Tender platform's access token and process operation-id.
+        As result get Tender platform's access ap_token and process operation-id.
         """
         platform_one = PlatformAuthorization(bpe_host)
         access_token = platform_one.get_access_token_for_platform_one()
@@ -619,7 +629,7 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
     with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
         """
         Send api request to BPE host to create a Create AP process.
-        And save in variable cpid and token..
+        And save in variable ap_cpid and ap_token..
         """
         try:
             """
@@ -663,28 +673,30 @@ def create_first_ap_tc_1(get_parameters, connect_to_keyspace, create_first_pn_tc
         )
 
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['ocid']
-        ocid = message['data']['outcomes']['ap'][0]['id']
-        token = message['data']['outcomes']['ap'][0]['X-TOKEN']
-        ap_url = f"{message['data']['url']}/{ocid}"
-        fa_url = f"{message['data']['url']}/{cpid}"
+        ap_cpid = message['data']['ocid']
+        ap_ocid = message['data']['outcomes']['ap'][0]['id']
+        ap_token = message['data']['outcomes']['ap'][0]['X-TOKEN']
+        ap_url = f"{message['data']['url']}/{ap_ocid}"
+        fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, fa_url, pn_cpid,\
-            pn_ocid, pn_token, pn_url, ms_url
+        yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url, \
+            pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
         try:
             """
             CLean up the database.
             """
             # Clean after Crate AP process:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
-            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
         except ValueError:
             raise ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
-def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc_2):
+# Create EI: required data model, create FS: required data model, create PN: required data model,
+# create AP: required data model.
+def create_ap_tc_2(get_parameters, connect_to_keyspace, create_pn_tc_2):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -694,12 +706,13 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_access = connect_to_keyspace[2]
 
-    pn_cpid = create_first_pn_tc_2[1]
-    pn_ocid = create_first_pn_tc_2[2]
-    pn_token = create_first_pn_tc_2[3]
-    pn_message = create_first_pn_tc_2[4]
-    currency = create_first_pn_tc_2[5]
-    tender_classification_id = create_first_pn_tc_2[6]
+    pn_payload = create_pn_tc_2[0]
+    pn_cpid = create_pn_tc_2[1]
+    pn_ocid = create_pn_tc_2[2]
+    pn_token = create_pn_tc_2[3]
+    pn_message = create_pn_tc_2[4]
+    currency = create_pn_tc_2[5]
+    tender_classification_id = create_pn_tc_2[6]
 
     pn_url = f"{pn_message['data']['url']}/{pn_message['data']['outcomes']['pn'][0]['id']}"
     ms_url = f"{pn_message['data']['url']}/{pn_message['data']['ocid']}"
@@ -708,7 +721,7 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
     with allure.step(f'# {step_number}. Authorization platform one: Create AP process.'):
         """
         Tender platform authorization for Create AP process.
-        As result get Tender platform's access token and process operation-id.
+        As result get Tender platform's access ap_token and process operation-id.
         """
         platform_one = PlatformAuthorization(bpe_host)
         access_token = platform_one.get_access_token_for_platform_one()
@@ -718,7 +731,7 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
     with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
         """
         Send api request to BPE host to create a Create AP process.
-        And save in variable cpid and token..
+        And save in variable ap_cpid and ap_token..
         """
         try:
             """
@@ -763,21 +776,21 @@ def create_first_ap_tc_2(get_parameters, connect_to_keyspace, create_first_pn_tc
         )
 
         message = get_message_for_platform(operation_id)
-        cpid = message['data']['ocid']
-        ocid = message['data']['outcomes']['ap'][0]['id']
-        token = message['data']['outcomes']['ap'][0]['X-TOKEN']
-        ap_url = f"{message['data']['url']}/{ocid}"
-        fa_url = f"{message['data']['url']}/{cpid}"
+        ap_cpid = message['data']['ocid']
+        ap_ocid = message['data']['outcomes']['ap'][0]['id']
+        ap_token = message['data']['outcomes']['ap'][0]['X-TOKEN']
+        ap_url = f"{message['data']['url']}/{ap_ocid}"
+        fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, ocid, token, message, currency, tender_classification_id, ap_url, fa_url, pn_cpid, \
-            pn_ocid, pn_token, pn_url, ms_url
+        yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url,\
+            pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
         try:
             """
             CLean up the database.
             """
             # Clean after Crate AP process:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
-            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
         except ValueError:
             raise ValueError("Impossible to cLean up the database.")

@@ -6,68 +6,80 @@ import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
-    cleanup_table_of_services_for_outsourcing_planning_notice
+    cleanup_table_of_services_for_relation_aggregated_plan
 from functions_collection.get_message_for_platform import get_message_for_platform
-from functions_collection.requests_collection import outsourcing_pn_process
-from messages_collection.framework_agreement.outsourcing_pn_message import OutsourcingPnMessage
-from releases_collection.framework_agreement.outsourcing_pn_release import OutsourcingPlanningNoticeRelease
+from functions_collection.requests_collection import relation_ap_process
+from messages_collection.framework_agreement.relation_ap_message import RelationApMessage
+from releases_collection.framework_agreement.relation_ap_release import RelationAggregatedPlanRelease
 
 
 @allure.parent_suite("Framework Agreement")
-@allure.suite("Outsourcing PN")
+@allure.suite("Relation AP")
 @allure.severity("Critical")
 @allure.testcase(url="")
-class TestOutsourcingPN:
+class TestRelationAP:
     @allure.title("Check records: based on full data model from previous processes.")
-    def test_case_1(self, get_parameters, connect_to_keyspace, create_ap_tc_1):
+    def test_case_1(self, get_parameters, connect_to_keyspace, outsource_pn_tc_1):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
+        language = get_parameters[5]
 
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_orchestrator = connect_to_keyspace[1]
         connect_to_access = connect_to_keyspace[2]
 
-        ap_cpid = create_ap_tc_1[1]
-        ap_ocid = create_ap_tc_1[2]
-        ap_url = create_ap_tc_1[7]
-        fa_url = create_ap_tc_1[8]
-        pn_cpid = create_ap_tc_1[9]
-        pn_ocid = create_ap_tc_1[10]
-        pn_token = create_ap_tc_1[11]
-        pn_url = create_ap_tc_1[12]
-        ms_url = create_ap_tc_1[13]
+        ap_cpid = outsource_pn_tc_1[0]
+        ap_ocid = outsource_pn_tc_1[1]
+        ap_token = outsource_pn_tc_1[2]
+
+        ap_url = outsource_pn_tc_1[4]
+        fa_url = outsource_pn_tc_1[5]
+        pn_1_cpid = outsource_pn_tc_1[6]
+        pn_1_ocid = outsource_pn_tc_1[7]
+        pn_1_payload = outsource_pn_tc_1[9]
+        pn_1_url = outsource_pn_tc_1[10]
+        ms_1_url = outsource_pn_tc_1[11]
+        pn_2_cpid = outsource_pn_tc_1[12]
+        pn_2_ocid = outsource_pn_tc_1[13]
+        pn_2_payload = outsource_pn_tc_1[15]
+        pn_2_url = outsource_pn_tc_1[16]
+        ms_2_url = outsource_pn_tc_1[17]
+        ei_1_payload = outsource_pn_tc_1[18]
+        ei_2_payload = outsource_pn_tc_1[19]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
-        previous_pn_release = requests.get(url=pn_url).json()
-        previous_ms_release = requests.get(url=ms_url).json()
+        previous_pn_1_release = requests.get(url=pn_1_url).json()
+        previous_ms_1_release = requests.get(url=ms_1_url).json()
+        previous_pn_2_release = requests.get(url=pn_2_url).json()
+        previous_ms_2_release = requests.get(url=ms_2_url).json()
 
         step_number = 1
-        with allure.step(f'# {step_number}. Authorization platform one: Outsourcing PN process.'):
+        with allure.step(f'# {step_number}. Authorization platform one: Relation AP process.'):
             """
-            Tender platform authorization for Outsourcing PN process.
-            As result get Tender platform's access pn_token and process operation-id.
+            Tender platform authorization for Relation AP process.
+            As result get Tender platform's access token and process operation-id.
             """
             platform_one = PlatformAuthorization(bpe_host)
             access_token = platform_one.get_access_token_for_platform_one()
             operation_id = platform_one.get_x_operation_id(access_token)
 
         step_number += 1
-        with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
+        with allure.step(f'# {step_number}. Send a request to create a Relation AP process.'):
             """
-            Send api request to BPE host to create a Outsourcing PN process.
+            Send api request to BPE host to create a Relation AP process.
             """
 
-            synchronous_result = outsourcing_pn_process(
+            synchronous_result = relation_ap_process(
                 host=bpe_host,
                 access_token=access_token,
                 x_operation_id=operation_id,
-                cpid=pn_cpid,
-                ocid=pn_ocid,
-                token=pn_token,
-                fa=ap_cpid,
-                ap=ap_ocid,
+                cpid=ap_cpid,
+                ocid=ap_ocid,
+                token=ap_token,
+                cp=pn_1_cpid,
+                pn=pn_1_ocid,
                 test_mode=True
             )
 
@@ -89,7 +101,7 @@ class TestOutsourcingPN:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Outsourcing PN process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Relation AP process.'):
                 """
                 Check the message for platform.
                 """
@@ -99,11 +111,11 @@ class TestOutsourcingPN:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(OutsourcingPnMessage(
+                    expected_message = copy.deepcopy(RelationApMessage(
                         environment=environment,
                         actual_message=actual_message,
-                        cpid=pn_cpid,
-                        ocid=pn_ocid
+                        cpid=ap_cpid,
+                        ocid=ap_ocid
                     ))
 
                     expected_message = expected_message.build_expected_message()
@@ -116,15 +128,15 @@ class TestOutsourcingPN:
 
                     assert actual_message == expected_message, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.3. Check PN release.'):
                 """
                 Compare actual PN release and expected PN release.
                 """
-                actual_pn_release = requests.get(url=pn_url).json()
-                actual_ms_release = requests.get(url=ms_url).json()
+                actual_pn_1_release = requests.get(url=pn_1_url).json()
+                actual_ms_1_release = requests.get(url=ms_1_url).json()
                 actual_ap_release = requests.get(url=ap_url).json()
                 actual_fa_release = requests.get(url=fa_url).json()
 
@@ -132,34 +144,37 @@ class TestOutsourcingPN:
                     """
                     Build expected PN release.
                     """
-                    expected_release = copy.deepcopy(OutsourcingPlanningNoticeRelease(
+                    expected_release = copy.deepcopy(RelationAggregatedPlanRelease(
                         environment,
+                        language,
                         actual_message,
-                        pn_cpid,
-                        pn_ocid,
                         ap_cpid,
                         ap_ocid,
-                        actual_pn_release,
-                        previous_pn_release,
-                        actual_ms_release,
-                        previous_ms_release,
+                        pn_1_cpid,
+                        pn_1_ocid,
+                        actual_pn_1_release,
+                        previous_pn_1_release,
+                        actual_ms_1_release,
+                        previous_ms_1_release,
                         actual_ap_release,
                         previous_ap_release,
                         actual_fa_release,
-                        previous_fa_release
+                        previous_fa_release,
+                        [pn_1_payload],
+                        [ei_1_payload]
                     ))
 
-                    expected_pn_release = expected_release.build_expected_pn_release()
+                    expected_pn_1_release = expected_release.build_expected_pn_release()
                 except ValueError:
                     raise ValueError("Impossible to build expected PN release.")
 
                 with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_pn_release), "Actual message.")
-                    allure.attach(json.dumps(expected_pn_release), "Expected message.")
+                    allure.attach(json.dumps(actual_pn_1_release), "Actual message.")
+                    allure.attach(json.dumps(expected_pn_1_release), "Expected message.")
 
-                    assert actual_pn_release == expected_pn_release, \
+                    assert actual_pn_1_release == expected_pn_1_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.4. Check MS release.'):
@@ -170,17 +185,17 @@ class TestOutsourcingPN:
                     """
                     Build expected MS release.
                     """
-                    expected_ms_release = expected_release.build_expected_ms_release()
+                    expected_ms_1_release = expected_release.build_expected_ms_release()
                 except ValueError:
                     raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
+                    allure.attach(json.dumps(actual_ms_1_release), "Actual MS release.")
+                    allure.attach(json.dumps(expected_ms_1_release), "Expected MS release.")
 
-                    assert actual_ms_release == expected_ms_release, \
+                    assert actual_ms_1_release == expected_ms_1_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.5. Check AP release.'):
@@ -201,7 +216,7 @@ class TestOutsourcingPN:
 
                     assert actual_ap_release == expected_ap_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.6. Check FA release.'):
@@ -222,77 +237,37 @@ class TestOutsourcingPN:
 
                     assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
-
-        try:
-            """
-            CLean up the database.
-            """
-            # Clean after Outsourcing PN process:
-            cleanup_orchestrator_steps_by_cpid(
-                connect_to_orchestrator,
-                pn_cpid
-            )
-
-            cleanup_table_of_services_for_outsourcing_planning_notice(
-                connect_to_ocds,
-                connect_to_access,
-                pn_cpid
-            )
-        except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
-
-    @allure.title("Check records: based on required data model from previous processes.")
-    def test_case_2(self, get_parameters, connect_to_keyspace, create_ap_tc_2):
-
-        environment = get_parameters[0]
-        bpe_host = get_parameters[2]
-
-        connect_to_ocds = connect_to_keyspace[0]
-        connect_to_orchestrator = connect_to_keyspace[1]
-        connect_to_access = connect_to_keyspace[2]
-
-        ap_cpid = create_ap_tc_2[1]
-        ap_ocid = create_ap_tc_2[2]
-        ap_url = create_ap_tc_2[7]
-        fa_url = create_ap_tc_2[8]
-        pn_cpid = create_ap_tc_2[9]
-        pn_ocid = create_ap_tc_2[10]
-        pn_token = create_ap_tc_2[11]
-        pn_url = create_ap_tc_2[12]
-        ms_url = create_ap_tc_2[13]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
-        previous_pn_release = requests.get(url=pn_url).json()
-        previous_ms_release = requests.get(url=ms_url).json()
 
-        step_number = 1
-        with allure.step(f'# {step_number}. Authorization platform one: Outsourcing PN process.'):
+        step_number += 1
+        with allure.step(f'# {step_number}. Authorization platform one: Relation AP process.'):
             """
-            Tender platform authorization for Outsourcing PN process.
-            As result get Tender platform's access pn_token and process operation-id.
+            Tender platform authorization for Relation AP process.
+            As result get Tender platform's access token and process operation-id.
             """
             platform_one = PlatformAuthorization(bpe_host)
             access_token = platform_one.get_access_token_for_platform_one()
             operation_id = platform_one.get_x_operation_id(access_token)
 
         step_number += 1
-        with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
+        with allure.step(f'# {step_number}. Send a request to create a Relation AP process.'):
             """
-            Send api request to BPE host to create a Outsourcing PN process.
+            Send api request to BPE host to create a Relation AP process.
             """
 
-            synchronous_result = outsourcing_pn_process(
+            synchronous_result = relation_ap_process(
                 host=bpe_host,
                 access_token=access_token,
                 x_operation_id=operation_id,
-                cpid=pn_cpid,
-                ocid=pn_ocid,
-                token=pn_token,
-                fa=ap_cpid,
-                ap=ap_ocid,
+                cpid=ap_cpid,
+                ocid=ap_ocid,
+                token=ap_token,
+                cp=pn_2_cpid,
+                pn=pn_2_ocid,
                 test_mode=True
             )
 
@@ -314,7 +289,7 @@ class TestOutsourcingPN:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Outsourcing PN process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Relation AP process.'):
                 """
                 Check the message for platform.
                 """
@@ -324,11 +299,11 @@ class TestOutsourcingPN:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(OutsourcingPnMessage(
+                    expected_message = copy.deepcopy(RelationApMessage(
                         environment=environment,
                         actual_message=actual_message,
-                        cpid=pn_cpid,
-                        ocid=pn_ocid
+                        cpid=ap_cpid,
+                        ocid=ap_ocid
                     ))
 
                     expected_message = expected_message.build_expected_message()
@@ -341,15 +316,15 @@ class TestOutsourcingPN:
 
                     assert actual_message == expected_message, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.3. Check PN release.'):
                 """
                 Compare actual PN release and expected PN release.
                 """
-                actual_pn_release = requests.get(url=pn_url).json()
-                actual_ms_release = requests.get(url=ms_url).json()
+                actual_pn_2_release = requests.get(url=pn_2_url).json()
+                actual_ms_2_release = requests.get(url=ms_2_url).json()
                 actual_ap_release = requests.get(url=ap_url).json()
                 actual_fa_release = requests.get(url=fa_url).json()
 
@@ -357,34 +332,37 @@ class TestOutsourcingPN:
                     """
                     Build expected PN release.
                     """
-                    expected_release = copy.deepcopy(OutsourcingPlanningNoticeRelease(
+                    expected_release = copy.deepcopy(RelationAggregatedPlanRelease(
                         environment,
+                        language,
                         actual_message,
-                        pn_cpid,
-                        pn_ocid,
                         ap_cpid,
                         ap_ocid,
-                        actual_pn_release,
-                        previous_pn_release,
-                        actual_ms_release,
-                        previous_ms_release,
+                        pn_2_cpid,
+                        pn_2_ocid,
+                        actual_pn_2_release,
+                        previous_pn_2_release,
+                        actual_ms_2_release,
+                        previous_ms_2_release,
                         actual_ap_release,
                         previous_ap_release,
                         actual_fa_release,
-                        previous_fa_release
+                        previous_fa_release,
+                        [pn_2_payload],
+                        [ei_2_payload]
                     ))
 
-                    expected_pn_release = expected_release.build_expected_pn_release()
+                    expected_pn_2_release = expected_release.build_expected_pn_release()
                 except ValueError:
                     raise ValueError("Impossible to build expected PN release.")
 
                 with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_pn_release), "Actual message.")
-                    allure.attach(json.dumps(expected_pn_release), "Expected message.")
+                    allure.attach(json.dumps(actual_pn_2_release), "Actual message.")
+                    allure.attach(json.dumps(expected_pn_2_release), "Expected message.")
 
-                    assert actual_pn_release == expected_pn_release, \
+                    assert actual_pn_2_release == expected_pn_2_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.4. Check MS release.'):
@@ -395,17 +373,17 @@ class TestOutsourcingPN:
                     """
                     Build expected MS release.
                     """
-                    expected_ms_release = expected_release.build_expected_ms_release()
+                    expected_ms_2_release = expected_release.build_expected_ms_release()
                 except ValueError:
                     raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
+                    allure.attach(json.dumps(actual_ms_2_release), "Actual MS release.")
+                    allure.attach(json.dumps(expected_ms_2_release), "Expected MS release.")
 
-                    assert actual_ms_release == expected_ms_release, \
+                    assert actual_ms_2_release == expected_ms_2_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.5. Check AP release.'):
@@ -426,7 +404,7 @@ class TestOutsourcingPN:
 
                     assert actual_ap_release == expected_ap_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.6. Check FA release.'):
@@ -447,23 +425,23 @@ class TestOutsourcingPN:
 
                     assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"ap_cpid = '{pn_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
+                                      f"fa = '{ap_cpid}' AND operation_id={operation_id} ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
         try:
             """
             CLean up the database.
             """
-            # Clean after Outsourcing PN process:
+            # Clean after Relation AP process:
             cleanup_orchestrator_steps_by_cpid(
                 connect_to_orchestrator,
-                pn_cpid
+                ap_cpid
             )
 
-            cleanup_table_of_services_for_outsourcing_planning_notice(
+            cleanup_table_of_services_for_relation_aggregated_plan(
                 connect_to_ocds,
                 connect_to_access,
-                pn_cpid
+                ap_cpid
             )
         except ValueError:
             raise ValueError("Impossible to cLean up the database.")

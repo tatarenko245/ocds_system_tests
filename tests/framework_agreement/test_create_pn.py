@@ -19,7 +19,7 @@ from releases_collection.framework_agreement.create_pn_release import PlanningNo
 @allure.testcase(url="")
 class TestCreatePN:
     @allure.title("Check records: based on full data model.")
-    def test_case_1(self, get_parameters, connect_to_keyspace, create_first_fs_tc_1):
+    def test_case_1(self, get_parameters, connect_to_keyspace, create_fs_tc_1):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
@@ -36,12 +36,12 @@ class TestCreatePN:
         fs_payloads_list = list()
         fs_message_list = list()
 
-        fs_1_payload = create_first_fs_tc_1[0]
-        ocid = create_first_fs_tc_1[1]
-        fs_1_message = create_first_fs_tc_1[2]
-        currency = create_first_fs_tc_1[3]
-        ei_payload = create_first_fs_tc_1[4]
-        ei_message = create_first_fs_tc_1[5]
+        fs_1_payload = create_fs_tc_1[0]
+        ocid = create_fs_tc_1[1]
+        fs_1_message = create_fs_tc_1[2]
+        currency = create_fs_tc_1[3]
+        ei_payload = create_fs_tc_1[4]
+        ei_message = create_fs_tc_1[5]
         fs_ocid_list.append(ocid)
         fs_payloads_list.append(fs_1_payload)
         fs_message_list.append(fs_1_message)
@@ -233,7 +233,7 @@ class TestCreatePN:
             raise ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
-    def test_case_2(self, get_parameters, connect_to_keyspace, create_first_fs_tc_2, create_second_fs_tc_2, ):
+    def test_case_2(self, get_parameters, connect_to_keyspace, create_fs_tc_2, create_fs_tc_3, ):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
@@ -250,19 +250,19 @@ class TestCreatePN:
         fs_payloads_list = list()
         fs_message_list = list()
 
-        fs_1_payload = create_first_fs_tc_2[0]
-        ocid = create_first_fs_tc_2[1]
-        fs_1_message = create_first_fs_tc_2[2]
-        currency = create_first_fs_tc_2[3]
-        ei_payload = create_first_fs_tc_2[4]
-        ei_message = create_first_fs_tc_2[5]
+        fs_1_payload = create_fs_tc_2[0]
+        ocid = create_fs_tc_2[1]
+        fs_1_message = create_fs_tc_2[2]
+        currency = create_fs_tc_2[3]
+        ei_payload = create_fs_tc_2[4]
+        ei_message = create_fs_tc_2[5]
         fs_ocid_list.append(ocid)
         fs_payloads_list.append(fs_1_payload)
         fs_message_list.append(fs_1_message)
 
-        fs_2_payload = create_second_fs_tc_2[0]
-        ocid = create_second_fs_tc_2[1]
-        fs_2_message = create_second_fs_tc_2[2]
+        fs_2_payload = create_fs_tc_3[0]
+        ocid = create_fs_tc_3[1]
+        fs_2_message = create_fs_tc_3[2]
         fs_ocid_list.append(ocid)
         fs_payloads_list.append(fs_2_payload)
         fs_message_list.append(fs_2_message)
