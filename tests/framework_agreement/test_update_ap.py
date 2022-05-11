@@ -5,7 +5,8 @@ import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import get_process_id_by_operation_id, \
-    get_max_duration_of_fa_from_access_rules
+    get_max_duration_of_fa_from_access_rules, cleanup_ocds_orchestrator_operation_step_by_operation_id, \
+    cleanup_table_of_services_for_aggregated_plan
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import update_ap_process
 from messages_collection.framework_agreement.update_ap_message import UpdateApMessage
@@ -218,15 +219,12 @@ class TestUpdateAP:
                                       f"process_id = '{process_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-
-
-
-        # try:
-        #     """
-        #     CLean up the database.
-        #     """
-        #     # Clean after Update AP process:
-        #     cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
-        #     cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid)
-        # except ValueError:
-        #     raise ValueError("Impossible to cLean up the database.")
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Update AP process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+            cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid)
+        except ValueError:
+            raise ValueError("Impossible to cLean up the database.")
