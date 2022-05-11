@@ -3,6 +3,6 @@ pytest_plugins = [
     "fixtures_collection.cassandra_fixtures",
     "fixtures_collection.prepare_procedure",
     "fixtures_collection.prepare_currency",
-    "fixtures_collection.prepare_outsource_pn_procedure",
-    "fixtures_collection.prepare_relation_ap_procedure",
+    "fixtures_collection.prepare_procedure.framework_agreement.prepare_outsource_pn_procedure",
+    "fixtures_collection.prepare_procedure.framework_agreement.prepare_relation_ap_procedure",
 ]
