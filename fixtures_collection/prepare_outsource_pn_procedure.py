@@ -484,37 +484,37 @@ def outsource_pn_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         message = get_message_for_platform(outsource_1_operation_id)
         allure.attach(str(message), "Message for platform.")
 
-        # Outsource PN_2: full data model.
-        step_number += 1
-        with allure.step(f'# {step_number}. Authorization platform one: Outsourcing PN process.'):
-            """
-            Tender platform authorization for Outsourcing PN process.
-            As result get Tender platform's access pn_token and process operation-id.
-            """
-            platform_one = PlatformAuthorization(bpe_host)
-            access_token = platform_one.get_access_token_for_platform_one()
-            outsource_2_operation_id = platform_one.get_x_operation_id(access_token)
+    # Outsource PN_2: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Outsourcing PN process.'):
+        """
+        Tender platform authorization for Outsourcing PN process.
+        As result get Tender platform's access pn_token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        outsource_2_operation_id = platform_one.get_x_operation_id(access_token)
 
-        step_number += 1
-        with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
-            """
-            Send api request to BPE host to create a Outsourcing PN process.
-            """
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
+        """
+        Send api request to BPE host to create a Outsourcing PN process.
+        """
 
-            outsourcing_pn_process(
-                host=bpe_host,
-                access_token=access_token,
-                x_operation_id=outsource_2_operation_id,
-                cpid=pn_2_cpid,
-                ocid=pn_2_ocid,
-                token=pn_2_token,
-                fa=ap_cpid,
-                ap=ap_ocid,
-                test_mode=True
-            )
+        outsourcing_pn_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=outsource_2_operation_id,
+            cpid=pn_2_cpid,
+            ocid=pn_2_ocid,
+            token=pn_2_token,
+            fa=ap_cpid,
+            ap=ap_ocid,
+            test_mode=True
+        )
 
-            message = get_message_for_platform(outsource_2_operation_id)
-            allure.attach(str(message), "Message for platform.")
+        message = get_message_for_platform(outsource_2_operation_id)
+        allure.attach(str(message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload

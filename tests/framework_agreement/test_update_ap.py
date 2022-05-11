@@ -164,7 +164,7 @@ class TestUpdateAP:
                 Compare previous AP release and actual AP release.
                 """
                 actual_ap_release = requests.get(url=ap_url).json()
-                actual_ms_release = requests.get(url=fa_url).json()
+                actual_fa_release = requests.get(url=fa_url).json()
 
                 try:
                     """
@@ -179,7 +179,7 @@ class TestUpdateAP:
                         actual_message,
                         actual_ap_release,
                         previous_ap_release,
-                        actual_ms_release,
+                        actual_fa_release,
                         previous_fa_release,
                     ))
 
@@ -209,7 +209,7 @@ class TestUpdateAP:
                     raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
+                    allure.attach(json.dumps(actual_fa_release), "Actual MS release.")
                     allure.attach(json.dumps(expected_fa_release), "Expected MS release.")
 
                     assert actual_fa_release == expected_fa_release, \
