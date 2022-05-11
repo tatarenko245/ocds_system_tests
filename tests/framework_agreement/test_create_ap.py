@@ -144,8 +144,8 @@ class TestCreateAP:
                 ap_url = f"{actual_message['data']['url']}/{actual_message['data']['outcomes']['ap'][0]['id']}"
                 actual_ap_release = requests.get(url=ap_url).json()
 
-                ms_url = f"{actual_message['data']['url']}/{actual_message['data']['ocid']}"
-                actual_ms_release = requests.get(url=ms_url).json()
+                fa_url = f"{actual_message['data']['url']}/{actual_message['data']['ocid']}"
+                actual_fa_release = requests.get(url=fa_url).json()
 
                 try:
                     """
@@ -159,7 +159,7 @@ class TestCreateAP:
                         ap_payload=payload,
                         ap_message=actual_message,
                         actual_ap_release=actual_ap_release,
-                        actual_ms_release=actual_ms_release
+                        actual_fa_release=actual_fa_release
                     ))
 
                     expected_ap_release = expected_release.build_expected_ap_release()
@@ -175,23 +175,23 @@ class TestCreateAP:
                                       f"process_id = '{process_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check MS release.'):
+            with allure.step(f'# {step_number}.4. Check FA release.'):
                 """
-                Compare actual MS release and expected MS release.
+                Compare actual MS release and expected FA release.
                 """
                 try:
                     """
-                    Build expected MS release.
+                    Build expected FA release.
                     """
-                    expected_ms_release = expected_release.build_expected_ms_release()
+                    expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected MS release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
-                with allure.step('Compare actual and expected MS release.'):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
+                with allure.step('Compare actual and expected FA release.'):
+                    allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
+                    allure.attach(json.dumps(expected_fa_release), "Expected FA release.")
 
-                    assert actual_ms_release == expected_ms_release, \
+                    assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
                                       f"process_id = '{process_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
@@ -331,8 +331,8 @@ class TestCreateAP:
                 ap_url = f"{actual_message['data']['url']}/{actual_message['data']['outcomes']['ap'][0]['id']}"
                 actual_ap_release = requests.get(url=ap_url).json()
 
-                ms_url = f"{actual_message['data']['url']}/{actual_message['data']['ocid']}"
-                actual_ms_release = requests.get(url=ms_url).json()
+                fa_url = f"{actual_message['data']['url']}/{actual_message['data']['ocid']}"
+                actual_fa_release = requests.get(url=fa_url).json()
 
                 try:
                     """
@@ -346,7 +346,7 @@ class TestCreateAP:
                         ap_payload=payload,
                         ap_message=actual_message,
                         actual_ap_release=actual_ap_release,
-                        actual_ms_release=actual_ms_release
+                        actual_fa_release=actual_fa_release
                     ))
 
                     expected_ap_release = expected_release.build_expected_ap_release()
@@ -362,23 +362,23 @@ class TestCreateAP:
                                       f"process_id = '{process_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check MS release.'):
+            with allure.step(f'# {step_number}.4. Check FA release.'):
                 """
-                Compare actual MS release and expected MS release.
+                Compare actual FA release and expected FA release.
                 """
                 try:
                     """
-                    Build expected MS release.
+                    Build expected FA release.
                     """
-                    expected_ms_release = expected_release.build_expected_ms_release()
+                    expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected MS release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
-                with allure.step('Compare actual and expected MS release.'):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
+                with allure.step('Compare actual and expected FA release.'):
+                    allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
+                    allure.attach(json.dumps(expected_fa_release), "Expected FA release.")
 
-                    assert actual_ms_release == expected_ms_release, \
+                    assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
                                       f"process_id = '{process_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")

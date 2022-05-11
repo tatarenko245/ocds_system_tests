@@ -3,14 +3,14 @@ import copy
 
 from functions_collection.some_functions import get_value_from_country_csv, get_value_from_region_csv, \
     get_value_from_locality_csv, is_it_uuid, get_value_from_cpvs_dictionary_csv, get_value_from_cpv_dictionary_xls, \
-    get_value_from_classification_unit_dictionary_csv
+    get_value_from_classification_unit_dictionary_csv, generate_tender_classification_id
 
 
 class UpdateAggregatedPlanRelease:
     """This class creates instance of release."""
 
     def __init__(self, environment, language, cpid, ocid, payload, actual_message, actual_ap_release,
-                 previous_ap_release, actual_ms_release, previous_ms_release):
+                 previous_ap_release, actual_ms_release, previous_fa_release):
 
         self.__language = language
         self.__cpid = cpid
@@ -20,7 +20,7 @@ class UpdateAggregatedPlanRelease:
         self.__actual_ap_release = actual_ap_release
         self.__previous_ap_release = previous_ap_release
         self.__actual_ms_release = actual_ms_release
-        self.__previous_ms_release = previous_ms_release
+        self.__previous_fa_release = previous_fa_release
 
         try:
             if environment == "dev":
@@ -179,92 +179,89 @@ class UpdateAggregatedPlanRelease:
             ]
         }
 
-        self.__expected_ms_release = {
-            "uri": self.__previous_ms_release['uri'],
-            "version": self.__previous_ms_release['version'],
-            "extensions": self.__previous_ms_release['extensions'],
+        self.__expected_fa_release = {
+            "uri": self.__previous_fa_release['uri'],
+            "version": self.__previous_fa_release['version'],
+            "extensions": self.__previous_fa_release['extensions'],
             "publisher": {
-                "name": self.__previous_ms_release['publisher']['name'],
-                "uri": self.__previous_ms_release['publisher']['uri']
+                "name": self.__previous_fa_release['publisher']['name'],
+                "uri": self.__previous_fa_release['publisher']['uri']
             },
-            "license": self.__previous_ms_release['license'],
-            "publicationPolicy": self.__previous_ms_release['publicationPolicy'],
-            "publishedDate": self.__previous_ms_release['publishedDate'],
+            "license": self.__previous_fa_release['license'],
+            "publicationPolicy": self.__previous_fa_release['publicationPolicy'],
+            "publishedDate": self.__previous_fa_release['publishedDate'],
             "releases": [
                 {
-                    "ocid": self.__previous_ms_release['releases'][0]['ocid'],
+                    "ocid": self.__previous_fa_release['releases'][0]['ocid'],
                     "id": f"{self.__cpid}-{self.__actual_ms_release['releases'][0]['id'][29:42]}",
                     "date": self.__actual_message['data']['operationDate'],
-                    "tag": self.__previous_ms_release['releases'][0]['tag'],
-                    "language": self.__previous_ms_release['releases'][0]['language'],
-                    "initiationType": self.__previous_ms_release['releases'][0]['initiationType'],
+                    "tag": self.__previous_fa_release['releases'][0]['tag'],
+                    "language": self.__previous_fa_release['releases'][0]['language'],
+                    "initiationType": self.__previous_fa_release['releases'][0]['initiationType'],
                     "tender": {
-                        "id": self.__previous_ms_release['releases'][0]['tender']['id'],
+                        "id": self.__previous_fa_release['releases'][0]['tender']['id'],
                         "title": "",
                         "description": "",
-                        "status": "",
-                        "statusDetails": "",
+                        "status": self.__previous_fa_release['releases'][0]['tender']['status'],
+                        "statusDetails": self.__previous_fa_release['releases'][0]['tender']['statusDetails'],
                         "value": {
-                            "amount": "",
+                            "amount": self.__previous_fa_release['releases'][0]['tender']['value']['amount'],
                             "currency": ""
                         },
-                        "procurementMethod": self.__previous_ms_release['releases'][0]['tender']['procurementMethod'],
-                        "procurementMethodDetails": self.__previous_ms_release['releases'][0]['tender'][
+                        "procurementMethod": self.__previous_fa_release['releases'][0]['tender']['procurementMethod'],
+                        "procurementMethodDetails": self.__previous_fa_release['releases'][0]['tender'][
                             'procurementMethodDetails'],
                         "procurementMethodRationale": "",
                         "mainProcurementCategory": "",
-                        "hasEnquiries": self.__previous_ms_release['releases'][0]['tender']['hasEnquiries'],
-                        "eligibilityCriteria": self.__previous_ms_release['releases'][0]['tender'][
+                        "hasEnquiries": self.__previous_fa_release['releases'][0]['tender']['hasEnquiries'],
+                        "eligibilityCriteria": self.__previous_fa_release['releases'][0]['tender'][
                             'eligibilityCriteria'],
                         "contractPeriod": {
-                            "startDate": self.__previous_ms_release['releases'][0]['tender']['contractPeriod'][
+                            "startDate": self.__previous_fa_release['releases'][0]['tender']['contractPeriod'][
                                 'startDate'],
-                            "endDate": self.__previous_ms_release['releases'][0]['tender']['contractPeriod'][
+                            "endDate": self.__previous_fa_release['releases'][0]['tender']['contractPeriod'][
                                 'endDate']
                         },
                         "acceleratedProcedure": {
-                            "isAcceleratedProcedure": self.__previous_ms_release['releases'][0]['tender'][
+                            "isAcceleratedProcedure": self.__previous_fa_release['releases'][0]['tender'][
                                 'acceleratedProcedure']['isAcceleratedProcedure']
                         },
                         "classification": {
-                            "scheme": self.__previous_ms_release['releases'][0]['tender'][
-                                'classification']['scheme'],
-                            "id": self.__previous_ms_release['releases'][0]['tender'][
-                                'classification']['id'],
-                            "description": self.__previous_ms_release['releases'][0]['tender'][
-                                'classification']['description']
+                            "scheme": "",
+                            "id": "",
+                            "description": ""
                         },
                         "designContest": {
-                            "serviceContractAward": self.__previous_ms_release['releases'][0]['tender'][
+                            "serviceContractAward": self.__previous_fa_release['releases'][0]['tender'][
                                 'designContest']['serviceContractAward']
                         },
                         "electronicWorkflows": {
-                            "useOrdering": self.__previous_ms_release['releases'][0]['tender'][
+                            "useOrdering": self.__previous_fa_release['releases'][0]['tender'][
                                 'electronicWorkflows']['useOrdering'],
-                            "usePayment": self.__previous_ms_release['releases'][0]['tender'][
+                            "usePayment": self.__previous_fa_release['releases'][0]['tender'][
                                 'electronicWorkflows']['usePayment'],
-                            "acceptInvoicing": self.__previous_ms_release['releases'][0]['tender'][
+                            "acceptInvoicing": self.__previous_fa_release['releases'][0]['tender'][
                                 'electronicWorkflows']['acceptInvoicing']
                         },
                         "jointProcurement": {
-                            "isJointProcurement": self.__previous_ms_release['releases'][0]['tender'][
+                            "isJointProcurement": self.__previous_fa_release['releases'][0]['tender'][
                                 'jointProcurement']['isJointProcurement']
                         },
-                        "legalBasis": self.__previous_ms_release['releases'][0]['tender']['legalBasis'],
+                        "legalBasis": self.__previous_fa_release['releases'][0]['tender']['legalBasis'],
                         "procedureOutsourcing": {
-                            "procedureOutsourced": self.__previous_ms_release['releases'][0]['tender'][
+                            "procedureOutsourced": self.__previous_fa_release['releases'][0]['tender'][
                                 'procedureOutsourcing']['procedureOutsourced']
                         },
                         "dynamicPurchasingSystem": {
-                            "hasDynamicPurchasingSystem": self.__previous_ms_release['releases'][0]['tender'][
+                            "hasDynamicPurchasingSystem": self.__previous_fa_release['releases'][0]['tender'][
                                 'dynamicPurchasingSystem']['hasDynamicPurchasingSystem']
                         },
                         "framework": {
-                            "isAFramework": self.__previous_ms_release['releases'][0]['tender'][
+                            "isAFramework": self.__previous_fa_release['releases'][0]['tender'][
                                 'framework']['isAFramework']
                         }
                     },
-                    "relatedProcesses": self.__previous_ms_release['releases'][0]['relatedProcesses']
+                    "relatedProcesses": self.__previous_fa_release['releases'][0]['relatedProcesses']
                 }
             ]
         }
@@ -704,6 +701,69 @@ class UpdateAggregatedPlanRelease:
             del self.__payload['tender']['documents']
         return self.__expected_ap_release
 
-    def build_expected_ms_release(self):
+    def build_expected_fa_release(self):
+        # BR-2.3.1.12:
+        self.__expected_fa_release['releases'][0]['tender']['title'] = self.__payload['tender']['title']
+        self.__expected_fa_release['releases'][0]['tender']['description'] = self.__payload['tender']['description']
 
-        return self.__expected_ms_release
+        if "items" in self.__payload['tender']:
+            expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                cpv=generate_tender_classification_id(self.__payload['tender']['items']),
+                language=self.__language
+            )
+            self.__expected_fa_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
+            self.__expected_fa_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
+            self.__expected_fa_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
+
+            try:
+                """
+               Enrich mainProcurementCategory, depends on tender.classification.id.
+               """
+                if \
+                        expected_cpv_data[0][0:2] == "03" or \
+                        expected_cpv_data[0][0] == "1" or \
+                        expected_cpv_data[0][0] == "2" or \
+                        expected_cpv_data[0][0] == "3" or \
+                        expected_cpv_data[0][0:2] == "44" or \
+                        expected_cpv_data[0][0:2] == "48":
+                    expected_main_procurement_category = "goods"
+                elif \
+                        expected_cpv_data[0][0:2] == "45":
+                    expected_main_procurement_category = "works"
+                elif \
+                        expected_cpv_data[0][0] == "5" or \
+                        expected_cpv_data[0][0] == "6" or \
+                        expected_cpv_data[0][0] == "7" or \
+                        expected_cpv_data[0][0] == "8" or \
+                        expected_cpv_data[0][0:2] == "92" or \
+                        expected_cpv_data[0][0:2] == "98":
+                    expected_main_procurement_category = "services"
+                else:
+                    raise ValueError("Check your tender.classification.id")
+
+                self.__expected_fa_release['releases'][0]['tender']['mainProcurementCategory'] = \
+                    expected_main_procurement_category
+            except KeyError:
+                raise KeyError("Could not parse tender.classification.id.")
+        else:
+            self.__expected_fa_release['releases'][0]['tender']['classification']['id'] = \
+                self.__previous_fa_release['releases'][0]['tender']['classification']['id']
+            self.__expected_fa_release['releases'][0]['tender']['classification']['scheme'] = \
+                self.__previous_fa_release['releases'][0]['tender']['classification']['scheme']
+            self.__expected_fa_release['releases'][0]['tender']['classification']['description'] = \
+                self.__previous_fa_release['releases'][0]['tender']['classification']['description']
+
+        if "value" in self.__payload['tender']:
+            self.__expected_fa_release['releases'][0]['tender']['value']['currency'] = \
+                self.__payload['tender']['value']['currency']
+        else:
+            self.__expected_fa_release['releases'][0]['tender']['value']['currency'] = \
+                self.__previous_fa_release['releases'][0]['tender']['value']['currency']
+
+        if "procurementMethodRationale" in self.__payload['tender']:
+            self.__expected_fa_release['releases'][0]['tender']['procurementMethodRationale'] = \
+                self.__payload['tender']['procurementMethodRationale']
+        else:
+            del self.__expected_fa_release['releases'][0]['tender']['procurementMethodRationale']
+
+        return self.__expected_fa_release

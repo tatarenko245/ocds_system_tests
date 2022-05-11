@@ -138,7 +138,7 @@ def get_value_from_cpv_dictionary_xls(cpv, language):
     sheet = excel_data_file.sheet_by_index(0)
 
     # classification_description = []
-    # How mach rows contains into file?
+    # How much rows contains into file?
     rows_number = sheet.nrows
     column_number = sheet.ncols
     requested_row = list()

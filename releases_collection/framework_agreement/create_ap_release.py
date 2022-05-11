@@ -9,7 +9,7 @@ class CreateAggregatedPlanRelease:
     """This class creates instance of release."""
 
     def __init__(self, environment, host_to_service, language, pmd, ap_payload, ap_message, actual_ap_release,
-                 actual_ms_release):
+                 actual_fa_release):
 
         self.__environment = environment
         self.__host = host_to_service
@@ -18,7 +18,7 @@ class CreateAggregatedPlanRelease:
         self.__ap_payload = ap_payload
         self.__ap_message = ap_message
         self.__actual_ap_release = actual_ap_release
-        self.__actual_ms_release = actual_ms_release
+        self.__actual_fa_release = actual_fa_release
 
         extensions = None
         publisher_name = None
@@ -179,7 +179,7 @@ class CreateAggregatedPlanRelease:
             ]
         }
 
-        self.__expected_ms_release = {
+        self.__expected_fa_release = {
             "uri": f"{self.__metadata_tender_url}/{ap_message['data']['ocid']}/{ap_message['data']['ocid']}",
             "version": "1.1",
             "extensions": extensions,
@@ -193,7 +193,7 @@ class CreateAggregatedPlanRelease:
             "releases": [
                 {
                     "ocid": ap_message['data']['ocid'],
-                    "id": f"{ap_message['data']['ocid']}-{actual_ms_release['releases'][0]['id'][29:42]}",
+                    "id": f"{ap_message['data']['ocid']}-{actual_fa_release['releases'][0]['id'][29:42]}",
                     "date": ap_message['data']['operationDate'],
                     "tag": [
                         "compiled"
@@ -500,33 +500,33 @@ class CreateAggregatedPlanRelease:
 
         return self.__expected_ap_release
 
-    def build_expected_ms_release(self):
+    def build_expected_fa_release(self):
         """Build MS release."""
 
         # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
         is_permanent_tender_id_correct = is_it_uuid(
-            self.__actual_ms_release['releases'][0]['tender']['id'])
+            self.__actual_fa_release['releases'][0]['tender']['id'])
 
         if is_permanent_tender_id_correct is True:
 
-            self.__expected_ms_release['releases'][0]['tender']['id'] = \
-                self.__actual_ms_release['releases'][0]['tender']['id']
+            self.__expected_fa_release['releases'][0]['tender']['id'] = \
+                self.__actual_fa_release['releases'][0]['tender']['id']
         else:
             raise ValueError(f"The relases0.tender.id must be uuid.")
 
-        self.__expected_ms_release['releases'][0]['tender']['title'] = self.__ap_payload['tender']['title']
-        self.__expected_ms_release['releases'][0]['tender']['description'] = self.__ap_payload['tender']['description']
+        self.__expected_fa_release['releases'][0]['tender']['title'] = self.__ap_payload['tender']['title']
+        self.__expected_fa_release['releases'][0]['tender']['description'] = self.__ap_payload['tender']['description']
 
         expected_cpv_data = get_value_from_cpv_dictionary_xls(
             cpv=self.__ap_payload['tender']['classification']['id'],
             language=self.__language
         )
 
-        self.__expected_ms_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
-        self.__expected_ms_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
-        self.__expected_ms_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
+        self.__expected_fa_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
+        self.__expected_fa_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
+        self.__expected_fa_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
 
-        self.__expected_ms_release['releases'][0]['tender']['legalBasis'] = self.__ap_payload['tender']['legalBasis']
+        self.__expected_fa_release['releases'][0]['tender']['legalBasis'] = self.__ap_payload['tender']['legalBasis']
 
         try:
             """
@@ -552,19 +552,19 @@ class CreateAggregatedPlanRelease:
                 raise ValueError("Check your pmd: You must use 'TEST_CF', "
                                  "'TEST_CF', 'TEST_OF', 'OF' in pytest command")
 
-            self.__expected_ms_release['releases'][0]['tender']['procurementMethod'] = expected_procurement_method
+            self.__expected_fa_release['releases'][0]['tender']['procurementMethod'] = expected_procurement_method
 
-            self.__expected_ms_release['releases'][0]['tender'][
+            self.__expected_fa_release['releases'][0]['tender'][
                 'procurementMethodDetails'] = expected_procurement_method_details
 
             if "procurementMethodRationale" in self.__ap_payload['tender']:
 
-                self.__expected_ms_release['releases'][0]['tender']['procurementMethodRationale'] = \
+                self.__expected_fa_release['releases'][0]['tender']['procurementMethodRationale'] = \
                     self.__ap_payload['tender']['procurementMethodRationale']
             else:
-                del self.__expected_ms_release['releases'][0]['tender']['procurementMethodRationale']
+                del self.__expected_fa_release['releases'][0]['tender']['procurementMethodRationale']
 
-            self.__expected_ms_release['releases'][0]['tender']['dynamicPurchasingSystem'][
+            self.__expected_fa_release['releases'][0]['tender']['dynamicPurchasingSystem'][
                 'hasDynamicPurchasingSystem'] = has_dynamic_purchasing_system
 
         except KeyError:
@@ -588,37 +588,37 @@ class CreateAggregatedPlanRelease:
                 raise ValueError("Check your language: You must use 'ro', "
                                  "'en' in pytest command.")
 
-            self.__expected_ms_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
+            self.__expected_fa_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
         except KeyError:
             raise KeyError("Could not parse a language into pytest command.")
 
-        self.__expected_ms_release['releases'][0]['tender']['contractPeriod']['startDate'] = \
+        self.__expected_fa_release['releases'][0]['tender']['contractPeriod']['startDate'] = \
             self.__ap_payload['tender']['contractPeriod']['startDate']
 
-        self.__expected_ms_release['releases'][0]['tender']['contractPeriod']['endDate'] = \
+        self.__expected_fa_release['releases'][0]['tender']['contractPeriod']['endDate'] = \
             self.__ap_payload['tender']['contractPeriod']['endDate']
 
-        self.__expected_ms_release['releases'][0]['tender']['value']['currency'] = \
+        self.__expected_fa_release['releases'][0]['tender']['value']['currency'] = \
             self.__ap_payload['tender']['value']['currency']
 
         # Build the releases.relatedProcesses array. Enrich required fields:
         is_permanent_related_process_id_correct = is_it_uuid(
-            self.__actual_ms_release['releases'][0]['relatedProcesses'][0]['id'])
+            self.__actual_fa_release['releases'][0]['relatedProcesses'][0]['id'])
 
         if is_permanent_related_process_id_correct is True:
 
-            self.__expected_ms_release['releases'][0]['relatedProcesses'][0]['id'] = \
-                self.__actual_ms_release['releases'][0]['relatedProcesses'][0]['id']
+            self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                self.__actual_fa_release['releases'][0]['relatedProcesses'][0]['id']
         else:
             raise ValueError(f"The relases0.relatedProcess0.id must be uuid.")
-        self.__expected_ms_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "aggregatePlanning"
-        self.__expected_ms_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
+        self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "aggregatePlanning"
+        self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
 
-        self.__expected_ms_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
+        self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
             self.__ap_message['data']['outcomes']['ap'][0]['id']
 
-        self.__expected_ms_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+        self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['uri'] = \
             f"{self.__metadata_tender_url}/{self.__ap_message['data']['ocid']}/" \
             f"{self.__ap_message['data']['outcomes']['ap'][0]['id']}"
 
-        return self.__expected_ms_release
+        return self.__expected_fa_release

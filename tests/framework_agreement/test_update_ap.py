@@ -2,15 +2,12 @@ import copy
 import json
 import allure
 import requests
-from deepdiff import DeepDiff
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import get_process_id_by_operation_id, \
-    cleanup_ocds_orchestrator_operation_step_by_operation_id, \
-    get_max_duration_of_fa_from_access_rules, cleanup_table_of_services_for_aggregated_plan
+    get_max_duration_of_fa_from_access_rules
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import update_ap_process
-from functions_collection.some_functions import generate_tender_classification_id, get_value_from_cpv_dictionary_xls
 from messages_collection.framework_agreement.update_ap_message import UpdateApMessage
 from payloads_collection.framework_agreement.update_ap_payload import UpdateAggregatedPlan
 from releases_collection.framework_agreement.update_ap_release import UpdateAggregatedPlanRelease
@@ -22,7 +19,7 @@ from releases_collection.framework_agreement.update_ap_release import UpdateAggr
 @allure.testcase(url="")
 class TestUpdateAP:
     @allure.title("Check records: based on full data model.")
-    def test_case_1(self, get_parameters, connect_to_keyspace, create_ap_tc_1):
+    def test_case_1(self, get_parameters, connect_to_keyspace, relation_ap_tc_1):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
@@ -34,17 +31,17 @@ class TestUpdateAP:
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_access = connect_to_keyspace[2]
 
-        create_ap_payload = create_ap_tc_1[0]
-        cpid = create_ap_tc_1[1]
-        ocid = create_ap_tc_1[2]
-        token = create_ap_tc_1[3]
-        currency = create_ap_tc_1[5]
-        tender_classification_id = create_ap_tc_1[6]
-        ap_url = create_ap_tc_1[7]
-        ms_url = create_ap_tc_1[8]
+        cpid = relation_ap_tc_1[0]
+        ocid = relation_ap_tc_1[1]
+        token = relation_ap_tc_1[2]
+        create_ap_payload = relation_ap_tc_1[3]
+        ap_url = relation_ap_tc_1[4]
+        fa_url = relation_ap_tc_1[5]
+        currency = relation_ap_tc_1[20]
+        tender_classification_id = relation_ap_tc_1[21]
 
         previous_ap_release = requests.get(url=ap_url).json()
-        previous_ms_release = requests.get(url=ms_url).json()
+        previous_fa_release = requests.get(url=fa_url).json()
 
         step_number = 1
         with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
@@ -92,7 +89,10 @@ class TestUpdateAP:
                     lot_id_list=lot_id_list,
                     quantity_of_new_documents=3
                 )
-
+                # Forbiden change currency, even if actual currency == previous currency.
+                payload.delete_optional_fields(
+                    "tender.value"
+                )
                 payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Update AP process.")
@@ -164,7 +164,7 @@ class TestUpdateAP:
                 Compare previous AP release and actual AP release.
                 """
                 actual_ap_release = requests.get(url=ap_url).json()
-                actual_ms_release = requests.get(url=ms_url).json()
+                actual_ms_release = requests.get(url=fa_url).json()
 
                 try:
                     """
@@ -180,7 +180,7 @@ class TestUpdateAP:
                         actual_ap_release,
                         previous_ap_release,
                         actual_ms_release,
-                        previous_ms_release,
+                        previous_fa_release,
                     ))
 
                     expected_ap_release = expected_release.build_expected_ap_release()
@@ -196,7 +196,7 @@ class TestUpdateAP:
                                       f"process_id = '{process_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
-            with allure.step(f'# {step_number}.4. Check MS release.'):
+            with allure.step(f'# {step_number}.4. Check FA release.'):
                 """
                 Compare previous MS release and actual MS release.
                 """
@@ -204,23 +204,18 @@ class TestUpdateAP:
                     """
                     Build expected MS release.
                     """
-                    expected_ms_release = expected_release.build_expected_ms_release()
+                    expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
                     raise ValueError("Impossible to build expected MS release.")
 
-                print("\nActual MS release")
-                print(json.dumps(actual_ms_release))
-                print("\nExpected MS release")
-                print(json.dumps(expected_ms_release))
+                with allure.step("Compare actual and expected MS release."):
+                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
+                    allure.attach(json.dumps(expected_fa_release), "Expected MS release.")
 
-                # with allure.step("Compare actual and expected MS release."):
-                #     allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                #     allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
-                #
-                #     assert actual_ap_release == expected_ap_release, \
-                #         allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                #                       f"process_id = '{process_id}' ALLOW FILTERING;",
-                #                       "Cassandra DataBase: steps of process.")
+                    assert actual_fa_release == expected_fa_release, \
+                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
+                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                                      "Cassandra DataBase: steps of process.")
 
 
 
