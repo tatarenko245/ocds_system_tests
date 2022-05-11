@@ -16,7 +16,8 @@ from releases_collection.framework_agreement.relation_ap_release import Relation
 @allure.parent_suite("Framework Agreement")
 @allure.suite("Relation AP")
 @allure.severity("Critical")
-@allure.testcase(url="")
+@allure.testcase(url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
+                 name="Why this test case was fall down?")
 class TestRelationAP:
     @allure.title("Check records: based on full data model from previous processes.")
     def test_case_1(self, get_parameters, connect_to_keyspace, outsource_pn_tc_1):

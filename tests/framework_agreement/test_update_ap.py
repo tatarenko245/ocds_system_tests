@@ -16,7 +16,8 @@ from releases_collection.framework_agreement.update_ap_release import UpdateAggr
 @allure.parent_suite("Framework Agreement")
 @allure.suite("Aggregated Plan")
 @allure.severity("Critical")
-@allure.testcase(url="")
+@allure.testcase(url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
+                 name="Why this test case was fall down?")
 class TestUpdateAP:
     @allure.title("Check records: based on full data model.")
     def test_case_1(self, get_parameters, connect_to_keyspace, relation_ap_tc_1):
