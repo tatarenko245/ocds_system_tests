@@ -40,7 +40,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
         """
-        Send api request to BPE host to create a Create EI process.
+        Send request to BPE host to create a Create EI process.
         And save in variable cpid.
         """
         try:
@@ -58,7 +58,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
             )
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create EI process.")
+            ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -81,7 +81,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -106,7 +106,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
         """
-        Send api request to BPE host to create a Create EI process.
+        Send request to BPE host to create a Create EI process.
         And save in variable cpid.
         """
         try:
@@ -132,7 +132,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
 
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create EI process.")
+            ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -155,7 +155,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -181,7 +181,7 @@ def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create FS process."):
         """
-        Send api request to BPE host to create a Create FS process.
+        Send request to BPE host to create a Create FS process.
         """
         try:
             """
@@ -203,7 +203,7 @@ def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create
             )
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create Fs process.")
+            ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -226,7 +226,7 @@ def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_financial_source(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -252,7 +252,7 @@ def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create FS process."):
         """
-        Send api request to BPE host to create a Create FS process.
+        Send request to BPE host to create a Create FS process.
         """
         try:
             """
@@ -281,7 +281,7 @@ def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create
             )
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create Fs process.")
+            ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -304,7 +304,7 @@ def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_financial_source(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -330,7 +330,7 @@ def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create FS process."):
         """
-        Send api request to BPE host to create a Create FS process.
+        Send request to BPE host to create a Create FS process.
         """
         try:
             """
@@ -359,7 +359,7 @@ def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create
             )
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create Fs process.")
+            ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -382,7 +382,7 @@ def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_financial_source(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -423,7 +423,7 @@ def create_pn_tc_1(get_parameters, connect_to_keyspace, create_fs_tc_1):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create PN process.'):
         """
-        Send api request to BPE host to create a Create PN process.
+        Send request to BPE host to create a Create PN process.
         And save in variable ocid and token..
         """
         try:
@@ -459,7 +459,7 @@ def create_pn_tc_1(get_parameters, connect_to_keyspace, create_fs_tc_1):
             payload = payload.build_payload()
 
         except ValueError:
-            raise ValueError("Impossible to build payload for Create PN process.")
+            ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -485,7 +485,7 @@ def create_pn_tc_1(get_parameters, connect_to_keyspace, create_fs_tc_1):
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -533,7 +533,7 @@ def create_pn_tc_2(get_parameters, connect_to_keyspace, create_fs_tc_2, create_f
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create PN process.'):
         """
-        Send api request to BPE host to create a Create PN process.
+        Send request to BPE host to create a Create PN process.
         And save in variable ocid and token..
         """
         try:
@@ -562,7 +562,7 @@ def create_pn_tc_2(get_parameters, connect_to_keyspace, create_fs_tc_2, create_f
             payload = payload.build_payload()
 
         except ValueError:
-            raise ValueError("Impossible to build payload for Create PN process.")
+            ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -588,7 +588,7 @@ def create_pn_tc_2(get_parameters, connect_to_keyspace, create_fs_tc_2, create_f
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -628,7 +628,7 @@ def create_ap_tc_1(get_parameters, connect_to_keyspace, create_pn_tc_1):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
         """
-        Send api request to BPE host to create a Create AP process.
+        Send request to BPE host to create a Create AP process.
         And save in variable ap_cpid and ap_token..
         """
         try:
@@ -659,7 +659,7 @@ def create_ap_tc_1(get_parameters, connect_to_keyspace, create_pn_tc_1):
             tender_classification_id = payload.get_tender_classification_id()
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create AP process.")
+            ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -681,7 +681,7 @@ def create_ap_tc_1(get_parameters, connect_to_keyspace, create_pn_tc_1):
         allure.attach(str(message), "Message for platform.")
 
         yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url, \
-            pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
+              pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
         try:
             """
             CLean up the database.
@@ -690,7 +690,7 @@ def create_ap_tc_1(get_parameters, connect_to_keyspace, create_pn_tc_1):
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -730,7 +730,7 @@ def create_ap_tc_2(get_parameters, connect_to_keyspace, create_pn_tc_2):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
         """
-        Send api request to BPE host to create a Create AP process.
+        Send request to BPE host to create a Create AP process.
         And save in variable ap_cpid and ap_token..
         """
         try:
@@ -762,7 +762,7 @@ def create_ap_tc_2(get_parameters, connect_to_keyspace, create_pn_tc_2):
             tender_classification_id = payload.get_tender_classification_id()
             payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create AP process.")
+            ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -783,8 +783,8 @@ def create_ap_tc_2(get_parameters, connect_to_keyspace, create_pn_tc_2):
         fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url,\
-            pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
+        yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url, \
+              pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
         try:
             """
             CLean up the database.
@@ -793,4 +793,4 @@ def create_ap_tc_2(get_parameters, connect_to_keyspace, create_pn_tc_2):
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")

@@ -4,7 +4,7 @@ import random
 
 from class_collection.document_registration import Document
 from data_collection.data_constant import locality_scheme_tuple, unit_id_tuple, cpvs_tuple, region_id_tuple, \
-    document_type_tuple
+    documentType_tuple
 from functions_collection.prepare_date import pn_period, contact_period
 from functions_collection.some_functions import generate_items_array, generate_lots_array, \
     get_locality_id_according_with_region_id
@@ -146,10 +146,8 @@ class UpdateAggregatedPlan:
                 del self.__payload['tender']['items'][item_position]['internalId']
             elif a == "tender.items.additionalClassifications":
                 del self.__payload['tender']['items'][item_position]['additionalClassifications']
-            elif a == f"tender.items.additionalClassifications[{additional_classification_position}]":
-
-                del self.__payload['tender']['items'][item_position][
-                    'additionalClassifications'][additional_classification_position]
+            elif a == f"tender.items.additionalClassifications":
+                del self.__payload['tender']['items'][item_position]['additionalClassifications']
 
             elif a == "tender.items.deliveryAddress":
                 del self.__payload['tender']['items'][item_position]['deliveryAddress']
@@ -170,7 +168,7 @@ class UpdateAggregatedPlan:
             elif a == "tender.value":
                 del self.__payload['tender']['value']
             else:
-                raise KeyError(f"Impossible to delete attribute by path {a}.")
+                KeyError(f"Impossible to delete attribute by path {a}.")
 
     def customize_tender_items(self, lot_id_list, quantity_of_items, quantity_of_items_additional_classifications):
         """
@@ -267,7 +265,7 @@ class UpdateAggregatedPlan:
             document_two_was_uploaded = document_two.uploading_document()
 
             new_documents_array[q_0]['id'] = document_two_was_uploaded[0]["data"]["id"]
-            new_documents_array[q_0]['documentType'] = f"{random.choice(document_type_tuple)}"
+            new_documents_array[q_0]['documentType'] = f"{random.choice(documentType_tuple)}"
             new_documents_array[q_0]['title'] = f"update ap: tender.documents{q_0}.title"
             new_documents_array[q_0]['description'] = f"update ap: tender.documents{q_0}.description"
 
@@ -279,7 +277,7 @@ class UpdateAggregatedPlan:
                 old_documents_array.append(copy.deepcopy(self.__payload['tender']['documents'][0]))
 
                 old_documents_array[q_1]['id'] = self.__create_ap_payload['tender']['documents'][q_1]['id']
-                old_documents_array[q_1]['documentType'] = f"{random.choice(document_type_tuple)}"
+                old_documents_array[q_1]['documentType'] = f"{random.choice(documentType_tuple)}"
                 old_documents_array[q_1]['title'] = f"update ap: tender.documents{q_1}.title"
                 old_documents_array[q_1]['description'] = f"update up: tender.documents{q_1}.description"
 

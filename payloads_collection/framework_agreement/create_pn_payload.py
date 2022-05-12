@@ -8,7 +8,7 @@ from data_collection.data_constant import cpv_goods_low_level_03_tuple, cpv_good
     cpv_goods_low_level_48_tuple, cpv_works_low_level_45_tuple, cpv_services_low_level_5_tuple, \
     cpv_services_low_level_6_tuple, cpv_services_low_level_7_tuple, cpv_services_low_level_8_tuple, \
     cpv_services_low_level_92_tuple, cpv_services_low_level_98_tuple, legal_basis_tuple, locality_scheme_tuple, \
-    document_type_tuple, unit_id_tuple, cpvs_tuple, region_id_tuple
+    documentType_tuple, unit_id_tuple, cpvs_tuple, region_id_tuple
 from functions_collection.prepare_date import pn_period, contact_period
 from functions_collection.some_functions import generate_items_array, generate_lots_array, \
     get_locality_id_according_with_region_id
@@ -59,7 +59,7 @@ class PlanningNoticePayload:
             elif tender_classification_id[0:3] == "983":
                 item_classification_id = random.choice(cpv_services_low_level_98_tuple)
         except ValueError:
-            raise ValueError("Check tender_classification_id")
+            ValueError("Check tender_classification_id")
 
         self.__payload = {
             "planning": {
@@ -145,7 +145,7 @@ class PlanningNoticePayload:
                     }],
                 "documents": [
                     {
-                        "documentType": f"{random.choice(document_type_tuple)}",
+                        "documentType": f"{random.choice(documentType_tuple)}",
                         "id": self.__document_one_was_uploaded[0]["data"]["id"],
                         "title": "create pn: tender.documents.title",
                         "description": "create pn: tender.documents.description",
@@ -199,7 +199,7 @@ class PlanningNoticePayload:
             elif a == "tender.documents.relatedLots":
                 del self.__payload['tender']['documents'][document_position]["relatedLots"]
             else:
-                raise KeyError(f"Impossible to delete attribute by path {a}.")
+                KeyError(f"Impossible to delete attribute by path {a}.")
 
     def get_lots_id_from_payload(self):
         """Get lots.id from payload."""
@@ -317,7 +317,7 @@ class PlanningNoticePayload:
             document_two_was_uploaded = document_two.uploading_document()
 
             new_documents_array[q_0]['id'] = document_two_was_uploaded[0]["data"]["id"]
-            new_documents_array[q_0]['documentType'] = f"{random.choice(document_type_tuple)}"
+            new_documents_array[q_0]['documentType'] = f"{random.choice(documentType_tuple)}"
             new_documents_array[q_0]['title'] = f"create pn: tender.documents{q_0}.title"
             new_documents_array[q_0]['description'] = f"create pn: tender.documents{q_0}.description"
 

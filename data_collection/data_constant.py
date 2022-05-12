@@ -233,7 +233,7 @@ legal_basis_tuple = (
     "NATIONAL_PROCUREMENT_LAW",
 )
 
-document_type_tuple = (
+documentType_tuple = (
     "tenderNotice",
     "biddingDocuments",
     "technicalSpecifications",

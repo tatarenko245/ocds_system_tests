@@ -51,7 +51,7 @@ class CreateAggregatedPlanRelease:
                 self.__metadata_document_url = "http://storage.eprocurement.systems/get"
                 self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
         self.__expected_ap_release = {
             "uri": f"{self.__metadata_tender_url}/{ap_message['data']['ocid']}/"
@@ -296,7 +296,7 @@ class CreateAggregatedPlanRelease:
                     new_documents_array[q_0]['datePublished'] = self.__ap_message['data']['operationDate']
                 self.__expected_ap_release['releases'][0]['tender']['documents'] = new_documents_array
             except ValueError:
-                raise ValueError("Impossible to build the expected releases.tender.documents array.")
+                ValueError("Impossible to build the expected releases.tender.documents array.")
         else:
             del self.__expected_ap_release['releases'][0]['tender']['documents']
 
@@ -309,7 +309,7 @@ class CreateAggregatedPlanRelease:
             self.__expected_ap_release['releases'][0]['tender']['id'] = \
                 self.__actual_ap_release['releases'][0]['tender']['id']
         else:
-            raise ValueError(f"The relases0.relatedProcess0.id must be uuid.")
+            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
 
         self.__expected_ap_release['releases'][0]['tender']['tenderPeriod']['startDate'] = \
             self.__ap_payload['tender']['tenderPeriod']['startDate']
@@ -417,7 +417,7 @@ class CreateAggregatedPlanRelease:
             central_purchasing_body_array[0]['address']['addressDetails']['locality'] = \
                 expected_central_purchasing_body_locality_object
         except ValueError:
-            raise ValueError(
+            ValueError(
                 "Impossible to prepare addressDetails object for party with buyer role.")
 
         if "uri" in self.__ap_payload['tender']['procuringEntity']['identifier']:
@@ -487,7 +487,7 @@ class CreateAggregatedPlanRelease:
             self.__expected_ap_release['releases'][0]['relatedProcesses'][0]['id'] = \
                 self.__actual_ap_release['releases'][0]['relatedProcesses'][0]['id']
         else:
-            raise ValueError(f"The relases0.relatedProcess0.id must be uuid.")
+            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
 
         self.__expected_ap_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "parent"
         self.__expected_ap_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
@@ -512,7 +512,7 @@ class CreateAggregatedPlanRelease:
             self.__expected_fa_release['releases'][0]['tender']['id'] = \
                 self.__actual_fa_release['releases'][0]['tender']['id']
         else:
-            raise ValueError(f"The relases0.tender.id must be uuid.")
+            ValueError(f"The relases0.tender.id must be uuid.")
 
         self.__expected_fa_release['releases'][0]['tender']['title'] = self.__ap_payload['tender']['title']
         self.__expected_fa_release['releases'][0]['tender']['description'] = self.__ap_payload['tender']['description']
@@ -549,7 +549,7 @@ class CreateAggregatedPlanRelease:
                 expected_procurement_method_details = "openFA"
                 has_dynamic_purchasing_system = True
             else:
-                raise ValueError("Check your pmd: You must use 'TEST_CF', "
+                ValueError("Check your pmd: You must use 'TEST_CF', "
                                  "'TEST_CF', 'TEST_OF', 'OF' in pytest command")
 
             self.__expected_fa_release['releases'][0]['tender']['procurementMethod'] = expected_procurement_method
@@ -568,7 +568,7 @@ class CreateAggregatedPlanRelease:
                 'hasDynamicPurchasingSystem'] = has_dynamic_purchasing_system
 
         except KeyError:
-            raise KeyError("Could not parse a pmd into pytest command.")
+            KeyError("Could not parse a pmd into pytest command.")
 
         try:
             """
@@ -585,12 +585,12 @@ class CreateAggregatedPlanRelease:
                                                "in the Practical Guide to Contract Procedures for EU " \
                                                "External Actions (PRAG)"
             else:
-                raise ValueError("Check your language: You must use 'ro', "
+                ValueError("Check your language: You must use 'ro', "
                                  "'en' in pytest command.")
 
             self.__expected_fa_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
         except KeyError:
-            raise KeyError("Could not parse a language into pytest command.")
+            KeyError("Could not parse a language into pytest command.")
 
         self.__expected_fa_release['releases'][0]['tender']['contractPeriod']['startDate'] = \
             self.__ap_payload['tender']['contractPeriod']['startDate']
@@ -610,7 +610,7 @@ class CreateAggregatedPlanRelease:
             self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['id'] = \
                 self.__actual_fa_release['releases'][0]['relatedProcesses'][0]['id']
         else:
-            raise ValueError(f"The relases0.relatedProcess0.id must be uuid.")
+            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
         self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "aggregatePlanning"
         self.__expected_fa_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
 

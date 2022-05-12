@@ -8,11 +8,10 @@ from data_collection.data_constant import pmd_for_pn_framework_agreement
 from functions_collection.cassandra_methods import get_max_duration_of_fa_from_access_rules, \
     cleanup_ocds_orchestrator_operation_step_by_operation_id, cleanup_table_of_services_for_expenditure_item, \
     cleanup_table_of_services_for_financial_source, cleanup_table_of_services_for_planning_notice, \
-    cleanup_orchestrator_steps_by_cpid, cleanup_table_of_services_for_outsourcing_planning_notice, \
-    cleanup_table_of_services_for_relation_aggregated_plan
+    cleanup_orchestrator_steps_by_cpid, cleanup_table_of_services_for_outsourcing_planning_notice
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
-    create_ap_process, outsourcing_pn_process, relation_ap_process
+    create_ap_process, outsourcing_pn_process
 from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
@@ -23,8 +22,7 @@ from payloads_collection.framework_agreement.create_pn_payload import PlanningNo
 # Create EI_1: full data model, create FS_1: full data model, create PN_1: full data model,
 # create EI_2: required data model, create FS_2: required data model, create PN_2: required data model,
 # create AP: full data model, outsource PN_1: payload isn't needed, outsource PN_2: payload isn't needed,
-# relation AP: payload isn't needed.
-def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
+def outsource_pn_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -52,7 +50,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
         """
-        Send api request to BPE host to create a Create EI process.
+        Send request to BPE host to create a Create EI process.
         And save in variable cpid.
         """
         try:
@@ -70,7 +68,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create EI process.")
+            ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -103,7 +101,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create FS process."):
         """
-        Send api request to BPE host to create a Create FS process.
+        Send request to BPE host to create a Create FS process.
         """
         try:
             """
@@ -125,7 +123,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create Fs process.")
+            ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -157,7 +155,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create PN process.'):
         """
-        Send api request to BPE host to create a Create PN process.
+        Send request to BPE host to create a Create PN process.
         And save in variable ocid and token..
         """
         try:
@@ -193,7 +191,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            raise ValueError("Impossible to build payload for Create PN process.")
+            ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -227,7 +225,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
         """
-        Send api request to BPE host to create a Create EI process.
+        Send request to BPE host to create a Create EI process.
         And save in variable cpid.
         """
         try:
@@ -245,7 +243,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create EI process.")
+            ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -278,7 +276,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f"# {step_number}. Send a request to create a Create FS process."):
         """
-        Send api request to BPE host to create a Create FS process.
+        Send request to BPE host to create a Create FS process.
         """
         try:
             """
@@ -300,7 +298,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create Fs process.")
+            ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -332,7 +330,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create PN process.'):
         """
-        Send api request to BPE host to create a Create PN process.
+        Send request to BPE host to create a Create PN process.
         And save in variable ocid and token..
         """
         try:
@@ -368,7 +366,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            raise ValueError("Impossible to build payload for Create PN process.")
+            ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -402,7 +400,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
         """
-        Send api request to BPE host to create a Create AP process.
+        Send request to BPE host to create a Create AP process.
         And save in variable ap_cpid and ap_token..
         """
         try:
@@ -433,7 +431,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
             ap_payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create AP process.")
+            ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -468,7 +466,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
         """
-        Send api request to BPE host to create a Outsourcing PN process.
+        Send request to BPE host to create a Outsourcing PN process.
         """
 
         outsourcing_pn_process(
@@ -500,7 +498,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
         """
-        Send api request to BPE host to create a Outsourcing PN process.
+        Send request to BPE host to create a Outsourcing PN process.
         """
 
         outsourcing_pn_process(
@@ -517,73 +515,9 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
-
-    # Relation AP for PN_1.
-    step_number += 1
-    with allure.step(f'# {step_number}. Authorization platform one: Relation AP process.'):
-        """
-        Tender platform authorization for Relation AP process.
-        As result get Tender platform's access token and process operation-id.
-        """
-        platform_one = PlatformAuthorization(bpe_host)
-        access_token = platform_one.get_access_token_for_platform_one()
-        operation_id = platform_one.get_x_operation_id(access_token)
-
-    step_number += 1
-    with allure.step(f'# {step_number}. Send a request to create a Relation AP process.'):
-        """
-        Send api request to BPE host to create a Relation AP process.
-        """
-
-        relation_ap_process(
-            host=bpe_host,
-            access_token=access_token,
-            x_operation_id=operation_id,
-            cpid=ap_cpid,
-            ocid=ap_ocid,
-            token=ap_token,
-            cp=pn_1_cpid,
-            pn=pn_1_ocid,
-            test_mode=True
-        )
-
-        message = get_message_for_platform(operation_id)
-        allure.attach(str(message), "Message for platform.")
-
-    # Relation AP for PN_2.
-    step_number += 1
-    with allure.step(f'# {step_number}. Authorization platform one: Relation AP process.'):
-        """
-        Tender platform authorization for Relation AP process.
-        As result get Tender platform's access token and process operation-id.
-        """
-        platform_one = PlatformAuthorization(bpe_host)
-        access_token = platform_one.get_access_token_for_platform_one()
-        operation_id = platform_one.get_x_operation_id(access_token)
-
-    step_number += 1
-    with allure.step(f'# {step_number}. Send a request to create a Relation AP process.'):
-        """
-        Send api request to BPE host to create a Relation AP process.
-        """
-
-        relation_ap_process(
-            host=bpe_host,
-            access_token=access_token,
-            x_operation_id=operation_id,
-            cpid=ap_cpid,
-            ocid=ap_ocid,
-            token=ap_token,
-            cp=pn_2_cpid,
-            pn=pn_2_ocid,
-            test_mode=True
-        )
-
-        message = get_message_for_platform(operation_id)
-        allure.attach(str(message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
-        ei_2_payload, currency, tender_classification_id
+        ei_2_payload
 
     try:
         """
@@ -624,9 +558,5 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         # Clean after Outsourcing PN_2 process:
         cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_2_cpid)
         cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
-
-        # Clean after Relation AP process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
-        cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
     except ValueError:
-        raise ValueError("Impossible to cLean up the database.")
+        ValueError("Impossible to cLean up the database.")

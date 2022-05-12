@@ -49,7 +49,7 @@ class ExpenditureItemRelease:
                 publisher_uri = "https://vpt.lrv.lt"
 
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
         # BR-4.228, BR-4.229, BR-4.230, BR-4.232, BR-4.234, BR-4.235,
         self.expected_ei_release = {
@@ -264,9 +264,9 @@ class ExpenditureItemRelease:
                             new_items_array[q_0]['id'] = \
                                 self.actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                         else:
-                            raise ValueError(f"The 'releases[0].tender.items[{q_0}].id' must be uuid.")
+                            ValueError(f"The 'releases[0].tender.items[{q_0}].id' must be uuid.")
                     except KeyError:
-                        raise KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
+                        KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
                     new_items_array[q_0]['description'] = self.ei_payload['tender']['items'][q_0]['description']
 
@@ -385,11 +385,11 @@ class ExpenditureItemRelease:
                         new_items_array[q_0]['deliveryAddress']['addressDetails']['locality'] = \
                             expected_item_locality_object[0]
                     except ValueError:
-                        raise ValueError("Impossible to prepare addressDetails object for items array")
+                        ValueError("Impossible to prepare addressDetails object for items array")
 
                 self.expected_ei_release['releases'][0]['tender']['items'] = new_items_array
             except ValueError:
-                raise ValueError("Impossible to build the expected releases.tender.items array.")
+                ValueError("Impossible to build the expected releases.tender.items array.")
         else:
             del self.expected_ei_release['releases'][0]['tender']['items']
 
@@ -407,9 +407,9 @@ class ExpenditureItemRelease:
                 self.expected_ei_release['releases'][0]['tender']['id'] = \
                     self.actual_ei_release['releases'][0]['tender']['id']
             else:
-                raise ValueError(f"The 'releases[0].tender.id' must be uuid.")
+                ValueError(f"The 'releases[0].tender.id' must be uuid.")
         except KeyError:
-            raise KeyError("Mismatch key into path 'releases[0].tender.id'")
+            KeyError("Mismatch key into path 'releases[0].tender.id'")
 
         self.expected_ei_release['releases'][0]['tender']['title'] = self.ei_payload['tender']['title']
         self.expected_ei_release['releases'][0]['tender']['status'] = "planning"
@@ -442,13 +442,13 @@ class ExpenditureItemRelease:
                 expected_main_procurement_category = "services"
 
             else:
-                raise ValueError("Check your tender.classification.id")
+                ValueError("Check your tender.classification.id")
 
             self.expected_ei_release['releases'][0]['tender']['mainProcurementCategory'] = \
                 expected_main_procurement_category
 
         except KeyError:
-            raise KeyError("Could not parse tender.classification.id.")
+            KeyError("Could not parse tender.classification.id.")
 
         # BR-12.2.1:
         try:
@@ -465,7 +465,7 @@ class ExpenditureItemRelease:
             self.expected_ei_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
             self.expected_ei_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
         except ValueError:
-            raise ValueError("Impossible to enrich releases.tender.classification object.")
+            ValueError("Impossible to enrich releases.tender.classification object.")
 
         # Build the releases.buyer object. Enrich or delete optional fields and enrich required fields:
         # BR-4.5:
@@ -551,7 +551,7 @@ class ExpenditureItemRelease:
             buyer_role_array[0]['address']['addressDetails']['region'] = expected_buyer_region_object[0]
             buyer_role_array[0]['address']['addressDetails']['locality'] = expected_buyer_locality_object[0]
         except ValueError:
-            raise ValueError(
+            ValueError(
                 "Impossible to prepare addressDetails object for party with buyer role.")
 
         if "additionalIdentifiers" in self.ei_payload['buyer']:

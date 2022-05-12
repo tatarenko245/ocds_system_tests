@@ -61,7 +61,7 @@ class TestCreateEI:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create EI process.")
+                ValueError("Impossible to build payload for Create EI process.")
 
             synchronous_result = create_ei_process(
                 host=bpe_host,
@@ -109,7 +109,7 @@ class TestCreateEI:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -144,7 +144,7 @@ class TestCreateEI:
                     ))
                     expected_release = expected_release.build_expected_ei_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected EI release.")
+                    ValueError("Impossible to build expected EI release.")
 
                 with allure.step("Compare actual and expected releases."):
                     allure.attach(json.dumps(actual_release), "Actual release.")
@@ -162,7 +162,7 @@ class TestCreateEI:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace):
@@ -215,7 +215,7 @@ class TestCreateEI:
 
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create EI process.")
+                ValueError("Impossible to build payload for Create EI process.")
 
             synchronous_result = create_ei_process(
                 host=bpe_host,
@@ -263,7 +263,7 @@ class TestCreateEI:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -298,7 +298,7 @@ class TestCreateEI:
                     ))
                     expected_release = expected_release.build_expected_ei_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected EI release.")
+                    ValueError("Impossible to build expected EI release.")
 
                 with allure.step("Compare actual and expected releases."):
                     allure.attach(json.dumps(actual_release), "Actual release.")
@@ -316,4 +316,4 @@ class TestCreateEI:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")

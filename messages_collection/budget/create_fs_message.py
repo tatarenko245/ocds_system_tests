@@ -47,9 +47,9 @@ class FinancialSourceMessage:
             if is_operation_id_correct is True:
                 self.__message['X-OPERATION-ID'] = self.actual_message['X-OPERATION-ID']
             else:
-                raise ValueError("The message is not correct: 'X-OPERATION-ID' must be uuid.")
+                ValueError("The message is not correct: 'X-OPERATION-ID' must be uuid.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'X-OPERATION-ID'.")
+            KeyError("The message is not correct: mismatch key 'X-OPERATION-ID'.")
 
         if "X-RESPONSE-ID" in self.actual_message:
             is_process_id_correct = is_it_uuid(self.actual_message['X-RESPONSE-ID'])
@@ -57,14 +57,14 @@ class FinancialSourceMessage:
             if is_process_id_correct is True:
                 self.__message['X-RESPONSE-ID'] = self.actual_message['X-RESPONSE-ID']
             else:
-                raise ValueError("The message is not correct: 'X-RESPONSE-ID' must be uuid.")
+                ValueError("The message is not correct: 'X-RESPONSE-ID' must be uuid.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'X-RESPONSE-ID'.")
+            KeyError("The message is not correct: mismatch key 'X-RESPONSE-ID'.")
 
         if "initiator" in self.actual_message:
             self.__message['initiator'] = "platform"
         else:
-            raise KeyError("The message is not correct: mismatch key 'initiator'.")
+            KeyError("The message is not correct: mismatch key 'initiator'.")
 
         if "ocid" in self.actual_message['data']:
             if self.test_mode is False:
@@ -75,14 +75,14 @@ class FinancialSourceMessage:
             if is_ocid_correct is True:
                 self.__message['data']['ocid'] = self.actual_message['data']['ocid']
             else:
-                raise ValueError("The message is not correct: 'data.ocid'.")
+                ValueError("The message is not correct: 'data.ocid'.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'data.ocid'.")
+            KeyError("The message is not correct: mismatch key 'data.ocid'.")
 
         if "url" in self.actual_message['data']:
             self.__message['data']['url'] = f"{self.budget_url}/{self.__message['data']['ocid']}"
         else:
-            raise KeyError("The message is not correct: mismatch key 'data.url'.")
+            KeyError("The message is not correct: mismatch key 'data.url'.")
 
         if "operationDate" in self.actual_message['data']:
             is_date_correct = fnmatch.fnmatch(self.actual_message["data"]["operationDate"], "202*-*-*T*:*:*Z")
@@ -90,9 +90,9 @@ class FinancialSourceMessage:
             if is_date_correct is True:
                 self.__message['data']['operationDate'] = self.actual_message['data']['operationDate']
             else:
-                raise ValueError("The message is not correct: 'data.operationDate'.")
+                ValueError("The message is not correct: 'data.operationDate'.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'data.operationDate'.")
+            KeyError("The message is not correct: mismatch key 'data.operationDate'.")
 
         outcomes_fs_array = list()
         for obj in range(self.expected_quantity_of_outcomes_fs):
@@ -110,14 +110,14 @@ class FinancialSourceMessage:
             if is_fs_id_correct is True:
                 outcomes_fs_array[obj]['id'] = self.actual_message["data"]["outcomes"]["fs"][obj]["id"]
             else:
-                raise ValueError(f"The message is not correct: 'data.outcomes.fs[{obj}].id'.")
+                ValueError(f"The message is not correct: 'data.outcomes.fs[{obj}].id'.")
 
             is_fs_token_correct = is_it_uuid(self.actual_message["data"]["outcomes"]["fs"][obj]["X-TOKEN"])
 
             if is_fs_token_correct is True:
                 outcomes_fs_array[obj]['X-TOKEN'] = self.actual_message["data"]["outcomes"]["fs"][obj]["X-TOKEN"]
             else:
-                raise ValueError(f"The message is not correct: 'data.outcomes.fs[{obj}].X-TOKEN'.")
+                ValueError(f"The message is not correct: 'data.outcomes.fs[{obj}].X-TOKEN'.")
 
         self.__message['data']['outcomes']['fs'] = outcomes_fs_array
         return self.__message

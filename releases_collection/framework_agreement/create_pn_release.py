@@ -53,7 +53,7 @@ class PlanningNoticeRelease:
                 self.__metadata_document_url = "http://storage.eprocurement.systems/get"
                 self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
         # BR-4.48, BR-4.50, BR-4.51, BR-4.74, BR-4.253, BR-4.254, BR-4.256, BR-4.257, BR-4.55, BR-3.1.23:
         self.__expected_pn_release = {
@@ -449,7 +449,7 @@ class PlanningNoticeRelease:
                     if is_permanent_lot_id_correct is True:
                         new_lots_array[q_0]['id'] = self.__actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']
                     else:
-                        raise ValueError(f"The relases0.tender.lots{q_0}.id must be uuid.")
+                        ValueError(f"The relases0.tender.lots{q_0}.id must be uuid.")
 
                     new_lots_array[q_0]['title'] = self.__pn_payload['tender']['lots'][q_0]['title']
                     new_lots_array[q_0]['description'] = self.__pn_payload['tender']['lots'][q_0]['description']
@@ -552,7 +552,7 @@ class PlanningNoticeRelease:
                                         'locality']['description']
                             }
                     except ValueError:
-                        raise ValueError(
+                        ValueError(
                             "Impossible to prepare the expected releases.tender.lots.placeOfPerformance.address."
                             "addressDetails object.")
 
@@ -564,7 +564,7 @@ class PlanningNoticeRelease:
                         'locality'] = expected_lot_locality_object
                 self.__expected_pn_release['releases'][0]['tender']['lots'] = new_lots_array
             except ValueError:
-                raise ValueError("Impossible to build the expected releases.tender.lots array.")
+                ValueError("Impossible to build the expected releases.tender.lots array.")
         else:
             del self.__expected_pn_release['releases'][0]['tender']['lots']
 
@@ -615,7 +615,7 @@ class PlanningNoticeRelease:
                         new_items_array[q_0]['id'] = self.__actual_pn_release['releases'][0]['tender']['items'][q_0][
                             'id']
                     else:
-                        raise ValueError(f"The relases[0].tender.items[{q_0}].id must be uuid.")
+                        ValueError(f"The relases[0].tender.items[{q_0}].id must be uuid.")
 
                     new_items_array[q_0]['description'] = self.__pn_payload['tender']['items'][q_0]['description']
 
@@ -642,7 +642,7 @@ class PlanningNoticeRelease:
 
                 self.__expected_pn_release['releases'][0]['tender']['items'] = new_items_array
             except ValueError:
-                raise ValueError("Impossible to build the expected releases.tender.items array.")
+                ValueError("Impossible to build the expected releases.tender.items array.")
         else:
             del self.__expected_pn_release['releases'][0]['tender']['items']
 
@@ -683,7 +683,7 @@ class PlanningNoticeRelease:
                     new_documents_array[q_0]['datePublished'] = self.__pn_message['data']['operationDate']
                 self.__expected_pn_release['releases'][0]['tender']['documents'] = new_documents_array
             except ValueError:
-                raise ValueError("Impossible to build the expected releases.tender.documents array.")
+                ValueError("Impossible to build the expected releases.tender.documents array.")
         else:
             del self.__expected_pn_release['releases'][0]['tender']['documents']
 
@@ -697,7 +697,7 @@ class PlanningNoticeRelease:
             self.__expected_pn_release['releases'][0]['tender']['id'] = \
                 self.__actual_pn_release['releases'][0]['tender']['id']
         else:
-            raise ValueError(f"The relases0.relatedProcess0.id must be uuid.")
+            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
 
         self.__expected_pn_release['releases'][0]['tender']['tenderPeriod']['startDate'] = \
             self.__pn_payload['tender']['tenderPeriod']['startDate']
@@ -718,7 +718,7 @@ class PlanningNoticeRelease:
             self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['id'] = \
                 self.__actual_pn_release['releases'][0]['relatedProcesses'][0]['id']
         else:
-            raise ValueError(f"The relases0.relatedProcess0.id must be uuid.")
+            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
 
         # Build the releases.relatedProcesses array. Enrich or delete optional fields and enrich required fields:
         # BR-4.46, BR-4.47, BR-4.257, BR-4.258, BR-4.259, BR-4.260:
@@ -847,7 +847,7 @@ class PlanningNoticeRelease:
             self.__expected_ms_release['releases'][0]['tender']['id'] = \
                 self.__actual_ms_release['releases'][0]['tender']['id']
         else:
-            raise ValueError(f"The releases[0].tender.id must be uuid.")
+            ValueError(f"The releases[0].tender.id must be uuid.")
 
         self.__expected_ms_release['releases'][0]['tender']['title'] = self.__pn_payload['tender']['title']
         self.__expected_ms_release['releases'][0]['tender']['description'] = self.__pn_payload['tender']['description']
@@ -872,7 +872,7 @@ class PlanningNoticeRelease:
             self.__expected_ms_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
             self.__expected_ms_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
         except ValueError:
-            raise ValueError("Impossible to enrich releases.tender.classification object.")
+            ValueError("Impossible to enrich releases.tender.classification object.")
 
         self.__expected_ms_release['releases'][0]['tender']['legalBasis'] = self.__pn_payload['tender']['legalBasis']
 
@@ -903,13 +903,13 @@ class PlanningNoticeRelease:
                 expected_main_procurement_category = "services"
 
             else:
-                raise ValueError("Check your tender.classification.id")
+                ValueError("Check your tender.classification.id")
 
             self.__expected_ms_release['releases'][0]['tender']['mainProcurementCategory'] = \
                 expected_main_procurement_category
 
         except KeyError:
-            raise KeyError("Could not parse tender.classification.id.")
+            KeyError("Could not parse tender.classification.id.")
 
         try:
             """
@@ -934,14 +934,14 @@ class PlanningNoticeRelease:
                 expected_procurement_method = 'selective'
                 expected_procurement_method_details = "miniCompetition"
             else:
-                raise ValueError("Check your pmd: You must use 'TEST_DCO', "
+                ValueError("Check your pmd: You must use 'TEST_DCO', "
                                  "'TEST_RFQ', 'TEST_MC', 'DCO', 'RFQ', 'MC' in pytest command")
 
             self.__expected_ms_release['releases'][0]['tender']['procurementMethod'] = expected_procurement_method
             self.__expected_ms_release['releases'][0]['tender'][
                 'procurementMethodDetails'] = expected_procurement_method_details
         except KeyError:
-            raise KeyError("Could not parse a pmd into pytest command.")
+            KeyError("Could not parse a pmd into pytest command.")
 
         try:
             """
@@ -958,12 +958,12 @@ class PlanningNoticeRelease:
                                                "in the Practical Guide to Contract Procedures for EU " \
                                                "External Actions (PRAG)"
             else:
-                raise ValueError("Check your language: You must use 'ro', "
+                ValueError("Check your language: You must use 'ro', "
                                  "'en' in pytest command.")
 
             self.__expected_ms_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
         except KeyError:
-            raise KeyError("Could not parse a language into pytest command.")
+            KeyError("Could not parse a language into pytest command.")
 
         try:
             """
@@ -994,7 +994,7 @@ class PlanningNoticeRelease:
 
                 del self.__expected_ms_release['releases'][0]['tender']['contractPeriod']
         except ValueError:
-            raise ValueError("Impossible to enrich releases.tender.value.amount.")
+            ValueError("Impossible to enrich releases.tender.value.amount.")
 
         # Build the releases.parties array. Enrich or delete optional fields and enrich required fields:
         buyer_role_array = list()
@@ -1069,7 +1069,7 @@ class PlanningNoticeRelease:
             buyer_role_array[0]['address']['addressDetails']['region'] = expected_buyer_region_object[0]
             buyer_role_array[0]['address']['addressDetails']['locality'] = expected_buyer_locality_object[0]
         except ValueError:
-            raise ValueError(
+            ValueError(
                 "Impossible to prepare addressDetails object for party with buyer role.")
 
         if "uri" in ei_payload['buyer']['identifier']:
@@ -1218,7 +1218,7 @@ class PlanningNoticeRelease:
                     funder_role_array[q_2]['address']['addressDetails']['region'] = expected_funder_region_object[0]
                     funder_role_array[q_2]['address']['addressDetails']['locality'] = expected_funder_locality_object[0]
                 except ValueError:
-                    raise ValueError(
+                    ValueError(
                         "Impossible to prepare addressDetails object for party with funder role.")
 
                 if "uri" in fs_payloads_list[q_2]['buyer']['identifier']:
@@ -1381,7 +1381,7 @@ class PlanningNoticeRelease:
                 payer_role_array[q_3]['address']['addressDetails']['region'] = expected_payer_region_object[0]
                 payer_role_array[q_3]['address']['addressDetails']['locality'] = expected_payer_locality_object[0]
             except ValueError:
-                raise ValueError(
+                ValueError(
                     "Impossible to prepare addressDetails object for party with funder role.")
 
             if "uri" in fs_payloads_list[q_3]['tender']['procuringEntity']['identifier']:
@@ -1558,7 +1558,7 @@ class PlanningNoticeRelease:
                     if parties_array[exp]['id'] == self.__actual_ms_release['releases'][0]['parties'][act]['id']:
                         expected_parties_array.append(parties_array[exp])
         else:
-            raise ValueError("Quantity of objects into actual ms release doesn't equal "
+            ValueError("Quantity of objects into actual ms release doesn't equal "
                              "quantity of objects into prepared parties array")
 
         self.__expected_ms_release['releases'][0]['parties'] = expected_parties_array
@@ -1617,9 +1617,9 @@ class PlanningNoticeRelease:
                             expected_related_processes_array[exp]['id'] = \
                                 self.__actual_ms_release['releases'][0]['relatedProcesses'][act]['id']
                     else:
-                        raise ValueError(f"The relases0.relatedProcess.id must be uuid.")
+                        ValueError(f"The relases0.relatedProcess.id must be uuid.")
         else:
-            raise ValueError("The quantity of actual relatedProcesses array != "
+            ValueError("The quantity of actual relatedProcesses array != "
                              "quantity of expected relatedProcess array")
 
         self.__expected_ms_release['releases'][0]['relatedProcesses'] = expected_related_processes_array

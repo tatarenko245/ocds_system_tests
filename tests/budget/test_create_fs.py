@@ -76,7 +76,7 @@ class TestCreateFS:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create Fs process.")
+                ValueError("Impossible to build payload for Create Fs process.")
 
             synchronous_result = create_fs_process(
                 host=bpe_host,
@@ -124,7 +124,7 @@ class TestCreateFS:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -160,7 +160,7 @@ class TestCreateFS:
                     ))
                     expected_release = expected_release.build_expected_fs_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected FS release.")
+                    ValueError("Impossible to build expected FS release.")
 
                 with allure.step('Compare actual and expected releases.'):
                     allure.attach(json.dumps(actual_release), "Actual release.")
@@ -220,9 +220,9 @@ class TestCreateFS:
                             related_processes_id = \
                                 actual_ei_release_after_fs_creating['releases'][0]['relatedProcesses'][0]['id']
                         else:
-                            raise ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
+                            ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
                     except KeyError:
-                        raise KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
+                        KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
 
                     if environment == "dev":
                         metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
@@ -237,7 +237,7 @@ class TestCreateFS:
                         "uri": f"{metadata_budget_url}/{cpid}/{ocid}"
                     }]
                 except ValueError:
-                    raise ValueError("Impossible to prepare expected 'releases[0].relatedProcesses' array.")
+                    ValueError("Impossible to prepare expected 'releases[0].relatedProcesses' array.")
 
                 # BR-2.1.3.7, BR-2.1.3.8:
                 actual_amount_object = \
@@ -249,7 +249,7 @@ class TestCreateFS:
                         "currency": payload['planning']['budget']['amount']['currency']
                     }
                 except ValueError:
-                    raise ValueError("Impossible to prepare expected 'releases[0].planning.budget.amount' object.")
+                    ValueError("Impossible to prepare expected 'releases[0].planning.budget.amount' object.")
 
                 with allure.step("Compare actual and expected results of comparing EI releases."):
                     allure.attach(json.dumps(actual_result_of_comparing_releases), "Actual result.")
@@ -285,7 +285,7 @@ class TestCreateFS:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_financial_source(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace, create_ei_tc_2):
@@ -347,7 +347,7 @@ class TestCreateFS:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create Fs process.")
+                ValueError("Impossible to build payload for Create Fs process.")
 
             synchronous_result = create_fs_process(
                 host=bpe_host,
@@ -395,7 +395,7 @@ class TestCreateFS:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -431,7 +431,7 @@ class TestCreateFS:
                     ))
                     expected_release = expected_release.build_expected_fs_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected FS release.")
+                    ValueError("Impossible to build expected FS release.")
 
                 with allure.step('Compare actual and expected releases.'):
                     allure.attach(json.dumps(actual_release), "Actual release.")
@@ -491,9 +491,9 @@ class TestCreateFS:
                             related_processes_id = \
                                 actual_ei_release_after_fs_creating['releases'][0]['relatedProcesses'][0]['id']
                         else:
-                            raise ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
+                            ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
                     except KeyError:
-                        raise KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
+                        KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
 
                     if environment == "dev":
                         metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
@@ -508,7 +508,7 @@ class TestCreateFS:
                         "uri": f"{metadata_budget_url}/{cpid}/{ocid}"
                     }]
                 except ValueError:
-                    raise ValueError("Impossible to prepare expected 'releases[0].relatedProcesses' array.")
+                    ValueError("Impossible to prepare expected 'releases[0].relatedProcesses' array.")
 
                 # BR-2.1.3.7, BR-2.1.3.8:
                 actual_amount_object = \
@@ -520,7 +520,7 @@ class TestCreateFS:
                         "currency": payload['planning']['budget']['amount']['currency']
                     }
                 except ValueError:
-                    raise ValueError("Impossible to prepare expected 'releases[0].planning.budget.amount' object.")
+                    ValueError("Impossible to prepare expected 'releases[0].planning.budget.amount' object.")
 
                 with allure.step("Compare actual and expected results of comparing EI releases."):
                     allure.attach(json.dumps(actual_result_of_comparing_releases), "Actual result.")
@@ -556,4 +556,4 @@ class TestCreateFS:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_financial_source(connect_to_ocds, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")

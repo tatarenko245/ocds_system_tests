@@ -176,7 +176,7 @@ class FinancialSourcePayload:
                 del self.__payload['buyer']['contactPoint']['url']
 
             else:
-                raise KeyError(f"Impossible to delete attribute by path {a}.")
+                KeyError(f"Impossible to delete attribute by path {a}.")
 
     def customize_buyer_additional_identifiers(self, quantity_of_buyer_additional_identifiers):
         new_additional_identifiers_array = list()

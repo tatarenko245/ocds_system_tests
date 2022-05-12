@@ -48,7 +48,7 @@ class FinancialSourceRelease:
                 publisher_uri = "https://vpt.lrv.lt"
 
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
         # BR-4.16, BR-4.242, BR-4.243, BR-4.244, BR-4.246:
         self.expected_fs_release = {
@@ -192,9 +192,9 @@ class FinancialSourceRelease:
                 self.expected_fs_release['releases'][0]['tender']['id'] = \
                     self.actual_fs_release['releases'][0]['tender']['id']
             else:
-                raise ValueError(f"The 'releases[0].tender.id' must be uuid.")
+                ValueError(f"The 'releases[0].tender.id' must be uuid.")
         except KeyError:
-            raise KeyError("Mismatch key into path 'releases[0].tender.id'")
+            KeyError("Mismatch key into path 'releases[0].tender.id'")
 
         self.expected_fs_release['releases'][0]['tender']['status'] = "active"
         self.expected_fs_release['releases'][0]['tender']['statusDetails'] = "empty"
@@ -277,7 +277,7 @@ class FinancialSourceRelease:
                 funder_role_object['address']['addressDetails']['region'] = expected_funder_region_object[0]
                 funder_role_object['address']['addressDetails']['locality'] = expected_funder_locality_object[0]
             except ValueError:
-                raise ValueError(
+                ValueError(
                     "Impossible to prepare addressDetails object for party with funder role.")
 
             if "uri" in self.fs_payload['buyer']['identifier']:
@@ -412,7 +412,7 @@ class FinancialSourceRelease:
             payer_role_object['address']['addressDetails']['region'] = expected_payer_region_object[0]
             payer_role_object['address']['addressDetails']['locality'] = expected_payer_locality_object[0]
         except ValueError:
-            raise ValueError(
+            ValueError(
                 "Impossible to prepare addressDetails object for party with funder role.")
 
         if "uri" in self.fs_payload['tender']['procuringEntity']['identifier']:
@@ -520,7 +520,7 @@ class FinancialSourceRelease:
                     if parties_array[exp]['id'] == self.actual_fs_release['releases'][0]['parties'][act]['id']:
                         expected_parties_array.append(parties_array[exp])
         else:
-            raise ValueError("Quantity of objects into actual ms release doesn't equal "
+            ValueError("Quantity of objects into actual ms release doesn't equal "
                              "quantity of objects into prepared parties array")
 
         self.expected_fs_release['releases'][0]['parties'] = expected_parties_array
@@ -630,9 +630,9 @@ class FinancialSourceRelease:
                 self.expected_fs_release['releases'][0]['relatedProcesses'][0]['id'] = \
                     self.actual_fs_release['releases'][0]['relatedProcesses'][0]['id']
             else:
-                raise ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
+                ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
         except KeyError:
-            raise KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
+            KeyError("Mismatch key into path 'releases[0].relatedProcesses[0].id'")
 
         self.expected_fs_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "parent"
         self.expected_fs_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"

@@ -33,7 +33,7 @@ class UpdateAggregatedPlanRelease:
                 self.__metadata_document_url = "http://storage.eprocurement.systems/get"
                 self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
         self.__expected_ap_release = {
             "uri": self.__previous_ap_release['uri'],
@@ -388,7 +388,7 @@ class UpdateAggregatedPlanRelease:
                             expected_lot_region_object[0]
 
                     except ValueError:
-                        raise ValueError(
+                        ValueError(
                             f"Impossible to prepare the 'expected releases[0].tender.lots[{q_0}]."
                             f"placeOfPerformance.address.addressDetails' object.")
                 else:
@@ -410,9 +410,9 @@ class UpdateAggregatedPlanRelease:
                                 lots_array[exp]['id'] = \
                                     self.__actual_ap_release['releases'][0]['tender']['lots'][act]['id']
                             else:
-                                raise ValueError(f"The 'releases[0].tender.lots[{act}].id' must be uuid.")
+                                ValueError(f"The 'releases[0].tender.lots[{act}].id' must be uuid.")
                         except KeyError:
-                            raise KeyError(f"Mismatch key into path 'releases[0].tender.lots[{act}].id'")
+                            KeyError(f"Mismatch key into path 'releases[0].tender.lots[{act}].id'")
 
                         expected_lots.append(lots_array[exp])
             self.__expected_ap_release['releases'][0]['tender']['lots'] = expected_lots
@@ -434,9 +434,9 @@ class UpdateAggregatedPlanRelease:
                     if is_permanent_id_correct is True:
                         items_array[q_0]['id'] = self.__actual_ap_release['releases'][0]['tender']['items'][q_0]['id']
                     else:
-                        raise ValueError(f"The 'releases[0].tender.items[{q_0}].id' must be uuid.")
+                        ValueError(f"The 'releases[0].tender.items[{q_0}].id' must be uuid.")
                 except KeyError:
-                    raise KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
+                    KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
                 if "internalId" in self.__payload['tender']['items'][q_0]:
                     items_array[q_0]['internalId'] = self.__payload['tender']['items'][q_0]['internalId']
@@ -592,7 +592,7 @@ class UpdateAggregatedPlanRelease:
                         items_array[q_0]['deliveryAddress']['addressDetails']['region'] = \
                             expected_item_region_object[0]
                     except ValueError:
-                        raise ValueError(
+                        ValueError(
                             f"Impossible to prepare the expected releases[0].tender.items[{q_0}].deliveryAddress."
                             "addressDetails object.")
                 else:
@@ -614,9 +614,9 @@ class UpdateAggregatedPlanRelease:
                                 items_array[exp]['id'] = \
                                     self.__actual_ap_release['releases'][0]['tender']['items'][act]['id']
                             else:
-                                raise ValueError(f"The 'releases[0].tender.items[{act}].id' must be uuid.")
+                                ValueError(f"The 'releases[0].tender.items[{act}].id' must be uuid.")
                         except KeyError:
-                            raise KeyError(f"Mismatch key into path 'releases[0].tender.items[{act}].id'")
+                            KeyError(f"Mismatch key into path 'releases[0].tender.items[{act}].id'")
 
                         if "additionalClassifications" in items_array[exp]:
                             expected_additional_classifications = list()
@@ -719,6 +719,7 @@ class UpdateAggregatedPlanRelease:
                 """
                Enrich mainProcurementCategory, depends on tender.classification.id.
                """
+                expected_main_procurement_category = None
                 if \
                         expected_cpv_data[0][0:2] == "03" or \
                         expected_cpv_data[0][0] == "1" or \
@@ -739,12 +740,12 @@ class UpdateAggregatedPlanRelease:
                         expected_cpv_data[0][0:2] == "98":
                     expected_main_procurement_category = "services"
                 else:
-                    raise ValueError("Check your tender.classification.id")
+                    ValueError("Check your tender.classification.id")
 
                 self.__expected_fa_release['releases'][0]['tender']['mainProcurementCategory'] = \
                     expected_main_procurement_category
             except KeyError:
-                raise KeyError("Could not parse tender.classification.id.")
+                KeyError("Could not parse tender.classification.id.")
         else:
             self.__expected_fa_release['releases'][0]['tender']['classification']['id'] = \
                 self.__previous_fa_release['releases'][0]['tender']['classification']['id']

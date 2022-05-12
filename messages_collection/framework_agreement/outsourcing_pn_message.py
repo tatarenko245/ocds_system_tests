@@ -39,9 +39,9 @@ class OutsourcingPnMessage:
             if is_operation_id_correct is True:
                 self.__message['X-OPERATION-ID'] = self.__actual_message['X-OPERATION-ID']
             else:
-                raise ValueError("The message is not correct: 'X-OPERATION-ID' must be uuid.")
+                ValueError("The message is not correct: 'X-OPERATION-ID' must be uuid.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'X-OPERATION-ID'.")
+            KeyError("The message is not correct: mismatch key 'X-OPERATION-ID'.")
 
         if "X-RESPONSE-ID" in self.__actual_message:
             is_process_id_correct = is_it_uuid(self.__actual_message['X-RESPONSE-ID'])
@@ -49,24 +49,24 @@ class OutsourcingPnMessage:
             if is_process_id_correct is True:
                 self.__message['X-RESPONSE-ID'] = self.__actual_message['X-RESPONSE-ID']
             else:
-                raise ValueError("The message is not correct: 'X-RESPONSE-ID' must be uuid.")
+                ValueError("The message is not correct: 'X-RESPONSE-ID' must be uuid.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'X-RESPONSE-ID'.")
+            KeyError("The message is not correct: mismatch key 'X-RESPONSE-ID'.")
 
         if "initiator" in self.__actual_message:
             self.__message['initiator'] = "platform"
         else:
-            raise KeyError("The message is not correct: mismatch key 'initiator'.")
+            KeyError("The message is not correct: mismatch key 'initiator'.")
 
         if "ocid" in self.__actual_message['data']:
             self.__message['data']['ocid'] = self.__pn_ocid
         else:
-            raise KeyError("The message is not correct: mismatch key 'data.ocid'.")
+            KeyError("The message is not correct: mismatch key 'data.ocid'.")
 
         if "url" in self.__actual_message['data']:
             self.__message['data']['url'] = f"{self.tender_url}/{self.__pn_cpid}/{self.__pn_ocid}"
         else:
-            raise KeyError("The message is not correct: mismatch key 'data.url'.")
+            KeyError("The message is not correct: mismatch key 'data.url'.")
 
         if "operationDate" in self.__actual_message['data']:
             is_date_correct = fnmatch.fnmatch(self.__actual_message["data"]["operationDate"], "202*-*-*T*:*:*Z")
@@ -74,8 +74,8 @@ class OutsourcingPnMessage:
             if is_date_correct is True:
                 self.__message['data']['operationDate'] = self.__actual_message['data']['operationDate']
             else:
-                raise ValueError("The message is not correct: 'data.operationDate'.")
+                ValueError("The message is not correct: 'data.operationDate'.")
         else:
-            raise KeyError("The message is not correct: mismatch key 'data.operationDate'.")
+            KeyError("The message is not correct: mismatch key 'data.operationDate'.")
 
         return self.__message

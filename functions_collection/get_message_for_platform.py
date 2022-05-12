@@ -29,13 +29,13 @@ def get_message_for_platform(operation_id=None, ocid=None, initiator=None):
         if status_code == 200:
             message = requests.get(url).json()
             if str(message) == str([]):
-                raise ValueError("The message was not found in Kafka topic")
-        raise ValueError("The message was not found in Kafka topic")
+                ValueError("The message was not found in Kafka topic")
+        ValueError("The message was not found in Kafka topic")
 
     if status_code == 200:
         message = requests.get(url).json()
         if str(message) == str([]):
-            raise ValueError("The message was not found in Kafka topic")
+            ValueError("The message was not found in Kafka topic")
 
     if type(message) is list:
         for i in range(len(message)):

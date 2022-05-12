@@ -1,3 +1,6 @@
+import datetime
+
+
 def cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cp_id):
     connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cp_id}';").one()
     connect_to_ocds.execute(f"DELETE FROM budget_ei WHERE cp_id='{cp_id}';")
@@ -69,6 +72,31 @@ def cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, c
 
 def cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, cpid):
     connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
+    connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")
+
+
+def get_parameter_from_clarification_rules(connect_to_clarification, country, pmd, operation_type, parameter):
+    value = connect_to_clarification.execute(
+        f"""SELECT "value" FROM rules WHERE "country"='{country}' AND "pmd" = '{pmd}' AND
+        "operation_type" = '{operation_type}' AND "parameter" = '{parameter}';""").one()
+    return value.value
+
+
+def fe_enquiry_period_end_date(pre_qualification_period_end_date, interval_seconds: int):
+    duration_date_end = datetime.datetime.strptime(
+        pre_qualification_period_end_date, '%Y-%m-%dT%H:%M:%SZ') - datetime.timedelta(seconds=interval_seconds)
+    end_date = duration_date_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return end_date
+
+
+def cleanup_table_of_services_for_framework_establishment(
+        connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, cpid):
+    connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_dossier.execute(f"DELETE FROM period WHERE cpid='{cpid}';")
+    connect_to_clarification.execute(f"DELETE FROM periods WHERE cpid='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
     connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")

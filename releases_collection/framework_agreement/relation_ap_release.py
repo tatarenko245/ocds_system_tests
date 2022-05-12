@@ -41,7 +41,7 @@ class RelationAggregatedPlanRelease:
                 self.__metadata_document_url = "http://storage.eprocurement.systems/get"
                 self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
         self.__expected_pn_release = {
             "uri": self.__previous_pn_release['uri'],
@@ -743,7 +743,7 @@ class RelationAggregatedPlanRelease:
                 new_parties[p_0]['address']['addressDetails']['region'] = expected_region_object[0]
                 new_parties[p_0]['address']['addressDetails']['locality'] = expected_locality_object[0]
             except ValueError:
-                raise ValueError("Impossible to prepare expected 'addressDetails' object for party "
+                ValueError("Impossible to prepare expected 'addressDetails' object for party "
                                  "with 'role'= ['client'].")
 
             if "additionalIdentifiers" in self.__list_of_ei_payload[p_0]['buyer']:
@@ -857,9 +857,9 @@ class RelationAggregatedPlanRelease:
                             new_related_processes[exp]['id'] = \
                                 self.__actual_ap_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            raise ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
                     except KeyError:
-                        raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
+                        KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
 
         # Sort objects:
         expected_related_processes = list()
@@ -910,7 +910,7 @@ class RelationAggregatedPlanRelease:
 
             expected_tender_value_amount = sum(amount_from_pn_payload)
         except ValueError:
-            raise ValueError("Impossible to prepare expected 'tender.value.amount' attribute.")
+            ValueError("Impossible to prepare expected 'tender.value.amount' attribute.")
 
         self.__expected_fa_release['releases'][0]['tender']['value']['amount'] = expected_tender_value_amount
         return self.__expected_fa_release

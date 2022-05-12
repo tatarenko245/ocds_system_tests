@@ -56,7 +56,7 @@ class TestOutsourcingPN:
         step_number += 1
         with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
             """
-            Send api request to BPE host to create a Outsourcing PN process.
+            Send request to BPE host to create a Outsourcing PN process.
             """
 
             synchronous_result = outsourcing_pn_process(
@@ -108,7 +108,7 @@ class TestOutsourcingPN:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -151,7 +151,7 @@ class TestOutsourcingPN:
 
                     expected_pn_release = expected_release.build_expected_pn_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected PN release.")
+                    ValueError("Impossible to build expected PN release.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_pn_release), "Actual message.")
@@ -172,7 +172,7 @@ class TestOutsourcingPN:
                     """
                     expected_ms_release = expected_release.build_expected_ms_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected MS release.")
+                    ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
                     allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
@@ -193,7 +193,7 @@ class TestOutsourcingPN:
                     """
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected AP release.")
+                    ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -214,7 +214,7 @@ class TestOutsourcingPN:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected FA release.")
+                    ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -241,7 +241,7 @@ class TestOutsourcingPN:
                 pn_cpid
             )
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model from previous processes.")
     def test_case_2(self, get_parameters, connect_to_keyspace, create_ap_tc_2):
@@ -281,7 +281,7 @@ class TestOutsourcingPN:
         step_number += 1
         with allure.step(f'# {step_number}. Send a request to create a Outsourcing PN process.'):
             """
-            Send api request to BPE host to create a Outsourcing PN process.
+            Send request to BPE host to create a Outsourcing PN process.
             """
 
             synchronous_result = outsourcing_pn_process(
@@ -333,7 +333,7 @@ class TestOutsourcingPN:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -376,7 +376,7 @@ class TestOutsourcingPN:
 
                     expected_pn_release = expected_release.build_expected_pn_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected PN release.")
+                    ValueError("Impossible to build expected PN release.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_pn_release), "Actual message.")
@@ -397,7 +397,7 @@ class TestOutsourcingPN:
                     """
                     expected_ms_release = expected_release.build_expected_ms_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected MS release.")
+                    ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
                     allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
@@ -418,7 +418,7 @@ class TestOutsourcingPN:
                     """
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected AP release.")
+                    ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -439,7 +439,7 @@ class TestOutsourcingPN:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected FA release.")
+                    ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -466,4 +466,4 @@ class TestOutsourcingPN:
                 pn_cpid
             )
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")

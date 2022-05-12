@@ -361,9 +361,9 @@ def get_sum_of_lot(lots_array):
             if "amount" in lot_object['value']:
                 sum_of_lot.append(lot_object['value']['amount'])
             else:
-                raise KeyError("Check lot_object['value']['amount']")
+                KeyError("Check lot_object['value']['amount']")
         else:
-            raise KeyError("Check lot_object['value']")
+            KeyError("Check lot_object['value']")
     s = float(format(sum(sum_of_lot), '.2f'))
     return s
 
@@ -377,17 +377,122 @@ def get_contract_period_for_ms_release(lots_array):
                 date = datetime.datetime.strptime(lot_object['contractPeriod']['startDate'], "%Y-%m-%dT%H:%M:%SZ")
                 start_date.append(date)
             else:
-                raise KeyError("Check lot_object['contractPeriod']['startDate']")
+                KeyError("Check lot_object['contractPeriod']['startDate']")
 
             if "endDate" in lot_object['contractPeriod']:
                 date = datetime.datetime.strptime(lot_object['contractPeriod']['endDate'], "%Y-%m-%dT%H:%M:%SZ")
                 end_date.append(date)
             else:
-                raise KeyError("Check lot_object['contractPeriod']['endDate']")
+                KeyError("Check lot_object['contractPeriod']['endDate']")
         else:
-            raise KeyError("Check lot_object['contractPeriod']")
+            KeyError("Check lot_object['contractPeriod']")
     minimum_date = min(start_date)
     start_date_for_ms_release = minimum_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     maximum_date = max(end_date)
     end_date_for_ms_release = maximum_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     return start_date_for_ms_release, end_date_for_ms_release
+
+
+def make_unique_numbers(n):
+    """
+    This function returns set of the unique numbers.
+    """
+    set_of_numbers = set()
+    while len(set_of_numbers) < n:
+        set_of_numbers.add(random.randint(0, n))
+    return set_of_numbers
+
+
+def set_eligibility_evidences_unique_temporary_id(payload_criteria_array):
+    """
+    This function returns
+    criteria[*].requirementGroups[*].requirements[*].eligibleEvidences[*].id as temporary id.
+    """
+    quantity_of_id_list = list()
+    for i in payload_criteria_array:
+        if "requirementGroups" in i:
+            for i_1 in i['requirementGroups']:
+                if "requirements" in i_1:
+                    for i_2 in i_1['requirements']:
+                        if "eligibleEvidences" in i_2:
+                            for i_3 in i_2['eligibleEvidences']:
+                                if "id" in i_3:
+                                    quantity_of_id_list.append(i_3['id'])
+
+    test = make_unique_numbers(len(quantity_of_id_list))
+    iterator = len(test)
+    if len(quantity_of_id_list) == len(test):
+        for i in payload_criteria_array:
+            if "requirementGroups" in i:
+                for i_1 in i['requirementGroups']:
+                    if "requirements" in i_1:
+                        for i_2 in i_1['requirements']:
+                            if "eligibleEvidences" in i_2:
+                                for i_3 in i_2['eligibleEvidences']:
+                                    if "id" in i_3:
+                                        i_3['id'] = str(iterator)
+                                        iterator -= 1
+
+    return payload_criteria_array
+
+
+def set_criteria_array_unique_temporary_id(payload_criteria_array):
+    """
+    This function returns criteria array with unique criteria[*].id, criteria[*].requirementGroups[*].id,
+    criteria[*].requirementGroups[*].requirements[*].id as temporary id.
+    """
+    criteria_objects = list()
+    for o in payload_criteria_array:
+        if "id" in o:
+            criteria_objects.append(o['id'])
+
+    requirement_groups_objects = list()
+    for o in payload_criteria_array:
+        if "id" in o:
+            for o_1 in o['requirementGroups']:
+                if "id" in o_1:
+                    requirement_groups_objects.append(o_1['id'])
+
+    requirements_objects = list()
+    for o in payload_criteria_array:
+        if "id" in o:
+            for o_1 in o['requirementGroups']:
+                if "id" in o_1:
+                    for o_2 in o_1['requirements']:
+                        if "id" in o_2:
+                            requirements_objects.append(o_1['id'])
+
+    quantity_of_criteria_objects = len(criteria_objects)
+    quantity_of_requirement_group_objects = len(requirement_groups_objects)
+    quantity_of_requirement_objects = len(requirements_objects)
+
+    test = make_unique_numbers(quantity_of_criteria_objects)
+    iterator = len(test)
+    criteria_list = []
+    if quantity_of_criteria_objects == len(test):
+        for o in payload_criteria_array:
+            o['id'] = str(iterator).zfill(3)
+            iterator -= 1
+            criteria_list.append(o)
+
+    test = make_unique_numbers(quantity_of_requirement_group_objects)
+    iterator = len(test)
+    requirement_groups_list = []
+    if quantity_of_requirement_group_objects == len(test):
+        for o in criteria_list:
+            for o_1 in o['requirementGroups']:
+                o_1['id'] = f"{o['id']}-{str(iterator).zfill(3)}"
+                iterator -= 1
+                requirement_groups_list.append(o_1)
+
+    test = make_unique_numbers(quantity_of_requirement_objects)
+    iterator = len(test)
+    requirements_list = []
+    if quantity_of_requirement_objects == len(test):
+        for o in requirement_groups_list:
+            for o_1 in o['requirements']:
+                o_1['id'] = f"{o['id']}-{str(iterator).zfill(3)}"
+                iterator -= 1
+                requirements_list.append(o_1)
+
+    return payload_criteria_array

@@ -37,7 +37,7 @@ class OutsourcingPlanningNoticeRelease:
                 self.__metadata_document_url = "http://storage.eprocurement.systems/get"
                 self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
-            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
+            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
         self.__expected_pn_release = {
             "uri": self.__previous_pn_release['uri'],
@@ -703,9 +703,9 @@ class OutsourcingPlanningNoticeRelease:
                             new_related_processes[exp]['id'] = \
                                 self.__actual_pn_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            raise ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
                     except KeyError:
-                        raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
+                        KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
 
         # Sort objects:
         expected_related_processes = list()
@@ -794,9 +794,9 @@ class OutsourcingPlanningNoticeRelease:
                             new_related_processes[exp]['id'] = \
                                 self.__actual_fa_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            raise ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
                     except KeyError:
-                        raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
+                        KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
 
         # Sort objects:
         expected_related_processes = list()

@@ -58,7 +58,7 @@ class TestUpdateAP:
         step_number += 1
         with allure.step(f'# {step_number}. Send a request to create a Update AP process.'):
             """
-            Send api request to BPE host to create a Update AP process.
+            Send request to BPE host to create a Update AP process.
             """
             try:
                 """
@@ -91,13 +91,13 @@ class TestUpdateAP:
                     lot_id_list=lot_id_list,
                     quantity_of_new_documents=3
                 )
-                # Forbiden change currency, even if actual currency == previous currency.
+                # Forbidden change currency, even if actual currency == previous currency.
                 payload.delete_optional_fields(
                     "tender.value"
                 )
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Update AP process.")
+                ValueError("Impossible to build payload for Update AP process.")
 
             synchronous_result = update_ap_process(
                 host=bpe_host,
@@ -148,7 +148,7 @@ class TestUpdateAP:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -187,7 +187,7 @@ class TestUpdateAP:
 
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected AP release.")
+                    ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -200,19 +200,19 @@ class TestUpdateAP:
 
             with allure.step(f'# {step_number}.4. Check FA release.'):
                 """
-                Compare previous MS release and actual MS release.
+                Compare previous FA release and actual FA release.
                 """
                 try:
                     """
-                    Build expected MS release.
+                    Build expected FA release.
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected MS release.")
+                    ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected MS release."):
-                    allure.attach(json.dumps(actual_fa_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_fa_release), "Expected MS release.")
+                    allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
+                    allure.attach(json.dumps(expected_fa_release), "Expected FA release.")
 
                     assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
@@ -227,4 +227,4 @@ class TestUpdateAP:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")

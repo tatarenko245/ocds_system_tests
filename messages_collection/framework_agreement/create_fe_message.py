@@ -1,19 +1,18 @@
-""" Prepare expected message for platform, the Update Aggregated Plan process of Framework Agreement procedure."""
+""" Prepare expected message for platform, the Framework Establishment process of Framework Agreement procedure."""
+import copy
 import fnmatch
 
 from functions_collection.some_functions import is_it_uuid
 
 
-class UpdateApMessage:
+class FrameworkEstablishmentMessage:
     """ Class creates instance of message for platform."""
 
-    def __init__(self, environment, actual_message, cpid, ocid, test_mode=False):
-
+    def __init__(self, environment, actual_message, expected_quantity_of_outcomes_ap=1, test_mode=False):
         self.__environment = environment
         self.__actual_message = actual_message
-        self.__cpid = cpid
-        self.__ocid = ocid
         self.__test_mode = test_mode
+        self.__expected_quantity_of_outcomes_fe = expected_quantity_of_outcomes_ap
 
         if environment == "dev":
             self.tender_url = "http://dev.public.eprocurement.systems/tenders"
@@ -27,12 +26,19 @@ class UpdateApMessage:
             "data": {
                 "ocid": "",
                 "url": "",
-                "operationDate": ""
+                "operationDate": "",
+                "outcomes": {
+                    "fe": [
+                        {
+                            "id": ""
+                        }
+                    ]
+                }
             }
         }
 
     def build_expected_message(self):
-        """Build the message"""
+        """ Build message."""
 
         if "X-OPERATION-ID" in self.__actual_message:
             is_operation_id_correct = is_it_uuid(self.__actual_message['X-OPERATION-ID'])
@@ -52,7 +58,7 @@ class UpdateApMessage:
             else:
                 ValueError("The message is not correct: 'X-RESPONSE-ID' must be uuid.")
         else:
-            KeyError("The message of UpdateAp process is not correct: mismatch key 'X-RESPONSE-ID'.")
+            KeyError("The message is not correct: mismatch key 'X-RESPONSE-ID'.")
 
         if "initiator" in self.__actual_message:
             self.__message['initiator'] = "platform"
@@ -60,12 +66,20 @@ class UpdateApMessage:
             KeyError("The message is not correct: mismatch key 'initiator'.")
 
         if "ocid" in self.__actual_message['data']:
-            self.__message['data']['ocid'] = self.__ocid
+            if self.__test_mode is False:
+                is_ocid_correct = fnmatch.fnmatch(self.__actual_message["data"]["ocid"], "ocds-t1s2t3-MD-*")
+            else:
+                is_ocid_correct = fnmatch.fnmatch(self.__actual_message["data"]["ocid"], "test-t1s2t3-MD-*")
+
+            if is_ocid_correct is True:
+                self.__message['data']['ocid'] = self.__actual_message['data']['ocid']
+            else:
+                ValueError("The message is not correct: 'data.ocid'.")
         else:
             KeyError("The message is not correct: mismatch key 'data.ocid'.")
 
         if "url" in self.__actual_message['data']:
-            self.__message['data']['url'] = f"{self.tender_url}/{self.__cpid}/{self.__ocid}"
+            self.__message['data']['url'] = f"{self.tender_url}/{self.__message['data']['ocid']}"
         else:
             KeyError("The message is not correct: mismatch key 'data.url'.")
 
@@ -79,4 +93,23 @@ class UpdateApMessage:
         else:
             KeyError("The message is not correct: mismatch key 'data.operationDate'.")
 
+        outcomes_fe_array = list()
+        for obj in range(self.__expected_quantity_of_outcomes_fe):
+            outcomes_fe_array.append(copy.deepcopy(self.__message['data']['outcomes']['fe'][0]))
+
+            if self.__test_mode is False:
+                is_fe_id_correct = fnmatch.fnmatch(
+                    self.__actual_message["data"]["outcomes"]["fe"][obj]["id"], "ocds-t1s2t3-MD-*-FE-*"
+                )
+            else:
+                is_fe_id_correct = fnmatch.fnmatch(
+                    self.__actual_message["data"]["outcomes"]["fe"][obj]["id"], "test-t1s2t3-MD-*-FE-*"
+                )
+
+            if is_fe_id_correct is True:
+                outcomes_fe_array[obj]['id'] = self.__actual_message["data"]["outcomes"]["fe"][obj]["id"]
+            else:
+                ValueError("The message of AP_release process is not correct: 'data.outcomes.fe.id'.")
+
+        self.__message['data']['outcomes']['fe'] = outcomes_fe_array
         return self.__message

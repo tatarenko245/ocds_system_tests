@@ -1,5 +1,7 @@
 import datetime
 
+import pytz
+
 
 def ei_period(start=0, end=90):
     date = datetime.datetime.now()
@@ -31,3 +33,19 @@ def contact_period(max_duration_of_fa=None):
         duration_date_end = date + datetime.timedelta(days=days-1)
         end_date = duration_date_end.strftime('%Y-%m-%dT%H:%M:%SZ')
     return start_date, end_date
+
+
+def old_period():
+    date = datetime.datetime.now()
+    duration_date_start = date - datetime.timedelta(days=365)
+    start_date = duration_date_start.strftime('%Y-%m-%dT%H:%M:%SZ')
+    duration_date_end = date - datetime.timedelta(days=350)
+    end_date = duration_date_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return start_date, end_date
+
+
+def pre_qualification_period_end_date(interval_seconds: int):
+    date = datetime.datetime.now(pytz.utc)
+    duration_date_end = date + datetime.timedelta(seconds=interval_seconds)
+    end_date = duration_date_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return end_date

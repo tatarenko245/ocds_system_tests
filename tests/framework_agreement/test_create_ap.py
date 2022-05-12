@@ -45,7 +45,7 @@ class TestCreateAP:
         step_number += 1
         with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
             """
-            Send api request to BPE host to create a Create AP process.
+            Send request to BPE host to create a Create AP process.
             And save in variable cpid and token..
             """
             try:
@@ -74,7 +74,7 @@ class TestCreateAP:
 
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create AP process.")
+                ValueError("Impossible to build payload for Create AP process.")
 
             synchronous_result = create_ap_process(
                 host=bpe_host,
@@ -124,7 +124,7 @@ class TestCreateAP:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -164,7 +164,7 @@ class TestCreateAP:
 
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected AP release.")
+                    ValueError("Impossible to build expected AP release.")
 
                 with allure.step('Compare actual and expected AP release.'):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -177,7 +177,7 @@ class TestCreateAP:
 
             with allure.step(f'# {step_number}.4. Check FA release.'):
                 """
-                Compare actual MS release and expected FA release.
+                Compare actual FA release and expected FA release.
                 """
                 try:
                     """
@@ -185,7 +185,7 @@ class TestCreateAP:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected FA release.")
+                    ValueError("Impossible to build expected FA release.")
 
                 with allure.step('Compare actual and expected FA release.'):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -203,7 +203,7 @@ class TestCreateAP:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace):
@@ -231,7 +231,7 @@ class TestCreateAP:
         step_number += 1
         with allure.step(f'# {step_number}. Send a request to create a Create AP process.'):
             """
-            Send api request to BPE host to create a Create AP process.
+            Send request to BPE host to create a Create AP process.
             And save in variable cpid and token..
             """
             try:
@@ -261,7 +261,7 @@ class TestCreateAP:
 
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create AP process.")
+                ValueError("Impossible to build payload for Create AP process.")
 
             synchronous_result = create_ap_process(
                 host=bpe_host,
@@ -311,7 +311,7 @@ class TestCreateAP:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    raise ValueError("Impossible to build expected message for platform.")
+                    ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -351,7 +351,7 @@ class TestCreateAP:
 
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected AP release.")
+                    ValueError("Impossible to build expected AP release.")
 
                 with allure.step('Compare actual and expected AP release.'):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -372,7 +372,7 @@ class TestCreateAP:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    raise ValueError("Impossible to build expected FA release.")
+                    ValueError("Impossible to build expected FA release.")
 
                 with allure.step('Compare actual and expected FA release.'):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -390,4 +390,4 @@ class TestCreateAP:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            raise ValueError("Impossible to cLean up the database.")
+            ValueError("Impossible to cLean up the database.")

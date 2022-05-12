@@ -4,7 +4,7 @@ import random
 
 from class_collection.document_registration import Document
 from data_collection.data_constant import cpv_category_tuple, cpv_goods_high_level_tuple, cpv_works_high_level_tuple, \
-    cpv_services_high_level_tuple, currency_tuple, legal_basis_tuple, locality_scheme_tuple, document_type_tuple
+    cpv_services_high_level_tuple, currency_tuple, legal_basis_tuple, locality_scheme_tuple, documentType_tuple
 from functions_collection.prepare_date import pn_period, contact_period
 
 
@@ -87,7 +87,7 @@ class AggregatedPlan:
                 },
                 "documents": [
                     {
-                        "documentType": f"{random.choice(document_type_tuple)}",
+                        "documentType": f"{random.choice(documentType_tuple)}",
                         "id": self.__document_one_was_uploaded[0]["data"]["id"],
                         "title": "create ap: tender.documents.title",
                         "description": "create ap: tender.documents.description"
@@ -136,7 +136,7 @@ class AggregatedPlan:
                 del self.__payload['tender']['documents'][document_position]['description']
 
             else:
-                raise KeyError(f"Impossible to delete attribute by path {a}.")
+                KeyError(f"Impossible to delete attribute by path {a}.")
 
     def customize_tender_procuring_entity_additional_identifiers(
             self, quantity_of_tender_procuring_entity_additional_identifiers):
@@ -173,7 +173,7 @@ class AggregatedPlan:
             document_two_was_uploaded = document_two.uploading_document()
 
             new_documents_array[q_0]['id'] = document_two_was_uploaded[0]["data"]["id"]
-            new_documents_array[q_0]['documentType'] = f"{random.choice(document_type_tuple)}"
+            new_documents_array[q_0]['documentType'] = f"{random.choice(documentType_tuple)}"
             new_documents_array[q_0]['title'] = f"create pn: tender.documents{q_0}.title"
             new_documents_array[q_0]['description'] = f"create pn: tender.documents{q_0}.description"
 

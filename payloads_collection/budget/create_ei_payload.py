@@ -169,7 +169,7 @@ class ExpenditureItemPayload:
                 del self.__payload['buyer']['details']['mainSectoralActivity']
 
             else:
-                raise KeyError(f"Impossible to delete attribute by path {a}.")
+                KeyError(f"Impossible to delete attribute by path {a}.")
 
     def customize_tender_items(self, quantity_of_items, quantity_of_items_additional_classifications):
         """
