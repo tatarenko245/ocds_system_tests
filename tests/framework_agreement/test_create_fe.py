@@ -13,7 +13,7 @@ from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_fe_process
 from messages_collection.framework_agreement.create_fe_message import FrameworkEstablishmentMessage
 from payloads_collection.framework_agreement.create_fe_payload import FrameworkEstablishmentPayload
-from releases_collection.framework_agreement.create_fe_release import FrameworkEstablishmentRelease
+from releases_collection.framework_agreement.create_fe_release import CreateFrameworkEstablishmentRelease
 
 
 @allure.parent_suite("Framework Agreement")
@@ -219,7 +219,7 @@ class TestCreateFE:
                     """
                     Build expected AP release.
                     """
-                    expected_release = copy.deepcopy(FrameworkEstablishmentRelease(
+                    expected_release = copy.deepcopy(CreateFrameworkEstablishmentRelease(
                         environment,
                         service_host,
                         country,
@@ -447,7 +447,7 @@ class TestCreateFE:
                     """
                     Build expected AP release.
                     """
-                    expected_release = copy.deepcopy(FrameworkEstablishmentRelease(
+                    expected_release = copy.deepcopy(CreateFrameworkEstablishmentRelease(
                         environment,
                         service_host,
                         country,

@@ -5,7 +5,7 @@ from functions_collection.cassandra_methods import fe_enquiry_period_end_date
 from functions_collection.some_functions import is_it_uuid
 
 
-class FrameworkEstablishmentRelease:
+class CreateFrameworkEstablishmentRelease:
     """This class creates instance of release."""
 
     def __init__(self, environment, host_to_service, country, language, pmd, ap_cpid, ap_ocid, fe_ocid, payload,
@@ -524,17 +524,11 @@ class FrameworkEstablishmentRelease:
     def build_expected_ap_release(self):
         """Build AP release."""
 
-        if "lots" in self.__previous_ap_release['releases'][0]['tender']:
-            self.__expected_ap_release['releases'][0]['tender']['lots'] = \
-                self.__previous_ap_release['releases'][0]['tender']['lots']
-        else:
-            ValueError("The actual release AP has not any 'lots'.")
+        self.__expected_ap_release['releases'][0]['tender']['lots'] = \
+            self.__previous_ap_release['releases'][0]['tender']['lots']
 
-        if "items" in self.__previous_ap_release['releases'][0]['tender']:
-            self.__expected_ap_release['releases'][0]['tender']['items'] = \
-                self.__previous_ap_release['releases'][0]['tender']['items']
-        else:
-            ValueError("The actual release AP has not any 'items'.")
+        self.__expected_ap_release['releases'][0]['tender']['items'] = \
+            self.__previous_ap_release['releases'][0]['tender']['items']
 
         if "documents" in self.__previous_ap_release['releases'][0]['tender']:
             self.__expected_ap_release['releases'][0]['tender']['documents'] = \

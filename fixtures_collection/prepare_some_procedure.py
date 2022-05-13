@@ -681,7 +681,7 @@ def create_ap_tc_1(get_parameters, connect_to_keyspace, create_pn_tc_1):
         allure.attach(str(message), "Message for platform.")
 
         yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url, \
-              pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
+            pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
         try:
             """
             CLean up the database.
@@ -784,7 +784,7 @@ def create_ap_tc_2(get_parameters, connect_to_keyspace, create_pn_tc_2):
         allure.attach(str(message), "Message for platform.")
 
         yield payload, ap_cpid, ap_ocid, ap_token, message, currency, tender_classification_id, ap_url, fa_url, \
-              pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
+            pn_cpid, pn_ocid, pn_token, pn_url, ms_url, pn_payload
         try:
             """
             CLean up the database.

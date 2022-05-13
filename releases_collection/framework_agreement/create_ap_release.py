@@ -532,6 +532,9 @@ class CreateAggregatedPlanRelease:
             """
             Enrich procurementMethod and procurementMethodDetails, depends on pmd.
             """
+            expected_procurement_method = None
+            expected_procurement_method_details = None
+            has_dynamic_purchasing_system = None
             if self.__pmd == "TEST_CF":
                 expected_procurement_method = 'selective'
                 expected_procurement_method_details = "testClosedFA"
@@ -549,8 +552,7 @@ class CreateAggregatedPlanRelease:
                 expected_procurement_method_details = "openFA"
                 has_dynamic_purchasing_system = True
             else:
-                ValueError("Check your pmd: You must use 'TEST_CF', "
-                                 "'TEST_CF', 'TEST_OF', 'OF' in pytest command")
+                ValueError("Check your pmd: You must use 'TEST_CF', 'TEST_CF', 'TEST_OF', 'OF' in pytest command")
 
             self.__expected_fa_release['releases'][0]['tender']['procurementMethod'] = expected_procurement_method
 
@@ -574,6 +576,7 @@ class CreateAggregatedPlanRelease:
             """
             Enrich eligibilityCriteria, depends on language.
             """
+            expected_eligibility_criteria = None
             if self.__language == "ro":
                 expected_eligibility_criteria = "Regulile generale privind naționalitatea și originea, precum și " \
                                                "alte criterii de eligibilitate sunt enumerate în " \
@@ -585,8 +588,7 @@ class CreateAggregatedPlanRelease:
                                                "in the Practical Guide to Contract Procedures for EU " \
                                                "External Actions (PRAG)"
             else:
-                ValueError("Check your language: You must use 'ro', "
-                                 "'en' in pytest command.")
+                ValueError("Check your language: You must use 'ro', 'en' in pytest command.")
 
             self.__expected_fa_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
         except KeyError:
