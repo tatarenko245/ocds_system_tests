@@ -496,3 +496,25 @@ def set_criteria_array_unique_temporary_id(payload_criteria_array):
                 requirements_list.append(o_1)
 
     return payload_criteria_array
+
+
+def set_unique_temporary_id_for_requirement_responses_evidences(payload_requirement_responses_array):
+    """
+    This function returns
+    'submission.requirementResponses[*].evidences[*].id' as temporary id.
+    """
+    quantity_of_id_list = list()
+    for q_0 in payload_requirement_responses_array:
+        for q_1 in q_0['evidences']:
+            if "id" in q_1:
+                quantity_of_id_list.append(q_1['id'])
+
+    test = make_unique_numbers(len(quantity_of_id_list))
+    iterator = len(test)
+    if len(quantity_of_id_list) == len(test):
+        for q_0 in payload_requirement_responses_array:
+            for q_1 in q_0['evidences']:
+                if "id" in q_1:
+                    q_1['id'] = str(iterator)
+                    iterator -= 1
+    return payload_requirement_responses_array

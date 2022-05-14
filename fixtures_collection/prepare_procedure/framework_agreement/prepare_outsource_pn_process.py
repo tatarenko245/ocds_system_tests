@@ -212,7 +212,7 @@ def outsource_pn_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         allure.attach(str(message), "Message for platform.")
 
     # Create EI_2: full data model.
-    step_number = 1
+    step_number += 1
     with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
         """
         Tender platform authorization for Create EI process.

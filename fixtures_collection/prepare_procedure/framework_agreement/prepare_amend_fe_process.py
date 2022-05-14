@@ -2,20 +2,27 @@ import copy
 import random
 import allure
 import pytest
+import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
+from class_collection.prepare_criteria_array import CriteriaArray
 from data_collection.data_constant import pmd_for_pn_framework_agreement
 from functions_collection.cassandra_methods import get_max_duration_of_fa_from_access_rules, \
     cleanup_ocds_orchestrator_operation_step_by_operation_id, cleanup_table_of_services_for_expenditure_item, \
     cleanup_table_of_services_for_financial_source, cleanup_table_of_services_for_planning_notice, \
     cleanup_orchestrator_steps_by_cpid, cleanup_table_of_services_for_outsourcing_planning_notice, \
-    cleanup_table_of_services_for_relation_aggregated_plan, cleanup_table_of_services_for_aggregated_plan
+    cleanup_table_of_services_for_relation_aggregated_plan, cleanup_table_of_services_for_aggregated_plan, \
+    cleanup_table_of_services_for_framework_establishment
 from functions_collection.get_message_for_platform import get_message_for_platform
+from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
-    create_ap_process, outsourcing_pn_process, relation_ap_process, update_ap_process
+    create_ap_process, outsourcing_pn_process, relation_ap_process, update_ap_process, create_fe_process, \
+    amend_fe_process
 from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
+from payloads_collection.framework_agreement.amend_fe_payload import AmendFrameworkEstablishmentPayload
 from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
+from payloads_collection.framework_agreement.create_fe_payload import FrameworkEstablishmentPayload
 from payloads_collection.framework_agreement.create_pn_payload import PlanningNoticePayload
 from payloads_collection.framework_agreement.update_ap_payload import UpdateAggregatedPlan
 
@@ -24,8 +31,9 @@ from payloads_collection.framework_agreement.update_ap_payload import UpdateAggr
 # Create EI_1: full data model, create FS_1: full data model, create PN_1: full data model,
 # create EI_2: full data model, create FS_2: full data model, create PN_2: full data model,
 # create AP: full data model, outsource PN_1: payload isn't needed, outsource PN_2: payload isn't needed,
-# relation AP: payload isn't needed, update ap: full data model.
-def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
+# relation AP: payload isn't needed, update ap: full data model, create FE: full data model, amend FE: full data model.
+def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
+    environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -38,6 +46,8 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_orchestrator = connect_to_keyspace[1]
     connect_to_access = connect_to_keyspace[2]
+    connect_to_clarification = connect_to_keyspace[3]
+    connect_to_dossier = connect_to_keyspace[4]
 
     # Create EI_1: full data model.
     step_number = 1
@@ -650,9 +660,199 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+
+    # Create FE: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create FE process.'):
+        """
+        Tender platform authorization for Create FE process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create FE process.'):
+        """
+        Send request to BPE host to create a Create FE process.
+        """
+        try:
+            """
+            Build payload for Create FE process.
+            """
+            payload = copy.deepcopy(FrameworkEstablishmentPayload(
+                ap_payload=ap_payload,
+                host_to_service=service_host,
+                country=country,
+                language=language,
+                environment=environment,
+                person_title="Mr.",
+                business_functions_type="chairman",
+                tender_documents_type="tenderNotice"
+            ))
+
+            payload.customize_tender_pe_persones(
+                quantity_of_persones_objects=3,
+                quantity_of_bf_objects=3,
+                quantity_of_bf_documents_objects=3
+            )
+
+            # Get all 'standard' criteria from eMDM service.
+            standard_criteria = get_standard_criteria(environment, country, language)
+
+            # Prepare 'exclusion' criteria for payload.
+            some_criteria = CriteriaArray(
+                host_to_service=service_host,
+                country=country,
+                language=language,
+                environment=environment,
+                quantity_of_criteria_objects=len(standard_criteria[1]),
+                quantity_of_requirement_groups_objects=1,
+                quantity_of_requirements_objects=2,
+                quantity_of_eligible_evidences_objects=2,
+                type_of_standard_criteria=1
+            )
+            # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
+            some_criteria.delete_optional_fields(
+                "criteria.requirementGroups.requirements.minValue",
+                "criteria.requirementGroups.requirements.maxValue",
+                # "criteria.description",
+                # "criteria.requirementGroups.description",
+                # "criteria.requirementGroups.requirements.description",
+                # "criteria.requirementGroups.requirements.period",
+                # "criteria.requirementGroups.requirements.eligibleEvidences"
+            )
+
+            some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+            some_criteria.set_unique_temporary_id_for_eligible_evidences()
+            some_criteria.set_unique_temporary_id_for_criteria()
+            exclusion_criteria_array = some_criteria.build_criteria_array()
+
+            # Prepare 'selection' criteria for payload.
+            some_criteria = CriteriaArray(
+                host_to_service=service_host,
+                country=country,
+                language=language,
+                environment=environment,
+                quantity_of_criteria_objects=len(standard_criteria[2]),
+                quantity_of_requirement_groups_objects=2,
+                quantity_of_requirements_objects=2,
+                quantity_of_eligible_evidences_objects=2,
+                type_of_standard_criteria=2
+            )
+            #  Delete redundant attribute: 'expectedValue', because attributes 'maxValue' and
+            #  'minValue' will be used.
+            some_criteria.delete_optional_fields(
+                "criteria.requirementGroups.requirements.expectedValue",
+                # "criteria.description",
+                # "criteria.requirementGroups.description",
+                # "criteria.requirementGroups.requirements.description",
+                # "criteria.requirementGroups.requirements.period",
+                # "criteria.requirementGroups.requirements.eligibleEvidences"
+            )
+
+            some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+            some_criteria.set_unique_temporary_id_for_eligible_evidences()
+            some_criteria.set_unique_temporary_id_for_criteria()
+            selection_criteria_array = some_criteria.build_criteria_array()
+
+            payload.customize_tender_criteria(exclusion_criteria_array, selection_criteria_array)
+            payload.customize_tender_documents(quantity_of_new_documents=3)
+
+            create_fe_payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Create FE process.")
+
+        create_fe_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=create_fe_payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=ap_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        fe_ocid = message['data']['outcomes']['fe'][0]['id']
+        fe_url = f"{message['data']['url']}/{fe_ocid}"
+        allure.attach(str(message), "Message for platform.")
+
+    previous_fe_release = requests.get(url=fe_url).json()
+    # Amend FE: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Amend FE process.'):
+        """
+        Tender platform authorization for Amend FE process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Amend FE process.'):
+        """
+        Send request to BPE host to create a Amend FE process.
+        """
+        try:
+            """
+            Build payload for Amend FE process.
+            """
+            payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
+                ap_payload=ap_payload,
+                create_fe_payload=create_fe_payload,
+                previous_fe_release=previous_fe_release,
+                host_to_service=service_host,
+                country=country,
+                language=language,
+                environment=environment,
+                person_title="Ms.",
+                business_functions_type="contactPoint",
+                tender_documents_type="complaints"
+            ))
+
+            payload.customize_old_persones(
+                "MD-IDNO-create fe: tender.procuringEntity.persones[0].id",
+                "MD-IDNO-create fe: tender.procuringEntity.persones[1].id",
+                "MD-IDNO-create fe: tender.procuringEntity.persones[2].id",
+                need_to_add_new_bf=True,
+                quantity_of_new_bf_objects=3,
+                need_to_add_new_document=True,
+                quantity_of_new_documents_objects=3
+            )
+            payload.add_new_persones(
+                quantity_of_persones_objects=3,
+                quantity_of_bf_objects=3,
+                quantity_of_documents_objects=3
+            )
+            payload.customize_old_tender_documents(
+                previous_fe_release['releases'][0]['tender']['documents'][0]['id'],
+                previous_fe_release['releases'][0]['tender']['documents'][1]['id']
+            )
+            payload.add_new_tender_documents(quantity_of_new_documents=3)
+            payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Amend FE process.")
+
+        amend_fe_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
-        ei_2_payload, currency, tender_classification_id
+        ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url
 
     try:
         """
@@ -701,6 +901,13 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         # Clean after Update AP process:
         cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
         cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
+
+        # Clean after Framework Establishment process:
+        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+
+        cleanup_table_of_services_for_framework_establishment(
+            connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
+        )
     except ValueError:
         ValueError("Impossible to cLean up the database.")
 
@@ -709,8 +916,10 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 # Create EI_1: required data model, create FS_1: required data model, create PN_1: required data model,
 # create EI_2: required data model, create FS_2: required data model, create PN_2: required data model,
 # create AP: required data model, outsource PN_1: payload isn't needed, outsource PN_2: payload isn't needed,
-# relation AP: payload isn't needed, update ap: required data model.
-def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
+# relation AP: payload isn't needed, update ap: required data model, create FE: required data model,
+# amend FE: required data model.
+def amend_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
+    environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
     country = get_parameters[4]
@@ -723,6 +932,8 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
     connect_to_ocds = connect_to_keyspace[0]
     connect_to_orchestrator = connect_to_keyspace[1]
     connect_to_access = connect_to_keyspace[2]
+    connect_to_clarification = connect_to_keyspace[3]
+    connect_to_dossier = connect_to_keyspace[4]
 
     # Create EI_1: required data model.
     step_number = 1
@@ -1345,9 +1556,125 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+
+    # Create FE: required data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create FE process.'):
+        """
+        Tender platform authorization for Create FE process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create FE process.'):
+        """
+        Send request to BPE host to create a Create FE process.
+        """
+        try:
+            """
+            Build payload for Create FE process.
+            """
+            payload = copy.deepcopy(FrameworkEstablishmentPayload(
+                ap_payload=ap_payload,
+                host_to_service=service_host,
+                country=country,
+                language=language,
+                environment=environment,
+                person_title="Mr.",
+                business_functions_type="chairman",
+                tender_documents_type="tenderNotice"
+            ))
+            payload.delete_optional_fields(
+                "tender.secondStage",
+                "tender.procurementMethodModalities",
+                "tender.procurementMethodRationale",
+                "tender.procuringEntity",
+                "tender.criteria",
+                "tender.documents"
+            )
+            create_fe_payload = payload.build_payload()
+
+        except ValueError:
+            ValueError("Impossible to build payload for Create FE process.")
+
+        create_fe_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=create_fe_payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=ap_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        fe_ocid = message['data']['outcomes']['fe'][0]['id']
+        fe_url = f"{message['data']['url']}/{fe_ocid}"
+        allure.attach(str(message), "Message for platform.")
+
+    previous_fe_release = requests.get(url=fe_url).json()
+    # Amend FE: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Amend FE process.'):
+        """
+        Tender platform authorization for Amend FE process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Amend FE process.'):
+        """
+        Send request to BPE host to create a Amend FE process.
+        """
+        try:
+            """
+            Build payload for Amend FE process.
+            """
+            payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
+                ap_payload=ap_payload,
+                create_fe_payload=create_fe_payload,
+                previous_fe_release=previous_fe_release,
+                host_to_service=service_host,
+                country=country,
+                language=language,
+                environment=environment,
+                person_title="Ms.",
+                business_functions_type="contactPoint",
+                tender_documents_type="complaints"
+            ))
+
+            payload.delete_optional_fields(
+                "tender.procuringEntity",
+                "tender.documents",
+                "tender.procurementMethodRationale"
+            )
+            payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Amend FE process.")
+
+        amend_fe_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
-        ei_2_payload, currency, tender_classification_id
+        ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url
 
     try:
         """
@@ -1396,5 +1723,12 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         # Clean after Update AP process:
         cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
         cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
+
+        # Clean after Framework Establishment process:
+        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+
+        cleanup_table_of_services_for_framework_establishment(
+            connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
+        )
     except ValueError:
         ValueError("Impossible to cLean up the database.")

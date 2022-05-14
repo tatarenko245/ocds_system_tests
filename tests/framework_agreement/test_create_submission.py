@@ -4,53 +4,46 @@ import allure
 import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
-from functions_collection.cassandra_methods import get_process_id_by_operation_id, \
-    cleanup_ocds_orchestrator_operation_step_by_operation_id, cleanup_table_of_services_for_framework_establishment
+from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
+    cleanup_table_of_services_for_create_submission
 from functions_collection.get_message_for_platform import get_message_for_platform
-from functions_collection.requests_collection import amend_fe_process
-from messages_collection.framework_agreement.amend_fe_message import AmendFrameworkEstablishmentMessage
-from payloads_collection.framework_agreement.amend_fe_payload import AmendFrameworkEstablishmentPayload
-from releases_collection.framework_agreement.amend_fe_release import AmendFrameworkEstablishmentRelease
+from functions_collection.requests_collection import create_submission_process
+from messages_collection.framework_agreement.create_submission_message import CreateSubmissionMessage
+from payloads_collection.framework_agreement.create_submission_payload import CreateSubmissionPayload
+from releases_collection.framework_agreement.create_submission_release import CreateSubmissionRelease
 
 
 @allure.parent_suite("Framework Agreement")
-@allure.suite("Framework Establishment")
+@allure.suite("Submission")
 @allure.severity("Critical")
-@allure.testcase(url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
-                 name="Why this test case was fall down?")
-class TestAmendFE:
+@allure.testcase(url="")
+class TestCreateSubmission:
     @allure.title("Check records: based on full data model.")
-    def test_case_1(self, get_parameters, connect_to_keyspace, create_fe_tc_1):
+    def test_case_1(self, get_parameters, connect_to_keyspace, amend_fe_tc_1):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
         service_host = get_parameters[3]
-        country = get_parameters[4]
-        language = get_parameters[5]
-        pmd = get_parameters[6]
 
         connect_to_ocds = connect_to_keyspace[0]
+        connect_to_orchestrator = connect_to_keyspace[1]
         connect_to_access = connect_to_keyspace[2]
-        connect_to_clarification = connect_to_keyspace[3]
         connect_to_dossier = connect_to_keyspace[4]
 
-        cpid = create_fe_tc_1[0]
-        token = create_fe_tc_1[2]
-        create_ap_payload = create_fe_tc_1[3]
-        ap_url = create_fe_tc_1[4]
-        fa_url = create_fe_tc_1[5]
-        create_fe_payload = create_fe_tc_1[22]
-        ocid = create_fe_tc_1[23]
-        fe_url = create_fe_tc_1[24]
+        cpid = amend_fe_tc_1[0]
+        ap_url = amend_fe_tc_1[4]
+        fa_url = amend_fe_tc_1[5]
+        ocid = amend_fe_tc_1[23]
+        fe_url = amend_fe_tc_1[24]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
 
         step_number = 1
-        with allure.step(f'# {step_number}. Authorization platform one: Amend FE process.'):
+        with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
             """
-            Tender platform authorization for Amend FE process.
+            Tender platform authorization for Create Submission process.
             As result get Tender platform's access token and process operation-id.
             """
             platform_one = PlatformAuthorization(bpe_host)
@@ -58,59 +51,57 @@ class TestAmendFE:
             operation_id = platform_one.get_x_operation_id(access_token)
 
         step_number += 1
-        with allure.step(f'# {step_number}. Send a request to create a Amend FE process.'):
+        with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
             """
-            Send request to BPE host to create a Amend FE process.
+            Send request to BPE host to create a Create Submission process.
             """
             try:
                 """
-                Build payload for Amend FE process.
+                Build payload for Create Submission process.
                 """
-                payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
-                    ap_payload=create_ap_payload,
-                    create_fe_payload=create_fe_payload,
-                    previous_fe_release=previous_fe_release,
-                    host_to_service=service_host,
-                    country=country,
-                    language=language,
-                    environment=environment,
-                    person_title="Ms.",
-                    business_functions_type="contactPoint",
-                    tender_documents_type="complaints"
+                payload = copy.deepcopy(CreateSubmissionPayload(
+                    service_host,
+                    previous_fe_release
                 ))
 
-                payload.customize_old_persones(
-                    "MD-IDNO-create fe: tender.procuringEntity.persones[0].id",
-                    "MD-IDNO-create fe: tender.procuringEntity.persones[1].id",
-                    "MD-IDNO-create fe: tender.procuringEntity.persones[2].id",
-                    need_to_add_new_bf=True,
-                    quantity_of_new_bf_objects=3,
-                    need_to_add_new_document=True,
-                    quantity_of_new_documents_objects=3
+                payload.prepare_submission_object(
+                   submission_position=0,
+                   quantity_of_candidates=3,
+                   quantity_of_additional_identifiers=3,
+                   quantity_of_persones=3,
+                   quantity_of_evidences=3,
+                   quantity_of_business_functions=3,
+                   quantity_of_bf_documents=3,
+                   quantity_of_main_economic_activities=3,
+                   quantity_of_bank_accounts=3,
+                   quantity_of_additional_account_identifiers=3,
+                   quantity_of_documents=3
                 )
-                payload.add_new_persones(
-                    quantity_of_persones_objects=3,
-                    quantity_of_bf_objects=3,
-                    quantity_of_documents_objects=3
+                payload.prepare_submission_object(
+                    submission_position=1,
+                    quantity_of_candidates=3,
+                    quantity_of_additional_identifiers=3,
+                    quantity_of_persones=3,
+                    quantity_of_evidences=3,
+                    quantity_of_business_functions=3,
+                    quantity_of_bf_documents=3,
+                    quantity_of_main_economic_activities=3,
+                    quantity_of_bank_accounts=3,
+                    quantity_of_additional_account_identifiers=3,
+                    quantity_of_documents=3
                 )
-                payload.customize_old_tender_documents(
-                    previous_fe_release['releases'][0]['tender']['documents'][0]['id'],
-                    previous_fe_release['releases'][0]['tender']['documents'][1]['id']
-                )
-                payload.add_new_tender_documents(quantity_of_new_documents=3)
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Amend FE process.")
+                ValueError("Impossible to build payload for Create Submisison process.")
 
-            synchronous_result = amend_fe_process(
+            synchronous_result = create_submission_process(
                 host=bpe_host,
                 access_token=access_token,
                 x_operation_id=operation_id,
                 payload=payload,
                 test_mode=True,
                 cpid=cpid,
-                ocid=ocid,
-                token=token
+                ocid=ocid
             )
 
             message = get_message_for_platform(operation_id)
@@ -131,7 +122,7 @@ class TestAmendFE:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Amend FE process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create Submission process.'):
                 """
                 Check the message for platform.
                 """
@@ -141,7 +132,7 @@ class TestAmendFE:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(AmendFrameworkEstablishmentMessage(
+                    expected_message = copy.deepcopy(CreateSubmissionMessage(
                         environment=environment,
                         actual_message=actual_message,
                         cpid=cpid,
@@ -157,13 +148,10 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_message), "Actual message.")
                     allure.attach(json.dumps(expected_message), "Expected message.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
                     assert actual_message == expected_message, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
-
             with allure.step(f'# {step_number}.3. Check AP release.'):
                 """
                 Compare previous AP release and actual AP release.
@@ -173,17 +161,7 @@ class TestAmendFE:
                     """
                     Build expected AP release.
                     """
-                    expected_release = copy.deepcopy(AmendFrameworkEstablishmentRelease(
-                        environment,
-                        country,
-                        language,
-                        pmd,
-                        cpid,
-                        ocid,
-                        payload,
-                        actual_message
-                    ))
-
+                    expected_release = copy.deepcopy(CreateSubmissionRelease())
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
                     ValueError("Impossible to build expected AP release.")
@@ -192,12 +170,9 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
                     allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
-                    assert actual_ap_release == expected_ap_release, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
-                                      "Cassandra DataBase: steps of process.")
+                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                  f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
+                                  "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.4. Check FE release.'):
                 """
@@ -208,9 +183,7 @@ class TestAmendFE:
                     """
                     Build expected FE release.
                     """
-                    expected_fe_release = expected_release.build_expected_fe_release(
-                        previous_fe_release, actual_fe_release, connect_to_clarification
-                    )
+                    expected_fe_release = expected_release.build_expected_fe_release(previous_fe_release)
                 except ValueError:
                     ValueError("Impossible to build expected FE release.")
 
@@ -218,11 +191,9 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
                     allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
                     assert actual_fe_release == expected_fe_release, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.4. Check FA release.'):
@@ -242,58 +213,48 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
                     allure.attach(json.dumps(expected_fa_release), "Expected Fa release.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
                     assert actual_fa_release == expected_fa_release, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
-
         try:
             """
             CLean up the database.
             """
-            # Clean after Amend Framework Establishment process:
-            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+            # Clean after Create Submission process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
-            cleanup_table_of_services_for_framework_establishment(
-                connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, cpid
-            )
+            cleanup_table_of_services_for_create_submission(
+                connect_to_ocds, connect_to_access, connect_to_dossier, cpid)
         except ValueError:
             ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
-    def test_case_2(self, get_parameters, connect_to_keyspace, create_fe_tc_2):
+    def test_case_2(self, get_parameters, connect_to_keyspace, amend_fe_tc_2):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
         service_host = get_parameters[3]
-        country = get_parameters[4]
-        language = get_parameters[5]
-        pmd = get_parameters[6]
 
         connect_to_ocds = connect_to_keyspace[0]
+        connect_to_orchestrator = connect_to_keyspace[1]
         connect_to_access = connect_to_keyspace[2]
-        connect_to_clarification = connect_to_keyspace[3]
         connect_to_dossier = connect_to_keyspace[4]
 
-        cpid = create_fe_tc_2[0]
-        token = create_fe_tc_2[2]
-        create_ap_payload = create_fe_tc_2[3]
-        ap_url = create_fe_tc_2[4]
-        fa_url = create_fe_tc_2[5]
-        create_fe_payload = create_fe_tc_2[22]
-        ocid = create_fe_tc_2[23]
-        fe_url = create_fe_tc_2[24]
+        cpid = amend_fe_tc_2[0]
+        ap_url = amend_fe_tc_2[4]
+        fa_url = amend_fe_tc_2[5]
+        ocid = amend_fe_tc_2[23]
+        fe_url = amend_fe_tc_2[24]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
 
         step_number = 1
-        with allure.step(f'# {step_number}. Authorization platform one: Amend FE process.'):
+        with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
             """
-            Tender platform authorization for Amend FE process.
+            Tender platform authorization for Create Submission process.
             As result get Tender platform's access token and process operation-id.
             """
             platform_one = PlatformAuthorization(bpe_host)
@@ -301,45 +262,46 @@ class TestAmendFE:
             operation_id = platform_one.get_x_operation_id(access_token)
 
         step_number += 1
-        with allure.step(f'# {step_number}. Send a request to create a Amend FE process.'):
+        with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
             """
-            Send request to BPE host to create a Amend FE process.
+            Send request to BPE host to create a Create Submission process.
             """
             try:
                 """
-                Build payload for Amend FE process.
+                Build payload for Create Submission process.
                 """
-                payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
-                    ap_payload=create_ap_payload,
-                    create_fe_payload=create_fe_payload,
-                    previous_fe_release=previous_fe_release,
-                    host_to_service=service_host,
-                    country=country,
-                    language=language,
-                    environment=environment,
-                    person_title="Ms.",
-                    business_functions_type="contactPoint",
-                    tender_documents_type="complaints"
+                payload = copy.deepcopy(CreateSubmissionPayload(
+                    service_host,
+                    previous_fe_release
                 ))
 
                 payload.delete_optional_fields(
-                    "tender.procuringEntity",
-                    "tender.documents",
-                    "tender.procurementMethodRationale"
+                    "submission.requirementResponses",
+                    "submission.candidates.identifier.uri",
+                    "submission.candidates.additionalIdentifiers",
+                    "submission.candidates.address.postalCode",
+                    "submission.candidates.contactPoint.faxNumber",
+                    "submission.candidates.contactPoint.url",
+                    "submission.candidates.persones",
+                    "submission.candidates.details.typeOfSupplier",
+                    "submission.candidates.details.mainEconomicActivities",
+                    "submission.candidates.details.bankAccounts",
+                    "submission.candidates.details.legalForm.uri",
+                    "submission.documents"
                 )
+                payload.prepare_submission_object(submission_position=0)
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Amend FE process.")
+                ValueError("Impossible to build payload for Create Submission process.")
 
-            synchronous_result = amend_fe_process(
+            synchronous_result = create_submission_process(
                 host=bpe_host,
                 access_token=access_token,
                 x_operation_id=operation_id,
                 payload=payload,
                 test_mode=True,
                 cpid=cpid,
-                ocid=ocid,
-                token=token
+                ocid=ocid
             )
 
             message = get_message_for_platform(operation_id)
@@ -360,7 +322,7 @@ class TestAmendFE:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Amend FE process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create Submission process.'):
                 """
                 Check the message for platform.
                 """
@@ -370,7 +332,7 @@ class TestAmendFE:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(AmendFrameworkEstablishmentMessage(
+                    expected_message = copy.deepcopy(CreateSubmissionMessage(
                         environment=environment,
                         actual_message=actual_message,
                         cpid=cpid,
@@ -386,13 +348,10 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_message), "Actual message.")
                     allure.attach(json.dumps(expected_message), "Expected message.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
                     assert actual_message == expected_message, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
-
             with allure.step(f'# {step_number}.3. Check AP release.'):
                 """
                 Compare previous AP release and actual AP release.
@@ -402,17 +361,7 @@ class TestAmendFE:
                     """
                     Build expected AP release.
                     """
-                    expected_release = copy.deepcopy(AmendFrameworkEstablishmentRelease(
-                        environment,
-                        country,
-                        language,
-                        pmd,
-                        cpid,
-                        ocid,
-                        payload,
-                        actual_message
-                    ))
-
+                    expected_release = copy.deepcopy(CreateSubmissionRelease())
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
                     ValueError("Impossible to build expected AP release.")
@@ -421,12 +370,9 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
                     allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
-                    assert actual_ap_release == expected_ap_release, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
-                                      "Cassandra DataBase: steps of process.")
+                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                  f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
+                                  "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.4. Check FE release.'):
                 """
@@ -437,9 +383,7 @@ class TestAmendFE:
                     """
                     Build expected FE release.
                     """
-                    expected_fe_release = expected_release.build_expected_fe_release(
-                        previous_fe_release, actual_fe_release, connect_to_clarification
-                    )
+                    expected_fe_release = expected_release.build_expected_fe_release(previous_fe_release)
                 except ValueError:
                     ValueError("Impossible to build expected FE release.")
 
@@ -447,11 +391,9 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
                     allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
                     assert actual_fe_release == expected_fe_release, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
 
             with allure.step(f'# {step_number}.4. Check FA release.'):
@@ -471,22 +413,18 @@ class TestAmendFE:
                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
                     allure.attach(json.dumps(expected_fa_release), "Expected Fa release.")
 
-                    process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
-
                     assert actual_fa_release == expected_fa_release, \
-                        allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
-                                      f"process_id = '{process_id}' ALLOW FILTERING;",
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
-
         try:
             """
             CLean up the database.
             """
-            # Clean after Amend Framework Establishment process:
-            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+            # Clean after Create Submission process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
-            cleanup_table_of_services_for_framework_establishment(
-                connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, cpid
-            )
+            cleanup_table_of_services_for_create_submission(
+                connect_to_ocds, connect_to_access, connect_to_dossier, cpid)
         except ValueError:
             ValueError("Impossible to cLean up the database.")

@@ -172,3 +172,20 @@ def amend_fe_process(host, access_token, x_operation_id, payload, cpid, ocid, to
     allure.attach(f"{host}/amend/fe/{cpid}/{ocid}", 'URL')
     allure.attach(json.dumps(payload), 'Prepared payload')
     return request
+
+
+@allure.step('# Prepared request: Create Submission.')
+def create_submission_process(host, access_token, x_operation_id, payload, cpid, ocid, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/submission/{cpid}/{ocid}",
+        params={
+            "testMode": test_mode
+        },
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json"},
+        json=payload)
+    allure.attach(f"{host}/do/submission/{cpid}/{ocid}", 'URL')
+    allure.attach(json.dumps(payload), 'Prepared payload')
+    return request

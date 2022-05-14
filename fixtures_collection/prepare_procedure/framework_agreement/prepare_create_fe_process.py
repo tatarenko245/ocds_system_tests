@@ -222,7 +222,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         allure.attach(str(message), "Message for platform.")
 
     # Create EI_2: full data model.
-    step_number = 1
+    step_number += 1
     with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
         """
         Tender platform authorization for Create EI process.
@@ -590,7 +590,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
     # Update AP.
-    step_number = 1
+    step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
         """
         Tender platform authorization for Update AP process.
@@ -659,7 +659,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         allure.attach(str(message), "Message for platform.")
 
     # Create FE: full data model.
-    step_number = 1
+    step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Create FE process.'):
         """
         Tender platform authorization for Create FE process.
@@ -1043,7 +1043,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         allure.attach(str(message), "Message for platform.")
 
     # Create EI_2: required data model.
-    step_number = 1
+    step_number += 1
     with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
         """
         Tender platform authorization for Create EI process.
@@ -1419,7 +1419,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
     # Update AP: required data model.
-    step_number = 1
+    step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
         """
         Tender platform authorization for Update AP process.
@@ -1483,7 +1483,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         allure.attach(str(message), "Message for platform.")
 
     # Create FE: required data model.
-    step_number = 1
+    step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Create FE process.'):
         """
         Tender platform authorization for Create FE process.
