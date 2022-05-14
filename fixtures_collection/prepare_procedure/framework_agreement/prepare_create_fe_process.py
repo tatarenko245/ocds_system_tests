@@ -1521,6 +1521,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
                 "tender.documents"
             )
             create_fe_payload = payload.build_payload()
+
         except ValueError:
             ValueError("Impossible to build payload for Create FE process.")
 
@@ -1528,7 +1529,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             host=bpe_host,
             access_token=access_token,
             x_operation_id=operation_id,
-            payload=payload,
+            payload=create_fe_payload,
             test_mode=True,
             cpid=ap_cpid,
             ocid=ap_ocid,

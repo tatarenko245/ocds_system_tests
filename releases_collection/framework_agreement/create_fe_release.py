@@ -432,7 +432,7 @@ class CreateFrameworkEstablishmentRelease:
             "releases": [
                 {
                     "ocid": self.__previous_fa_release['releases'][0]['ocid'],
-                    "id": f"{self.__ap_ocid}-{self.__actual_fa_release['releases'][0]['id'][46:59]}",
+                    "id": f"{self.__ap_cpid}-{self.__actual_fa_release['releases'][0]['id'][46:59]}",
                     "date": self.__actual_message['data']['operationDate'],
                     "tag": self.__previous_fa_release['releases'][0]['tag'],
                     "language": self.__previous_fa_release['releases'][0]['language'],
@@ -913,19 +913,19 @@ class CreateFrameworkEstablishmentRelease:
 
         # FR.COM-1.28.1
         self.__expected_fe_release['releases'][0]['tender']['submissionMethod'] = \
-            self.__actual_fe_release['releases'][0]['tender']['submissionMethod']
+            self.__actual_ap_release['releases'][0]['tender']['submissionMethod']
 
         # FR.COM-1.28.1
         self.__expected_fe_release['releases'][0]['tender']['submissionMethodDetails'] = \
-            self.__actual_fe_release['releases'][0]['tender']['submissionMethodDetails']
+            self.__actual_ap_release['releases'][0]['tender']['submissionMethodDetails']
 
         # FR.COM-1.28.1
         self.__expected_fe_release['releases'][0]['tender']['submissionMethodRationale'] = \
-            self.__actual_fe_release['releases'][0]['tender']['submissionMethodRationale']
+            self.__actual_ap_release['releases'][0]['tender']['submissionMethodRationale']
 
         # FR.COM-1.28.1
         self.__expected_fe_release['releases'][0]['tender']['requiresElectronicCatalogue'] = \
-            self.__actual_fe_release['releases'][0]['tender']['requiresElectronicCatalogue']
+            self.__actual_ap_release['releases'][0]['tender']['requiresElectronicCatalogue']
 
         # FR.COM-1.28.1
         if "procurementMethodModalities" in self.__payload['tender']:
