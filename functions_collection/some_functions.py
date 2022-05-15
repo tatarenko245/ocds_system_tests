@@ -518,3 +518,26 @@ def set_unique_temporary_id_for_requirement_responses_evidences(payload_requirem
                     q_1['id'] = str(iterator)
                     iterator -= 1
     return payload_requirement_responses_array
+
+
+def get_id_token_of_qualification_in_pending_awaiting_state(actual_qualifications_array, feed_point_message):
+    actual_qualification_id_list = list()
+
+    try:
+        """
+        Calculate how many quantity of object into actual_awards_requirement_responses_array
+        """
+        for a in actual_qualifications_array:
+            if a['status'] == "pending":
+                if a['statusDetails'] == "awaiting":
+                    actual_qualification_id_list.append(a['id'])
+    except Exception:
+        raise Exception("Impossible to calculate how many quantity of object into "
+                        f"actual_qualifications_array.")
+
+    for q in range(len(actual_qualification_id_list)):
+        for f in range(len(feed_point_message['data']['outcomes']['qualifications'])):
+            if feed_point_message['data']['outcomes']['qualifications'][f]['id'] == actual_qualification_id_list[q]:
+                qualification_id = actual_qualification_id_list[q]
+                qualification_token = feed_point_message['data']['outcomes']['qualifications'][f]['X-TOKEN']
+                yield qualification_id, qualification_token

@@ -189,3 +189,22 @@ def create_submission_process(host, access_token, x_operation_id, payload, cpid,
     allure.attach(f"{host}/do/submission/{cpid}/{ocid}", 'URL')
     allure.attach(json.dumps(payload), 'Prepared payload')
     return request
+
+
+@allure.step('# Prepared request: Qualification Declare Non Conflict Interest.')
+def qualification_declare_process(host, access_token, x_operation_id, payload, cpid, ocid, qualification_id,
+                                  qualification_token, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/declaration/qualification/{cpid}/{ocid}/{qualification_id}",
+        params={
+            "testMode": test_mode
+        },
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json",
+            "X-TOKEN": qualification_token},
+        json=payload)
+    allure.attach(f"{host}/do/declaration/qualification/{cpid}/{ocid}/{qualification_id}", 'URL')
+    allure.attach(json.dumps(payload), 'Prepared payload')
+    return request

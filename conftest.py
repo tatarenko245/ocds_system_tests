@@ -9,4 +9,5 @@ pytest_plugins = [
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_create_fe_process",
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_amend_fe_process",
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_create_submission_process",
+    "fixtures_collection.prepare_procedure.framework_agreement.prepare_submission_period_end_process",
 ]
