@@ -56,3 +56,11 @@ def framework_agreement_enquiry_period_end_date(pre_qual_period_end_date, interv
         pre_qual_period_end_date, '%Y-%m-%dT%H:%M:%SZ') - datetime.timedelta(seconds=interval_seconds)
     end_date = duration_date_end.strftime('%Y-%m-%dT%H:%M:%SZ')
     return end_date
+
+
+def get_min_date(dates_list):
+    new_dates_list = list()
+    for d in range(len(dates_list)):
+        new_dates_list.append(datetime.datetime.strptime(dates_list[d], "%Y-%m-%dT%H:%M:%SZ"))
+    min_date = min(new_dates_list)
+    return min_date.strftime('%Y-%m-%dT%H:%M:%SZ')

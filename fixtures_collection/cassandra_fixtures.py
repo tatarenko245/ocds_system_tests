@@ -38,6 +38,7 @@ def connect_to_keyspace(log_in_database):
     access_keyspace = log_in_database.connect('access')
     clarification_keyspace = log_in_database.connect('clarification')
     dossier_keyspace = log_in_database.connect('dossier')
+    qualification_keyspace = log_in_database.connect('qualification')
 
     yield \
         ocds_keyspace,\
@@ -45,6 +46,7 @@ def connect_to_keyspace(log_in_database):
         access_keyspace,\
         clarification_keyspace, \
         dossier_keyspace,\
+        qualification_keyspace,\
 
     ocds_keyspace.shutdown()
     print(f"The connection to {ocds_keyspace} has been disconnected.")
@@ -60,3 +62,6 @@ def connect_to_keyspace(log_in_database):
 
     dossier_keyspace.shutdown()
     print(f"The connection to {dossier_keyspace} has been disconnected.")
+
+    qualification_keyspace.shutdown()
+    print(f"The connection to {qualification_keyspace} has been disconnected.")

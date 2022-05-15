@@ -12,18 +12,19 @@ from functions_collection.cassandra_methods import get_max_duration_of_fa_from_a
     cleanup_table_of_services_for_financial_source, cleanup_table_of_services_for_planning_notice, \
     cleanup_orchestrator_steps_by_cpid, cleanup_table_of_services_for_outsourcing_planning_notice, \
     cleanup_table_of_services_for_relation_aggregated_plan, cleanup_table_of_services_for_aggregated_plan, \
-    cleanup_table_of_services_for_framework_establishment
+    cleanup_table_of_services_for_framework_establishment, cleanup_table_of_services_for_create_submission
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
     create_ap_process, outsourcing_pn_process, relation_ap_process, update_ap_process, create_fe_process, \
-    amend_fe_process
+    amend_fe_process, create_submission_process
 from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 from payloads_collection.framework_agreement.amend_fe_payload import AmendFrameworkEstablishmentPayload
 from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
 from payloads_collection.framework_agreement.create_fe_payload import FrameworkEstablishmentPayload
 from payloads_collection.framework_agreement.create_pn_payload import PlanningNoticePayload
+from payloads_collection.framework_agreement.create_submission_payload import CreateSubmissionPayload
 from payloads_collection.framework_agreement.update_ap_payload import UpdateAggregatedPlan
 
 
@@ -31,8 +32,9 @@ from payloads_collection.framework_agreement.update_ap_payload import UpdateAggr
 # Create EI_1: full data model, create FS_1: full data model, create PN_1: full data model,
 # create EI_2: full data model, create FS_2: full data model, create PN_2: full data model,
 # create AP: full data model, outsource PN_1: payload isn't needed, outsource PN_2: payload isn't needed,
-# relation AP: payload isn't needed, update ap: full data model, create FE: full data model, amend FE: full data model.
-def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
+# relation AP: payload isn't needed, update ap: full data model, create FE: full data model, amend FE: full data model,
+# create Submission: full data model.
+def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
@@ -689,7 +691,8 @@ def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
                 environment=environment,
                 person_title="Mr.",
                 business_functions_type="chairman",
-                tender_documents_type="tenderNotice"
+                tender_documents_type="tenderNotice",
+                pre_qualification_sec=121
             ))
 
             payload.customize_tender_pe_persones(
@@ -811,7 +814,8 @@ def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
                 environment=environment,
                 person_title="Ms.",
                 business_functions_type="contactPoint",
-                tender_documents_type="complaints"
+                tender_documents_type="complaints",
+                pre_qualification_sec=200
             ))
 
             payload.customize_old_persones(
@@ -850,9 +854,78 @@ def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(amend_fe_operation_id)
         allure.attach(str(message), "Message for platform.")
+
+    # Create Submission: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
+        """
+        Tender platform authorization for Create Submission process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        create_submission_operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
+        """
+        Send request to BPE host to create a Create Submission process.
+        """
+        try:
+            """
+            Build payload for Create Submission process.
+            """
+            payload = copy.deepcopy(CreateSubmissionPayload(
+                service_host,
+                previous_fe_release
+            ))
+
+            payload.prepare_submission_object(
+                submission_position=0,
+                quantity_of_candidates=3,
+                quantity_of_additional_identifiers=3,
+                quantity_of_persones=3,
+                quantity_of_evidences=3,
+                quantity_of_business_functions=3,
+                quantity_of_bf_documents=3,
+                quantity_of_main_economic_activities=3,
+                quantity_of_bank_accounts=3,
+                quantity_of_additional_account_identifiers=3,
+                quantity_of_documents=3
+            )
+            payload.prepare_submission_object(
+                submission_position=1,
+                quantity_of_candidates=3,
+                quantity_of_additional_identifiers=3,
+                quantity_of_persones=3,
+                quantity_of_evidences=3,
+                quantity_of_business_functions=3,
+                quantity_of_bf_documents=3,
+                quantity_of_main_economic_activities=3,
+                quantity_of_bank_accounts=3,
+                quantity_of_additional_account_identifiers=3,
+                quantity_of_documents=3
+            )
+            create_submission_payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Create Submisison process.")
+
+        create_submission_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=create_submission_operation_id,
+            payload=create_submission_payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid
+        )
+
+        create_submission_message = get_message_for_platform(create_submission_operation_id)
+        allure.attach(str(message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
-        ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url
+        ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
+        create_submission_payload, create_submission_message
 
     try:
         """
@@ -915,6 +988,12 @@ def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         cleanup_table_of_services_for_framework_establishment(
             connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
         )
+
+        # Clean after Create Submission process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_create_submission(
+            connect_to_ocds, connect_to_access, connect_to_dossier, ap_cpid)
     except ValueError:
         ValueError("Impossible to cLean up the database.")
 
@@ -924,8 +1003,8 @@ def amend_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 # create EI_2: required data model, create FS_2: required data model, create PN_2: required data model,
 # create AP: required data model, outsource PN_1: payload isn't needed, outsource PN_2: payload isn't needed,
 # relation AP: payload isn't needed, update ap: required data model, create FE: required data model,
-# amend FE: required data model.
-def amend_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
+# amend FE: required data model, create Submission: required data model.
+def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
     environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
@@ -1592,7 +1671,8 @@ def amend_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
                 environment=environment,
                 person_title="Mr.",
                 business_functions_type="chairman",
-                tender_documents_type="tenderNotice"
+                tender_documents_type="tenderNotice",
+                pre_qualification_sec=121
             ))
             payload.delete_optional_fields(
                 "tender.secondStage",
@@ -1654,7 +1734,8 @@ def amend_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
                 environment=environment,
                 person_title="Ms.",
                 business_functions_type="contactPoint",
-                tender_documents_type="complaints"
+                tender_documents_type="complaints",
+                pre_qualification_sec=200
             ))
 
             payload.delete_optional_fields(
@@ -1679,9 +1760,67 @@ def amend_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(amend_fe_operation_id)
         allure.attach(str(message), "Message for platform.")
+
+    # Create Submission: required data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
+        """
+        Tender platform authorization for Create Submission process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        create_submission_operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
+        """
+        Send request to BPE host to create a Create Submission process.
+        """
+        try:
+            """
+            Build payload for Create Submission process.
+            """
+            payload = copy.deepcopy(CreateSubmissionPayload(
+                service_host,
+                previous_fe_release
+            ))
+
+            payload.delete_optional_fields(
+                "submission.requirementResponses",
+                "submission.candidates.identifier.uri",
+                "submission.candidates.additionalIdentifiers",
+                "submission.candidates.address.postalCode",
+                "submission.candidates.contactPoint.faxNumber",
+                "submission.candidates.contactPoint.url",
+                "submission.candidates.persones",
+                "submission.candidates.details.typeOfSupplier",
+                "submission.candidates.details.mainEconomicActivities",
+                "submission.candidates.details.bankAccounts",
+                "submission.candidates.details.legalForm.uri",
+                "submission.documents"
+            )
+            payload.prepare_submission_object(submission_position=0)
+            create_submission_payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Create Submission process.")
+
+        create_submission_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=create_submission_operation_id,
+            payload=create_submission_payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid
+        )
+
+        create_submission_message = get_message_for_platform(create_submission_operation_id)
+        allure.attach(str(create_submission_message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
-        ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url
+        ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
+        create_submission_payload, create_submission_message
 
     try:
         """
@@ -1744,5 +1883,11 @@ def amend_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         cleanup_table_of_services_for_framework_establishment(
             connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
         )
+
+        # Clean after Create Submission process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_create_submission(
+            connect_to_ocds, connect_to_access, connect_to_dossier, ap_cpid)
     except ValueError:
         ValueError("Impossible to cLean up the database.")

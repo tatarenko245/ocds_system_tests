@@ -19,10 +19,11 @@ from releases_collection.framework_agreement.create_fe_release import CreateFram
 @allure.parent_suite("Framework Agreement")
 @allure.suite("Framework Establishment")
 @allure.severity("Critical")
-@allure.testcase(url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
-                 name="Why this test case was fall down?")
 class TestCreateFE:
     @allure.title("Check records: based on full data model.")
+    @allure.testcase(
+        url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
+        name="Why this test case was fall down?")
     def test_case_1(self, get_parameters, connect_to_keyspace, update_ap_tc_1):
 
         environment = get_parameters[0]
@@ -311,6 +312,9 @@ class TestCreateFE:
             ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
+    @allure.testcase(
+        url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
+        name="Why this test case was fall down?")
     def test_case_2(self, get_parameters, connect_to_keyspace, update_ap_tc_2):
 
         environment = get_parameters[0]

@@ -598,7 +598,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         """
         platform_one = PlatformAuthorization(bpe_host)
         access_token = platform_one.get_access_token_for_platform_one()
-        operation_id = platform_one.get_x_operation_id(access_token)
+        update_ap_operation_id = platform_one.get_x_operation_id(access_token)
 
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Update AP process.'):
@@ -647,7 +647,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         update_ap_process(
             host=bpe_host,
             access_token=access_token,
-            x_operation_id=operation_id,
+            x_operation_id=update_ap_operation_id,
             payload=payload,
             test_mode=True,
             cpid=ap_cpid,
@@ -655,7 +655,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             token=ap_token
         )
 
-        message = get_message_for_platform(operation_id)
+        message = get_message_for_platform(update_ap_operation_id)
         allure.attach(str(message), "Message for platform.")
 
     # Create FE: full data model.
@@ -667,7 +667,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         """
         platform_one = PlatformAuthorization(bpe_host)
         access_token = platform_one.get_access_token_for_platform_one()
-        operation_id = platform_one.get_x_operation_id(access_token)
+        create_fe_operation_id = platform_one.get_x_operation_id(access_token)
 
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create FE process.'):
@@ -764,7 +764,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         create_fe_process(
             host=bpe_host,
             access_token=access_token,
-            x_operation_id=operation_id,
+            x_operation_id=create_fe_operation_id,
             payload=create_fe_payload,
             test_mode=True,
             cpid=ap_cpid,
@@ -772,7 +772,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             token=ap_token
         )
 
-        message = get_message_for_platform(operation_id)
+        message = get_message_for_platform(create_fe_operation_id)
         fe_ocid = message['data']['outcomes']['fe'][0]['id']
         fe_url = f"{message['data']['url']}/{fe_ocid}"
         allure.attach(str(message), "Message for platform.")
@@ -825,11 +825,11 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
         # Clean after Update AP process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, update_ap_operation_id)
         cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
         # Clean after Framework Establishment process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, create_fe_operation_id)
 
         cleanup_table_of_services_for_framework_establishment(
             connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
@@ -1427,7 +1427,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         """
         platform_one = PlatformAuthorization(bpe_host)
         access_token = platform_one.get_access_token_for_platform_one()
-        operation_id = platform_one.get_x_operation_id(access_token)
+        update_ap_operation_id = platform_one.get_x_operation_id(access_token)
 
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Update AP process.'):
@@ -1471,7 +1471,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         update_ap_process(
             host=bpe_host,
             access_token=access_token,
-            x_operation_id=operation_id,
+            x_operation_id=update_ap_operation_id,
             payload=payload,
             test_mode=True,
             cpid=ap_cpid,
@@ -1479,7 +1479,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             token=ap_token
         )
 
-        message = get_message_for_platform(operation_id)
+        message = get_message_for_platform(update_ap_operation_id)
         allure.attach(str(message), "Message for platform.")
 
     # Create FE: required data model.
@@ -1491,7 +1491,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         """
         platform_one = PlatformAuthorization(bpe_host)
         access_token = platform_one.get_access_token_for_platform_one()
-        operation_id = platform_one.get_x_operation_id(access_token)
+        create_fe_operation_id = platform_one.get_x_operation_id(access_token)
 
     step_number += 1
     with allure.step(f'# {step_number}. Send a request to create a Create FE process.'):
@@ -1528,7 +1528,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         create_fe_process(
             host=bpe_host,
             access_token=access_token,
-            x_operation_id=operation_id,
+            x_operation_id=create_fe_operation_id,
             payload=create_fe_payload,
             test_mode=True,
             cpid=ap_cpid,
@@ -1536,7 +1536,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             token=ap_token
         )
 
-        message = get_message_for_platform(operation_id)
+        message = get_message_for_platform(create_fe_operation_id)
         fe_ocid = message['data']['outcomes']['fe'][0]['id']
         fe_url = f"{message['data']['url']}/{fe_ocid}"
         allure.attach(str(message), "Message for platform.")
@@ -1589,11 +1589,11 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
         # Clean after Update AP process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, update_ap_operation_id)
         cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
         # Clean after Framework Establishment process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, create_fe_operation_id)
 
         cleanup_table_of_services_for_framework_establishment(
             connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid

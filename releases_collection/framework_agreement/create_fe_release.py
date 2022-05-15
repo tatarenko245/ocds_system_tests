@@ -8,12 +8,12 @@ from functions_collection.some_functions import is_it_uuid
 class CreateFrameworkEstablishmentRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, host_to_service, country, language, pmd, ap_cpid, ap_ocid, fe_ocid, payload,
+    def __init__(self, environment, host_for_service, country, language, pmd, ap_cpid, ap_ocid, fe_ocid, payload,
                  actual_message, previous_ap_release, actual_ap_release, actual_fe_release, previous_fa_release,
                  actual_fa_release):
 
         self.__environment = environment
-        self.__host = host_to_service
+        self.__host = host_for_service
         self.__country = country
         self.__language = language
         self.__pmd = pmd
