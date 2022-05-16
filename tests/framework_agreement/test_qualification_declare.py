@@ -5,15 +5,14 @@ import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
-    cleanup_table_of_services_for_create_submission
+     cleanup_table_of_services_for_qualification_declare
 from functions_collection.get_message_for_platform import get_message_for_platform
-from functions_collection.requests_collection import create_submission_process, qualification_declare_process
+from functions_collection.requests_collection import qualification_declare_process
 from functions_collection.some_functions import get_id_token_of_qualification_in_pending_awaiting_state
-from messages_collection.framework_agreement.create_submission_message import CreateSubmissionMessage
-from payloads_collection.framework_agreement.create_submission_payload import CreateSubmissionPayload
+from messages_collection.framework_agreement.qualification_declare_message import QualificationDeclareMessage
 from payloads_collection.framework_agreement.qualification_declare_payload import \
     QualificationDeclareNonConflictOfInterestPayload
-from releases_collection.framework_agreement.create_submission_release import CreateSubmissionRelease
+from releases_collection.framework_agreement.qualification_declare_release import QualificationDeclareRelease
 
 
 @allure.parent_suite("Framework Agreement")
@@ -173,7 +172,8 @@ class TestDeclarationNonConflictInterest:
     #     #             allure.attach(str(202), "Expected status code.")
     #     #             assert synchronous_result.status_code == 202
     #     #
-    #     #     with allure.step(f'# {step_number}.2. Check the message for the platform, the Create Submission process.'):
+    #     #     with allure.step(f'# {step_number}.2. Check the message for the platform,
+    #     the Create Submission process.'):
     #     #         """
     #     #         Check the message for platform.
     #     #         """
@@ -286,11 +286,14 @@ class TestDeclarationNonConflictInterest:
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
         service_host = get_parameters[3]
+        country = get_parameters[4]
+        language = get_parameters[5]
+        pmd = get_parameters[6]
 
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_orchestrator = connect_to_keyspace[1]
         connect_to_access = connect_to_keyspace[2]
-        connect_to_dossier = connect_to_keyspace[4]
+        connect_to_qualification = connect_to_keyspace[5]
 
         cpid = submission_period_end_tc_2[0]
         ap_url = submission_period_end_tc_2[4]
@@ -356,12 +359,13 @@ class TestDeclarationNonConflictInterest:
         """ Depends on quantity of requirements into criteria and
         depends on quantity of candidates into Create Submission payload and
         depends on quantity of qualifications into FE release, send requests"""
+        step_number = 1
         for x in range(len(requirements_list)):
             for y in range(len(candidates_list)):
                 for q in range(len(qualification_list)):
                     if qualification_list[q][0] == candidates_list[y]['qualification_id']:
 
-                        step_number = x + y + q
+                        step_number += x + y + q
                         with allure.step(f'# {step_number}. Authorization platform one: Qualification Declare '
                                          f'Non Conflict Interest process.'):
                             """
@@ -419,124 +423,139 @@ class TestDeclarationNonConflictInterest:
                             allure.attach(str(message), "Message for platform.")
 
                         step_number += 1
-        # step_number += 1
-        # with allure.step(f"# {step_number}. See result"):
-        #     """
-        #     Check the results of TestCase.
-        #     """
-        #
-        #     with allure.step(f"# {step_number}.1. Check status code"):
-        #         """
-        #         Check the status code of sending the request.
-        #         """
-        #         with allure.step('Compare actual status code and expected status code of sending request.'):
-        #             allure.attach(str(synchronous_result.status_code), "Actual status code.")
-        #             allure.attach(str(202), "Expected status code.")
-        #             assert synchronous_result.status_code == 202
-        #
-        #     with allure.step(f'# {step_number}.2. Check the message for the platform, the Create Submission process.'):
-        #         """
-        #         Check the message for platform.
-        #         """
-        #         actual_message = message
-        #
-        #         try:
-        #             """
-        #             Build expected message for platform.
-        #             """
-        #             expected_message = copy.deepcopy(CreateSubmissionMessage(
-        #                 environment=environment,
-        #                 actual_message=actual_message,
-        #                 cpid=cpid,
-        #                 ocid=ocid,
-        #                 test_mode=True
-        #             ))
-        #
-        #             expected_message = expected_message.build_expected_message()
-        #         except ValueError:
-        #             ValueError("Impossible to build expected message for platform.")
-        #
-        #         with allure.step('Compare actual and expected message for platform.'):
-        #             allure.attach(json.dumps(actual_message), "Actual message.")
-        #             allure.attach(json.dumps(expected_message), "Expected message.")
-        #
-        #             assert actual_message == expected_message, \
-        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                               f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
-        #                               "Cassandra DataBase: steps of process.")
-        #     with allure.step(f'# {step_number}.3. Check AP release.'):
-        #         """
-        #         Compare previous AP release and actual AP release.
-        #         """
-        #         actual_ap_release = requests.get(url=ap_url).json()
-        #         try:
-        #             """
-        #             Build expected AP release.
-        #             """
-        #             expected_release = copy.deepcopy(CreateSubmissionRelease())
-        #             expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
-        #         except ValueError:
-        #             ValueError("Impossible to build expected AP release.")
-        #
-        #         with allure.step("Compare actual and expected AP release."):
-        #             allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
-        #             allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
-        #
-        #             allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                           f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
-        #                           "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.4. Check FE release.'):
-        #         """
-        #         Compare previous FE release and actual FE release.
-        #         """
-        #         actual_fe_release = requests.get(url=fe_url).json()
-        #         try:
-        #             """
-        #             Build expected FE release.
-        #             """
-        #             expected_fe_release = expected_release.build_expected_fe_release(previous_fe_release)
-        #         except ValueError:
-        #             ValueError("Impossible to build expected FE release.")
-        #
-        #         with allure.step("Compare actual and expected FE release."):
-        #             allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
-        #             allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
-        #
-        #             assert actual_fe_release == expected_fe_release, \
-        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                               f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
-        #                               "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.4. Check FA release.'):
-        #         """
-        #         Compare previous FA release and actual FA release.
-        #         """
-        #         actual_fa_release = requests.get(url=fa_url).json()
-        #         try:
-        #             """
-        #             Build expected FA release.
-        #             """
-        #             expected_fa_release = expected_release.build_expected_fa_release(previous_fa_release)
-        #         except ValueError:
-        #             ValueError("Impossible to build expected FA release.")
-        #
-        #         with allure.step("Compare actual and expected FA release."):
-        #             allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
-        #             allure.attach(json.dumps(expected_fa_release), "Expected Fa release.")
-        #
-        #             assert actual_fa_release == expected_fa_release, \
-        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                               f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
-        #                               "Cassandra DataBase: steps of process.")
-        # try:
-        #     """
-        #     CLean up the database.
-        #     """
-        #     # Clean after Create Submission process:
-        #     cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
-        #
-        #     cleanup_table_of_services_for_create_submission(
-        #         connect_to_ocds, connect_to_access, connect_to_dossier, cpid)
-        # except ValueError:
-        #     ValueError("Impossible to cLean up the database.")
+                        with allure.step(f"# {step_number}. See result"):
+                            """
+                            Check the results of TestCase.
+                            """
+
+                            with allure.step(f"# {step_number}.1. Check status code"):
+                                """
+                                Check the status code of sending the request.
+                                """
+                                with allure.step('Compare actual status code and expected status code '
+                                                 'of sending request.'):
+                                    allure.attach(str(synchronous_result.status_code), "Actual status code.")
+                                    allure.attach(str(202), "Expected status code.")
+                                    assert synchronous_result.status_code == 202
+
+                            with allure.step(f'# {step_number}.2. Check the message for the platform,'
+                                             f'the Qualification Declare Non Conflict Interest process.'):
+                                """
+                                Check the message for platform.
+                                """
+                                actual_message = message
+                                try:
+                                    """
+                                    Build expected message for platform.
+                                    """
+                                    expected_message = copy.deepcopy(QualificationDeclareMessage(
+                                        environment=environment,
+                                        actual_message=actual_message,
+                                        cpid=cpid,
+                                        ocid=ocid,
+                                        test_mode=True
+                                    ))
+
+                                    expected_message = expected_message.build_expected_message()
+                                except ValueError:
+                                    ValueError("Impossible to build expected message for platform.")
+
+                                with allure.step('Compare actual and expected message for platform.'):
+                                    allure.attach(json.dumps(actual_message), "Actual message.")
+                                    allure.attach(json.dumps(expected_message), "Expected message.")
+
+                                    assert actual_message == expected_message, \
+                                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                                      f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+                            with allure.step(f'# {step_number}.3. Check AP release.'):
+                                """
+                                Compare previous AP release and actual AP release.
+                                """
+                                actual_ap_release = requests.get(url=ap_url).json()
+                                try:
+                                    """
+                                    Build expected AP release.
+                                    """
+                                    expected_release = copy.deepcopy(QualificationDeclareRelease(
+                                        environment, country, language, pmd, actual_message, service_host, cpid, ocid,
+                                        payload
+                                    ))
+                                    expected_ap_release = expected_release.build_expected_ap_release(
+                                        previous_ap_release)
+                                except ValueError:
+                                    ValueError("Impossible to build expected AP release.")
+
+                                with allure.step("Compare actual and expected AP release."):
+                                    allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
+                                    allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
+
+                                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                                  f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                                  f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+                            with allure.step(f'# {step_number}.4. Check FE release.'):
+                                """
+                                Compare previous FE release and actual FE release.
+                                """
+                                actual_fe_release = requests.get(url=fe_url).json()
+
+                                try:
+                                    """
+                                    Build expected FE release.
+                                    """
+                                    expected_fe_release = expected_release.build_expected_fe_release(
+                                        previous_fe_release, actual_fe_release, qualification_list[q][0]
+                                    )
+                                except ValueError:
+                                    ValueError("Impossible to build expected FE release.")
+
+                                with allure.step("Compare actual and expected FE release."):
+                                    allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
+                                    allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
+
+                                    assert actual_fe_release == expected_fe_release, \
+                                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                                      f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+                            with allure.step(f'# {step_number}.4. Check FA release.'):
+                                """
+                                Compare previous FA release and actual FA release.
+                                """
+                                actual_fa_release = requests.get(url=fa_url).json()
+
+                                try:
+                                    """
+                                    Build expected FA release.
+                                    """
+                                    expected_fa_release = expected_release.build_expected_fa_release(
+                                        previous_fe_release, previous_fa_release, actual_fa_release
+                                    )
+                                except ValueError:
+                                    ValueError("Impossible to build expected FA release.")
+
+                                with allure.step("Compare actual and expected FA release."):
+                                    allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
+                                    allure.attach(json.dumps(expected_fa_release), "Expected Fa release.")
+
+                                    assert actual_fa_release == expected_fa_release, \
+                                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                                      f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                        previous_ap_release = requests.get(url=ap_url).json()
+                        previous_fa_release = requests.get(url=fa_url).json()
+                        previous_fe_release = requests.get(url=fe_url).json()
+
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Qualification Declare Non Conflict Of Interest process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
+
+            cleanup_table_of_services_for_qualification_declare(
+                connect_to_ocds, connect_to_access, connect_to_qualification, cpid)
+        except ValueError:
+            ValueError("Impossible to cLean up the database.")
