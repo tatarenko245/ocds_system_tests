@@ -19,6 +19,7 @@ class TestSubmissionPeriodEnd:
     @allure.testcase(
         url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-C2U6SQyilBuziGjXGyME/edit#gid=0",
         name="Why this test case was fall down?")
+    @allure.title("Check records: based on full data model.")
     def test_case_1(self, get_parameters, connect_to_keyspace, create_submission_tc_1):
 
         environment = get_parameters[0]
@@ -56,6 +57,7 @@ class TestSubmissionPeriodEnd:
             """
             Check the results of TestCase.
             """
+
             with allure.step(f'# {step_number}.1. Check the message for the platform,'
                              f'the Submission Period End process.'):
                 """

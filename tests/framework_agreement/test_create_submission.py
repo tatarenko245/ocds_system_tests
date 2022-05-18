@@ -152,6 +152,7 @@ class TestCreateSubmission:
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' and operation_id = '{operation_id}' ALLOW FILTERING;",
                                       "Cassandra DataBase: steps of process.")
+
             with allure.step(f'# {step_number}.3. Check AP release.'):
                 """
                 Compare previous AP release and actual AP release.
