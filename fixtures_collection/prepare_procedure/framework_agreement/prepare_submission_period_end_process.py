@@ -929,7 +929,7 @@ def submission_period_end_tc_1(get_parameters, prepare_currency, connect_to_keys
     # Submission Period End: payload isn't needed.
     previous_fe_release = requests.get(url=fe_url).json()
     step_number += 1
-    with allure.step(f"# {step_number}. Get message for platform."):
+    with allure.step(f"# {step_number}. Get message for platform, Submission Period End process."):
         time_bot(previous_fe_release['releases'][0]['preQualification']['period']['endDate'])
         message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
         submission_period_end_message = message[0]
@@ -1842,7 +1842,7 @@ def submission_period_end_tc_2(get_parameters, prepare_currency, connect_to_keys
         # Submission Period End: payload isn't needed.
         previous_fe_release = requests.get(url=fe_url).json()
         step_number += 1
-        with allure.step(f"# {step_number}. Get message for platform."):
+        with allure.step(f"# {step_number}. Get message for platform, Submission Period End process."):
             time_bot(previous_fe_release['releases'][0]['preQualification']['period']['endDate'])
             message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
             submission_period_end_message = message[0]

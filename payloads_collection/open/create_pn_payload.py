@@ -1,4 +1,4 @@
-"""Prepare the expected payloads of the planning notice process, framework agreement procedures."""
+"""Prepare the expected payloads of the planning notice process, open procedures."""
 import copy
 import random
 
@@ -60,6 +60,8 @@ class PlanningNoticePayload:
         except ValueError:
             ValueError("Check tender_classification_id")
 
+        region_id = f"{random.choice(region_id_tuple)}"
+        locality_id = get_locality_id_according_with_region_id(region_id)
         self.__payload = {
             "planning": {
                 "rationale": "create pn: planning.rationale",
@@ -86,6 +88,46 @@ class PlanningNoticePayload:
                     {
                         "startDate": __pn_period
                     },
+                "procuringEntity": {
+                    "name": "create pn: tender.procuringEntity.name",
+                    "identifier": {
+                        "id": "create pn: tender.procuringEntity.identifier.id",
+                        "scheme": "MD-IDNO",
+                        "legalName": "create pn: tender.procuringEntity.identifier.legalName",
+                        "uri": "create pn: tender.procuringEntity.identifier.uri",
+                    },
+                    "address": {
+                        "streetAddress": "create pn: tender.procuringEntity.address.streetAddress",
+                        "postalCode": "create pn: tender.procuringEntity.address.postalCode",
+                        "addressDetails": {
+                            "country": {
+                                "id": "MD"
+                            },
+                            "region": {
+                                "id": region_id,
+                            },
+                            "locality": {
+                                "scheme": f"{random.choice(locality_scheme_tuple)}",
+                                "id": locality_id,
+                                "description": "create pn: tender.procuringEntity.address.addressDetails.description"
+                            }
+                        }
+                    },
+                    "additionalIdentifiers": [
+                        {
+                            "id": "",
+                            "legalName": "",
+                            "scheme": "",
+                            "uri": ""
+                        }
+                    ],
+                    "contactPoint": {
+                        "name": "create pn: tender.procuringEntity.contactPoint.name",
+                        "email": "create pn: tender.procuringEntity.contactPoint.email",
+                        "telephone": "create pn: tender.procuringEntity.contactPoint.telephone",
+                        "faxNumber": "create pn: tender.procuringEntity.contactPoint.faxNumber",
+                        "url": "create pn: tender.procuringEntity.contactPoint.url",
+                    }},
                 "lots": [
                     {
                         "id": "0",
@@ -158,7 +200,8 @@ class PlanningNoticePayload:
         return self.__payload
 
     def delete_optional_fields(
-            self, *args, lot_position=0, item_position=0, additional_classification_position=0, document_position=0):
+            self, *args, lot_position=0, item_position=0, additional_classification_position=0, document_position=0,
+            pe_additional_identifiers_position=0):
         """Call this method last! Delete option fields from payload."""
 
         for a in args:
@@ -171,6 +214,16 @@ class PlanningNoticePayload:
                 del self.__payload['tender']['procurementMethodRationale']
             elif a == "tender.procurementMethodAdditionalInfo":
                 del self.__payload['tender']['procurementMethodAdditionalInfo']
+
+            elif a == "tender.procuringEntity.identifier.uri":
+                del self.__payload['tender']['procuringEntity']['identifier']['uri']
+            elif a == "tender.procuringEntity.additionalIdentifiers":
+                del self.__payload['tender']['procuringEntity']['additionalIdentifiers']
+            elif a == "tender.procuringEntity.additionalIdentifiers.uri":
+                del self.__payload['tender']['procuringEntity']['additionalIdentifiers'][
+                    pe_additional_identifiers_position]['uri']
+            elif a == "tender.procuringEntity.address.postalCode":
+                del self.__payload['tender']['procuringEntity']['address']['postalCode']
 
             elif a == "tender.lots":
                 del self.__payload['tender']['lots']
@@ -250,7 +303,6 @@ class PlanningNoticePayload:
                         list_of_additional_classification_id.append(additional_classification_id)
 
             for q_1 in range(quantity_of_items_additional_classifications):
-
                 new_items_array[q_0]['additionalClassifications'][q_1]['id'] = \
                     list_of_additional_classification_id[q_1]
 
@@ -266,7 +318,6 @@ class PlanningNoticePayload:
             lot_object=copy.deepcopy(self.__payload['tender']['lots'][0])
         )
         for q_0 in range(quantity_of_lots):
-
             new_lots_array[q_0]['internalId'] = f"create pn: tender.lots{q_0}.internalId"
             new_lots_array[q_0]['title'] = f"create pn: tender.lotss{q_0}.title"
             new_lots_array[q_0]['description'] = f"create pn: tender.lots{q_0}.description"
@@ -323,6 +374,30 @@ class PlanningNoticePayload:
             new_documents_array[q_0]['relatedLots'] = [lot_id_list[q_0]]
 
         self.__payload['tender']['documents'] = new_documents_array
+
+    def customize_tender_procuring_entity_additional_identifiers(
+            self, quantity_of_tender_procuring_entity_additional_identifiers):
+        """ Customize tender.procuringEntity.additionalIdentifiers array."""
+
+        new_additional_identifiers_array = list()
+        for q in range(quantity_of_tender_procuring_entity_additional_identifiers):
+            new_additional_identifiers_array.append(
+                copy.deepcopy(self.__payload['tender']['procuringEntity']['additionalIdentifiers'][0])
+            )
+
+            new_additional_identifiers_array[q]['id'] = \
+                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.id"
+
+            new_additional_identifiers_array[q]['scheme'] = \
+                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.scheme"
+
+            new_additional_identifiers_array[q]['legalName'] = \
+                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.legalName"
+
+            new_additional_identifiers_array[q]['uri'] = \
+                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.uri"
+
+        self.__payload['tender']['procuringEntity']['additionalIdentifiers'] = new_additional_identifiers_array
 
     def __del__(self):
         print(f"The instance of PlanPayload class: {__name__} was deleted.")

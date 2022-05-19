@@ -1625,7 +1625,7 @@ class SubmissionPeriodEndRelease:
             if self.__expected_fe_release['releases'][0]['tender']['otherCriteria'][
                 'reductionCriteria'] == "scoring" \
                     and self.__expected_fe_release['releases'][0]['tender']['otherCriteria'][
-                    'qualificationSystemMethods'] == ["automated"]:
+                    'qualificationSystemMethods'][0] == "automated":
                 # FR.COM-7.11.7:
                 coefficients_list = list()
                 if "criteria" in self.__expected_fe_release['releases'][0]['tender'] and \
@@ -1721,7 +1721,7 @@ class SubmissionPeriodEndRelease:
         # FR.COM-7.13.1 (Rank Qualifications):
         if self.__expected_fe_release['releases'][0]['tender']['otherCriteria']['reductionCriteria'] == "scoring" \
                 and self.__expected_fe_release['releases'][0]['tender']['otherCriteria'][
-                'qualificationSystemMethods'] == ["automated"]:
+                'qualificationSystemMethods'][0] == "automated":
 
             if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
                 is_source_procuring_entity = False
@@ -1761,11 +1761,14 @@ class SubmissionPeriodEndRelease:
                                             list_of_submission_messages[me_0][
                                                 'data']['outcomes']['submissions'][0]['id']:
                                         temp_qualifications[q_1]['statusDetails'] = "awaiting"
+                    else:
+                        temp_qualifications[0]['statusDetails'] = "awaiting"
 
                     for q_0 in range(len(qualifications_array)):
                         for q_1 in range(len(temp_qualifications)):
                             if qualifications_array[q_0]['id'] == temp_qualifications[q_1]['id']:
                                 if temp_qualifications[q_1]['statusDetails'] == "awaiting":
+
                                     qualifications_array[q_0]['statusDetails'] = \
                                         temp_qualifications[q_1]['statusDetails']
 
@@ -1827,7 +1830,7 @@ class SubmissionPeriodEndRelease:
 
         elif self.__expected_fe_release['releases'][0]['tender']['otherCriteria']['reductionCriteria'] == \
                 "scoring" and self.__expected_fe_release['releases'][0]['tender']['otherCriteria'][
-                'qualificationSystemMethods'] == ["manual"]:
+                'qualificationSystemMethods'][0] == "manual":
             if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
                 is_source_procuring_entity = False
                 for c_0 in range(len(self.__expected_fe_release['releases'][0]['tender']['criteria'])):
@@ -1851,7 +1854,7 @@ class SubmissionPeriodEndRelease:
 
         elif self.__expected_fe_release['releases'][0]['tender']['otherCriteria']['reductionCriteria'] == \
                 "none" and self.__expected_fe_release['releases'][0]['tender']['otherCriteria'][
-                'qualificationSystemMethods'] == ["automated"]:
+                'qualificationSystemMethods'][0] == "automated":
             if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
                 is_source_procuring_entity = False
                 for c_0 in range(len(self.__expected_fe_release['releases'][0]['tender']['criteria'])):
@@ -1875,7 +1878,7 @@ class SubmissionPeriodEndRelease:
 
         elif self.__expected_fe_release['releases'][0]['tender']['otherCriteria']['reductionCriteria'] == \
                 "none" and self.__expected_fe_release['releases'][0]['tender']['otherCriteria'][
-                'qualificationSystemMethods'] == ["manual"]:
+                'qualificationSystemMethods'][0] == "manual":
             if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
                 is_source_procuring_entity = False
                 for c_0 in range(len(self.__expected_fe_release['releases'][0]['tender']['criteria'])):

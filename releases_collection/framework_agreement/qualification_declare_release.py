@@ -1,7 +1,6 @@
 """Prepare the expected releases of the qualification declare non conflict of inretest process,
 framework agreement procedures."""
 import copy
-import json
 
 from functions_collection.some_functions import is_it_uuid
 
@@ -996,228 +995,334 @@ class QualificationDeclareRelease:
                     expected_parties_object = copy.deepcopy(previous_fe_release['releases'][0]['parties'][i])
 
         if "persones" in expected_parties_object:
+
+            # Get persones.id from old persones arra.
+            old_person_id = list()
             for p in range(len(expected_parties_object['persones'])):
-                if expected_parties_object['persones'][p]['id'] == \
-                        f"{self.__payload['requirementResponse']['responder']['identifier']['scheme']}-" \
-                        f"{self.__payload['requirementResponse']['responder']['identifier']['id']}":
-                    expected_parties_object['persones'][p]['title'] = \
-                        self.__payload['requirementResponse']['responder']['title']
-                    expected_parties_object['persones'][p]['name'] = \
-                        self.__payload['requirementResponse']['responder']['name']
-                    if "uri" in self.__payload['requirementResponse']['responder']['identifier']:
-                        expected_parties_object['persones'][p]['identifier']['uri'] = \
-                            self.__payload['requirementResponse']['responder']['identifier']['uri']
+                old_person_id.append(expected_parties_object['persones'][p]['id'])
 
-                    old_bf_id = list()
-                    for ebf in range(len(expected_parties_object['persones'][p]['businessFunctions'])):
-                        old_bf_id.append(expected_parties_object['persones'][p]['businessFunctions'][ebf]['id'])
+            # Get perones.id from payload.
+            new_person_id = [
+                f"{self.__payload['requirementResponse']['responder']['identifier']['scheme']}-"
+                f"{self.__payload['requirementResponse']['responder']['identifier']['id']}"
+            ]
+            # Check the same id
+            same_person_id = list(set(new_person_id) & set(old_person_id))
 
-                    new_bf_id = list()
-                    for pbf in range(len(self.__payload['requirementResponse']['responder']['businessFunctions'])):
-                        new_bf_id.append(self.__payload['requirementResponse']['responder'][
-                                             'businessFunctions'][pbf]['id'])
+            # Check the different id
+            diff_person_id = list(set(new_person_id) - set(old_person_id))
 
-                    # Check same id:
-                    bf_same_id = list(set(new_bf_id) & set(old_bf_id))
+            for m in range(len(same_person_id)):
+                for p in range(len(expected_parties_object['persones'])):
+                    if expected_parties_object['persones'][p]['id'] == same_person_id[m] == \
+                            f"{self.__payload['requirementResponse']['responder']['identifier']['scheme']}-" \
+                            f"{self.__payload['requirementResponse']['responder']['identifier']['id']}":
+                        expected_parties_object['persones'][p]['title'] = \
+                            self.__payload['requirementResponse']['responder']['title']
+                        expected_parties_object['persones'][p]['name'] = \
+                            self.__payload['requirementResponse']['responder']['name']
+                        if "uri" in self.__payload['requirementResponse']['responder']['identifier']:
+                            expected_parties_object['persones'][p]['identifier']['uri'] = \
+                                self.__payload['requirementResponse']['responder']['identifier']['uri']
 
-                    # Check different id:
-                    bf_diff_id = list(set(new_bf_id) - set(old_bf_id))
+                        old_bf_id = list()
+                        for ebf in range(len(expected_parties_object['persones'][p]['businessFunctions'])):
+                            old_bf_id.append(expected_parties_object['persones'][p]['businessFunctions'][ebf]['id'])
 
-                    if len(bf_same_id) > 0:
-                        for i in range(len(bf_same_id)):
-                            for ebf in range(len(expected_parties_object['persones'][p]['businessFunctions'])):
-                                for pbf in range(len(self.__payload['requirementResponse']['responder'][
-                                                         'businessFunctions'])):
-                                    if expected_parties_object['persones'][p]['businessFunctions'][ebf]['id'] == \
-                                            self.__payload['requirementResponse']['responder'][
-                                                'businessFunctions'][pbf]['id'] == bf_same_id[i]:
+                        new_bf_id = list()
+                        for pbf in range(len(self.__payload['requirementResponse']['responder']['businessFunctions'])):
+                            new_bf_id.append(self.__payload['requirementResponse']['responder'][
+                                                 'businessFunctions'][pbf]['id'])
 
-                                        expected_parties_object['persones'][p]['businessFunctions'][ebf]['type'] = \
-                                            self.__payload['requirementResponse']['responder'][
-                                                'businessFunctions'][pbf]['type']
+                        # Check same id:
+                        bf_same_id = list(set(new_bf_id) & set(old_bf_id))
 
-                                        expected_parties_object['persones'][p]['businessFunctions'][ebf]['jobTitle'] = \
-                                            self.__payload['requirementResponse']['responder'][
-                                                'businessFunctions'][pbf]['jobTitle']
+                        # Check different id:
+                        bf_diff_id = list(set(new_bf_id) - set(old_bf_id))
 
-                                        expected_parties_object['persones'][p]['businessFunctions'][ebf]['period'][
-                                            'startDate'] = self.__payload['requirementResponse']['responder'][
-                                            'businessFunctions'][pbf]['period']['startDate']
+                        if len(bf_same_id) > 0:
+                            for i in range(len(bf_same_id)):
+                                for ebf in range(len(expected_parties_object['persones'][p]['businessFunctions'])):
+                                    for pbf in range(len(self.__payload['requirementResponse']['responder'][
+                                                             'businessFunctions'])):
+                                        if expected_parties_object['persones'][p]['businessFunctions'][ebf]['id'] == \
+                                                self.__payload['requirementResponse']['responder'][
+                                                    'businessFunctions'][pbf]['id'] == bf_same_id[i]:
 
-                                        old_bf_doc_id = list()
-                                        if "documents" in expected_parties_object['persones'][p][
-                                                'businessFunctions'][ebf]:
+                                            expected_parties_object['persones'][p]['businessFunctions'][ebf]['type'] = \
+                                                self.__payload['requirementResponse']['responder'][
+                                                    'businessFunctions'][pbf]['type']
+
+                                            expected_parties_object['persones'][p]['businessFunctions'][ebf][
+                                                'jobTitle'] = self.__payload['requirementResponse']['responder'][
+                                                    'businessFunctions'][pbf]['jobTitle']
+
+                                            expected_parties_object['persones'][p]['businessFunctions'][ebf]['period'][
+                                                'startDate'] = self.__payload['requirementResponse']['responder'][
+                                                'businessFunctions'][pbf]['period']['startDate']
 
                                             old_bf_doc_id = list()
-                                            for ebf_d in range(len(expected_parties_object['persones'][p][
-                                                                       'businessFunctions'][ebf]['documents'])):
-                                                old_bf_doc_id.append(
-                                                    expected_parties_object['persones'][p][
-                                                        'businessFunctions'][ebf]['documents'][ebf_d]['id'])
+                                            if "documents" in expected_parties_object['persones'][p][
+                                                    'businessFunctions'][ebf]:
 
-                                        new_bf_doc_id = list()
-                                        if "documents" in self.__payload['requirementResponse']['responder'][
-                                                'businessFunctions'][pbf]:
-
-                                            new_bf_doc_id = list()
-                                            for pbf_d in range(len(self.__payload['requirementResponse']['responder'][
-                                                                       'businessFunctions'][pbf]['documents'])):
-                                                new_bf_doc_id.append(
-                                                    self.__payload['requirementResponse']['responder'][
-                                                        'businessFunctions'][pbf]['documents'][pbf_d]['id'])
-
-                                        # Check same id:
-                                        bf_doc_same_id = list(set(new_bf_doc_id) & set(old_bf_doc_id))
-
-                                        # Check different id:
-                                        bf_doc_diff_id = list(set(new_bf_doc_id) - set(old_bf_doc_id))
-
-                                        if len(bf_doc_same_id) > 0:
-                                            for y in range(len(bf_doc_same_id)):
-
+                                                old_bf_doc_id = list()
                                                 for ebf_d in range(len(expected_parties_object['persones'][p][
                                                                            'businessFunctions'][ebf]['documents'])):
+                                                    old_bf_doc_id.append(
+                                                        expected_parties_object['persones'][p][
+                                                            'businessFunctions'][ebf]['documents'][ebf_d]['id'])
 
-                                                    for pbf_d in range(len(self.__payload['requirementResponse'][
-                                                                               'responder']['businessFunctions'][pbf][
-                                                                               'documents'])):
+                                            new_bf_doc_id = list()
+                                            if "documents" in self.__payload['requirementResponse']['responder'][
+                                                    'businessFunctions'][pbf]:
 
-                                                        if expected_parties_object['persones'][p][
-                                                            'businessFunctions'][ebf]['documents'][ebf_d]['id'] == \
+                                                new_bf_doc_id = list()
+                                                for pbf_d in range(len(
+                                                        self.__payload['requirementResponse']['responder'][
+                                                            'businessFunctions'][pbf]['documents'])):
+                                                    new_bf_doc_id.append(
+                                                        self.__payload['requirementResponse']['responder'][
+                                                            'businessFunctions'][pbf]['documents'][pbf_d]['id'])
+
+                                            # Check same id:
+                                            bf_doc_same_id = list(set(new_bf_doc_id) & set(old_bf_doc_id))
+
+                                            # Check different id:
+                                            bf_doc_diff_id = list(set(new_bf_doc_id) - set(old_bf_doc_id))
+
+                                            if len(bf_doc_same_id) > 0:
+                                                for y in range(len(bf_doc_same_id)):
+
+                                                    for ebf_d in range(len(expected_parties_object['persones'][p][
+                                                                               'businessFunctions'][ebf]['documents'])):
+
+                                                        for pbf_d in range(len(
                                                                 self.__payload['requirementResponse']['responder'][
-                                                                    'businessFunctions'][pbf][
-                                                                    'documents'][pbf_d]['id'] == bf_doc_same_id[y]:
+                                                                    'businessFunctions'][pbf]['documents'])):
 
-                                                            expected_parties_object['persones'][p][
-                                                                'businessFunctions'][ebf]['documents'][ebf_d][
-                                                                'title'] = self.__payload['requirementResponse'][
+                                                            if expected_parties_object['persones'][p][
+                                                                'businessFunctions'][ebf]['documents'][ebf_d]['id'] == \
+                                                                    self.__payload['requirementResponse']['responder'][
+                                                                        'businessFunctions'][pbf][
+                                                                        'documents'][pbf_d]['id'] == bf_doc_same_id[y]:
+
+                                                                expected_parties_object['persones'][p][
+                                                                    'businessFunctions'][ebf]['documents'][ebf_d][
+                                                                    'title'] = self.__payload['requirementResponse'][
+                                                                    'responder']['businessFunctions'][pbf][
+                                                                    'documents'][pbf_d]['title']
+
+                                                                if "description" in self.__payload[
+                                                                        'requirementResponse']['responder'][
+                                                                        'businessFunctions'][pbf]['documents'][pbf_d]:
+                                                                    expected_parties_object['persones'][p][
+                                                                        'businessFunctions'][ebf]['documents'][ebf_d][
+                                                                        'description'] = self.__payload[
+                                                                        'requirementResponse']['responder'][
+                                                                        'businessFunctions'][pbf]['documents'][pbf_d][
+                                                                        'description']
+                                            if len(bf_doc_diff_id) > 0:
+
+                                                for y in range(len(bf_doc_diff_id)):
+                                                    for pbf_d in range(len(
+                                                            self.__payload['requirementResponse'][
+                                                                'responder']['businessFunctions'][pbf]['documents'])):
+
+                                                        if bf_doc_diff_id[y] == self.__payload['requirementResponse'][
+                                                                'responder']['businessFunctions'][pbf][
+                                                                'documents'][pbf_d]['id']:
+
+                                                            new_bf_document = copy.deepcopy(
+                                                                self.__expected_fa_release['releases'][0]['parties'][0][
+                                                                    'persones'][0]['businessFunctions'][0][
+                                                                    'documents'][0]
+                                                            )
+                                                            new_bf_document['id'] = self.__payload[
+                                                                'requirementResponse']['responder'][
+                                                                'businessFunctions'][pbf]['documents'][pbf_d]['id']
+
+                                                            new_bf_document['title'] = \
+                                                                self.__payload['requirementResponse'][
                                                                 'responder']['businessFunctions'][pbf][
                                                                 'documents'][pbf_d]['title']
+
+                                                            new_bf_document['documentType'] = \
+                                                                self.__payload['requirementResponse'][
+                                                                'responder']['businessFunctions'][pbf][
+                                                                'documents'][pbf_d]['documentType']
 
                                                             if "description" in self.__payload['requirementResponse'][
                                                                 'responder']['businessFunctions'][pbf][
                                                                     'documents'][pbf_d]:
-                                                                expected_parties_object['persones'][p][
-                                                                    'businessFunctions'][ebf]['documents'][ebf_d][
-                                                                    'description'] = self.__payload[
-                                                                    'requirementResponse']['responder'][
-                                                                    'businessFunctions'][pbf]['documents'][pbf_d][
-                                                                    'description']
-                                        if len(bf_doc_diff_id) > 0:
 
-                                            for y in range(len(bf_doc_diff_id)):
-                                                for pbf_d in range(len(
-                                                        self.__payload['requirementResponse'][
-                                                            'responder']['businessFunctions'][pbf]['documents'])):
+                                                                new_bf_document['description'] = \
+                                                                    self.__payload['requirementResponse'][
+                                                                    'responder']['businessFunctions'][pbf][
+                                                                    'documents'][pbf_d]['description']
 
-                                                    if bf_doc_diff_id[y] == self.__payload['requirementResponse'][
-                                                            'responder']['businessFunctions'][pbf][
-                                                            'documents'][pbf_d]['id']:
+                                                            else:
+                                                                del new_bf_document['description']
 
-                                                        new_bf_document = copy.deepcopy(
-                                                            self.__expected_fa_release['releases'][0]['parties'][0][
-                                                                'persones'][0]['businessFunctions'][0]['documents'][0]
-                                                        )
-                                                        new_bf_document['id'] = self.__payload['requirementResponse'][
-                                                            'responder']['businessFunctions'][pbf][
-                                                            'documents'][pbf_d]['id']
+                                                            new_bf_document['url'] = \
+                                                                f"{self.__metadata_document_url}/" \
+                                                                f"{new_bf_document['id']}"
 
-                                                        new_bf_document['title'] = \
-                                                            self.__payload['requirementResponse'][
-                                                            'responder']['businessFunctions'][pbf][
-                                                            'documents'][pbf_d]['title']
+                                                            new_bf_document['datePublished'] = \
+                                                                self.__actual_message['data']['operationDate']
 
-                                                        new_bf_document['type'] = \
-                                                            self.__payload['requirementResponse'][
-                                                            'responder']['businessFunctions'][pbf][
-                                                            'documents'][pbf_d]['type']
+                                                            expected_parties_object['persones'][p][
+                                                                'businessFunctions'][ebf]['documents'].append(
+                                                                new_bf_document)
+                        if len(bf_diff_id) > 0:
+                            for i in range(len(bf_diff_id)):
+                                for pbf in range(len(
+                                        self.__payload['requirementResponse']['responder']['businessFunctions'])):
 
-                                                        if "description" in self.__payload['requirementResponse'][
-                                                            'responder']['businessFunctions'][pbf][
-                                                                'documents'][pbf_d]:
+                                    if bf_diff_id[i] == self.__payload['requirementResponse'][
+                                            'responder']['businessFunctions'][pbf]['id']:
 
-                                                            new_bf_document['description'] = \
-                                                                self.__payload['requirementResponse'][
-                                                                'responder']['businessFunctions'][pbf][
-                                                                'documents'][pbf_d]['description']
+                                        new_bf = copy.deepcopy(
+                                            self.__expected_fa_release['releases'][0]['parties'][0][
+                                                'persones'][0]['businessFunctions'][0]
+                                        )
 
-                                                        else:
-                                                            del new_bf_document['description']
+                                        new_bf['type'] = self.__payload['requirementResponse'][
+                                            'responder']['businessFunctions'][pbf]['type']
 
-                                                        new_bf_document['uri'] = \
-                                                            f"{self.__metadata_document_url}/{new_bf_document['id']}"
+                                        new_bf['jobTitle'] = self.__payload['requirementResponse'][
+                                            'responder']['businessFunctions'][pbf]['jobTitle']
 
-                                                        new_bf_document['datePublished'] = \
-                                                            self.__actual_message['data']['operationDate']
+                                        new_bf['period']['startDate'] = self.__payload['requirementResponse'][
+                                            'responder']['businessFunctions'][pbf]['period']['startDate']
 
-                                                        expected_parties_object['persones'][p][
-                                                            'businessFunctions'][ebf]['documents'].append(
-                                                            new_bf_document)
-                    if len(bf_diff_id) > 0:
-                        for i in range(len(bf_diff_id)):
-                            for pbf in range(len(
-                                    self.__payload['requirementResponse']['responder']['businessFunctions'])):
+                                        del new_bf['documents'][0]
+                                        if "documents" in self.__payload['requirementResponse'][
+                                                'responder']['businessFunctions'][pbf]:
+                                            new_bf_documents_array = list()
+                                            for pbf_d in range(len(self.__payload['requirementResponse'][
+                                                    'responder']['businessFunctions'][pbf]['documents'])):
 
-                                if bf_diff_id[i] == self.__payload['requirementResponse'][
-                                        'responder']['businessFunctions'][pbf]['id']:
+                                                new_bf_documents_array.append(copy.deepcopy(
+                                                    self.__expected_fa_release['releases'][0]['parties'][0][
+                                                        'persones'][0]['businessFunctions'][0]['documents'][0]
+                                                ))
 
-                                    new_bf = copy.deepcopy(
-                                        self.__expected_fa_release['releases'][0]['parties'][0][
-                                            'persones'][0]['businessFunctions'][0]
-                                    )
-
-                                    new_bf['type'] = self.__payload['requirementResponse'][
-                                        'responder']['businessFunctions'][pbf]['type']
-
-                                    new_bf['jobTitle'] = self.__payload['requirementResponse'][
-                                        'responder']['businessFunctions'][pbf]['jobTitle']
-
-                                    new_bf['period']['startDate'] = self.__payload['requirementResponse'][
-                                        'responder']['businessFunctions'][pbf]['period']['startDate']
-
-                                    del new_bf['documents'][0]
-                                    if "documents" in self.__payload['requirementResponse'][
-                                            'responder']['businessFunctions'][pbf]:
-                                        new_bf_documents_array = list()
-                                        for pbf_d in range(len(self.__payload['requirementResponse'][
-                                                'responder']['businessFunctions'][pbf]['documents'])):
-
-                                            new_bf_documents_array.append(copy.deepcopy(
-                                                self.__expected_fa_release['releases'][0]['parties'][0][
-                                                    'persones'][0]['businessFunctions'][0]['documents'][0]
-                                            ))
-
-                                            new_bf_documents_array[pbf_d]['id'] = \
-                                                self.__payload['requirementResponse']['responder'][
-                                                    'businessFunctions'][pbf]['documents'][pbf_d]['id']
-
-                                            new_bf_documents_array[pbf_d]['title'] = \
-                                                self.__payload['requirementResponse']['responder'][
-                                                    'businessFunctions'][pbf]['documents'][pbf_d]['title']
-
-                                            new_bf_documents_array[pbf_d]['type'] = \
-                                                self.__payload['requirementResponse']['responder'][
-                                                    'businessFunctions'][pbf]['documents'][pbf_d]['type']
-
-                                            if "description" in self.__payload['requirementResponse'][
-                                                    'responder']['businessFunctions'][pbf][
-                                                    'documents'][pbf_d]:
-
-                                                new_bf_documents_array[pbf_d]['description'] = \
+                                                new_bf_documents_array[pbf_d]['id'] = \
                                                     self.__payload['requirementResponse']['responder'][
-                                                        'businessFunctions'][pbf]['documents'][pbf_d]['description']
-                                            else:
-                                                del new_bf_documents_array[pbf_d]['description']
+                                                        'businessFunctions'][pbf]['documents'][pbf_d]['id']
 
-                                            new_bf_documents_array[pbf_d]['uri'] = \
-                                                f"{self.__metadata_document_url}/{new_bf_documents_array[pbf_d]['id']}"
+                                                new_bf_documents_array[pbf_d]['title'] = \
+                                                    self.__payload['requirementResponse']['responder'][
+                                                        'businessFunctions'][pbf]['documents'][pbf_d]['title']
 
-                                            new_bf_documents_array[pbf_d]['datePublished'] = \
-                                                self.__actual_message['data']['operationDate']
-                                        new_bf['documents'] = new_bf_documents_array
-                                    else:
-                                        del new_bf['documents']
-                                    expected_parties_object['persones'][p]['businessFunctions'].append(new_bf)
+                                                new_bf_documents_array[pbf_d]['documentType'] = \
+                                                    self.__payload['requirementResponse']['responder'][
+                                                        'businessFunctions'][pbf]['documents'][pbf_d]['documentType']
+
+                                                if "description" in self.__payload['requirementResponse'][
+                                                        'responder']['businessFunctions'][pbf][
+                                                        'documents'][pbf_d]:
+
+                                                    new_bf_documents_array[pbf_d]['description'] = \
+                                                        self.__payload['requirementResponse']['responder'][
+                                                            'businessFunctions'][pbf]['documents'][pbf_d]['description']
+                                                else:
+                                                    del new_bf_documents_array[pbf_d]['description']
+
+                                                new_bf_documents_array[pbf_d]['url'] = \
+                                                    f"{self.__metadata_document_url}/" \
+                                                    f"{new_bf_documents_array[pbf_d]['id']}"
+
+                                                new_bf_documents_array[pbf_d]['datePublished'] = \
+                                                    self.__actual_message['data']['operationDate']
+                                            new_bf['documents'] = new_bf_documents_array
+                                        else:
+                                            del new_bf['documents']
+                                        expected_parties_object['persones'][p]['businessFunctions'].append(new_bf)
+            for m in range(len(diff_person_id)):
+                if diff_person_id[m] == \
+                        f"{self.__payload['requirementResponse']['responder']['identifier']['scheme']}-" \
+                        f"{self.__payload['requirementResponse']['responder']['identifier']['id']}":
+
+                    expected_persones = copy.deepcopy(
+                        self.__expected_fa_release['releases'][0]['parties'][0]['persones'][0])
+                    expected_persones['id'] = \
+                        f"{self.__payload['requirementResponse']['responder']['identifier']['scheme']}-" \
+                        f"{self.__payload['requirementResponse']['responder']['identifier']['id']}"
+
+                    expected_persones['title'] = self.__payload['requirementResponse']['responder']['title']
+                    expected_persones['name'] = self.__payload['requirementResponse']['responder']['name']
+
+                    expected_persones['identifier']['scheme'] = \
+                        self.__payload['requirementResponse']['responder']['identifier']['scheme']
+
+                    expected_persones['identifier']['id'] = \
+                        self.__payload['requirementResponse']['responder']['identifier']['id']
+
+                    if "uri" in self.__payload['requirementResponse']['responder']['identifier']:
+                        expected_persones['identifier']['uri'] = self.__payload['requirementResponse']['responder'][
+                            'identifier']['uri']
+                    else:
+                        del expected_persones['identifier']['uri']
+
+                    del expected_persones['businessFunctions'][0]
+                    for pbf in range(len(self.__payload['requirementResponse']['responder']['businessFunctions'])):
+                        new_bf = copy.deepcopy(
+                            self.__expected_fa_release['releases'][0]['parties'][0]['persones'][0]['businessFunctions'][
+                                0]
+                        )
+                        new_bf['type'] = self.__payload['requirementResponse'][
+                            'responder']['businessFunctions'][pbf]['type']
+
+                        new_bf['jobTitle'] = self.__payload['requirementResponse'][
+                            'responder']['businessFunctions'][pbf]['jobTitle']
+
+                        new_bf['period']['startDate'] = self.__payload['requirementResponse'][
+                            'responder']['businessFunctions'][pbf]['period']['startDate']
+
+                        del new_bf['documents'][0]
+                        if "documents" in self.__payload['requirementResponse']['responder']['businessFunctions'][pbf]:
+                            new_bf_documents_array = list()
+                            for pbf_d in range(len(self.__payload['requirementResponse'][
+                                                       'responder']['businessFunctions'][pbf]['documents'])):
+                                new_bf_documents_array.append(copy.deepcopy(
+                                    self.__expected_fa_release['releases'][0]['parties'][0][
+                                        'persones'][0]['businessFunctions'][0]['documents'][0]
+                                ))
+
+                                new_bf_documents_array[pbf_d]['id'] = \
+                                    self.__payload['requirementResponse']['responder'][
+                                        'businessFunctions'][pbf]['documents'][pbf_d]['id']
+
+                                new_bf_documents_array[pbf_d]['title'] = \
+                                    self.__payload['requirementResponse']['responder'][
+                                        'businessFunctions'][pbf]['documents'][pbf_d]['title']
+
+                                new_bf_documents_array[pbf_d]['documentType'] = \
+                                    self.__payload['requirementResponse']['responder'][
+                                        'businessFunctions'][pbf]['documents'][pbf_d]['documentType']
+
+                                if "description" in self.__payload['requirementResponse'][
+                                        'responder']['businessFunctions'][pbf]['documents'][pbf_d]:
+
+                                    new_bf_documents_array[pbf_d]['description'] = \
+                                        self.__payload['requirementResponse']['responder'][
+                                            'businessFunctions'][pbf]['documents'][pbf_d]['description']
+                                else:
+                                    del new_bf_documents_array[pbf_d]['description']
+
+                                new_bf_documents_array[pbf_d]['url'] = \
+                                    f"{self.__metadata_document_url}/{new_bf_documents_array[pbf_d]['id']}"
+
+                                new_bf_documents_array[pbf_d]['datePublished'] = \
+                                    self.__actual_message['data']['operationDate']
+
+                            new_bf['documents'] = new_bf_documents_array
+                        else:
+                            del new_bf['documents']
+                        expected_persones['businessFunctions'].append(new_bf)
+                    expected_parties_object['persones'].append(expected_persones)
+
         else:
             expected_parties_object.update(
                 {
@@ -1277,9 +1382,9 @@ class QualificationDeclareRelease:
                             self.__payload['requirementResponse']['responder'][
                                 'businessFunctions'][pbf]['documents'][pbf_d]['title']
 
-                        new_bf_documents_array[pbf_d]['type'] = \
+                        new_bf_documents_array[pbf_d]['documentType'] = \
                             self.__payload['requirementResponse']['responder'][
-                                'businessFunctions'][pbf]['documents'][pbf_d]['type']
+                                'businessFunctions'][pbf]['documents'][pbf_d]['documentType']
 
                         if "description" in self.__payload['requirementResponse'][
                                 'responder']['businessFunctions'][pbf]['documents'][pbf_d]:
@@ -1290,7 +1395,7 @@ class QualificationDeclareRelease:
                         else:
                             del new_bf_documents_array[pbf_d]['description']
 
-                        new_bf_documents_array[pbf_d]['uri'] = \
+                        new_bf_documents_array[pbf_d]['url'] = \
                             f"{self.__metadata_document_url}/{new_bf_documents_array[pbf_d]['id']}"
 
                         new_bf_documents_array[pbf_d]['datePublished'] = \

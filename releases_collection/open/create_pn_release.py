@@ -1,4 +1,4 @@
-"""Prepare the expected releases of the planning notice process, framework agreement procedures."""
+"""Prepare the expected releases of the planning notice process, open procedures."""
 import copy
 
 from functions_collection.some_functions import is_it_uuid, get_value_from_country_csv, get_value_from_region_csv, \
@@ -10,82 +10,71 @@ from functions_collection.some_functions import is_it_uuid, get_value_from_count
 class PlanningNoticeRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, host_to_service, language, pmd, pn_payload, pn_message, actual_pn_release,
-                 actual_ms_release):
+    def __init__(self, environment, language, pmd, pn_payload, actual_message):
 
         self.__environment = environment
-        self.__host = host_to_service
         self.__language = language
         self.__pmd = pmd
         self.__pn_payload = pn_payload
-        self.__pn_message = pn_message
-        self.__actual_pn_release = actual_pn_release
-        self.__actual_ms_release = actual_ms_release
-
-        extensions = None
-        publisher_name = None
-        publisher_uri = None
+        self.__actual_message = actual_message
         self.__metadata_document_url = None
         try:
             if environment == "dev":
                 self.__metadata_tender_url = "http://dev.public.eprocurement.systems/tenders"
 
-                extensions = [
+                self.__extensions = [
                     "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
                     "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"
                 ]
 
-                publisher_name = "M-Tender"
-                publisher_uri = "https://www.mtender.gov.md"
+                self.__publisher_name = "M-Tender"
+                self.__publisher_uri = "https://www.mtender.gov.md"
                 self.__metadata_document_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get"
                 self.__metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
 
             elif environment == "sandbox":
                 self.__metadata_tender_url = "http://public.eprocurement.systems/tenders"
 
-                extensions = [
+                self.__extensions = [
                     "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
                     "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.json"
                 ]
 
-                publisher_name = "Viešųjų pirkimų tarnyba"
-                publisher_uri = "https://vpt.lrv.lt"
+                self.__publisher_name = "Viešųjų pirkimų tarnyba"
+                self.__publisher_uri = "https://vpt.lrv.lt"
                 self.__metadata_document_url = "http://storage.eprocurement.systems/get"
                 self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
             ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
-        # BR-4.48, BR-4.50, BR-4.51, BR-4.74, BR-4.253, BR-4.254, BR-4.256, BR-4.257, BR-4.55, BR-3.1.23:
         self.__expected_pn_release = {
-            "uri": f"{self.__metadata_tender_url}/{pn_message['data']['ocid']}/"
-                   f"{pn_message['data']['outcomes']['pn'][0]['id']}",
-
-            "version": "1.1",
-            "extensions": extensions,
+            "uri": "",
+            "version": "",
+            "extensions": [
+                "",
+                ""
+            ],
             "publisher": {
-                "name": publisher_name,
-                "uri": publisher_uri
+                "name": "",
+                "uri": ""
             },
-            "license": "http://opendefinition.org/licenses/",
-            "publicationPolicy": "http://opendefinition.org/licenses/",
-            "publishedDate": pn_message['data']['operationDate'],
+            "license": "",
+            "publicationPolicy": "",
+            "publishedDate": "",
             "releases": [
                 {
-                    "ocid": pn_message['data']['outcomes']['pn'][0]['id'],
-
-                    "id": f"{pn_message['data']['outcomes']['pn'][0]['id']}-"
-                          f"{actual_pn_release['releases'][0]['id'][46:59]}",
-
-                    "date": pn_message['data']['operationDate'],
+                    "ocid": "",
+                    "id": "",
+                    "date": "",
                     "tag": [
-                        "planning"
+                        ""
                     ],
-                    "language": language,
-                    "initiationType": "tender",
+                    "language": "",
+                    "initiationType": "",
                     "tender": {
                         "id": "",
-                        "status": "planning",
-                        "statusDetails": "planning",
+                        "status": "",
+                        "statusDetails": "",
                         "items": [
                             {
                                 "id": "",
@@ -103,7 +92,7 @@ class PlanningNoticeRelease:
                                         "description": ""
                                     }
                                 ],
-                                "quantity": "",
+                                "quantity": 0.0,
                                 "unit": {
                                     "name": "",
                                     "id": ""
@@ -117,10 +106,10 @@ class PlanningNoticeRelease:
                                 "internalId": "",
                                 "title": "",
                                 "description": "",
-                                "status": "planning",
-                                "statusDetails": "empty",
+                                "status": "",
+                                "statusDetails": "",
                                 "value": {
-                                    "amount": 0,
+                                    "amount": 0.0,
                                     "currency": ""
                                 },
                                 "recurrentProcurement": [
@@ -162,8 +151,7 @@ class PlanningNoticeRelease:
                                             "locality": {
                                                 "scheme": "",
                                                 "id": "",
-                                                "description": "",
-                                                "uri": ""
+                                                "description": ""
                                             }
                                         }
                                     },
@@ -215,7 +203,7 @@ class PlanningNoticeRelease:
                         {
                             "id": "",
                             "relationship": [
-                                ""
+                                "parent"
                             ],
                             "scheme": "",
                             "identifier": "",
@@ -226,33 +214,35 @@ class PlanningNoticeRelease:
             ]
         }
 
-        # BR-4.67, BR-4.65, BR-3.1.2, BR-3.1.23, BR-3.1.30:
         self.__expected_ms_release = {
-            "uri": f"{self.__metadata_tender_url}/{pn_message['data']['ocid']}/{pn_message['data']['ocid']}",
-            "version": "1.1",
-            "extensions": extensions,
+            "uri": "",
+            "version": "",
+            "extensions": [
+                "",
+                ""
+            ],
             "publisher": {
-                "name": publisher_name,
-                "uri": publisher_uri
+                "name": "",
+                "uri": ""
             },
-            "license": "http://opendefinition.org/licenses/",
-            "publicationPolicy": "http://opendefinition.org/licenses/",
-            "publishedDate": pn_message['data']['operationDate'],
+            "license": "",
+            "publicationPolicy": "h",
+            "publishedDate": "",
             "releases": [
                 {
-                    "ocid": pn_message['data']['ocid'],
-                    "id": f"{pn_message['data']['ocid']}-{actual_ms_release['releases'][0]['id'][29:42]}",
-                    "date": pn_message['data']['operationDate'],
+                    "ocid": "",
+                    "id": "",
+                    "date": "",
                     "tag": [
-                        "compiled"
+                        ""
                     ],
-                    "language": language,
-                    "initiationType": "tender",
+                    "language": "",
+                    "initiationType": "",
                     "planning": {
                         "budget": {
                             "description": "",
                             "amount": {
-                                "amount": 0,
+                                "amount": 0.0,
                                 "currency": ""
                             },
                             "isEuropeanUnionFunded": True,
@@ -261,7 +251,7 @@ class PlanningNoticeRelease:
                                     "id": "",
                                     "description": "",
                                     "amount": {
-                                        "amount": 0,
+                                        "amount": 0.0,
                                         "currency": ""
                                     },
                                     "period": {
@@ -286,10 +276,10 @@ class PlanningNoticeRelease:
                         "id": "",
                         "title": "",
                         "description": "",
-                        "status": "planning",
-                        "statusDetails": "planning",
+                        "status": "",
+                        "statusDetails": "",
                         "value": {
-                            "amount": 0,
+                            "amount": 0.0,
                             "currency": ""
                         },
                         "procurementMethod": "",
@@ -301,6 +291,10 @@ class PlanningNoticeRelease:
                         "contractPeriod": {
                             "startDate": "",
                             "endDate": ""
+                        },
+                        "procuringEntity": {
+                            "id": "",
+                            "name": ""
                         },
                         "acceleratedProcedure": {
                             "isAcceleratedProcedure": False
@@ -407,11 +401,53 @@ class PlanningNoticeRelease:
             ]
         }
 
-    def build_expected_pn_release(self):
+    def build_expected_pn_release(self, actual_pn_release):
         """Build PN release."""
 
-        # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
-        # BR-4.56:
+        """Enrich general attribute for expected PN release"""
+        self.__expected_pn_release['uri'] = \
+            f"{self.__metadata_tender_url}/{self.__actual_message['data']['ocid']}/" \
+            f"{self.__actual_message['data']['outcomes']['pn'][0]['id']}"
+
+        self.__expected_pn_release['version'] = "1.1"
+        self.__expected_pn_release['extensions'] = self.__extensions
+        self.__expected_pn_release['publisher']['name'] = self.__publisher_name
+        self.__expected_pn_release['publisher']['uri'] = self.__publisher_uri
+        self.__expected_pn_release['license'] = "http://opendefinition.org/licenses/"
+        self.__expected_pn_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
+        self.__expected_pn_release['publishedDate'] = self.__actual_message['data']['operationDate']
+
+        """Enrich general attribute for expected PN release: releases[0]"""
+        self.__expected_pn_release['releases'][0]['ocid'] = self.__actual_message['data']['outcomes']['pn'][0]['id']
+
+        self.__expected_pn_release['releases'][0]['id'] = \
+            f"{self.__actual_message['data']['outcomes']['pn'][0]['id']}-" \
+            f"{actual_pn_release['releases'][0]['id'][46:59]}"
+
+        self.__expected_pn_release['releases'][0]['date'] = self.__actual_message['data']['operationDate']
+        self.__expected_pn_release['releases'][0]['tag'] = ["planning"]
+        self.__expected_pn_release['releases'][0]['language'] = self.__language
+        self.__expected_pn_release['releases'][0]['initiationType'] = "tender"
+        self.__expected_pn_release['releases'][0]['hasPreviousNotice'] = False
+        self.__expected_pn_release['releases'][0]['purposeOfNotice']['isACallForCompetition'] = False
+
+        """Enrich 'tender' object for expected PN release: releases[0].tender"""
+        try:
+            """Set permanent id."""
+            is_permanent_id_correct = is_it_uuid(actual_pn_release['releases'][0]['tender']['id'])
+            if is_permanent_id_correct is True:
+
+                self.__expected_pn_release['releases'][0]['tender']['id'] = \
+                    actual_pn_release['releases'][0]['tender']['id']
+            else:
+                ValueError(f"The 'releases[0].tender.id' must be uuid.")
+        except KeyError:
+            KeyError(f"Mismatch key into path 'releases[0].tender.id'.")
+
+        self.__expected_pn_release['releases'][0]['tender']['status'] = "planning"
+        self.__expected_pn_release['releases'][0]['tender']['statusDetails'] = "planning"
+
+        # Prepare lots array.
         if "lots" in self.__pn_payload['tender']:
             # BR-3.1.1, BR-3.1.5,
             try:
@@ -444,15 +480,17 @@ class PlanningNoticeRelease:
 
                     # Enrich required fields:
                     is_permanent_lot_id_correct = is_it_uuid(
-                        self.__actual_pn_release['releases'][0]['tender']['lots'][q_0]['id'])
+                        actual_pn_release['releases'][0]['tender']['lots'][q_0]['id'])
 
                     if is_permanent_lot_id_correct is True:
-                        new_lots_array[q_0]['id'] = self.__actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']
+                        new_lots_array[q_0]['id'] = actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']
                     else:
                         ValueError(f"The relases0.tender.lots{q_0}.id must be uuid.")
 
                     new_lots_array[q_0]['title'] = self.__pn_payload['tender']['lots'][q_0]['title']
                     new_lots_array[q_0]['description'] = self.__pn_payload['tender']['lots'][q_0]['description']
+                    new_lots_array[q_0]['status'] = "planning"
+                    new_lots_array[q_0]['statusDetails'] = "empty"
                     new_lots_array[q_0]['value']['amount'] = self.__pn_payload['tender']['lots'][q_0]['value']['amount']
                     new_lots_array[q_0]['value']['currency'] = self.__pn_payload['tender']['lots'][q_0]['value'][
                         'currency']
@@ -568,8 +606,8 @@ class PlanningNoticeRelease:
         else:
             del self.__expected_pn_release['releases'][0]['tender']['lots']
 
+        # Prepare items array.
         if "items" in self.__pn_payload['tender']:
-            # BR-3.1.6
             try:
                 """
                 Build the releases.tender.items array.
@@ -609,10 +647,10 @@ class PlanningNoticeRelease:
 
                     # Enrich required fields:
                     is_permanent_item_id_correct = is_it_uuid(
-                        self.__actual_pn_release['releases'][0]['tender']['items'][q_0]['id'])
+                        actual_pn_release['releases'][0]['tender']['items'][q_0]['id'])
 
                     if is_permanent_item_id_correct is True:
-                        new_items_array[q_0]['id'] = self.__actual_pn_release['releases'][0]['tender']['items'][q_0][
+                        new_items_array[q_0]['id'] = actual_pn_release['releases'][0]['tender']['items'][q_0][
                             'id']
                     else:
                         ValueError(f"The relases[0].tender.items[{q_0}].id must be uuid.")
@@ -638,7 +676,7 @@ class PlanningNoticeRelease:
                     new_items_array[q_0]['unit']['name'] = expected_unit_data[1]
 
                     new_items_array[q_0]['relatedLot'] = \
-                        self.__actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']
+                        actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']
 
                 self.__expected_pn_release['releases'][0]['tender']['items'] = new_items_array
             except ValueError:
@@ -646,6 +684,7 @@ class PlanningNoticeRelease:
         else:
             del self.__expected_pn_release['releases'][0]['tender']['items']
 
+        # Prepare documents array
         if "documents" in self.__pn_payload['tender']:
             try:
                 """
@@ -667,7 +706,7 @@ class PlanningNoticeRelease:
                     if "relatedLots" in self.__pn_payload['tender']['documents'][q_0]:
 
                         new_documents_array[q_0]['relatedLots'] = \
-                            [self.__actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']]
+                            [actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']]
                     else:
                         del new_documents_array[q_0]['relatedLots']
 
@@ -680,24 +719,14 @@ class PlanningNoticeRelease:
                     new_documents_array[q_0]['url'] = \
                         f"{self.__metadata_document_url}/{self.__pn_payload['tender']['documents'][q_0]['id']}"
 
-                    new_documents_array[q_0]['datePublished'] = self.__pn_message['data']['operationDate']
+                    new_documents_array[q_0]['datePublished'] = self.__actual_message['data']['operationDate']
                 self.__expected_pn_release['releases'][0]['tender']['documents'] = new_documents_array
             except ValueError:
                 ValueError("Impossible to build the expected releases.tender.documents array.")
         else:
             del self.__expected_pn_release['releases'][0]['tender']['documents']
 
-        # Enrich required fields:
-        # BR-3.1.4:
-        is_permanent_tender_id_correct = is_it_uuid(
-            self.__actual_pn_release['releases'][0]['tender']['id'])
-
-        if is_permanent_tender_id_correct is True:
-
-            self.__expected_pn_release['releases'][0]['tender']['id'] = \
-                self.__actual_pn_release['releases'][0]['tender']['id']
-        else:
-            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
+        self.__expected_pn_release['releases'][0]['tender']['lotGroups'][0]['optionToCombine'] = False
 
         self.__expected_pn_release['releases'][0]['tender']['tenderPeriod']['startDate'] = \
             self.__pn_payload['tender']['tenderPeriod']['startDate']
@@ -710,31 +739,32 @@ class PlanningNoticeRelease:
         self.__expected_pn_release['releases'][0]['tender']['submissionMethodRationale'][0] = \
             "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice"
 
-        is_permanent_releatedprocess_id_correct = is_it_uuid(
-            self.__actual_pn_release['releases'][0]['relatedProcesses'][0]['id'])
+        """Enrich 'relatedProcesses' object for expected PN release: releases[0].relatedProcesses"""
+        try:
+            """Set permanent id."""
+            is_permanent_id_correct = is_it_uuid(actual_pn_release['releases'][0]['relatedProcesses'][0]['id'])
+            if is_permanent_id_correct is True:
+                self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                    actual_pn_release['releases'][0]['relatedProcesses'][0]['id']
+            else:
+                ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
+        except KeyError:
+            KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[0].id'.")
 
-        if is_permanent_releatedprocess_id_correct is True:
-
-            self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['id'] = \
-                self.__actual_pn_release['releases'][0]['relatedProcesses'][0]['id']
-        else:
-            ValueError(f"The relases0.relatedProcess0.id must be uuid.")
-
-        # Build the releases.relatedProcesses array. Enrich or delete optional fields and enrich required fields:
-        # BR-4.46, BR-4.47, BR-4.257, BR-4.258, BR-4.259, BR-4.260:
         self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "parent"
         self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
 
         self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
-            self.__pn_message['data']['ocid']
+            self.__actual_message['data']['ocid']
 
         self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['uri'] = \
-            f"{self.__metadata_tender_url}/{self.__pn_message['data']['ocid']}/{self.__pn_message['data']['ocid']}"
+            f"{self.__metadata_tender_url}/{self.__actual_message['data']['ocid']}/" \
+            f"{self.__actual_message['data']['ocid']}"
 
         return self.__expected_pn_release
 
     def build_expected_ms_release(self, ei_payload, ei_message, fs_payloads_list, fs_message_list,
-                                  tender_classification_id):
+                                  tender_classification_id, actual_ms_release):
         """ Build MS release."""
 
         # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
@@ -839,13 +869,10 @@ class PlanningNoticeRelease:
             self.__pn_payload['planning']['budget']['budgetBreakdown'][0]['amount']['currency']
 
         # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
-        is_permanent_tender_id_correct = is_it_uuid(
-            self.__actual_ms_release['releases'][0]['tender']['id'])
+        is_permanent_tender_id_correct = is_it_uuid(actual_ms_release['releases'][0]['tender']['id'])
 
         if is_permanent_tender_id_correct is True:
-
-            self.__expected_ms_release['releases'][0]['tender']['id'] = \
-                self.__actual_ms_release['releases'][0]['tender']['id']
+            self.__expected_ms_release['releases'][0]['tender']['id'] = actual_ms_release['releases'][0]['tender']['id']
         else:
             ValueError(f"The releases[0].tender.id must be uuid.")
 
@@ -912,8 +939,8 @@ class PlanningNoticeRelease:
         except KeyError:
             KeyError("Could not parse tender.classification.id.")
 
-        expected_procurement_method_details = None
         expected_procurement_method = None
+        expected_procurement_method_details = None
         try:
             """
             Enrich procurementMethod and procurementMethodDetails, depends on pmd.
@@ -953,14 +980,14 @@ class PlanningNoticeRelease:
             """
             if self.__language == "ro":
                 expected_eligibility_criteria = "Regulile generale privind naționalitatea și originea, precum și " \
-                                               "alte criterii de eligibilitate sunt enumerate în " \
-                                               "Ghidul practic privind procedurile de contractare " \
-                                               "a acțiunilor externe ale UE (PRAG)"
+                                                "alte criterii de eligibilitate sunt enumerate în " \
+                                                "Ghidul practic privind procedurile de contractare " \
+                                                "a acțiunilor externe ale UE (PRAG)"
             elif self.__language == "en":
                 expected_eligibility_criteria = "The general rules on nationality and origin, " \
-                                               "as well as other eligibility criteria are listed " \
-                                               "in the Practical Guide to Contract Procedures for EU " \
-                                               "External Actions (PRAG)"
+                                                "as well as other eligibility criteria are listed " \
+                                                "in the Practical Guide to Contract Procedures for EU " \
+                                                "External Actions (PRAG)"
             else:
                 ValueError("Check your language: You must use 'ro', "
                            "'en' in pytest command.")
@@ -1085,7 +1112,6 @@ class PlanningNoticeRelease:
             del buyer_role_array[0]['additionalIdentifiers'][0]
             additional_identifiers = list()
             for q_1 in range(len(ei_payload['buyer']['additionalIdentifiers'])):
-
                 additional_identifiers.append(copy.deepcopy(
                     self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
                 ))
@@ -1399,7 +1425,6 @@ class PlanningNoticeRelease:
                 del payer_role_array[q_3]['additionalIdentifiers'][0]
                 additional_identifiers = list()
                 for q_4 in range(len(fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'])):
-
                     additional_identifiers.append(copy.deepcopy(
                         self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
                     ))
@@ -1556,10 +1581,10 @@ class PlanningNoticeRelease:
             permanent_parties_with_funder_role_array
 
         expected_parties_array = list()
-        if len(self.__actual_ms_release['releases'][0]['parties']) == len(parties_array):
-            for act in range(len(self.__actual_ms_release['releases'][0]['parties'])):
+        if len(actual_ms_release['releases'][0]['parties']) == len(parties_array):
+            for act in range(len(actual_ms_release['releases'][0]['parties'])):
                 for exp in range(len(parties_array)):
-                    if parties_array[exp]['id'] == self.__actual_ms_release['releases'][0]['parties'][act]['id']:
+                    if parties_array[exp]['id'] == actual_ms_release['releases'][0]['parties'][act]['id']:
                         expected_parties_array.append(parties_array[exp])
         else:
             ValueError("Quantity of objects into actual ms release doesn't equal "
@@ -1576,11 +1601,11 @@ class PlanningNoticeRelease:
 
         new_related_processes_array[0]['relationship'] = ["planning"]
         new_related_processes_array[0]['scheme'] = "ocid"
-        new_related_processes_array[0]['identifier'] = self.__pn_message['data']['outcomes']['pn'][0]['id']
+        new_related_processes_array[0]['identifier'] = self.__actual_message['data']['outcomes']['pn'][0]['id']
 
         new_related_processes_array[0]['uri'] = \
-            f"{self.__metadata_tender_url}/{self.__pn_message['data']['ocid']}/" \
-            f"{self.__pn_message['data']['outcomes']['pn'][0]['id']}"
+            f"{self.__metadata_tender_url}/{self.__actual_message['data']['ocid']}/" \
+            f"{self.__actual_message['data']['outcomes']['pn'][0]['id']}"
 
         new_related_processes_array[1]['relationship'] = ["x_expenditureItem"]
         new_related_processes_array[1]['scheme'] = "ocid"
@@ -1607,19 +1632,19 @@ class PlanningNoticeRelease:
                 f"{fs_message_list[q_0]['data']['outcomes']['fs'][0]['id']}"
 
         expected_related_processes_array = new_related_processes_array + fs_related_processes_array
-        if len(self.__actual_ms_release['releases'][0]['relatedProcesses']) == len(expected_related_processes_array):
-            for act in range(len(self.__actual_ms_release['releases'][0]['relatedProcesses'])):
+        if len(actual_ms_release['releases'][0]['relatedProcesses']) == len(expected_related_processes_array):
+            for act in range(len(actual_ms_release['releases'][0]['relatedProcesses'])):
                 for exp in range(len(expected_related_processes_array)):
 
                     is_permanent_releatedprocess_id_correct = is_it_uuid(
-                        self.__actual_ms_release['releases'][0]['relatedProcesses'][act]['id'])
+                        actual_ms_release['releases'][0]['relatedProcesses'][act]['id'])
 
                     if is_permanent_releatedprocess_id_correct is True:
 
-                        if self.__actual_ms_release['releases'][0]['relatedProcesses'][act]['identifier'] == \
+                        if actual_ms_release['releases'][0]['relatedProcesses'][act]['identifier'] == \
                                 expected_related_processes_array[exp]['identifier']:
                             expected_related_processes_array[exp]['id'] = \
-                                self.__actual_ms_release['releases'][0]['relatedProcesses'][act]['id']
+                                actual_ms_release['releases'][0]['relatedProcesses'][act]['id']
                     else:
                         ValueError(f"The relases0.relatedProcess.id must be uuid.")
         else:
