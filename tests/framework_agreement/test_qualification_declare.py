@@ -42,7 +42,7 @@ class TestQualificationDeclareNonConflictOfInterest:
         fa_url = submission_period_end_tc_1[5]
         ocid = submission_period_end_tc_1[23]
         fe_url = submission_period_end_tc_1[24]
-        submission_period_end_message = submission_period_end_tc_1[27]
+        submission_period_end_message = submission_period_end_tc_1[31]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()

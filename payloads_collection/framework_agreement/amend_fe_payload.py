@@ -395,4 +395,4 @@ class AmendFrameworkEstablishmentPayload:
         self.__payload['tender']['documents'] += new_documents_array
 
     def __del__(self):
-        print(f"The instance of FrameworkEstablishmentPayload class: {__name__} was deleted.")
+        print(f"The instance of AmendFrameworkEstablishmentPayload class: {__name__} was deleted.")

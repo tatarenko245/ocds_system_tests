@@ -338,3 +338,10 @@ pmd_for_pn_framework_agreement = (
     "TEST_RFQ",
     "TEST_MC",
 )
+
+
+documentType_for_qualification_process = (
+    "notice",
+    "evaluationReports",
+    "conflictOfInterest",
+)

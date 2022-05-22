@@ -148,6 +148,9 @@ class UpdateAggregatedPlan:
                 del self.__payload['tender']['items'][item_position]['additionalClassifications']
             elif a == f"tender.items.additionalClassifications":
                 del self.__payload['tender']['items'][item_position]['additionalClassifications']
+            elif a == f"tender.items.additionalClassifications[{additional_classification_position}]":
+                del self.__payload['tender']['items'][item_position]['additionalClassifications'][
+                    additional_classification_position]
 
             elif a == "tender.items.deliveryAddress":
                 del self.__payload['tender']['items'][item_position]['deliveryAddress']

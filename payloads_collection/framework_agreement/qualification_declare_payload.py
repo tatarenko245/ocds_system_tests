@@ -108,4 +108,4 @@ class QualificationDeclareNonConflictOfInterestPayload:
         self.__payload['requirementResponse']['responder']['businessFunctions'] = business_functions
 
     def __del__(self):
-        print(f"The instance of CreateSubmissionPayload class: {__name__} was deleted.")
+        print(f"The instance of QualificationDeclareNonConflictOfInterestPayload class: {__name__} was deleted.")

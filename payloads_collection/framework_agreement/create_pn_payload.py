@@ -325,4 +325,4 @@ class PlanningNoticePayload:
         self.__payload['tender']['documents'] = new_documents_array
 
     def __del__(self):
-        print(f"The instance of PlanPayload class: {__name__} was deleted.")
+        print(f"The instance of PlanningNoticePayload class: {__name__} was deleted.")

@@ -16,7 +16,7 @@ from releases_collection.framework_agreement.submission_period_end_release impor
 @allure.severity("Critical")
 class TestSubmissionPeriodEnd:
     @allure.title("Check records: based on full data model.")
-    @allure.testcase( url="")
+    @allure.testcase(url="")
     @allure.title("Check records: based on full data model.")
     def test_case_1(self, get_parameters, connect_to_keyspace, create_submission_tc_1):
 
@@ -38,8 +38,16 @@ class TestSubmissionPeriodEnd:
         fa_url = create_submission_tc_1[5]
         ocid = create_submission_tc_1[23]
         fe_url = create_submission_tc_1[24]
-        list_of_submission_payloads = [create_submission_tc_1[25]]
-        list_of_submission_messages = [create_submission_tc_1[26]]
+        list_of_submission_payloads = [
+            create_submission_tc_1[25],
+            create_submission_tc_1[27],
+            create_submission_tc_1[29]
+        ]
+        list_of_submission_messages = [
+            create_submission_tc_1[26],
+            create_submission_tc_1[28],
+            create_submission_tc_1[30]
+        ]
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
@@ -72,7 +80,8 @@ class TestSubmissionPeriodEnd:
                         actual_message=actual_message,
                         cpid=cpid,
                         ocid=ocid,
-                        test_mode=True
+                        test_mode=True,
+                        expected_quantity_of_outcomes_submission=3
                     ))
 
                     expected_message = expected_message.build_expected_message()

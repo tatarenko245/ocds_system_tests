@@ -529,8 +529,9 @@ def get_id_token_of_qualification_in_pending_awaiting_state(actual_qualification
         """
         for a in actual_qualifications_array:
             if a['status'] == "pending":
-                if a['statusDetails'] == "awaiting":
-                    actual_qualification_id_list.append(a['id'])
+                if "statusDetails" in a:
+                    if a['statusDetails'] == "awaiting":
+                        actual_qualification_id_list.append(a['id'])
     except Exception:
         raise Exception("Impossible to calculate how many quantity of object into "
                         f"actual_qualifications_array.")
