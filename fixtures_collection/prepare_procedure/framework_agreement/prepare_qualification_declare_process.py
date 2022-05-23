@@ -1104,18 +1104,19 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
         candidates_list = list()
         for qu in previous_fe_release['releases'][0]['qualifications']:
             if qu['status'] == "pending":
-                if qu['statusDetails'] == "awaiting":
-                    if 'submissions' in previous_fe_release['releases'][0]:
-                        for s in previous_fe_release['releases'][0]['submissions']['details']:
-                            if s['id'] == qu['relatedSubmission']:
-                                for cand in range(len(s['candidates'])):
-                                    candidate_dictionary = {
-                                        "qualification_id": qu['id'],
-                                        "candidates": s['candidates'][cand]
-                                    }
-                                    candidates_list.append(candidate_dictionary)
-                    else:
-                        raise KeyError("The 'submissions' object is missed into FE release.")
+                if "statusDetails" in qu:
+                    if qu['statusDetails'] == "awaiting":
+                        if 'submissions' in previous_fe_release['releases'][0]:
+                            for s in previous_fe_release['releases'][0]['submissions']['details']:
+                                if s['id'] == qu['relatedSubmission']:
+                                    for cand in range(len(s['candidates'])):
+                                        candidate_dictionary = {
+                                            "qualification_id": qu['id'],
+                                            "candidates": s['candidates'][cand]
+                                        }
+                                        candidates_list.append(candidate_dictionary)
+                        else:
+                            raise KeyError("The 'submissions' object is missed into FE release.")
     else:
         raise KeyError("The 'qualifications' array is missed into FE release.")
 

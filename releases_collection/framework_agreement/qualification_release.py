@@ -966,55 +966,56 @@ class QualificationRelease:
             for q in range(len(expected_qualifications_array)):
                 all_qualifications_id_list.append(expected_qualifications_array[q]['id'])
 
-            diff_qualification_id = list(set(all_qualifications_id_list) - set(qualification_id))
+            qualification_id_list = [qualification_id]
+            diff_qualification_id = list(set(all_qualifications_id_list) - set(qualification_id_list))
 
-            another_qualifications = list()
-            for di in range(len(diff_qualification_id)):
-                for act in range(len(expected_qualifications_array)):
-                    if diff_qualification_id[di] == expected_qualifications_array[act]['id']:
-                        another_qualifications.append(expected_qualifications_array[act])
+            if len(diff_qualification_id) > 0:
+                another_qualifications = list()
+                for di in range(len(diff_qualification_id)):
+                    for act in range(len(expected_qualifications_array)):
+                        if diff_qualification_id[di] == expected_qualifications_array[act]['id']:
+                            another_qualifications.append(expected_qualifications_array[act])
 
-            temp_scoring_by_another_qualifications = list()
+                temp_scoring_by_another_qualifications = list()
 
-            for act in range(len(another_qualifications)):
-                temp_scoring_by_another_qualifications.append(another_qualifications[act]['scoring'])
+                for act in range(len(another_qualifications)):
+                    temp_scoring_by_another_qualifications.append(another_qualifications[act]['scoring'])
 
-            temp_date_by_another_qualifications = list()
-            for q_0 in range(len(another_qualifications)):
-                for me_0 in range(len(list_of_submission_messages)):
-                    if another_qualifications[q_0]['relatedSubmission'] == list_of_submission_messages[me_0][
-                                'data']['outcomes']['submissions'][0]['id']:
-                        temp_date_by_another_qualifications.append(list_of_submission_messages[me_0][
-                                             'data']['operationDate'])
+                temp_date_by_another_qualifications = list()
+                for q_0 in range(len(another_qualifications)):
+                    for me_0 in range(len(list_of_submission_messages)):
+                        if another_qualifications[q_0]['relatedSubmission'] == list_of_submission_messages[me_0][
+                                    'data']['outcomes']['submissions'][0]['id']:
+                            temp_date_by_another_qualifications.append(list_of_submission_messages[me_0][
+                                                 'data']['operationDate'])
 
-            min_scoring = min(temp_scoring_by_another_qualifications)
-            min_date = get_min_date(temp_date_by_another_qualifications)
+                min_scoring = min(temp_scoring_by_another_qualifications)
+                min_date = get_min_date(temp_date_by_another_qualifications)
 
-            temp_qualifications = list()
-            for q_0 in range(len(another_qualifications)):
-                if another_qualifications[q_0]['scoring'] == min_scoring:
-                    temp_qualifications.append(another_qualifications[q_0])
+                temp_qualifications = list()
+                for q_0 in range(len(another_qualifications)):
+                    if another_qualifications[q_0]['scoring'] == min_scoring:
+                        temp_qualifications.append(another_qualifications[q_0])
 
-            if len(temp_qualifications) > 1:
-                for q_0 in range(len(temp_qualifications)):
-                    if temp_qualifications[q_0]['date'] == min_date:
-                        # FR.COM-7.22.3:
-                        if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
-                            temp_qualifications[q_0]['statusDetails'] = "awaiting"
-                        else:
-                            temp_qualifications[q_0]['statusDetails'] = "consideration"
-
-            else:
-                # FR.COM-7.22.3:
-                if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
-                    temp_qualifications[0]['statusDetails'] = "awaiting"
+                if len(temp_qualifications) > 1:
+                    for q_0 in range(len(temp_qualifications)):
+                        if temp_qualifications[q_0]['date'] == min_date:
+                            # FR.COM-7.22.3:
+                            if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
+                                temp_qualifications[q_0]['statusDetails'] = "awaiting"
+                            else:
+                                temp_qualifications[q_0]['statusDetails'] = "consideration"
                 else:
-                    temp_qualifications[0]['statusDetails'] = "consideration"
+                    # FR.COM-7.22.3:
+                    if "criteria" in self.__expected_fe_release['releases'][0]['tender']:
+                        temp_qualifications[0]['statusDetails'] = "awaiting"
+                    else:
+                        temp_qualifications[0]['statusDetails'] = "consideration"
 
-            for i in range(len(temp_qualifications)):
-                for y in range(len(expected_qualifications_array)):
-                    if temp_qualifications[i]['id'] == expected_qualifications_array[y]['id']:
-                        expected_qualifications_array[y] = temp_qualifications[i]
+                for i in range(len(temp_qualifications)):
+                    for y in range(len(expected_qualifications_array)):
+                        if temp_qualifications[i]['id'] == expected_qualifications_array[y]['id']:
+                            expected_qualifications_array[y] = temp_qualifications[i]
 
         self.__expected_fe_release['releases'][0]['qualifications'] = expected_qualifications_array
 

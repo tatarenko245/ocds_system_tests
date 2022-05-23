@@ -213,6 +213,9 @@ class TestQualificationConsideration:
                             allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                           f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                                           f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+            previous_ap_release = requests.get(url=ap_url).json()
+            previous_fa_release = requests.get(url=fa_url).json()
+            previous_fe_release = requests.get(url=fe_url).json()
         try:
             """
             CLean up the database.

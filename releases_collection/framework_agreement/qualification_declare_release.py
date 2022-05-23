@@ -939,19 +939,36 @@ class QualificationDeclareRelease:
 
                 expected_qualifications_array[q]['requirementResponses'].append(requirement_response)
 
-                for act_0 in range(len(actual_fe_release['releases'][0]['qualifications'])):
-                    for act_1 in range(len(actual_fe_release['releases'][0]['qualifications'][act_0][
-                                               'requirementResponses'])):
-                        if requirement_response['requirement']['id'] == actual_fe_release['releases'][0][
-                            'qualifications'][act_0]['requirementResponses'][act_1]['requirement']['id'] and \
-                                requirement_response['responder']['id'] == actual_fe_release['releases'][0][
-                            'qualifications'][act_0]['requirementResponses'][act_1]['responder']['id'] and \
-                                requirement_response['responder']['name'] == actual_fe_release['releases'][0][
-                            'qualifications'][act_0]['requirementResponses'][act_1]['responder']['name'] and \
-                                requirement_response['relatedTenderer']['id'] == actual_fe_release['releases'][0][
-                                'qualifications'][act_0]['requirementResponses'][act_1]['relatedTenderer']['id']:
-                            requirement_response['id'] = actual_fe_release['releases'][0][
-                                'qualifications'][act_0]['requirementResponses'][act_1]['id']
+                # Get actual qualifications in valid state, witch have requirementResponses attribute.
+                actual_qualifications_array_in_valid_state = list()
+                if "criteria" in actual_fe_release['releases'][0]['tender']:
+                    for act in range(len(actual_fe_release['releases'][0]['qualifications'])):
+                        if "statusDetails" in actual_fe_release['releases'][0]['qualifications'][act]:
+                            if actual_fe_release['releases'][0]['qualifications'][act]['statusDetails'] == "awaiting":
+                                if "requirementResponses" in actual_fe_release['releases'][0]['qualifications'][act]:
+                                    actual_qualifications_array_in_valid_state.append(
+                                        actual_fe_release['releases'][0]['qualifications'][act]
+                                    )
+                else:
+                    raise KeyError("The 'criteria' array is missed into FE release."
+                                   "The Qualification Declare process is impossible.")
+
+                for act_0 in range(len(actual_qualifications_array_in_valid_state)):
+                    for act_1 in range(len(actual_qualifications_array_in_valid_state[act_0]['requirementResponses'])):
+                        if requirement_response['requirement']['id'] == \
+                                actual_qualifications_array_in_valid_state[act_0]['requirementResponses'][act_1][
+                                    'requirement']['id'] and \
+                                requirement_response['responder']['id'] == \
+                                actual_qualifications_array_in_valid_state[act_0]['requirementResponses'][act_1][
+                                    'responder']['id'] and \
+                                requirement_response['responder']['name'] == \
+                                actual_qualifications_array_in_valid_state[act_0]['requirementResponses'][act_1][
+                                    'responder']['name'] and \
+                                requirement_response['relatedTenderer']['id'] == \
+                                actual_qualifications_array_in_valid_state[act_0]['requirementResponses'][act_1][
+                                    'relatedTenderer']['id']:
+                            requirement_response['id'] = \
+                                actual_qualifications_array_in_valid_state[act_0]['requirementResponses'][act_1]['id']
         self.__expected_fe_release['releases'][0]['qualifications'] = expected_qualifications_array
 
         """Prepare 'relatedProcesses' array for expected FE release: releases[0].relatedProcesses"""
