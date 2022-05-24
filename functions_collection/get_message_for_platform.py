@@ -22,7 +22,7 @@ def get_message_for_platform(operation_id=None, ocid=None, initiator=None):
     status_code = requests.get(url).status_code
 
     if status_code == 404:
-        date_new = datetime.datetime.now() + datetime.timedelta(seconds=10)
+        date_new = datetime.datetime.now() + datetime.timedelta(seconds=20)
         time_bot(datetime.datetime.strftime(date_new, "%Y-%m-%dT%H:%M:%SZ"))
         status_code = requests.get(url).status_code
 
