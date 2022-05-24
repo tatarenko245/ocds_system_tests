@@ -700,7 +700,7 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
                 person_title="Mr.",
                 business_functions_type="chairman",
                 tender_documents_type="tenderNotice",
-                pre_qualification_sec=121
+                pre_qualification_sec=300
             ))
 
             payload.customize_tender_pe_persones(
