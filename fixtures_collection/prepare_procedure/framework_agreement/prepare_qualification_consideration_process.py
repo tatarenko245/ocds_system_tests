@@ -691,6 +691,11 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
             """
             Build payload for Create FE process.
             """
+            if environment == "dev":
+                pre_qualification_sec = 121
+            elif environment == "sandbox":
+                pre_qualification_sec = 300
+
             payload = copy.deepcopy(FrameworkEstablishmentPayload(
                 ap_payload=ap_payload,
                 host_to_service=service_host,
@@ -700,7 +705,7 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
                 person_title="Mr.",
                 business_functions_type="chairman",
                 tender_documents_type="tenderNotice",
-                pre_qualification_sec=300
+                pre_qualification_sec=pre_qualification_sec
             ))
 
             payload.customize_tender_pe_persones(
@@ -812,6 +817,10 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
             """
             Build payload for Amend FE process.
             """
+            if environment == "dev":
+                pre_qualification_sec = 740
+            elif environment == "sandbox":
+                pre_qualification_sec = 2240
             payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
                 ap_payload=ap_payload,
                 create_fe_payload=create_fe_payload,
@@ -823,7 +832,7 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
                 person_title="Ms.",
                 business_functions_type="contactPoint",
                 tender_documents_type="complaints",
-                pre_qualification_sec=800
+                pre_qualification_sec=pre_qualification_sec
             ))
 
             payload.customize_old_persones(
