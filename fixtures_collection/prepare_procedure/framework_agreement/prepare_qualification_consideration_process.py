@@ -823,7 +823,7 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
                 person_title="Ms.",
                 business_functions_type="contactPoint",
                 tender_documents_type="complaints",
-                pre_qualification_sec=740
+                pre_qualification_sec=800
             ))
 
             payload.customize_old_persones(
