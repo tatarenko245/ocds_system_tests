@@ -245,3 +245,20 @@ def qualification_process(host, access_token, x_operation_id, payload, cpid, oci
     allure.attach(f"{host}/do/qualification/{cpid}/{ocid}/{qualification_id}", 'URL')
     allure.attach(json.dumps(payload), 'Prepared payload')
     return request
+
+
+@allure.step('# Prepared request: Qualification Protocol.')
+def qualification_protocol_process(host, access_token, x_operation_id, cpid, ocid, token, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/protocol/qualification/{cpid}/{ocid}/",
+        params={
+            "testMode": test_mode
+        },
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json",
+            "X-TOKEN": token}
+        )
+    allure.attach(f"{host}/do/protocol/qualification/{cpid}/{ocid}/", 'URL')
+    return request

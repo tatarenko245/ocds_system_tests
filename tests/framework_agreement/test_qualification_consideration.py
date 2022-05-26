@@ -220,7 +220,7 @@ class TestQualificationConsideration:
             """
             CLean up the database.
             """
-            # Clean after Qualification Declare Non Conflict Of Interest process:
+            # Clean after Qualification Declare Consideration process:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_qualification_consideration(
@@ -426,7 +426,7 @@ class TestQualificationConsideration:
             """
             CLean up the database.
             """
-            # Clean after Qualification Declare Non Conflict Of Interest process:
+            # Clean after Qualification Consideration process:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_qualification_consideration(
