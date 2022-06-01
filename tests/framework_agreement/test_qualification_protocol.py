@@ -248,8 +248,7 @@ class TestQualificationProtocol:
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
-        print("\n previous_fe_release")
-        print(json.dumps(previous_fe_release))
+
         """Get qualification in state = pending.active or pending.unsuccessful: VR.COM-7.24.2"""
         qualification_list = list()
         for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
