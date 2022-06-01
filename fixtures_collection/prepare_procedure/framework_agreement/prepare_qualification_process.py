@@ -824,7 +824,7 @@ def qualification_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Amend FE process.
             """
             if environment == "dev":
-                pre_qualification_sec = 740
+                pre_qualification_sec = 1200
             elif environment == "sandbox":
                 pre_qualification_sec = 2240
             payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(

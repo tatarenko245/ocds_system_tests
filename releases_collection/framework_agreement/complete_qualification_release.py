@@ -876,38 +876,37 @@ class CompleteQualificationRelease:
         self.__expected_fe_release['releases'][0]['preQualification']['qualificationPeriod']['startDate'] = \
             previous_fe_release['releases'][0]['preQualification']['qualificationPeriod']['startDate']
 
-        """Prepare 'parties' array for expected FE release: releases[0].parties"""
+        """Prepare 'parties' array for expected FE release: releases[0].parties:
+        https://ustudio.atlassian.net/wiki/spaces/ES/pages/652148737/10.0.5.5+eDossier#
+        dossierGetSubmissionsForTendering -> dossierGetSubmissionsForTendering -> 
+        если “processInfo.operationType” = “completeQualification” добавляет значение “invitedCandidate”"""
         self.__expected_fe_release['releases'][0]['parties'] = previous_fe_release['releases'][0]['parties']
-        temp_qualifications_list = list()
+        temp_relatedsubmission_list = list()
         for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
-            if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "active" and \
-                    previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == \
-                    "basedOnHumanDecision":
-                temp_qualifications_list.append(
+            if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending" and \
+                    previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "active":
+                temp_relatedsubmission_list.append(
                     previous_fe_release['releases'][0]['qualifications'][q]['relatedSubmission']
                 )
-        print("\ntemp_qualifications_list")
-        print(temp_qualifications_list)
-        for q in range(len(temp_qualifications_list)):
+        for q in range(len(temp_relatedsubmission_list)):
             for s in range(len(previous_fe_release['releases'][0]['submissions']['details'])):
-                if previous_fe_release['releases'][0]['submissions']['details'][s]['id'] == temp_qualifications_list[q]:
-                    print("yes 1")
+                if previous_fe_release['releases'][0]['submissions']['details'][s]['id'] == \
+                        temp_relatedsubmission_list[q]:
                     for can in range(len(
                             previous_fe_release['releases'][0]['submissions']['details'][s]['candidates'])):
                         for party in range(len(self.__expected_fe_release['releases'][0]['parties'])):
                             if previous_fe_release['releases'][0]['submissions']['details'][s][
                                     'candidates'][can]['id'] == self.__expected_fe_release['releases'][0][
                                     'parties'][party]['id']:
-                                print("yes 2")
                                 self.__expected_fe_release['releases'][0]['parties'][party]['roles'].append(
                                     "invitedCandidate"
                                 )
 
-        """Prepare 'tender' object for expected FE release: releases[0].tender"""
+        """Prepare 'tender' object for expected FE release: releases[0].tender:
+        Subprocess Modify Tender -> if operationType = completeQualification"""
         self.__expected_fe_release['releases'][0]['tender']['id'] = previous_fe_release['releases'][0]['tender']['id']
-        self.__expected_fe_release['releases'][0]['tender']['status'] = \
-            previous_fe_release['releases'][0]['tender']['status']
-        self.__expected_fe_release['releases'][0]['tender']['statusDetails'] = "qualificationStandStill"
+        self.__expected_fe_release['releases'][0]['tender']['status'] = "active"
+        self.__expected_fe_release['releases'][0]['tender']['statusDetails'] = "evaluation"
         self.__expected_fe_release['releases'][0]['tender']['criteria'] = \
             previous_fe_release['releases'][0]['tender']['criteria']
 

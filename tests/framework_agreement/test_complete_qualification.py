@@ -42,7 +42,8 @@ class TestCompleteQualification:
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
-
+        print("\n Previous FE release qualifications")
+        print(json.dumps(previous_fe_release['releases'][0]['qualifications']))
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Complete Qualification process."):
             """
