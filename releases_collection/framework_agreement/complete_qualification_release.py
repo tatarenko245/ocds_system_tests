@@ -1,9 +1,7 @@
 """Prepare the expected releases of the complete qualification process, framework agreement procedures."""
-import copy
 import json
 
 from functions_collection.cassandra_methods import get_parameter_from_submission_rules
-from functions_collection.some_functions import is_it_uuid
 
 
 class CompleteQualificationRelease:
@@ -578,7 +576,8 @@ class CompleteQualificationRelease:
                             "endDate": ""
                         },
                         "qualificationPeriod": {
-                            "startDate": ""
+                            "startDate": "",
+                            "endDate": ""
                         }
                     },
                     "hasPreviousNotice": True or False,
@@ -842,8 +841,7 @@ class CompleteQualificationRelease:
             previous_ap_release['releases'][0]['relatedProcesses']
         return self.__expected_ap_release
 
-    def build_expected_fe_release(self, previous_fe_release, actual_fe_release, connect_to_submission, country, pmd,
-                                  list_of_all_submissions_payload=None):
+    def build_expected_fe_release(self, previous_fe_release, actual_fe_release, connect_to_submission, country, pmd):
         """Build FE release."""
 
         """Enrich general attribute for expected FE release"""
@@ -870,11 +868,13 @@ class CompleteQualificationRelease:
         self.__expected_fe_release['releases'][0]['purposeOfNotice']['isACallForCompetition'] = \
             previous_fe_release['releases'][0]['purposeOfNotice']['isACallForCompetition']
 
-        """Prepare 'preQualification' object for expected FE release: releases[0].preQualification"""
+        """Prepare 'preQualification' object for expected FE release: releases[0].preQualification: FR.COM-7.23.1"""
         self.__expected_fe_release['releases'][0]['preQualification']['period'] = \
             previous_fe_release['releases'][0]['preQualification']['period']
         self.__expected_fe_release['releases'][0]['preQualification']['qualificationPeriod']['startDate'] = \
             previous_fe_release['releases'][0]['preQualification']['qualificationPeriod']['startDate']
+        self.__expected_fe_release['releases'][0]['preQualification']['qualificationPeriod']['endDate'] = \
+            self.__actual_message['data']['operationDate']
 
         """Prepare 'parties' array for expected FE release: releases[0].parties:
         https://ustudio.atlassian.net/wiki/spaces/ES/pages/652148737/10.0.5.5+eDossier#
@@ -952,8 +952,7 @@ class CompleteQualificationRelease:
         else:
             del self.__expected_fe_release['releases'][0]['tender']['documents']
 
-        """Prepare 'invitations' array, depends on parameter into 'submission.rules':
-        according to FR.COM-13.1.10, FR.COM-13.1.11 """
+        """Prepare 'invitations' array, depends on parameter into 'submission.rules'"""
         need_to_return_invitation = get_parameter_from_submission_rules(
             connect_to_submission, country, pmd, "all", "returnInvitations"
         )
@@ -962,66 +961,49 @@ class CompleteQualificationRelease:
         if need_to_return_invitation is False:
             del self.__expected_fe_release['releases'][0]['invitations']
         else:
-            expected_invitations_array = list()
-            for p_0 in range(len(list_of_all_submissions_payload)):
-                for p_1 in range(len(list_of_all_submissions_payload[p_0]['submission']['candidates'])):
-                    invitation_object = copy.deepcopy(
-                        self.__expected_fe_release['releases'][0]['invitations'][0]
-                    )
-                    invitation_scheme = \
-                        list_of_all_submissions_payload[p_0]['submission']['candidates'][p_1]['identifier']['scheme']
+            self.__expected_fe_release['releases'][0]['invitations'] = previous_fe_release['releases'][0]['invitations']
 
-                    invitation_id = \
-                        list_of_all_submissions_payload[p_0]['submission']['candidates'][p_1]['identifier']['id']
+        """Prepare 'contracts' array"""
+        self.__expected_fe_release['releases'][0]['contracts'] = previous_fe_release['releases'][0]['contracts']
 
-                    invitation_object['tenderers'][p_1]['id'] = f"{invitation_scheme}-{invitation_id}"
-                    invitation_object['tenderers'][p_1]['name'] = list_of_all_submissions_payload[p_0][
-                        'submission']['candidates'][p_1]['name']
+        """Prepare 'qualifications' array for expected FE release: releases[0].qualification: FR.COM-7.26.1,"""
+        self.__expected_fe_release['releases'][0]['qualifications'] = \
+            previous_fe_release['releases'][0]['qualifications']
+        for q in range(len(self.__expected_fe_release['releases'][0]['qualifications'])):
+            if self.__expected_fe_release['releases'][0]['qualifications'][q]['status'] == "pending" and \
+                    self.__expected_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "active":
+                self.__expected_fe_release['releases'][0]['qualifications'][q]['status'] = "active"
+                self.__expected_fe_release['releases'][0]['qualifications'][q]['statusDetails'] = "basedOnHumanDecision"
+            elif self.__expected_fe_release['releases'][0]['qualifications'][q]['status'] == "pending" and \
+                    self.__expected_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "unsuccessful":
+                self.__expected_fe_release['releases'][0]['qualifications'][q]['status'] = "unsuccessful"
+                self.__expected_fe_release['releases'][0]['qualifications'][q]['statusDetails'] = "basedOnHumanDecision"
 
-                    for q in previous_fe_release['releases'][0]['qualifications']:
-                        for q_1 in q['requirementResponses']:
-                            if q_1['relatedTenderer']['id'] == invitation_object['tenderers'][p_1]['id']:
-                                invitation_object['relatedQualification'] = q['id']
-
-                    for q in actual_fe_release['releases'][0]['invitations']:
-                        if q['tenderers'] == invitation_object['tenderers'] and \
-                                q['relatedQualification'] == invitation_object['relatedQualification']:
-                            invitation_object['id'] = q['id']
-
-                    invitation_object['status'] = "pending"
-                    invitation_object['date'] = self.__actual_message['data']['operationDate']
-                    expected_invitations_array.append(invitation_object)
-            self.__expected_fe_release['releases'][0]['invitations'] = expected_invitations_array
-
-        """Prepare 'contracts' array: the 'contracts' array must contains only one object,
-        FR.COM-6.2.1, FR.COM-6.2.2, FR.COM-6.2.3, FR.COM-6.2.5"""
-        try:
-            """Set permanent id."""
-
-            is_permanent_id_correct = is_it_uuid(actual_fe_release['releases'][0]['contracts'][0]['id'])
-            if is_permanent_id_correct is True:
-
-                self.__expected_fe_release['releases'][0]['contracts'][0]['id'] = \
-                    actual_fe_release['releases'][0]['contracts'][0]['id']
-            else:
-                ValueError(f"The 'releases[0].tender.id' must be uuid.")
-        except KeyError:
-            KeyError("Mismatch key into path 'releases[0].tender.id'")
-
-        self.__expected_fe_release['releases'][0]['contracts'][0]['date'] = \
-            self.__actual_message['data']['operationDate']
-
-        self.__expected_fe_release['releases'][0]['contracts'][0]['status'] = "pending"
-        self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails'] = "contractProject"
-        self.__expected_fe_release['releases'][0]['contracts'][0]['isFrameworkOrDynamic'] = False
-
-        """Prepare 'submission' object for expected FE release: releases[0].submission"""
+        """Prepare 'submission' object for expected FE release: releases[0].submission: FR.COM-5.18.1"""
         self.__expected_fe_release['releases'][0]['submissions']['details'] = \
             previous_fe_release['releases'][0]['submissions']['details']
 
-        """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
-        self.__expected_fe_release['releases'][0]['qualifications'] = \
-            previous_fe_release['releases'][0]['qualifications']
+        for s in range(len(self.__expected_fe_release['releases'][0]['submissions']['details'])):
+            if self.__expected_fe_release['releases'][0]['submissions']['details'][s]['status'] == "pending":
+                self.__expected_fe_release['releases'][0]['submissions']['details'][s]['status'] = "withdrawn"
+
+        for s in range(len(self.__expected_fe_release['releases'][0]['submissions']['details'])):
+            if self.__expected_fe_release['releases'][0]['submissions']['details'][s]['status'] == "withdrawn":
+                for q in range(len(self.__expected_fe_release['releases'][0]['qualifications'])):
+                    if self.__expected_fe_release['releases'][0]['qualifications'][q]['status'] == "unsuccessful":
+                        if self.__expected_fe_release['releases'][0]['qualifications'][q]['relatedSubmission'] == \
+                                self.__expected_fe_release['releases'][0]['submissions']['details'][s]['id']:
+                            self.__expected_fe_release['releases'][0]['submissions']['details'][s][
+                                'status'] = "disqualified"
+
+                    elif self.__expected_fe_release['releases'][0]['qualifications'][q]['status'] == "active":
+                        if self.__expected_fe_release['releases'][0]['qualifications'][q]['relatedSubmission'] == \
+                                self.__expected_fe_release['releases'][0]['submissions']['details'][s]['id']:
+                            self.__expected_fe_release['releases'][0]['submissions']['details'][s][
+                                'status'] = "valid"
+            else:
+                ValueError(f"The value of 'submissions.details[{s}].status' is invalid: "
+                           f"{self.__expected_fe_release['releases'][0]['submissions']['details'][s]['status']}")
 
         """Prepare 'relatedProcesses' array for expected FE release: releases[0].relatedProcesses"""
         self.__expected_fe_release['releases'][0]['relatedProcesses'] = \

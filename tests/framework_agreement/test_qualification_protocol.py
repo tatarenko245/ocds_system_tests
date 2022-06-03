@@ -216,7 +216,7 @@ class TestQualificationProtocol:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_qualification_protocol(
-                connect_to_ocds, connect_to_access, connect_to_qualification, connect_to_dossier,
+                connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
                 connect_to_contracting, cpid)
         except ValueError:
             ValueError("Impossible to cLean up the database.")
@@ -419,7 +419,7 @@ class TestQualificationProtocol:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_qualification_protocol(
-                connect_to_ocds, connect_to_access, connect_to_qualification, connect_to_dossier,
+                connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
                 connect_to_contracting, cpid)
         except ValueError:
             ValueError("Impossible to cLean up the database.")

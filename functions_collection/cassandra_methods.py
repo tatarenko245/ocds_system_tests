@@ -181,10 +181,12 @@ def get_parameter_from_submission_rules(connect_to_submission, country, pmd, ope
 
 
 def cleanup_table_of_services_for_qualification_protocol(
-        connect_to_ocds, connect_to_access, connect_to_qualification, connect_to_dossier, connect_to_contracting, cpid):
+        connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+        connect_to_contracting, cpid):
     """ CLean up the tables of process."""
 
     connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_submission.execute(f"DELETE FROM invitations WHERE cpid = '{cpid}';")
     connect_to_qualification.execute(f"DELETE FROM qualifications WHERE cpid='{cpid}';")
     connect_to_qualification.execute(f"DELETE FROM period WHERE cpid='{cpid}';")
     connect_to_dossier.execute(f"DELETE FROM period WHERE cpid='{cpid}';")
@@ -210,4 +212,37 @@ def set_value_into_qualification_rules(connect_to_qualification, value, country,
 
     connect_to_qualification.execute(
         f"""UPDATE qualification_rules SET value = '{value}' WHERE "country"='{country}' AND "pmd" ='{pmd}'
+        AND "operation_type" = '{operation_type}' AND "parameter" = '{parameter}';""").one()
+
+
+def cleanup_table_of_services_for_complete_qualification(
+        connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier, cpid):
+    """ CLean up the tables of process."""
+
+    connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_submission.execute(f"DELETE FROM invitations WHERE cpid = '{cpid}';")
+    connect_to_qualification.execute(f"DELETE FROM qualifications WHERE cpid='{cpid}';")
+    connect_to_qualification.execute(f"DELETE FROM period WHERE cpid='{cpid}';")
+    connect_to_dossier.execute(f"DELETE FROM period WHERE cpid='{cpid}';")
+    connect_to_dossier.execute(f"DELETE FROM submission WHERE cpid='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
+    connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")
+
+
+def get_value_from_dossier_rules(connect_to_dossier, country, pmd, operation_type, parameter):
+    """ Get some 'value' from qualification.qualification_rules"""
+
+    value = connect_to_dossier.execute(
+        f"""SELECT "value" FROM rules WHERE "country"='{country}' AND "pmd" = '{pmd}' AND
+        "operation_type" = '{operation_type}' AND "parameter" = '{parameter}';""").one()
+    return value.value
+
+
+def set_value_into_dossier_rules(connect_to_dossier, value, country, pmd, operation_type, parameter):
+    """ Set some 'value' into dossier.rules"""
+
+    connect_to_dossier.execute(
+        f"""UPDATE rules SET value = '{value}' WHERE "country"='{country}' AND "pmd" ='{pmd}'
         AND "operation_type" = '{operation_type}' AND "parameter" = '{parameter}';""").one()
