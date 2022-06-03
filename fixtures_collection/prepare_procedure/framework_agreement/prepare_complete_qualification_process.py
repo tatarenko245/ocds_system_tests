@@ -18,13 +18,14 @@ from functions_collection.cassandra_methods import get_max_duration_of_fa_from_a
     cleanup_table_of_services_for_submission_period_end, cleanup_table_of_services_for_qualification_declare, \
     cleanup_table_of_services_for_qualification_consideration, cleanup_table_of_services_for_qualification, \
     get_value_from_qualification_rules, set_value_into_qualification_rules, \
-    cleanup_table_of_services_for_qualification_protocol, get_value_from_dossier_rules, set_value_into_dossier_rules
+    cleanup_table_of_services_for_qualification_protocol, get_value_from_dossier_rules, set_value_into_dossier_rules, \
+    cleanup_table_of_services_for_complete_qualification
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
     create_ap_process, outsourcing_pn_process, relation_ap_process, update_ap_process, create_fe_process, \
     amend_fe_process, create_submission_process, qualification_declare_process, qualification_consideration_process, \
-    qualification_process, qualification_protocol_process
+    qualification_process, qualification_protocol_process, complete_qualification_process
 from functions_collection.some_functions import time_bot, get_id_token_of_qualification_in_pending_awaiting_state
 from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
@@ -48,7 +49,8 @@ from payloads_collection.framework_agreement.update_ap_payload import UpdateAggr
 # create third Submission: full data model, Submission Period End: payload isn't needed,
 # Qualification Declare: full data model, Qualification Consideration: payload isn't needed,
 # Qualification: full data model, Qualification Protocol: payload isn't needed,
-def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
+# Complete Qualification: payload isn't needed.
+def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
@@ -1398,13 +1400,46 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+        contract_id = message['data']['outcomes']['contracts'][0]['id']
+        contract_token = message['data']['outcomes']['contracts'][0]['X-TOKEN']
+
+    # Complete Qualification: payload isn't needed.
+    step_number = 1
+    with allure.step(f"# {step_number}. Authorization platform one: Complete Qualification process."):
+        """
+        Tender platform authorization for Complete Qualification process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Complete Qualification process."):
+        """
+        Send request to BPE host to create a Complete Qualification process.
+        """
+
+        complete_qualification_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
 
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
         create_1_submission_payload, create_1_submission_message,\
         create_2_submission_payload, create_2_submission_message,\
-        create_3_submission_payload, create_3_submission_message, submission_period_end_message
+        create_3_submission_payload, create_3_submission_message, submission_period_end_message, contract_id,\
+        contract_token
 
     try:
         """
@@ -1538,6 +1573,14 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
         cleanup_table_of_services_for_qualification_protocol(
             connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
             connect_to_contracting, ap_cpid)
+
+        # Clean after Complete Qualification process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_complete_qualification(
+            connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+            ap_cpid
+        )
     except ValueError:
         ValueError("Impossible to cLean up the database.")
 
@@ -1549,8 +1592,9 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
 # relation AP: payload isn't needed, update ap: required data model, create FE: required data model,
 # amend FE: required data model, create Submission: required data model, Submission Period End: payload isn't needed,
 # Qualification Declare: required data model, Qualification Consideration: payload isn't needed,
-# Qualification: required data model, Qualification Protocol: payload isn't needed.
-def qualification_protocol_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
+# Qualification: required data model, Qualification Protocol: payload isn't needed,
+# Complete Qualification: payload isn't needed.
+def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
     environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
@@ -2689,11 +2733,44 @@ def qualification_protocol_tc_2(get_parameters, prepare_currency, connect_to_key
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+        contract_id = message['data']['outcomes']['contracts'][0]['id']
+        contract_token = message['data']['outcomes']['contracts'][0]['X-TOKEN']
+
+    # Complete Qualification: payload isn't needed.
+    step_number = 1
+    with allure.step(f"# {step_number}. Authorization platform one: Complete Qualification process."):
+        """
+        Tender platform authorization for Complete Qualification process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Complete Qualification process."):
+        """
+        Send request to BPE host to create a Complete Qualification process.
+        """
+
+        complete_qualification_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
 
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
-        create_submission_payload, create_submission_message, submission_period_end_message
+        create_submission_payload, create_submission_message, submission_period_end_message, contract_id,\
+        contract_token
 
     try:
         """
@@ -2827,5 +2904,13 @@ def qualification_protocol_tc_2(get_parameters, prepare_currency, connect_to_key
         cleanup_table_of_services_for_qualification_protocol(
             connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
             connect_to_contracting, ap_cpid)
+
+        # Clean after Complete Qualification process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_complete_qualification(
+            connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+            ap_cpid
+        )
     except ValueError:
         ValueError("Impossible to cLean up the database.")

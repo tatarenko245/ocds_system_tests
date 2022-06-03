@@ -223,7 +223,7 @@ def qualification_consideration_process(host, access_token, x_operation_id, cpid
             "X-OPERATION-ID": x_operation_id,
             "Content-Type": "application/json",
             "X-TOKEN": qualification_token}
-        )
+    )
     allure.attach(f"{host}/do/consideration/qualification/{cpid}/{ocid}/{qualification_id}", 'URL')
     return request
 
@@ -259,7 +259,7 @@ def qualification_protocol_process(host, access_token, x_operation_id, cpid, oci
             "X-OPERATION-ID": x_operation_id,
             "Content-Type": "application/json",
             "X-TOKEN": token}
-        )
+    )
     allure.attach(f"{host}/do/protocol/qualification/{cpid}/{ocid}/", 'URL')
     return request
 
@@ -279,4 +279,23 @@ def complete_qualification_process(host, access_token, x_operation_id, cpid, oci
         }
     )
     allure.attach(f"{host}/complete/qualification/{cpid}/{ocid}/", 'URL')
+    return request
+
+
+@allure.step('# Prepared request: Issuing Framework.')
+def issuing_framework_process(host, access_token, x_operation_id, payload, cpid, ocid, contract_id,
+                              token, test_mode=False):
+    request = requests.post(
+        url=f"{host}/issue/fc/{cpid}/{ocid}/{contract_id}",
+        params={
+            "testMode": test_mode
+        },
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json",
+            "X-TOKEN": token},
+        json=payload)
+    allure.attach(f"{host}/issuing/fc/{cpid}/{ocid}/{contract_id}", 'URL')
+    allure.attach(json.dumps(payload), 'Prepared payload')
     return request

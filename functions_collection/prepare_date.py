@@ -64,3 +64,9 @@ def get_min_date(dates_list):
         new_dates_list.append(datetime.datetime.strptime(dates_list[d], "%Y-%m-%dT%H:%M:%SZ"))
     min_date = min(new_dates_list)
     return min_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+def get_actual_datetime():
+    date = datetime.datetime.now()
+    actual_date = date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return actual_date
