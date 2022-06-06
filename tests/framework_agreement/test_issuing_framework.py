@@ -12,6 +12,7 @@ from messages_collection.framework_agreement.complete_qualification_message impo
 from messages_collection.framework_agreement.issuing_framework_message import IssuingFrameworkMessage
 from payloads_collection.framework_agreement.issuing_framework_payload import IssuingFrameworkPayload
 from releases_collection.framework_agreement.complete_qualification_release import CompleteQualificationRelease
+from releases_collection.framework_agreement.issuing_framework_release import IssuingFrameworkRelease
 
 
 @allure.parent_suite("Framework Agreement")
@@ -47,6 +48,32 @@ class TestIssuingFramework:
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
+
+        """
+        VR.COM-1.17.2: Check FE state.
+        """
+        if previous_fe_release['releases'][0]['tender']['status'] == "active" and \
+                previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
+            pass
+        else:
+            ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                       f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+
+        """
+        VR.COM-6.8.2: Check Contract state.
+        """
+        for i in range(len(previous_fe_release['releases'][0]['contracts'])):
+            if previous_fe_release['releases'][0]['contracts'][i]['id'] == contract_id:
+                if previous_fe_release['releases'][0]['contracts'][i]['status'] == "pending" and \
+                        previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
+                    pass
+                else:
+                    ValueError(f"Contract {contract_id} has invalid state: "
+                               f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                               f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+            else:
+                ValueError(f"Incorrect contract id into FE release: "
+                           f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
@@ -84,8 +111,7 @@ class TestIssuingFramework:
                 contract_id=contract_id,
                 token=token
             )
-            print("\n synchronous_result")
-            print(synchronous_result.status_code)
+
             message = get_message_for_platform(operation_id)
             allure.attach(str(message), "Message for platform.")
 
@@ -136,47 +162,54 @@ class TestIssuingFramework:
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.3. Check AP release.'):
-        #         """
-        #         Compare actual AP release and expected AP release.
-        #         """
-        #         actual_ap_release = requests.get(url=ap_url).json()
-        #
-        #         try:
-        #             """
-        #             Build expected AP release.
-        #             """
-        #             expected_release = copy.deepcopy(CompleteQualificationRelease(
-        #                 actual_message, ocid
-        #             ))
-        #             expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
-        #         except ValueError:
-        #             ValueError("Impossible to build expected AP release.")
-        #
-        #         with allure.step("Compare actual and expected AP release."):
-        #             allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
-        #             allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
-        #
-        #             allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                           f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-        #                           f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.4. Check FE release.'):
-        #         """
-        #         Compare actual FE release and expected FE release.
-        #         """
-        #         actual_fe_release = requests.get(url=fe_url).json()
-        #
-        #         try:
-        #             """
-        #             Build expected FE release.
-        #             """
-        #             expected_fe_release = expected_release.build_expected_fe_release(
-        #                 previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
-        #             )
-        #         except ValueError:
-        #             ValueError("Impossible to build expected FE release.")
+
+            with allure.step(f'# {step_number}.3. Check AP release.'):
+                """
+                Compare actual AP release and expected AP release.
+                """
+                actual_ap_release = requests.get(url=ap_url).json()
+
+                try:
+                    """
+                    Build expected AP release.
+                    """
+                    expected_release = copy.deepcopy(IssuingFrameworkRelease(
+                        environment, actual_message, ocid, payload
+                    ))
+                    expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
+                except ValueError:
+                    ValueError("Impossible to build expected AP release.")
+
+                with allure.step("Compare actual and expected AP release."):
+                    allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
+                    allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
+
+                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                  f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                  f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+            with allure.step(f'# {step_number}.4. Check FE release.'):
+                """
+                Compare actual FE release and expected FE release.
+                """
+                actual_fe_release = requests.get(url=fe_url).json()
+                print("\n Actual FE release")
+                print(json.dumps(actual_fe_release))
+                try:
+                    """
+                    Build expected FE release.
+                    """
+                    expected_fe_release = expected_release.build_expected_fe_release(
+                        previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
+                    )
+                except ValueError:
+                    ValueError("Impossible to build expected FE release.")
+
+
+                print("\n expected FE release")
+                print(json.dumps(expected_fe_release))
+
+
         #
         #         with allure.step("Compare actual and expected FE release."):
         #             allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
