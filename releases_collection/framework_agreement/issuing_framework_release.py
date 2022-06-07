@@ -1057,17 +1057,19 @@ class IssuingFrameworkRelease:
             self.__expected_fe_release['releases'][0]['contracts'][0]['relatedItem'] = \
                 self.__expected_fe_release['releases'][0]['contracts'][0]['id']
 
-        is_procuringerntity_in_release = None
+        # Check flow for creating RequirementRequest, according to subprocess 'selectFlowCreateConfReqInContract':
+        is_procuringentity_in_release = None
         for p in range(len(previous_fe_release['releases'][0]['parties'])):
             if previous_fe_release['releases'][0]['parties'][p]['roles'][0] == "procuringEntity":
-                is_procuringerntity_in_release = True
+                is_procuringentity_in_release = True
             else:
-                is_procuringerntity_in_release = False
+                is_procuringentity_in_release = False
 
         if "statusDetails" in self.__expected_fe_release['releases'][0]['contracts'][0]:
             statusdetails = self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']
         else:
             statusdetails = None
+
         key = {
             "country": country,
             "processInitiator": "issuingFrameworkContract",
@@ -1076,12 +1078,13 @@ class IssuingFrameworkRelease:
             "statusDetails": statusdetails
         }
 
+        output = None
         if key['country'] == "MD" and key['processInitiator'] == "issuingFrameworkContract" and \
                 key['status'] == "pending" and key['statusDetails'] == "issued":
             if pmd == "TEST_CF" or pmd == "CF":
-                if is_procuringerntity_in_release is True:
+                if is_procuringentity_in_release is True:
                     output = "buyer"
-                elif is_procuringerntity_in_release is False:
+                elif is_procuringentity_in_release is False:
                     output = "candidate"
 
         elif key['country'] == "MD" and key['processInitiator'] == "issuingFrameworkContract" and \
@@ -1092,11 +1095,16 @@ class IssuingFrameworkRelease:
         elif key['country'] == "LT" and key['processInitiator'] == "issuingFrameworkContract" and \
                 key['status'] == "pending" and key['statusDetails'] is None:
             if pmd == "TEST_OF" or pmd == "OF":
-                output = "none"
+                output = None
         else:
             ValueError("Incorrect value for formula, according to 'selectFlowCreateConfReqInContract'")
 
-
+        # Create Create Confirmation Requests for 'buyer', according to
+        # 'создание Confirmation Requests для buyer, если сущность FC (по-умолчанию)':
+        if output == "buyer":
+            for r in range(len(previous_fe_release['releases'][0]['relatedProcess'])):
+                if previous_fe_release['releases'][0]['relatedProcess'][r]['relationship'] == "aggregatedPlanning":
+                    pass
 
         """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
         self.__expected_fe_release['releases'][0]['qualifications'] = \
