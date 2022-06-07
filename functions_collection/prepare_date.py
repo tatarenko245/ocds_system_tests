@@ -70,3 +70,19 @@ def get_actual_datetime():
     date = datetime.datetime.now()
     actual_date = date.strftime('%Y-%m-%dT%H:%M:%SZ')
     return actual_date
+
+
+def is_the_date_within_range(first_date, second_date):
+    """Check that the date is within range"""
+    is_it_ok = False
+    first_date = datetime.datetime.strptime(first_date, '%Y-%m-%dT%H:%M:%SZ')
+    second_date = datetime.datetime.strptime(second_date, '%Y-%m-%dT%H:%M:%SZ')
+    if first_date >= second_date:
+        date_diff = first_date - second_date
+    else:
+        date_diff = second_date - first_date
+
+    date_diff_as_sec = date_diff.seconds
+    if date_diff_as_sec <= 3:
+        is_it_ok = True
+    return is_it_ok

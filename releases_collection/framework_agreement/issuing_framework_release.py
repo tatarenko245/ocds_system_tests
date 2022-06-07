@@ -1,7 +1,9 @@
 """Prepare the expected releases of the issuing framework process, framework agreement procedures."""
+import copy
 import json
 
 from functions_collection.cassandra_methods import get_parameter_from_submission_rules
+from functions_collection.prepare_date import is_the_date_within_range
 from functions_collection.some_functions import is_it_uuid
 
 
@@ -894,7 +896,19 @@ class IssuingFrameworkRelease:
         self.__expected_fe_release['releases'][0]['ocid'] = previous_fe_release['releases'][0]['ocid']
         self.__expected_fe_release['releases'][0]['id'] = \
             f"{self.__ocid}-{actual_fe_release['releases'][0]['id'][46:59]}"
-        self.__expected_fe_release['releases'][0]['date'] = self.__actual_message['data']['operationDate']
+        try:
+            """Check that the date is within range"""
+            is_date_ok = is_the_date_within_range(
+                actual_fe_release['releases'][0]['date'],
+                self.__actual_message['data']['operationDate']
+            )
+            if is_date_ok is True:
+                self.__expected_fe_release['releases'][0]['date'] = actual_fe_release['releases'][0]['date']
+            else:
+                self.__expected_fe_release['releases'][0]['date'] = self.__actual_message['data']['operationDate']
+        except ValueError:
+            ValueError("Impossible to check that the date is within range.")
+
         self.__expected_fe_release['releases'][0]['tag'] = previous_fe_release['releases'][0]['tag']
         self.__expected_fe_release['releases'][0]['language'] = previous_fe_release['releases'][0]['language']
         self.__expected_fe_release['releases'][0]['initiationType'] = \
@@ -910,7 +924,7 @@ class IssuingFrameworkRelease:
         self.__expected_fe_release['releases'][0]['preQualification']['qualificationPeriod']['startDate'] = \
             previous_fe_release['releases'][0]['preQualification']['qualificationPeriod']['startDate']
         self.__expected_fe_release['releases'][0]['preQualification']['qualificationPeriod']['endDate'] = \
-            self.__actual_message['data']['operationDate']
+            previous_fe_release['releases'][0]['preQualification']['qualificationPeriod']['endDate']
 
         """Prepare 'parties' array for expected FE release”"""
         self.__expected_fe_release['releases'][0]['parties'] = previous_fe_release['releases'][0]['parties']
@@ -989,7 +1003,7 @@ class IssuingFrameworkRelease:
         self.__expected_fe_release['releases'][0]['contracts'][0]['status'] = "pending"
         self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails'] = "issued"
 
-        if "contract" in self.__payload:
+        if self.__payload is not None:
             if "internalId" in self.__payload['contract']:
                 self.__expected_fe_release['releases'][0]['contracts'][0]['internalId'] = \
                     self.__payload['contract']['internalId']
@@ -1027,7 +1041,7 @@ class IssuingFrameworkRelease:
             f"{self.__expected_fe_release['releases'][0]['contracts'][0]['documents'][0]['id']}"
 
         self.__expected_fe_release['releases'][0]['contracts'][0]['documents'][0]['datePublished'] = \
-            self.__actual_message['data']['operationDate']
+            self.__expected_fe_release['releases'][0]['date']
 
         # Prepare contracts[0].confirmationRequests array.
         try:
@@ -1048,22 +1062,11 @@ class IssuingFrameworkRelease:
         self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['type'] = \
             "digitalSignature"
 
-        if "documents" in self.__expected_fe_release['releases'][0]['contracts'][0]:
-            self.__expected_fe_release['releases'][0]['contracts'][0]['relatesTo'] = "document"
-            self.__expected_fe_release['releases'][0]['contracts'][0]['relatedItem'] = \
-                self.__expected_fe_release['releases'][0]['contracts'][0]['documents'][0]['id']
-        else:
-            self.__expected_fe_release['releases'][0]['contracts'][0]['relatesTo'] = "contract"
-            self.__expected_fe_release['releases'][0]['contracts'][0]['relatedItem'] = \
-                self.__expected_fe_release['releases'][0]['contracts'][0]['id']
-
         # Check flow for creating RequirementRequest, according to subprocess 'selectFlowCreateConfReqInContract':
-        is_procuringentity_in_release = None
+        is_procuringentity_in_release = False
         for p in range(len(previous_fe_release['releases'][0]['parties'])):
             if previous_fe_release['releases'][0]['parties'][p]['roles'][0] == "procuringEntity":
                 is_procuringentity_in_release = True
-            else:
-                is_procuringentity_in_release = False
 
         if "statusDetails" in self.__expected_fe_release['releases'][0]['contracts'][0]:
             statusdetails = self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']
@@ -1078,33 +1081,92 @@ class IssuingFrameworkRelease:
             "statusDetails": statusdetails
         }
 
-        output = None
+        role = None
         if key['country'] == "MD" and key['processInitiator'] == "issuingFrameworkContract" and \
                 key['status'] == "pending" and key['statusDetails'] == "issued":
             if pmd == "TEST_CF" or pmd == "CF":
                 if is_procuringentity_in_release is True:
-                    output = "buyer"
+                    role = "buyer"
                 elif is_procuringentity_in_release is False:
-                    output = "candidate"
+                    role = "candidate"
 
-        elif key['country'] == "MD" and key['processInitiator'] == "issuingFrameworkContract" and \
-                key['status'] == "pending" and key['statusDetails'] == "issued":
-            if pmd == "TEST_OF" or pmd == "OF":
-                output = "buyer"
+            elif pmd == "TEST_OF" or pmd == "OF":
+                role = "buyer"
 
         elif key['country'] == "LT" and key['processInitiator'] == "issuingFrameworkContract" and \
                 key['status'] == "pending" and key['statusDetails'] is None:
             if pmd == "TEST_OF" or pmd == "OF":
-                output = None
+                role = None
         else:
             ValueError("Incorrect value for formula, according to 'selectFlowCreateConfReqInContract'")
 
         # Create Create Confirmation Requests for 'buyer', according to
         # 'создание Confirmation Requests для buyer, если сущность FC (по-умолчанию)':
-        if output == "buyer":
-            for r in range(len(previous_fe_release['releases'][0]['relatedProcess'])):
-                if previous_fe_release['releases'][0]['relatedProcess'][r]['relationship'] == "aggregatedPlanning":
-                    pass
+        if role == "buyer":
+            buyer_list = list()
+            for p in range(len(previous_fe_release['releases'][0]['parties'])):
+                if previous_fe_release['releases'][0]['parties'][p]['roles'][0] == "buyer":
+                    buyer_dict = {
+                        "id": previous_fe_release['releases'][0]['parties'][p]['id'],
+                        "name": previous_fe_release['releases'][0]['parties'][p]['name']
+                    }
+                    buyer_list.append(buyer_dict)
+
+            try:
+                """Set permanent id."""
+                is_permanent_id_correct = is_it_uuid(
+                    actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id'])
+                if is_permanent_id_correct is True:
+                    self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id'] = \
+                        actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']
+                else:
+                    ValueError(f"The "
+                               f"'{actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']}' "
+                               f"must be uuid.")
+            except KeyError:
+                KeyError("Mismatch key into path 'releases[0].contracts[0].confirmationRequest[0].id'")
+
+            self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['type'] = \
+                "digitalSignature"
+
+            if "documents" in self.__expected_fe_release['releases'][0]['contracts'][0]:
+                self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['relatesTo'] = \
+                    "document"
+                self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['relatedItem'] = \
+                    self.__expected_fe_release['releases'][0]['contracts'][0]['documents'][0]['id']
+            else:
+                self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['relatesTo'] = \
+                    "contract"
+                self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['relatedItem'] = \
+                    self.__expected_fe_release['releases'][0]['contracts'][0]['id']
+
+            self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['source'] = role
+
+            confirmationrequest_requests = list()
+            for i in range(len(buyer_list)):
+                confirmationrequest_requests.append(copy.deepcopy(
+                    self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['requests'][0]
+                ))
+
+                confirmationrequest_requests[i]['relatedOrganization']['id'] = buyer_list[i]['id']
+                confirmationrequest_requests[i]['relatedOrganization']['name'] = buyer_list[i]['name']
+
+            for exp in range(len(confirmationrequest_requests)):
+                for act in range(len(
+                        actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['requests'])):
+                    if confirmationrequest_requests[exp]['relatedOrganization']['id'] == \
+                            actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0][
+                                'requests'][act]['relatedOrganization']['id'] and \
+                            confirmationrequest_requests[exp]['relatedOrganization']['name'] == \
+                            actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0][
+                                'requests'][act]['relatedOrganization']['name']:
+
+                        confirmationrequest_requests[exp]['id'] = \
+                            actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0][
+                                'requests'][act]['id']
+
+            self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['requests'] = \
+                confirmationrequest_requests
 
         """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
         self.__expected_fe_release['releases'][0]['qualifications'] = \
