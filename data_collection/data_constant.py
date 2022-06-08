@@ -319,6 +319,18 @@ business_function_type_2_tuple = (
     "priceOpener",
     "priceEvaluator",
 )
+
+business_function_type_3_tuple = (
+    "authority",
+    "contactPoint",
+    "chairman",
+    "procurementOfficer",
+    "technicalEvaluator",
+    "technicalOpener",
+    "priceOpener",
+    "priceEvaluator",
+)
+
 type_of_supplier_tuple = (
     "company",
     "individual",)
@@ -344,4 +356,10 @@ documentType_for_qualification_process = (
     "notice",
     "evaluationReports",
     "conflictOfInterest",
+)
+
+
+confirmationResponse_type = (
+    "document",
+    "hash"
 )

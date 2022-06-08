@@ -299,3 +299,23 @@ def issuing_framework_process(host, access_token, x_operation_id, payload, cpid,
     allure.attach(f"{host}/issuing/fc/{cpid}/{ocid}/{contract_id}", 'URL')
     allure.attach(json.dumps(payload), 'Prepared payload')
     return request
+
+
+@allure.step('# Prepared request: Create Confirmation Response.')
+def create_confirmation_response_process(host, access_token, x_operation_id, payload, entity, cpid, ocid, entity_id,
+                                         token, role, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/confirmation/{entity}/{cpid}/{ocid}/{entity_id}",
+        params={
+            "testMode": test_mode,
+            "role": role
+        },
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json",
+            "X-TOKEN": token},
+        json=payload)
+    allure.attach(f"{host}/do/confirmation/{entity}/{cpid}/{ocid}/{entity_id}", 'URL')
+    allure.attach(json.dumps(payload), 'Prepared payload')
+    return request
