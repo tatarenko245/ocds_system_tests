@@ -10,7 +10,7 @@ from functions_collection.prepare_date import old_period
 class CreateConfirmationResponsePayload:
     """This class creates instance of payload."""
 
-    def __init__(self, environment, host_to_service):
+    def __init__(self, environment, host_to_service, request_id):
         metadata_document_url = None
         self.__document_one = Document(host=host_to_service)
         document_one_was_uploaded = self.__document_one.uploading_document()
@@ -25,14 +25,14 @@ class CreateConfirmationResponsePayload:
 
         confirmationresponse_type = f"{random.choice(confirmationResponse_type)}"
         confirmationresponse_value = None
-        if type == "document":
-            confirmationresponse_value = f"{metadata_document_url}/{document_one_was_uploaded[0]['id']}"
-        elif type == "hash":
+        if confirmationresponse_type == "document":
+            confirmationresponse_value = f"{metadata_document_url}/{document_one_was_uploaded[0]['data']['id']}"
+        elif confirmationresponse_type == "hash":
             confirmationresponse_value = document_one_was_uploaded[2]
 
         self.__payload = {
             "confirmationResponse": {
-                "requestId": "create confirmation response: confirmationResponse.internalId",
+                "requestId": request_id,
                 "type": confirmationresponse_type,
                 "value": confirmationresponse_value,
                 "relatedPerson": {

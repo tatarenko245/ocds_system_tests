@@ -19,7 +19,7 @@ from releases_collection.framework_agreement.issuing_framework_release import Is
 @allure.suite("Contracting")
 @allure.severity("Critical")
 @allure.testcase(url="")
-class TestCreateConfirmationFramework:
+class TestCreateConfirmationResponse:
     @allure.testcase(url="")
     @allure.title("Check records: based on full data model.")
     def test_case_1(self, get_parameters, connect_to_keyspace, issuing_framework_tc_1):
@@ -43,10 +43,13 @@ class TestCreateConfirmationFramework:
         ocid = issuing_framework_tc_1[23]
         fe_url = issuing_framework_tc_1[24]
         contract_id = issuing_framework_tc_1[32]
+        contract_token = issuing_framework_tc_1[33]
 
         previous_ap_release = requests.get(url=ap_url).json()
         previous_fa_release = requests.get(url=fa_url).json()
         previous_fe_release = requests.get(url=fe_url).json()
+        print("\n previous_fe_release")
+        print(json.dumps(previous_fe_release))
 
         """
         VR.COM-1.17.2: Check FE state.
@@ -74,170 +77,185 @@ class TestCreateConfirmationFramework:
                 ValueError(f"Incorrect contract id into FE release: "
                            f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
-        step_number = 1
-        with allure.step(f"# {step_number}. Authorization platform one: Create Confirmation Response process."):
-            """
-            Tender platform authorization for Create Confirmation Response process.
-            As result get Tender platform's access token and process operation-id.
-            """
-            platform_one = PlatformAuthorization(bpe_host)
-            access_token = platform_one.get_access_token_for_platform_one()
-            operation_id = platform_one.get_x_operation_id(access_token)
+        """
+        Send request, depends on quantity of objects into 
+        'releases[0].contracts[0].confirmationRequests[0].request[0].id'
+        """
+        for q_0 in range(len(previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'])):
+            if previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][q_0]['source'] == "buyer":
+                for q_1 in range(len(
+                        previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][q_0]['requests']
+                )):
+                    request_id = previous_fe_release['releases'][0]['contracts'][0][
+                        'confirmationRequests'][q_0]['requests'][q_1]['id']
 
-        step_number += 1
-        with allure.step(f"# {step_number}. Send a request to create a Create Confirmation Response process."):
-            """
-            Send request to BPE host to create a Create Confirmation Response process.
-            """
+                    step_number = 1
+                    with allure.step(f"# {step_number}. Authorization platform one: Create Confirmation "
+                                     f"Response process."):
+                        """
+                        Tender platform authorization for Create Confirmation Response process.
+                        As result get Tender platform's access token and process operation-id.
+                        """
+                        platform_one = PlatformAuthorization(bpe_host)
+                        access_token = platform_one.get_access_token_for_platform_one()
+                        operation_id = platform_one.get_x_operation_id(access_token)
 
-            try:
-                """
-                Build payload for Create Confirmation Response process.
-                """
-                payload = CreateConfirmationResponsePayload(environment, service_host)
-                payload.customize_business_functions(quantity_of_bf=3, quantity_of_bf_documents=3)
-                payload = payload.build_payload()
-                print("\n Payload")
-                print(json.dumps(payload))
-            except ValueError:
-                ValueError("Impossible to build payload for Create Confirmation Response process.")
+                    step_number += 1
+                    with allure.step(f"# {step_number}. Send a request to create a Create Confirmation "
+                                     f"Response process."):
+                        """
+                        Send request to BPE host to create a Create Confirmation Response process.
+                        """
 
-            synchronous_result = create_confirmation_response_process(
-                host=bpe_host,
-                access_token=access_token,
-                x_operation_id=operation_id,
-                payload=payload,
-                entity="contract",
-                cpid=cpid,
-                ocid=ocid,
-                entity_id=contract_id,
-                token=token,
-                role="buyer",
-                test_mode=True
-            )
+                        try:
+                            """
+                            Build payload for Create Confirmation Response process.
+                            """
+                            payload = CreateConfirmationResponsePayload(environment, service_host, request_id)
 
-            message = get_message_for_platform(operation_id)
-            allure.attach(str(message), "Message for platform.")
-            print("\n Actual message")
-            print(message)
-        # step_number += 1
-        # with allure.step(f"# {step_number}. See result"):
-        #     """
-        #     Check the results of TestCase.
-        #     """
-        #
-        #     with allure.step(f"# {step_number}.1. Check status code"):
-        #         """
-        #         Check the status code of sending the request.
-        #         """
-        #         with allure.step('Compare actual status code and expected status code '
-        #                          'of sending request.'):
-        #             allure.attach(str(synchronous_result.status_code), "Actual status code.")
-        #             allure.attach(str(202), "Expected status code.")
-        #             assert synchronous_result.status_code == 202
-        #
-        #     with allure.step(f'# {step_number}.2. Check the message for the platform,'
-        #                      f'the Issuing Framework process.'):
-        #         """
-        #         Check the message for platform.
-        #         """
-        #         actual_message = message
-        #
-        #         try:
-        #             """
-        #             Build expected message for platform.
-        #             """
-        #             expected_message = copy.deepcopy(IssuingFrameworkMessage(
-        #                 environment=environment,
-        #                 cpid=cpid,
-        #                 ocid=ocid,
-        #                 actual_message=actual_message,
-        #                 test_mode=True
-        #             ))
-        #
-        #             expected_message = expected_message.build_expected_message()
-        #         except ValueError:
-        #             ValueError("Impossible to build expected message for platform.")
-        #
-        #         with allure.step('Compare actual and expected message for platform.'):
-        #             allure.attach(json.dumps(actual_message), "Actual message.")
-        #             allure.attach(json.dumps(expected_message), "Expected message.")
-        #
-        #             assert actual_message == expected_message, \
-        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.3. Check AP release.'):
-        #         """
-        #         Compare actual AP release and expected AP release.
-        #         """
-        #         actual_ap_release = requests.get(url=ap_url).json()
-        #
-        #         try:
-        #             """
-        #             Build expected AP release.
-        #             """
-        #             expected_release = copy.deepcopy(IssuingFrameworkRelease(
-        #                 environment, actual_message, ocid, payload
-        #             ))
-        #             expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
-        #         except ValueError:
-        #             ValueError("Impossible to build expected AP release.")
-        #
-        #         with allure.step("Compare actual and expected AP release."):
-        #             allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
-        #             allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
-        #
-        #             allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                           f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.4. Check FE release.'):
-        #         """
-        #         Compare actual FE release and expected FE release.
-        #         """
-        #         actual_fe_release = requests.get(url=fe_url).json()
-        #
-        #         try:
-        #             """
-        #             Build expected FE release.
-        #             """
-        #             expected_fe_release = expected_release.build_expected_fe_release(
-        #                 previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
-        #             )
-        #         except ValueError:
-        #             ValueError("Impossible to build expected FE release.")
-        #
-        #         with allure.step("Compare actual and expected FE release."):
-        #             allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
-        #             allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
-        #
-        #             assert actual_fe_release == expected_fe_release, \
-        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        #
-        #     with allure.step(f'# {step_number}.4. Check FA release.'):
-        #         """
-        #         Compare actual FA release and expected FA release.
-        #         """
-        #         actual_fa_release = requests.get(url=fa_url).json()
-        #
-        #         try:
-        #             """
-        #             Build expected FA release.
-        #             """
-        #             expected_fa_release = expected_release.build_expected_fa_release(
-        #                 previous_fa_release
-        #             )
-        #         except ValueError:
-        #             ValueError("Impossible to build expected FA release.")
-        #
-        #         with allure.step("Compare actual and expected FA release."):
-        #             allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
-        #             allure.attach(json.dumps(expected_fa_release), "Expected Fa release.")
-        #
-        #             assert actual_fa_release == expected_fa_release, \
-        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-        #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                            payload.customize_business_functions(quantity_of_bf=3, quantity_of_bf_documents=3)
+                            payload = payload.build_payload()
+                            print("\n Payload")
+                            print(json.dumps(payload))
+                        except ValueError:
+                            ValueError("Impossible to build payload for Create Confirmation Response process.")
+
+                        synchronous_result = create_confirmation_response_process(
+                            host=bpe_host,
+                            access_token=access_token,
+                            x_operation_id=operation_id,
+                            payload=payload,
+                            entity="contract",
+                            cpid=cpid,
+                            ocid=ocid,
+                            entity_id=contract_id,
+                            token=contract_token,
+                            role="buyer",
+                            test_mode=True
+                        )
+
+                        message = get_message_for_platform(operation_id)
+                        allure.attach(str(message), "Message for platform.")
+                        print("\n Actual message")
+                        print(message)
+                    # step_number += 1
+                    # with allure.step(f"# {step_number}. See result"):
+                    #     """
+                    #     Check the results of TestCase.
+                    #     """
+                    #
+                    #     with allure.step(f"# {step_number}.1. Check status code"):
+                    #         """
+                    #         Check the status code of sending the request.
+                    #         """
+                    #         with allure.step('Compare actual status code and expected status code '
+                    #                          'of sending request.'):
+                    #             allure.attach(str(synchronous_result.status_code), "Actual status code.")
+                    #             allure.attach(str(202), "Expected status code.")
+                    #             assert synchronous_result.status_code == 202
+                    #
+                    #     with allure.step(f'# {step_number}.2. Check the message for the platform,'
+                    #                      f'the Issuing Framework process.'):
+                    #         """
+                    #         Check the message for platform.
+                    #         """
+                    #         actual_message = message
+                    #
+                    #         try:
+                    #             """
+                    #             Build expected message for platform.
+                    #             """
+                    #             expected_message = copy.deepcopy(IssuingFrameworkMessage(
+                    #                 environment=environment,
+                    #                 cpid=cpid,
+                    #                 ocid=ocid,
+                    #                 actual_message=actual_message,
+                    #                 test_mode=True
+                    #             ))
+                    #
+                    #             expected_message = expected_message.build_expected_message()
+                    #         except ValueError:
+                    #             ValueError("Impossible to build expected message for platform.")
+                    #
+                    #         with allure.step('Compare actual and expected message for platform.'):
+                    #             allure.attach(json.dumps(actual_message), "Actual message.")
+                    #             allure.attach(json.dumps(expected_message), "Expected message.")
+                    #
+                    #             assert actual_message == expected_message, \
+                    #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                    #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                    #
+                    #     with allure.step(f'# {step_number}.3. Check AP release.'):
+                    #         """
+                    #         Compare actual AP release and expected AP release.
+                    #         """
+                    #         actual_ap_release = requests.get(url=ap_url).json()
+                    #
+                    #         try:
+                    #             """
+                    #             Build expected AP release.
+                    #             """
+                    #             expected_release = copy.deepcopy(IssuingFrameworkRelease(
+                    #                 environment, actual_message, ocid, payload
+                    #             ))
+                    #             expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
+                    #         except ValueError:
+                    #             ValueError("Impossible to build expected AP release.")
+                    #
+                    #         with allure.step("Compare actual and expected AP release."):
+                    #             allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
+                    #             allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
+                    #
+                    #             allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                    #                           f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                    #
+                    #     with allure.step(f'# {step_number}.4. Check FE release.'):
+                    #         """
+                    #         Compare actual FE release and expected FE release.
+                    #         """
+                    #         actual_fe_release = requests.get(url=fe_url).json()
+                    #
+                    #         try:
+                    #             """
+                    #             Build expected FE release.
+                    #             """
+                    #             expected_fe_release = expected_release.build_expected_fe_release(
+                    #                 previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
+                    #             )
+                    #         except ValueError:
+                    #             ValueError("Impossible to build expected FE release.")
+                    #
+                    #         with allure.step("Compare actual and expected FE release."):
+                    #             allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
+                    #             allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
+                    #
+                    #             assert actual_fe_release == expected_fe_release, \
+                    #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                    #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                    #
+                    #     with allure.step(f'# {step_number}.4. Check FA release.'):
+                    #         """
+                    #         Compare actual FA release and expected FA release.
+                    #         """
+                    #         actual_fa_release = requests.get(url=fa_url).json()
+                    #
+                    #         try:
+                    #             """
+                    #             Build expected FA release.
+                    #             """
+                    #             expected_fa_release = expected_release.build_expected_fa_release(
+                    #                 previous_fa_release
+                    #             )
+                    #         except ValueError:
+                    #             ValueError("Impossible to build expected FA release.")
+                    #
+                    #         with allure.step("Compare actual and expected FA release."):
+                    #             allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
+                    #             allure.attach(json.dumps(expected_fa_release), "Expected Fa release.")
+                    #
+                    #             assert actual_fa_release == expected_fa_release, \
+                    #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                    #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
         # try:
         #     """
         #     CLean up the database.
