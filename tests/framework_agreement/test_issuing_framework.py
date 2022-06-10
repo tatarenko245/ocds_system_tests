@@ -108,8 +108,15 @@ class TestIssuingFramework:
                 token=token
             )
 
-            message = get_message_for_platform(operation_id)
-            allure.attach(str(message), "Message for platform.")
+            platform_message = get_message_for_platform(operation_id)
+            allure.attach(str(platform_message), "Message for platform, initiator = platform.")
+
+            message = get_message_for_platform(ocid=ocid, initiator="bpe")
+            for q in range(len(message)):
+                if "outcomes" in message[q]['data']:
+                    if "requests" in message[q]['data']['outcomes']:
+                        bpe_message = message[q]
+            allure.attach(str(bpe_message), "Message for platform initiator = bpe.")
 
         step_number += 1
         with allure.step(f"# {step_number}. See result"):
@@ -132,7 +139,8 @@ class TestIssuingFramework:
                 """
                 Check the message for platform.
                 """
-                actual_message = message
+                actual_message_1 = platform_message
+                actual_message_2 = bpe_message
 
                 try:
                     """
@@ -142,19 +150,27 @@ class TestIssuingFramework:
                         environment=environment,
                         cpid=cpid,
                         ocid=ocid,
-                        actual_message=actual_message,
                         test_mode=True
                     ))
 
-                    expected_message = expected_message.build_expected_message()
+                    expected_platform_message = expected_message.build_expected_platform_message(actual_message_1)
+                    expected_bpe_message = expected_message.build_expected_bpe_message(actual_message_2, 2)
+
                 except ValueError:
                     ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_message), "Actual message.")
-                    allure.attach(json.dumps(expected_message), "Expected message.")
+                    allure.attach(json.dumps(actual_message_1), "Actual platform message.")
+                    allure.attach(json.dumps(expected_platform_message), "Expected platform message.")
 
-                    assert actual_message == expected_message, \
+                    assert actual_message_1 == expected_platform_message, \
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+                    allure.attach(json.dumps(actual_message_2), "Actual bpe message.")
+                    allure.attach(json.dumps(expected_bpe_message), "Expected bpe message.")
+
+                    assert actual_message_2 == expected_bpe_message, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
@@ -169,7 +185,7 @@ class TestIssuingFramework:
                     Build expected AP release.
                     """
                     expected_release = copy.deepcopy(IssuingFrameworkRelease(
-                        environment, actual_message, ocid, payload
+                        environment, actual_message_1, ocid, payload
                     ))
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
@@ -334,8 +350,15 @@ class TestIssuingFramework:
                 token=token
             )
 
-            message = get_message_for_platform(operation_id)
-            allure.attach(str(message), "Message for platform.")
+            platform_message = get_message_for_platform(operation_id)
+            allure.attach(str(platform_message), "Message for platform, initiator = platform.")
+
+            message = get_message_for_platform(ocid=ocid, initiator="bpe")
+            for q in range(len(message)):
+                if "outcomes" in message[q]['data']:
+                    if "requests" in message[q]['data']['outcomes']:
+                        bpe_message = message[q]
+            allure.attach(str(bpe_message), "Message for platform initiator = bpe.")
 
         step_number += 1
         with allure.step(f"# {step_number}. See result"):
@@ -358,7 +381,8 @@ class TestIssuingFramework:
                 """
                 Check the message for platform.
                 """
-                actual_message = message
+                actual_message_1 = platform_message
+                actual_message_2 = bpe_message
 
                 try:
                     """
@@ -368,19 +392,26 @@ class TestIssuingFramework:
                         environment=environment,
                         cpid=cpid,
                         ocid=ocid,
-                        actual_message=actual_message,
                         test_mode=True
                     ))
 
-                    expected_message = expected_message.build_expected_message()
+                    expected_platform_message = expected_message.build_expected_platform_message(actual_message_1)
+                    expected_bpe_message = expected_message.build_expected_bpe_message(actual_message_2, 1)
                 except ValueError:
                     ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_message), "Actual message.")
-                    allure.attach(json.dumps(expected_message), "Expected message.")
+                    allure.attach(json.dumps(actual_message_1), "Actual platform message.")
+                    allure.attach(json.dumps(expected_platform_message), "Expected platform message.")
 
-                    assert actual_message == expected_message, \
+                    assert actual_message_1 == expected_platform_message, \
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+                    allure.attach(json.dumps(actual_message_2), "Actual bpe message.")
+                    allure.attach(json.dumps(expected_bpe_message), "Expected bpe message.")
+
+                    assert actual_message_2 == expected_bpe_message, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
@@ -395,7 +426,7 @@ class TestIssuingFramework:
                     Build expected AP release.
                     """
                     expected_release = copy.deepcopy(IssuingFrameworkRelease(
-                        environment, actual_message, ocid, payload
+                        environment, actual_message_1, ocid, payload
                     ))
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:

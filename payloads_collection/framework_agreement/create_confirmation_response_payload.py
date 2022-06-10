@@ -3,7 +3,8 @@ import copy
 import random
 
 from class_collection.document_registration import Document
-from data_collection.data_constant import confirmationResponse_type, business_function_type_3_tuple
+from data_collection.data_constant import confirmationResponse_type, person_title_tuple, \
+    business_function_type_2_tuple
 from functions_collection.prepare_date import old_period
 
 
@@ -36,7 +37,7 @@ class CreateConfirmationResponsePayload:
                 "type": confirmationresponse_type,
                 "value": confirmationresponse_value,
                 "relatedPerson": {
-                    "title": "create confirmation response: confirmationResponse.relatedPerson.title",
+                    "title": f"{random.choice(person_title_tuple)}",
                     "name": "create confirmation response: confirmationResponse.relatedPerson.name",
                     "identifier": {
                         "scheme": "create confirmation response: confirmationResponse.relatedPerson.identifier.scheme",
@@ -90,7 +91,7 @@ class CreateConfirmationResponsePayload:
                 self.__payload['confirmationResponse']['relatedPerson']['businessFunctions'][0]
             ))
             business_functions[q_0]['id'] = f"{q_0}"
-            business_functions[q_0]['type'] = f"{random.choice(business_function_type_3_tuple)}"
+            business_functions[q_0]['type'] = f"{random.choice(business_function_type_2_tuple)}"
             business_functions[q_0]['jobTitle'] = \
                 f"create confirmation response: confirmationResponse.relatedPerson.businessFunctions[{0}].jobTitle"
             business_functions[q_0]['period']['startDate'] = old_period()[0]
