@@ -219,19 +219,22 @@ class TestCreateConfirmationResponse:
                             Compare actual FE release and expected FE release.
                             """
                             actual_fe_release = requests.get(url=fe_url).json()
-                            print("\nPrevious FE release")
-                            print(json.dumps(previous_fe_release))
+
                             print("\nActual FE release")
                             print(json.dumps(actual_fe_release))
-                            # try:
-                            #     """
-                            #     Build expected FE release.
-                            #     """
-                            #     expected_fe_release = expected_release.build_expected_fe_release(
-                            #         previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
-                            #     )
-                            # except ValueError:
-                            #     ValueError("Impossible to build expected FE release.")
+                            try:
+                                """
+                                Build expected FE release.
+                                """
+                                expected_fe_release = expected_release.build_expected_fe_release(
+                                    previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
+                                )
+                            except ValueError:
+                                ValueError("Impossible to build expected FE release.")
+
+                            print("\n Expected_fe_release")
+                            print(json.dumps(expected_fe_release))
+
                             #
                             # with allure.step("Compare actual and expected FE release."):
                             #     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
