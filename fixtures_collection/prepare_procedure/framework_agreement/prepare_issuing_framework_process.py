@@ -59,6 +59,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
     language = get_parameters[5]
     pmd = get_parameters[6]
     tender_classification_id = get_parameters[9]
+    ei_language = get_parameters[10]
 
     currency = prepare_currency
 
@@ -110,7 +111,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_1_operation_id,
             country=country,
-            language=language,
+            language=ei_language,
             payload=ei_1_payload,
             test_mode=True
         )
@@ -285,7 +286,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_2_operation_id,
             country=country,
-            language=language,
+            language=ei_language,
             payload=ei_2_payload,
             test_mode=True
         )
@@ -1685,6 +1686,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
     language = get_parameters[5]
     pmd = get_parameters[6]
     tender_classification_id = get_parameters[9]
+    ei_language = get_parameters[10]
 
     currency = prepare_currency
 
@@ -1743,7 +1745,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_1_operation_id,
             country=country,
-            language=language,
+            language=ei_language,
             payload=ei_1_payload,
             test_mode=True
         )
@@ -1925,7 +1927,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_2_operation_id,
             country=country,
-            language=language,
+            language=ei_language,
             payload=ei_2_payload,
             test_mode=True
         )

@@ -43,7 +43,7 @@ class ExpenditureItemPayload:
                                     "id": "MD",
                                     "description":
                                         "create ei: tender.items0.deliveryAddress.addressDetails.country.description",
-                                    "scheme": "iso-alpha2"
+                                    "scheme": "ISO-ALPHA2"
                                 },
                                 "region": {
                                     "id": "3400000",
@@ -91,12 +91,12 @@ class ExpenditureItemPayload:
                         "country": {
                             "id": "MD",
                             "description": "create ei: buyer.address.addressDetails.country.description",
-                            "scheme": "iso-alpha2"
+                            "scheme": "ISO-ALPHA2"
                         },
                         "region": {
                             "id": "1700000",
                             "description": "create ei: buyer.address.addressDetails.region.description",
-                            "scheme": "iso-alpha2"
+                            "scheme": "CUATM"
                         },
                         "locality": {
                             "scheme": f"{random.choice(locality_scheme_tuple)}",

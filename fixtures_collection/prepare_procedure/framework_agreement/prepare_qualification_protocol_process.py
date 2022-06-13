@@ -703,7 +703,7 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
             if environment == "dev":
                 pre_qualification_sec = 121
             elif environment == "sandbox":
-                pre_qualification_sec = 1000
+                pre_qualification_sec = 300
 
             payload = copy.deepcopy(FrameworkEstablishmentPayload(
                 ap_payload=ap_payload,
@@ -829,7 +829,7 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
             if environment == "dev":
                 pre_qualification_sec = 740
             elif environment == "sandbox":
-                pre_qualification_sec = 5000
+                pre_qualification_sec = 2240
             payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
                 ap_payload=ap_payload,
                 create_fe_payload=create_fe_payload,
