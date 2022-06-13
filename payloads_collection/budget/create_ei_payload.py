@@ -18,18 +18,21 @@ class ExpenditureItemPayload:
                 "title": "create ei: tender.title",
                 "description": "create ei: tender.description",
                 "classification": {
-                    "id": self.__tender_classification_id
+                    "id": self.__tender_classification_id,
+                    "scheme": "CPV"
                 },
                 "items": [
                     {
                         "id": "0",
                         "description": f"create ei: tender.items0.description",
                         "classification": {
-                            "id": self.__tender_classification_id
+                            "id": self.__tender_classification_id,
+                            "scheme": "CPV"
                         },
                         "additionalClassifications": [
                             {
-                                "id": "AA12-4"
+                                "id": "AA12-4",
+                                "scheme": "CPVS"
                             }
                         ],
                         "deliveryAddress": {
@@ -37,10 +40,16 @@ class ExpenditureItemPayload:
                             "postalCode": "create ei: tender.items0.deliveryAddress.postalCode",
                             "addressDetails": {
                                 "country": {
-                                    "id": "MD"
+                                    "id": "MD",
+                                    "description":
+                                        "create ei: tender.items0.deliveryAddress.addressDetails.country.description",
+                                    "scheme": "iso-alpha2"
                                 },
                                 "region": {
-                                    "id": "3400000"
+                                    "id": "3400000",
+                                    "description":
+                                        "create ei: tender.items0.deliveryAddress.addressDetails.region.description",
+                                    "scheme": "CUATM"
                                 },
                                 "locality": {
                                     "id": "3401000",
@@ -51,7 +60,7 @@ class ExpenditureItemPayload:
                                 }
                             }
                         },
-                        "quantity": "10",
+                        "quantity": 10,
                         "unit": {
                             "id": "10"
                         }
@@ -80,10 +89,14 @@ class ExpenditureItemPayload:
                     "postalCode": "create ei: buyer.address.postalCode",
                     "addressDetails": {
                         "country": {
-                            "id": "MD"
+                            "id": "MD",
+                            "description": "create ei: buyer.address.addressDetails.country.description",
+                            "scheme": "iso-alpha2"
                         },
                         "region": {
-                            "id": "1700000"
+                            "id": "1700000",
+                            "description": "create ei: buyer.address.addressDetails.region.description",
+                            "scheme": "iso-alpha2"
                         },
                         "locality": {
                             "scheme": f"{random.choice(locality_scheme_tuple)}",
@@ -140,6 +153,8 @@ class ExpenditureItemPayload:
 
             elif a == "tender.items.deliveryAddress.postalCode":
                 del self.__payload['tender']['items'][item_position]['deliveryAddress']['postalCode']
+            elif a == "tender.items.deliveryAddress.addressDetails.locality":
+                del self.__payload['tender']['items'][item_position]['deliveryAddress']['addressDetails']['locality']
             elif a == "tender.items.deliveryAddress.addressDetails.locality.uri":
                 del self.__payload['tender']['items'][item_position]['deliveryAddress']['addressDetails']['locality'][
                     'uri']
@@ -220,7 +235,6 @@ class ExpenditureItemPayload:
                         list_of_additional_classification_id.append(additional_classification_id)
 
             for q_1 in range(quantity_of_items_additional_classifications):
-
                 new_items_array[q_0]['additionalClassifications'][q_1]['id'] = \
                     list_of_additional_classification_id[q_1]
 

@@ -33,6 +33,7 @@ def get_message_for_platform(operation_id=None, ocid=None, initiator=None):
         ValueError("The message was not found in Kafka topic")
 
     if status_code == 200:
+        date_new = datetime.datetime.now() + datetime.timedelta(seconds=20)
         message = requests.get(url).json()
         if str(message) == str([]):
             ValueError("The message was not found in Kafka topic")
