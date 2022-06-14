@@ -1,4 +1,5 @@
 import copy
+import json
 import random
 import time
 
@@ -59,7 +60,6 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
     language = get_parameters[5]
     pmd = get_parameters[6]
     tender_classification_id = get_parameters[9]
-    ei_language = get_parameters[10]
 
     currency = prepare_currency
 
@@ -105,13 +105,14 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             ei_1_payload = payload.build_payload()
         except ValueError:
             ValueError("Impossible to build payload for Create EI process.")
-
+        print("\nEI PAYLOAD")
+        print(json.dumps(ei_1_payload))
         create_ei_process(
             host=bpe_host,
             access_token=access_token,
             x_operation_id=ei_1_operation_id,
             country=country,
-            language=ei_language,
+            language=language,
             payload=ei_1_payload,
             test_mode=True
         )
@@ -286,7 +287,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_2_operation_id,
             country=country,
-            language=ei_language,
+            language=language,
             payload=ei_2_payload,
             test_mode=True
         )
@@ -1686,7 +1687,6 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
     language = get_parameters[5]
     pmd = get_parameters[6]
     tender_classification_id = get_parameters[9]
-    ei_language = get_parameters[10]
 
     currency = prepare_currency
 
@@ -1745,7 +1745,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_1_operation_id,
             country=country,
-            language=ei_language,
+            language=language,
             payload=ei_1_payload,
             test_mode=True
         )
@@ -1927,7 +1927,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             access_token=access_token,
             x_operation_id=ei_2_operation_id,
             country=country,
-            language=ei_language,
+            language=language,
             payload=ei_2_payload,
             test_mode=True
         )

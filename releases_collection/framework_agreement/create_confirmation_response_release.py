@@ -971,14 +971,14 @@ class CreateConfirmationResponseRelease:
 
                                     if "documents" in person_list[rp]['businessFunctions'][rbf] and \
                                             "documents" in self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                            'businessFunctions'][pbf]:
+                                        'businessFunctions'][pbf]:
 
                                         release_bf_doc_id = list()
                                         payload_bf_doc_id = list()
                                         for rbfd in range(len(person_list[rp]['businessFunctions'][rbf]['documents'])):
                                             for pbfd in range(
                                                     len(self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                                        'businessFunctions'][pbf]['documents'])):
+                                                            'businessFunctions'][pbf]['documents'])):
 
                                                 release_bf_doc_id.append(
                                                     person_list[rp]['businessFunctions'][rbf]['documents'][rbfd]['id'])
@@ -1004,9 +1004,8 @@ class CreateConfirmationResponseRelease:
                                                             'businessFunctions'][pbf]['documents'][pbfd]['title']
 
                                                     if "description" in self.__payload['confirmationResponse'][
-                                                            'relatedPerson'][pp]['businessFunctions'][pbf][
-                                                            'documents'][pbfd]:
-
+                                                        'relatedPerson'][pp]['businessFunctions'][pbf][
+                                                        'documents'][pbfd]:
                                                         person_list[rp]['businessFunctions'][rbf][
                                                             'documents'][rbfd]['description'] = \
                                                             self.__payload['confirmationResponse']['relatedPerson'][pp][
@@ -1020,8 +1019,7 @@ class CreateConfirmationResponseRelease:
                                         payload_bf_doc_id = list()
                                         for pbfd in range(
                                                 len(self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                                    'businessFunctions'][pbf]['documents'])):
-
+                                                        'businessFunctions'][pbf]['documents'])):
                                             payload_bf_doc_id.append(
                                                 self.__payload['confirmationResponse']['relatedPerson'][pp][
                                                     'businessFunctions'][pbf]['documents'][pbfd]['id']
@@ -1030,11 +1028,11 @@ class CreateConfirmationResponseRelease:
                                         for i in range(len(diff_doc_id)):
                                             for pbfd in range(
                                                     len(self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                                        'businessFunctions'][pbf]['documents'])):
+                                                            'businessFunctions'][pbf]['documents'])):
 
                                                 if diff_doc_id[i] == self.__payload['confirmationResponse'][
-                                                        'relatedPerson'][pp]['businessFunctions'][pbf][
-                                                        'documents'][pbfd]['id']:
+                                                    'relatedPerson'][pp]['businessFunctions'][pbf][
+                                                    'documents'][pbfd]['id']:
 
                                                     new_bf_doc_obj = copy.deepcopy(
                                                         self.__expected_fe_release['releases'][0]['parties'][0][
@@ -1053,8 +1051,8 @@ class CreateConfirmationResponseRelease:
                                                         'businessFunctions'][pbf]['documents'][pbfd]['title']
 
                                                     if "description" in self.__payload[
-                                                            'confirmationResponse']['relatedPerson'][pp][
-                                                            'businessFunctions'][pbf]['documents'][pbfd]:
+                                                        'confirmationResponse']['relatedPerson'][pp][
+                                                        'businessFunctions'][pbf]['documents'][pbfd]:
 
                                                         new_bf_doc_obj['description'] = self.__payload[
                                                             'confirmationResponse']['relatedPerson'][pp][
@@ -1085,7 +1083,7 @@ class CreateConfirmationResponseRelease:
                                             'businessFunctions'])):
 
                                 if diff_bf_id[i] == self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                        'businessFunctions'][pbf]['id']:
+                                    'businessFunctions'][pbf]['id']:
 
                                     new_bf_obj = copy.deepcopy(
                                         self.__expected_fe_release['releases'][0]['parties'][0][
@@ -1105,11 +1103,11 @@ class CreateConfirmationResponseRelease:
 
                                     del new_bf_obj['documents'][0]
                                     if "documents" in self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                            'businessFunctions'][pbf]:
+                                        'businessFunctions'][pbf]:
 
                                         for pbfd in range(
                                                 len(self.__payload['confirmationResponse']['relatedPerson'][pp][
-                                                    'businessFunctions'][pbf]['documents'])):
+                                                        'businessFunctions'][pbf]['documents'])):
 
                                             new_bf_doc_obj = copy.deepcopy(
                                                 self.__expected_fe_release['releases'][0]['parties'][0][
@@ -1128,7 +1126,7 @@ class CreateConfirmationResponseRelease:
                                                 'title']
 
                                             if "description" in self.__payload['confirmationResponse'][
-                                                    'relatedPerson'][pp]['businessFunctions'][pbf]['documents'][pbfd]:
+                                                'relatedPerson'][pp]['businessFunctions'][pbf]['documents'][pbfd]:
 
                                                 new_bf_doc_obj['description'] = self.__payload[
                                                     'confirmationResponse']['relatedPerson'][pp][
@@ -1144,6 +1142,8 @@ class CreateConfirmationResponseRelease:
                                             new_bf_obj['documents'].append(new_bf_doc_obj)
                                     person_list[rp]['businessFunctions'].append(new_bf_obj)
             expected_persones_list += person_list
+            print("\nexpected_persones_list 1")
+            print(json.dumps(expected_persones_list))
             release_person_id = list()
             for rp in range(len(person_list)):
                 release_person_id.append(person_list[rp]['id'])
@@ -1154,149 +1154,216 @@ class CreateConfirmationResponseRelease:
                     f"{self.__payload['confirmationResponse']['relatedPerson']['identifier']['id']}"
                 payload_person_id.append(p_person_id)
             dif_person_id = list(set(payload_person_id) - set(release_person_id))
+            print("\ndif_person_id")
+            print(dif_person_id)
             for i in range(len(dif_person_id)):
-                for pp in range(len(self.__payload['confirmationResponse']['relatedPerson'])):
-                    p_person_id = \
-                        f"{self.__payload['confirmationResponse']['relatedPerson']['identifier']['scheme']}-" \
-                        f"{self.__payload['confirmationResponse']['relatedPerson']['identifier']['id']}"
-                    if dif_person_id[i] == p_person_id:
-                        new_person_obj = copy.deepcopy(
-                            self.__expected_fe_release['releases'][0]['parties'][0]['persones'][0]
+                p_person_id = \
+                    f"{self.__payload['confirmationResponse']['relatedPerson']['identifier']['scheme']}-" \
+                    f"{self.__payload['confirmationResponse']['relatedPerson']['identifier']['id']}"
+                if dif_person_id[i] == p_person_id:
+                    new_person_obj = copy.deepcopy(
+                        self.__expected_fe_release['releases'][0]['parties'][0]['persones'][0]
+                    )
+                    new_person_obj['id'] = p_person_id
+                    new_person_obj['title'] = self.__payload['confirmationResponse']['relatedPerson']['title']
+                    new_person_obj['name'] = self.__payload['confirmationResponse']['relatedPerson']['name']
+                    new_person_obj['identifier']['scheme'] = \
+                        self.__payload['confirmationResponse']['relatedPerson']['identifier']['scheme']
+                    new_person_obj['identifier']['id'] = \
+                        self.__payload['confirmationResponse']['relatedPerson']['identifier']['id']
+                    if "uri" in self.__payload['confirmationResponse']['relatedPerson']['identifier']:
+                        new_person_obj['identifier']['uri'] = \
+                            self.__payload['confirmationResponse']['relatedPerson']['identifier']['uri']
+                    else:
+                        del new_person_obj['identifier']['uri']
+                    del new_person_obj['businessFunctions'][0]
+                    for pbf in range(len(
+                            self.__payload['confirmationResponse']['relatedPerson']['businessFunctions']
+                    )):
+                        new_bf_obj = copy.deepcopy(
+                            self.__expected_fe_release['releases'][0]['parties'][0]['persones'][0][
+                                'businessFunctions'][0]
                         )
-                        new_person_obj['id'] = p_person_id
-                        new_person_obj['title'] = self.__payload['confirmationResponse']['relatedPerson']['title']
-                        new_person_obj['name'] = self.__payload['confirmationResponse']['relatedPerson']['name']
-                        new_person_obj['identifier']['scheme'] = \
-                            self.__payload['confirmationResponse']['relatedPerson']['identifier']['scheme']
-                        new_person_obj['identifier']['id'] = \
-                            self.__payload['confirmationResponse']['relatedPerson']['identifier']['id']
-                        if "uri" in self.__payload['confirmationResponse']['relatedPerson']['identifier']:
-                            new_person_obj['identifier']['uri'] = \
-                                self.__payload['confirmationResponse']['relatedPerson']['identifier']['uri']
-                        else:
-                            del new_person_obj['identifier']['uri']
-                        del new_person_obj['businessFunctions'][0]
-                        for pbf in range(len(
-                                self.__payload['confirmationResponse']['relatedPerson']['businessFunctions']
-                        )):
-                            new_bf_obj = copy.deepcopy(
-                                self.__expected_fe_release['releases'][0]['parties'][0]['persones'][0][
-                                    'businessFunctions'][0]
-                            )
-                            new_bf_obj['id'] = self.__payload['confirmationResponse']['relatedPerson'][
-                                'businessFunctions'][pbf]['id']
-                            new_bf_obj['type'] = self.__payload['confirmationResponse']['relatedPerson'][
-                                'businessFunctions'][pbf]['type']
-                            new_bf_obj['jobTitle'] = self.__payload['confirmationResponse']['relatedPerson'][
-                                'businessFunctions'][pbf]['jobTitle']
-                            new_bf_obj['period']['startDate'] = self.__payload['confirmationResponse'][
-                                'relatedPerson']['businessFunctions'][pbf]['period']['startDate']
-                            del new_bf_obj['documents'][0]
-                            if "documents" in self.__payload['confirmationResponse']['relatedPerson'][
-                                    'businessFunctions'][pbf]:
+                        new_bf_obj['id'] = self.__payload['confirmationResponse']['relatedPerson'][
+                            'businessFunctions'][pbf]['id']
+                        new_bf_obj['type'] = self.__payload['confirmationResponse']['relatedPerson'][
+                            'businessFunctions'][pbf]['type']
+                        new_bf_obj['jobTitle'] = self.__payload['confirmationResponse']['relatedPerson'][
+                            'businessFunctions'][pbf]['jobTitle']
+                        new_bf_obj['period']['startDate'] = self.__payload['confirmationResponse'][
+                            'relatedPerson']['businessFunctions'][pbf]['period']['startDate']
+                        del new_bf_obj['documents'][0]
+                        if "documents" in self.__payload['confirmationResponse']['relatedPerson'][
+                            'businessFunctions'][pbf]:
 
-                                for pbfd in range(len(
-                                        self.__payload['confirmationResponse']['relatedPerson'][
-                                            'businessFunctions'][pbf]['documents']
-                                )):
-                                    new_bf_doc_obj = copy.deepcopy(
-                                        self.__expected_fe_release['releases'][0]['parties'][0]['persones'][0][
-                                            'businessFunctions'][0]['documents'][0]
-                                    )
-                                    new_bf_doc_obj['id'] = self.__payload['confirmationResponse']['relatedPerson'][
-                                        'businessFunctions'][pbf]['documents'][pbfd]['id']
-                                    new_bf_doc_obj['documentType'] = self.__payload['confirmationResponse'][
+                            for pbfd in range(len(
+                                    self.__payload['confirmationResponse']['relatedPerson'][
+                                        'businessFunctions'][pbf]['documents']
+                            )):
+                                new_bf_doc_obj = copy.deepcopy(
+                                    self.__expected_fe_release['releases'][0]['parties'][0]['persones'][0][
+                                        'businessFunctions'][0]['documents'][0]
+                                )
+                                new_bf_doc_obj['id'] = self.__payload['confirmationResponse']['relatedPerson'][
+                                    'businessFunctions'][pbf]['documents'][pbfd]['id']
+                                new_bf_doc_obj['documentType'] = self.__payload['confirmationResponse'][
+                                    'relatedPerson']['businessFunctions'][pbf]['documents'][pbfd][
+                                    'documentType']
+                                new_bf_doc_obj['title'] = self.__payload['confirmationResponse'][
+                                    'relatedPerson']['businessFunctions'][pbf]['documents'][pbfd]['title']
+                                if "description" in self.__payload['confirmationResponse']['relatedPerson'][
+                                    'businessFunctions'][pbf]['documents'][pbfd]:
+                                    new_bf_doc_obj['description'] = self.__payload['confirmationResponse'][
                                         'relatedPerson']['businessFunctions'][pbf]['documents'][pbfd][
-                                        'documentType']
-                                    new_bf_doc_obj['title'] = self.__payload['confirmationResponse'][
-                                        'relatedPerson']['businessFunctions'][pbf]['documents'][pbfd]['title']
-                                    if "description" in self.__payload['confirmationResponse']['relatedPerson'][
-                                            'businessFunctions'][pbf]['documents'][pbfd]:
-                                        new_bf_doc_obj['description'] = self.__payload['confirmationResponse'][
-                                            'relatedPerson']['businessFunctions'][pbf]['documents'][pbfd][
-                                            'description']
-                                    else:
-                                        del new_bf_doc_obj['description']
-                                    new_bf_doc_obj['url'] = f"{self.__metadata_document_url}/{new_bf_doc_obj['id']}"
-                                    new_bf_doc_obj['datePublished'] = self.__actual_message['data']['operationDate']
-                                    new_bf_obj['documents'].append(new_bf_doc_obj)
-                            else:
-                                del new_bf_obj['documents']
-                            new_person_obj['businessFunctions'].append(new_bf_obj)
-                        expected_persones_list.append(new_person_obj)
-            print("\nexpected_persones_list")
+                                        'description']
+                                else:
+                                    del new_bf_doc_obj['description']
+                                new_bf_doc_obj['url'] = f"{self.__metadata_document_url}/{new_bf_doc_obj['id']}"
+                                new_bf_doc_obj['datePublished'] = self.__actual_message['data']['operationDate']
+                                new_bf_obj['documents'].append(new_bf_doc_obj)
+                        else:
+                            del new_bf_obj['documents']
+                        new_person_obj['businessFunctions'].append(new_bf_obj)
+                    expected_persones_list.append(new_person_obj)
+            print("\nexpected_persones_list 2")
             print(json.dumps(expected_persones_list))
             self.__expected_fe_release['releases'][0]['parties'] = previous_fe_release['releases'][0]['parties']
 
             # Sort objects into persones, businessFunctions, documents:
             expected_persones_was_sorted = list()
             for od in range(len(actual_fe_release['releases'][0]['parties'])):
-                if actual_fe_release['releases'][0]['parties'][od]['roles'][0] == "procuringEntity":
-                    for act in range(len(actual_fe_release['releases'][0]['parties'][od]['persones'])):
-                        for exp in range(len(expected_persones_list)):
-                            if expected_persones_list[exp]['id'] == \
-                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act]['id']:
-                                expected_bf_was_sorted = list()
-                                for act_1 in range(
-                                        len(actual_fe_release['releases'][0]['parties'][od]['persones'][act][
-                                                'businessFunctions'])):
-                                    for exp_1 in range(len(expected_persones_list[exp]['businessFunctions'])):
-                                        if expected_persones_list[exp]['businessFunctions'][exp_1]['type'] == \
-                                                actual_fe_release['releases'][0]['parties'][od]['persones'][act][
-                                                    'businessFunctions'][act_1]['type'] and \
-                                                expected_persones_list[exp]['businessFunctions'][exp_1]['jobTitle'] == \
-                                                actual_fe_release['releases'][0]['parties'][od]['persones'][act][
-                                                    'businessFunctions'][act_1]['jobTitle'] and \
-                                                expected_persones_list[exp]['businessFunctions'][exp_1]['period'] == \
-                                                actual_fe_release['releases'][0]['parties'][od]['persones'][act][
-                                                    'businessFunctions'][act_1]['period']:
-                                            # Set terminal id for 'persones[*].businessFucntions[*].id':
-                                            # try:
-                                            #     """Set permanent id."""
-                                            #     is_permanent_id_correct = is_it_uuid(
-                                            #         actual_fe_release['releases'][0]['parties'][od]['persones'][
-                                            #             act]['businessFunctions'][act_1]['id']
-                                            #     )
-                                            #     if is_permanent_id_correct is True:
-                                            #         expected_persones_list[exp]['businessFunctions'][exp_1]['id'] = \
-                                            #             actual_fe_release['releases'][0]['parties'][od][
-                                            #                 'persones'][act]['businessFunctions'][act_1]['id']
-                                            #     else:
-                                            #         ValueError(f"The 'releases[0].parties[{od}].persones[{act}."
-                                            #                    f"businessFunctions[{act_1}].id' must be uuid.")
-                                            # except KeyError:
-                                            #     KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
-                                            #              f"persones[{act}.businessFunctions[{act_1}].id'.")
+                if actual_fe_release['releases'][0]['parties'][od]['roles'][0] == "buyer":
+                    if "persones" in actual_fe_release['releases'][0]['parties'][od]:
+                        for act in range(len(actual_fe_release['releases'][0]['parties'][od]['persones'])):
+                            for exp in range(len(expected_persones_list)):
+                                if expected_persones_list[exp]['id'] == \
+                                        actual_fe_release['releases'][0]['parties'][od]['persones'][act]['id']:
+                                    expected_bf_was_sorted = list()
+                                    for act_1 in range(
+                                            len(actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                    'businessFunctions'])):
+                                        for exp_1 in range(len(expected_persones_list[exp]['businessFunctions'])):
+                                            if expected_persones_list[exp]['businessFunctions'][exp_1]['type'] == \
+                                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                        'businessFunctions'][act_1]['type'] and \
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1]['jobTitle'] == \
+                                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                        'businessFunctions'][act_1]['jobTitle'] and \
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1]['period'] == \
+                                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                        'businessFunctions'][act_1]['period']:
+                                                # Set terminal id for 'persones[*].businessFucntions[*].id':
+                                                # try:
+                                                #     """Set permanent id."""
+                                                #     is_permanent_id_correct = is_it_uuid(
+                                                #         actual_fe_release['releases'][0]['parties'][od]['persones'][
+                                                #             act]['businessFunctions'][act_1]['id']
+                                                #     )
+                                                #     if is_permanent_id_correct is True:
+                                                #         expected_persones_list[exp]['businessFunctions'][exp_1]['id'] = \
+                                                #             actual_fe_release['releases'][0]['parties'][od][
+                                                #                 'persones'][act]['businessFunctions'][act_1]['id']
+                                                #     else:
+                                                #         ValueError(f"The 'releases[0].parties[{od}].persones[{act}."
+                                                #                    f"businessFunctions[{act_1}].id' must be uuid.")
+                                                # except KeyError:
+                                                #     KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
+                                                #              f"persones[{act}.businessFunctions[{act_1}].id'.")
 
-                                            if "documents" in actual_fe_release['releases'][0]['parties'][od][
+                                                if "documents" in actual_fe_release['releases'][0]['parties'][od][
                                                     'persones'][act]['businessFunctions'][act_1] and \
-                                                    "documents" in expected_persones_list[exp][
+                                                        "documents" in expected_persones_list[exp][
                                                     'businessFunctions'][exp_1]:
-                                                expected_bf_doc_was_sorted = list()
-                                                for act_2 in range(len(actual_fe_release['releases'][0][
-                                                                           'parties'][od]['persones'][act][
-                                                                           'businessFunctions'][act_1]['documents'])):
-                                                    for exp_2 in range(len(expected_persones_list[exp][
-                                                                               'businessFunctions'][exp_1][
-                                                                               'documents'])):
-                                                        if expected_persones_list[exp]['businessFunctions'][exp_1][
+                                                    expected_bf_doc_was_sorted = list()
+                                                    for act_2 in range(len(actual_fe_release['releases'][0][
+                                                                               'parties'][od]['persones'][act][
+                                                                               'businessFunctions'][act_1]['documents'])):
+                                                        for exp_2 in range(len(expected_persones_list[exp][
+                                                                                   'businessFunctions'][exp_1][
+                                                                                   'documents'])):
+                                                            if expected_persones_list[exp]['businessFunctions'][exp_1][
                                                                 'documents'][exp_2]['id'] == actual_fe_release[
                                                                 'releases'][0]['parties'][od]['persones'][act][
                                                                 'businessFunctions'][act_1]['documents'][act_2]['id']:
-                                                            expected_bf_doc_was_sorted.append(
-                                                                expected_persones_list[exp][
-                                                                    'businessFunctions'][exp_1]['documents'][exp_2])
-                                                expected_persones_list[exp]['businessFunctions'][exp_1][
-                                                    'documents'] = expected_bf_doc_was_sorted
+                                                                expected_bf_doc_was_sorted.append(
+                                                                    expected_persones_list[exp][
+                                                                        'businessFunctions'][exp_1]['documents'][exp_2])
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1][
+                                                        'documents'] = expected_bf_doc_was_sorted
 
-                                            expected_bf_was_sorted.append(expected_persones_list[exp][
-                                                                              'businessFunctions'][exp_1])
-                                expected_persones_list[exp]['businessFunctions'] = expected_bf_was_sorted
-                                expected_persones_was_sorted.append(expected_persones_list[exp])
+                                                expected_bf_was_sorted.append(expected_persones_list[exp][
+                                                                                  'businessFunctions'][exp_1])
+                                    expected_persones_list[exp]['businessFunctions'] = expected_bf_was_sorted
+                                    expected_persones_was_sorted.append(expected_persones_list[exp])
+                    else:
+                        actual_fe_release['releases'][0]['parties'][od]['persones'] = list()
+                        for act in range(len(actual_fe_release['releases'][0]['parties'][od]['persones'])):
+                            for exp in range(len(expected_persones_list)):
+                                if expected_persones_list[exp]['id'] == \
+                                        actual_fe_release['releases'][0]['parties'][od]['persones'][act]['id']:
+                                    expected_bf_was_sorted = list()
+                                    for act_1 in range(
+                                            len(actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                    'businessFunctions'])):
+                                        for exp_1 in range(len(expected_persones_list[exp]['businessFunctions'])):
+                                            if expected_persones_list[exp]['businessFunctions'][exp_1]['type'] == \
+                                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                        'businessFunctions'][act_1]['type'] and \
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1][
+                                                        'jobTitle'] == \
+                                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                        'businessFunctions'][act_1]['jobTitle'] and \
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1]['period'] == \
+                                                    actual_fe_release['releases'][0]['parties'][od]['persones'][act][
+                                                        'businessFunctions'][act_1]['period']:
+                                                # Set terminal id for 'persones[*].businessFucntions[*].id':
+                                                # try:
+                                                #     """Set permanent id."""
+                                                #     is_permanent_id_correct = is_it_uuid(
+                                                #         actual_fe_release['releases'][0]['parties'][od]['persones'][
+                                                #             act]['businessFunctions'][act_1]['id']
+                                                #     )
+                                                #     if is_permanent_id_correct is True:
+                                                #         expected_persones_list[exp]['businessFunctions'][exp_1]['id'] = \
+                                                #             actual_fe_release['releases'][0]['parties'][od][
+                                                #                 'persones'][act]['businessFunctions'][act_1]['id']
+                                                #     else:
+                                                #         ValueError(f"The 'releases[0].parties[{od}].persones[{act}."
+                                                #                    f"businessFunctions[{act_1}].id' must be uuid.")
+                                                # except KeyError:
+                                                #     KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
+                                                #              f"persones[{act}.businessFunctions[{act_1}].id'.")
+
+                                                if "documents" in actual_fe_release['releases'][0]['parties'][od][
+                                                    'persones'][act]['businessFunctions'][act_1] and \
+                                                        "documents" in expected_persones_list[exp][
+                                                    'businessFunctions'][exp_1]:
+                                                    expected_bf_doc_was_sorted = list()
+                                                    for act_2 in range(len(actual_fe_release['releases'][0][
+                                                                               'parties'][od]['persones'][act][
+                                                                               'businessFunctions'][act_1][
+                                                                               'documents'])):
+                                                        for exp_2 in range(len(expected_persones_list[exp][
+                                                                                   'businessFunctions'][exp_1][
+                                                                                   'documents'])):
+                                                            if expected_persones_list[exp]['businessFunctions'][exp_1][
+                                                                'documents'][exp_2]['id'] == actual_fe_release[
+                                                                'releases'][0]['parties'][od]['persones'][act][
+                                                                'businessFunctions'][act_1]['documents'][act_2]['id']:
+                                                                expected_bf_doc_was_sorted.append(
+                                                                    expected_persones_list[exp][
+                                                                        'businessFunctions'][exp_1]['documents'][exp_2])
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1][
+                                                        'documents'] = expected_bf_doc_was_sorted
+
+                                                expected_bf_was_sorted.append(expected_persones_list[exp][
+                                                                                  'businessFunctions'][exp_1])
+                                    expected_persones_list[exp]['businessFunctions'] = expected_bf_was_sorted
+                                    expected_persones_was_sorted.append(expected_persones_list[exp])
             expected_persones_list = expected_persones_was_sorted
 
             for od in range(len(self.__expected_fe_release['releases'][0]['parties'])):
-                if self.__expected_fe_release['releases'][0]['parties'][od]['roles'][0] == "procuringEntity":
+                if self.__expected_fe_release['releases'][0]['parties'][od]['roles'][0] == "buyer":
                     self.__expected_fe_release['releases'][0]['parties'][od]['persones'] = expected_persones_list
         else:
             self.__expected_fe_release['releases'][0]['parties'] = previous_fe_release['releases'][0]['parties']

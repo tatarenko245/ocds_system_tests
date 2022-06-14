@@ -12,7 +12,6 @@ def get_parameters():
     environment = os.getenv("ENVIRONMENT")
     country = os.getenv("COUNTRY")
     language = os.getenv("LANGUAGE")
-    ei_language = os.getenv("EI_LANGUAGE")
     pmd = os.getenv("PMD")
     cassandra_username = os.getenv("CASSANDRA_USERNAME")
     cassandra_password = os.getenv("CASSANDRA_PASSWORD")
@@ -26,7 +25,6 @@ def get_parameters():
     allure.attach(hosts[2], "service_host")
     allure.attach(country, "country")
     allure.attach(language, "Language")
-    allure.attach(ei_language, "EI_Language")
     allure.attach(pmd, "pmd")
     allure.attach(tender_classification_id, "tenderClassificationId")
 
@@ -40,5 +38,4 @@ def get_parameters():
         pmd,\
         cassandra_username,\
         cassandra_password,\
-        tender_classification_id, \
-        ei_language
+        tender_classification_id
