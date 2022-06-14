@@ -105,8 +105,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             ei_1_payload = payload.build_payload()
         except ValueError:
             ValueError("Impossible to build payload for Create EI process.")
-        print("\nEI PAYLOAD")
-        print(json.dumps(ei_1_payload))
+
         create_ei_process(
             host=bpe_host,
             access_token=access_token,

@@ -220,8 +220,6 @@ class TestCreateConfirmationResponse:
                             """
                             actual_fe_release = requests.get(url=fe_url).json()
 
-                            print("\nActual FE release")
-                            print(json.dumps(actual_fe_release))
                             try:
                                 """
                                 Build expected FE release.
@@ -232,18 +230,16 @@ class TestCreateConfirmationResponse:
                             except ValueError:
                                 ValueError("Impossible to build expected FE release.")
 
-                            print("\n Expected_fe_release")
-                            print(json.dumps(expected_fe_release))
+                            with allure.step("Compare actual and expected FE release."):
+                                allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
+                                allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
 
-                            #
-                            # with allure.step("Compare actual and expected FE release."):
-                            #     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
-                            #     allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
-                            #
-                            #     assert actual_fe_release == expected_fe_release, \
-                            #         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                            #                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-                            #                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                                assert actual_fe_release == expected_fe_release, \
+                                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                                  f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                                  f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+
                     #
                     #     with allure.step(f'# {step_number}.4. Check FA release.'):
                     #         """
@@ -268,6 +264,8 @@ class TestCreateConfirmationResponse:
                     #             assert actual_fa_release == expected_fa_release, \
                     #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                     #                               f"cpid = '{cpid}' ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+
         # try:
         #     """
         #     CLean up the database.
