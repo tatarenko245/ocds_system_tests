@@ -1414,6 +1414,7 @@ class CreateConfirmationResponseRelease:
                                                             act]['businessFunctions'][act_1]['id']
                                                     )
                                                     if is_permanent_id_correct is True:
+                                                        print("\n is_permanent_id_correct is True")
                                                         actual_buyer_party['persones'][exp][
                                                             'businessFunctions'][exp_1]['id'] = \
                                                             actual_fe_release['releases'][0]['parties'][od][
@@ -1548,10 +1549,8 @@ class CreateConfirmationResponseRelease:
 
         self.__expected_fe_release['releases'][0]['contracts'] = previous_fe_release['releases'][0]['contracts']
 
-        print("\n expected_confirmationresponse_object")
-        print(json.dumps(expected_confirmationresponse_object))
-        if "confirmationResponses" in previous_fe_release['releases'][0]['contracts']:
-            print("\nТАК")
+        if "confirmationResponses" in previous_fe_release['releases'][0]['contracts'][0]:
+
             self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationResponses'].append(
                 expected_confirmationresponse_object
             )
@@ -1560,7 +1559,6 @@ class CreateConfirmationResponseRelease:
             self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationResponses'].append(
                 expected_confirmationresponse_object
             )
-            print("\n НІ")
 
         """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
         self.__expected_fe_release['releases'][0]['qualifications'] = \

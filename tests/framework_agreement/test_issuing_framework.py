@@ -249,7 +249,7 @@ class TestIssuingFramework:
             """
             CLean up the database.
             """
-            # Clean after Complete Qualification process:
+            # Clean after Issuing Framework process:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_issuing_framework(
@@ -490,7 +490,7 @@ class TestIssuingFramework:
             """
             CLean up the database.
             """
-            # Clean after Complete Qualification process:
+            # Clean after Issuing Framework process:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_issuing_framework(
