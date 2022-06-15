@@ -1551,7 +1551,10 @@ class CreateConfirmationResponseRelease:
 
         self.__expected_fe_release['releases'][0]['contracts'] = previous_fe_release['releases'][0]['contracts']
 
+        print("\n expected_confirmationresponse_object")
+        print(json.dumps(expected_confirmationresponse_object))
         if "confirmationResponses" in previous_fe_release['releases'][0]['contracts']:
+            print("\nТАК")
             self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationResponses'].append(
                 expected_confirmationresponse_object
             )
@@ -1560,6 +1563,8 @@ class CreateConfirmationResponseRelease:
             self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationResponses'].append(
                 expected_confirmationresponse_object
             )
+            print("\n НІ")
+
         """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
         self.__expected_fe_release['releases'][0]['qualifications'] = \
             previous_fe_release['releases'][0]['qualifications']
