@@ -1371,6 +1371,9 @@ class CreateConfirmationResponseRelease:
                     new_person_obj['businessFunctions'] = new_person_obj_bf_list
                     actual_buyer_party['persones'].append(new_person_obj)
 
+        print("\n actual_buyer_party")
+        print(json.dumps(actual_buyer_party))
+        print()
         # Sort objects into persones, businessFunctions, documents:
         temp_persones_was_sorted = list()
 
@@ -1459,7 +1462,7 @@ class CreateConfirmationResponseRelease:
                                     actual_buyer_party['persones'][exp]['businessFunctions'] = expected_bf_was_sorted
                                     temp_persones_was_sorted.append(actual_buyer_party['persones'][exp])
 
-        actual_buyer_party['persones'] = temp_persones_was_sorted
+                        actual_buyer_party['persones'] = temp_persones_was_sorted
 
         self.__expected_fe_release['releases'][0]['parties'] = previous_fe_release['releases'][0]['parties']
 
