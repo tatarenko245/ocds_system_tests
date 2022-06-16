@@ -521,7 +521,7 @@ class FinancialSourceRelease:
                         expected_parties_array.append(parties_array[exp])
         else:
             ValueError("Quantity of objects into actual ms release doesn't equal "
-                             "quantity of objects into prepared parties array")
+                       "quantity of objects into prepared parties array")
 
         self.expected_fs_release['releases'][0]['parties'] = expected_parties_array
 

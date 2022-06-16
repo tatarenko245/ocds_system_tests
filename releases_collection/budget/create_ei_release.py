@@ -419,6 +419,7 @@ class ExpenditureItemRelease:
             """
            Enrich mainProcurementCategory, depends on tender.classification.id.
            """
+            expected_main_procurement_category = None
             if \
                     self.tender_classification_id[0:2] == "03" or \
                     self.tender_classification_id[0] == "1" or \
