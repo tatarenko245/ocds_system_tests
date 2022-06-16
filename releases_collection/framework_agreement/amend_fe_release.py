@@ -944,7 +944,6 @@ class AmendFrameworkEstablishmentRelease:
                                             # Set terminal id for 'persones[*].businessFucntions[*].id':
                                             try:
                                                 """Set permanent id."""
-                                                print("УСПІХ")
                                                 is_permanent_id_correct = is_it_uuid(
                                                     actual_fe_release['releases'][0]['parties'][od]['persones'][
                                                         act]['businessFunctions'][act_1]['id']
