@@ -718,7 +718,7 @@ class AmendFrameworkEstablishmentRelease:
                                                         self.__payload['tender']['procuringEntity']['persones'][pp][
                                                             'businessFunctions'][pbf]['documents'][pbfd]['title']
                                                     if "description" in self.__payload['tender'][
-                                                        'procuringEntity']['persones'][pp][
+                                                            'procuringEntity']['persones'][pp][
                                                             'businessFunctions'][pbf]['documents'][pbfd]:
                                                         person_list[rp]['businessFunctions'][rbf][
                                                             'documents'][rbfd]['description'] = \
@@ -743,7 +743,7 @@ class AmendFrameworkEstablishmentRelease:
                                                     len(self.__payload['tender']['procuringEntity']['persones'][pp][
                                                             'businessFunctions'][pbf]['documents'])):
                                                 if diff_doc_id[i] == self.__payload['tender'][
-                                                    'procuringEntity']['persones'][pp][
+                                                        'procuringEntity']['persones'][pp][
                                                         'businessFunctions'][pbf]['documents'][pbfd]['id']:
                                                     new_bf_doc_obj = copy.deepcopy(
                                                         self.__expected_fe_release['releases'][0]['parties'][0][
@@ -759,7 +759,7 @@ class AmendFrameworkEstablishmentRelease:
                                                         'procuringEntity']['persones'][pp][
                                                         'businessFunctions'][pbf]['documents'][pbfd]['title']
                                                     if "description" in self.__payload['tender'][
-                                                        'procuringEntity']['persones'][pp][
+                                                            'procuringEntity']['persones'][pp][
                                                             'businessFunctions'][pbf]['documents'][pbfd]:
                                                         new_bf_doc_obj['description'] = self.__payload['tender'][
                                                             'procuringEntity']['persones'][pp][
@@ -790,7 +790,7 @@ class AmendFrameworkEstablishmentRelease:
                                     len(self.__payload['tender']['procuringEntity']['persones'][pp][
                                             'businessFunctions'])):
                                 if diff_bf_id[i] == self.__payload['tender'][
-                                    'procuringEntity']['persones'][pp][
+                                        'procuringEntity']['persones'][pp][
                                         'businessFunctions'][pbf]['id']:
                                     new_bf_obj = copy.deepcopy(
                                         self.__expected_fe_release['releases'][0]['parties'][0][
@@ -824,7 +824,7 @@ class AmendFrameworkEstablishmentRelease:
                                                 'procuringEntity']['persones'][pp][
                                                 'businessFunctions'][pbf]['documents'][pbfd]['title']
                                             if "description" in self.__payload['tender'][
-                                                'procuringEntity']['persones'][pp][
+                                                    'procuringEntity']['persones'][pp][
                                                     'businessFunctions'][pbf]['documents'][pbfd]:
                                                 new_bf_doc_obj['description'] = self.__payload['tender'][
                                                     'procuringEntity']['persones'][pp][
@@ -953,14 +953,14 @@ class AmendFrameworkEstablishmentRelease:
                                                         actual_fe_release['releases'][0]['parties'][od][
                                                             'persones'][act]['businessFunctions'][act_1]['id']
                                                 else:
-                                                    raise ValueError(f"The 'releases[0].parties[{od}].persones[{act}."
-                                                               f"businessFunctions[{act_1}].id' must be uuid.")
+                                                    expected_persones_list[exp]['businessFunctions'][exp_1]['id'] = \
+                                                        f"'persones[{act}.businessFunctions[{act_1}].id' must be UUID!"
                                             except KeyError:
                                                 KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
                                                          f"persones[{act}.businessFunctions[{act_1}].id'.")
 
                                             if "documents" in actual_fe_release['releases'][0]['parties'][od][
-                                                'persones'][act]['businessFunctions'][act_1] and \
+                                                    'persones'][act]['businessFunctions'][act_1] and \
                                                     "documents" in expected_persones_list[exp][
                                                     'businessFunctions'][exp_1]:
                                                 expected_bf_doc_was_sorted = list()
@@ -971,8 +971,8 @@ class AmendFrameworkEstablishmentRelease:
                                                                                'businessFunctions'][exp_1][
                                                                                'documents'])):
                                                         if expected_persones_list[exp]['businessFunctions'][exp_1][
-                                                            'documents'][exp_2]['id'] == actual_fe_release[
-                                                            'releases'][0]['parties'][od]['persones'][act][
+                                                                'documents'][exp_2]['id'] == actual_fe_release[
+                                                                'releases'][0]['parties'][od]['persones'][act][
                                                                 'businessFunctions'][act_1]['documents'][act_2]['id']:
                                                             expected_bf_doc_was_sorted.append(
                                                                 expected_persones_list[exp][
