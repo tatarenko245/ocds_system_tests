@@ -1,5 +1,7 @@
 import copy
 import random
+import time
+
 import allure
 import pytest
 
@@ -84,6 +86,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         message = get_message_for_platform(ei_1_operation_id)
         ei_1_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_1: full data model.
     fs_ocid_list = list()
@@ -142,6 +145,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_1: full data model.
     step_number += 1
@@ -212,6 +216,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         pn_1_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_1_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create EI_2: full data model.
     step_number += 1
@@ -259,6 +264,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         message = get_message_for_platform(ei_2_operation_id)
         ei_2_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_2: full data model.
     fs_ocid_list = list()
@@ -317,6 +323,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_2: full data model.
     step_number += 1
@@ -387,6 +394,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         pn_2_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_2_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create AP: full data model.
     step_number += 1
@@ -453,6 +461,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         ap_url = f"{message['data']['url']}/{ap_ocid}"
         fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_1: full data model.
     step_number += 1
@@ -485,6 +494,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(outsource_1_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_2: full data model.
     step_number += 1
@@ -517,6 +527,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_1.
     step_number += 1
@@ -549,6 +560,7 @@ def relation_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_2.
     step_number += 1

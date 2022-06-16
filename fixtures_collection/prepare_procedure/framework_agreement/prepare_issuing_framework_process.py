@@ -117,6 +117,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_1_operation_id)
         ei_1_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_1: full data model.
     fs_ocid_list = list()
@@ -175,6 +176,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_1: full data model.
     step_number += 1
@@ -245,6 +247,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         pn_1_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_1_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create EI_2: full data model.
     step_number += 1
@@ -292,6 +295,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_2_operation_id)
         ei_2_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_2: full data model.
     fs_ocid_list = list()
@@ -350,6 +354,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_2: full data model.
     step_number += 1
@@ -420,6 +425,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         pn_2_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_2_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create AP: full data model.
     step_number += 1
@@ -486,6 +492,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         ap_url = f"{message['data']['url']}/{ap_ocid}"
         fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_1: full data model.
     step_number += 1
@@ -518,6 +525,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_1_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_2: full data model.
     step_number += 1
@@ -550,6 +558,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_1.
     step_number += 1
@@ -582,6 +591,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_2.
     step_number += 1
@@ -614,6 +624,8 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
     # Update AP.
     step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
@@ -682,6 +694,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(update_ap_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FE: full data model.
     step_number += 1
@@ -807,6 +820,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         fe_ocid = message['data']['outcomes']['fe'][0]['id']
         fe_url = f"{message['data']['url']}/{fe_ocid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     previous_fe_release = requests.get(url=fe_url).json()
     # Amend FE: full data model.
@@ -883,6 +897,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(amend_fe_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create First Submission: full data model.
     min_qty_qualifications_for_invitation = copy.deepcopy(get_value_from_qualification_rules(
@@ -969,6 +984,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         create_1_submission_message = get_message_for_platform(create_submission_operation_id)
         allure.attach(str(create_1_submission_message), "Message for platform.")
+    time.sleep(5)
 
     # Create Second Submission: full data model.
     step_number += 1
@@ -1037,6 +1053,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         create_2_submission_message = get_message_for_platform(create_submission_operation_id)
         allure.attach(str(create_2_submission_message), "Message for platform.")
+    time.sleep(5)
 
     # Create Third Submission: full data model.
     step_number += 1
@@ -1105,6 +1122,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         create_3_submission_message = get_message_for_platform(create_submission_operation_id)
         allure.attach(str(create_3_submission_message), "Message for platform.")
+    time.sleep(5)
 
     # Submission Period End: payload isn't needed.
     previous_fe_release = requests.get(url=fe_url).json()
@@ -1114,6 +1132,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
         submission_period_end_message = message[0]
         allure.attach(str(submission_period_end_message), "Message for platform.")
+    time.sleep(5)
 
     # Qualification Declare: full data model.
     previous_fe_release = requests.get(url=fe_url).json()
@@ -1291,6 +1310,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         time.sleep(15)
         previous_fe_release = requests.get(url=fe_url).json()
 
+        time.sleep(5)
         # Qualification: full data model.
         """Get qualification in state = pending.consideration: VR.COM-7.17.2"""
         qualification_list = list()
@@ -1359,6 +1379,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         time.sleep(15)
         previous_fe_release = requests.get(url=fe_url).json()
+    time.sleep(5)
 
     # Qualification Protocol: payload isn't needed.
     """Get qualification in state = pending.active or pending.unsuccessful: VR.COM-7.24.2"""
@@ -1403,6 +1424,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         allure.attach(str(message), "Message for platform.")
         contract_id = message['data']['outcomes']['contracts'][0]['id']
         contract_token = message['data']['outcomes']['contracts'][0]['X-TOKEN']
+    time.sleep(5)
 
     # Complete Qualification: payload isn't needed.
     step_number = 1
@@ -1433,6 +1455,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Issuing Framework: full data model.
     previous_fe_release = requests.get(url=fe_url).json()
@@ -1751,6 +1774,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_1_operation_id)
         ei_1_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_1: required data model.
     fs_ocid_list = list()
@@ -1818,6 +1842,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_1: required data model.
     step_number += 1
@@ -1879,6 +1904,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         pn_1_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_1_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create EI_2: required data model.
     step_number += 1
@@ -1933,6 +1959,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_2_operation_id)
         ei_2_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_2: required data model.
     fs_ocid_list = list()
@@ -2000,6 +2027,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_2: required data model.
     step_number += 1
@@ -2061,6 +2089,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         pn_2_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_2_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create AP: required data model.
     step_number += 1
@@ -2128,6 +2157,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         ap_url = f"{message['data']['url']}/{ap_ocid}"
         fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_1: required data model.
     step_number += 1
@@ -2160,6 +2190,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_1_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_2: required data model.
     step_number += 1
@@ -2192,6 +2223,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_1.
     step_number += 1
@@ -2224,6 +2256,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_2.
     step_number += 1
@@ -2256,6 +2289,8 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
     # Update AP: required data model.
     step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
@@ -2319,6 +2354,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(update_ap_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FE: required data model.
     step_number += 1
@@ -2379,6 +2415,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         fe_ocid = message['data']['outcomes']['fe'][0]['id']
         fe_url = f"{message['data']['url']}/{fe_ocid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     previous_fe_release = requests.get(url=fe_url).json()
     # Amend FE: full data model.
@@ -2437,6 +2474,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(amend_fe_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create Submission: required data model.
     min_qty_qualifications_for_invitation = copy.deepcopy(get_value_from_qualification_rules(
@@ -2512,15 +2550,17 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         create_submission_message = get_message_for_platform(create_submission_operation_id)
         allure.attach(str(create_submission_message), "Message for platform.")
+    time.sleep(5)
 
-        # Submission Period End: payload isn't needed.
-        previous_fe_release = requests.get(url=fe_url).json()
-        step_number += 1
-        with allure.step(f"# {step_number}. Get message for platform."):
-            time_bot(previous_fe_release['releases'][0]['preQualification']['period']['endDate'])
-            message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
-            submission_period_end_message = message[0]
-            allure.attach(str(submission_period_end_message), "Message for platform.")
+    # Submission Period End: payload isn't needed.
+    previous_fe_release = requests.get(url=fe_url).json()
+    step_number += 1
+    with allure.step(f"# {step_number}. Get message for platform."):
+        time_bot(previous_fe_release['releases'][0]['preQualification']['period']['endDate'])
+        message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
+        submission_period_end_message = message[0]
+        allure.attach(str(submission_period_end_message), "Message for platform.")
+    time.sleep(5)
 
     # Qualification Declare: required data model.
     previous_fe_release = requests.get(url=fe_url).json()
@@ -2641,6 +2681,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
                         message = get_message_for_platform(operation_id)
                         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     previous_fe_release = requests.get(url=fe_url).json()
     for i in range(len(previous_fe_release['releases'][0]['qualifications'])):
@@ -2702,6 +2743,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         time.sleep(15)
         previous_fe_release = requests.get(url=fe_url).json()
 
+        time.sleep(5)
         # Qualification: full data model.
         """Get qualification in state = pending.consideration: VR.COM-7.17.2"""
         qualification_list = list()
@@ -2775,6 +2817,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         time.sleep(15)
         previous_fe_release = requests.get(url=fe_url).json()
+    time.sleep(5)
 
     # Qualification Protocol: payload isn't needed.
     """Get qualification in state = pending.active or pending.unsuccessful: VR.COM-7.24.2"""
@@ -2819,6 +2862,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         allure.attach(str(message), "Message for platform.")
         contract_id = message['data']['outcomes']['contracts'][0]['id']
         contract_token = message['data']['outcomes']['contracts'][0]['X-TOKEN']
+    time.sleep(5)
 
     # Complete Qualification: payload isn't needed.
     step_number = 1
@@ -2849,6 +2893,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Issuing Framework: required data model.
     previous_fe_release = requests.get(url=fe_url).json()

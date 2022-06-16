@@ -1,5 +1,7 @@
 import copy
 import random
+import time
+
 import allure
 import pytest
 import requests
@@ -98,6 +100,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_1_operation_id)
         ei_1_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_1: full data model.
     fs_ocid_list = list()
@@ -156,6 +159,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_1: full data model.
     step_number += 1
@@ -226,6 +230,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         pn_1_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_1_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create EI_2: full data model.
     step_number += 1
@@ -273,6 +278,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_2_operation_id)
         ei_2_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_2: full data model.
     fs_ocid_list = list()
@@ -331,6 +337,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_2: full data model.
     step_number += 1
@@ -401,6 +408,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         pn_2_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_2_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create AP: full data model.
     step_number += 1
@@ -467,6 +475,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         ap_url = f"{message['data']['url']}/{ap_ocid}"
         fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_1: full data model.
     step_number += 1
@@ -499,6 +508,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_1_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_2: full data model.
     step_number += 1
@@ -531,6 +541,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_1.
     step_number += 1
@@ -563,6 +574,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_2.
     step_number += 1
@@ -595,6 +607,8 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
     # Update AP.
     step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
@@ -663,6 +677,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(update_ap_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FE: full data model.
     step_number += 1
@@ -783,6 +798,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         fe_ocid = message['data']['outcomes']['fe'][0]['id']
         fe_url = f"{message['data']['url']}/{fe_ocid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     previous_fe_release = requests.get(url=fe_url).json()
     # Amend FE: full data model.
@@ -855,6 +871,7 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(amend_fe_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create First Submission: full data model.
     step_number += 1
@@ -923,142 +940,144 @@ def create_submission_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
         create_1_submission_message = get_message_for_platform(create_submission_operation_id)
         allure.attach(str(create_1_submission_message), "Message for platform.")
+    time.sleep(5)
 
-        # Create Second Submission: full data model.
-        step_number += 1
-        with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
-            """
-            Tender platform authorization for Create Submission process.
-            As result get Tender platform's access token and process operation-id.
-            """
-            platform_one = PlatformAuthorization(bpe_host)
-            access_token = platform_one.get_access_token_for_platform_one()
-            create_submission_operation_id = platform_one.get_x_operation_id(access_token)
+    # Create Second Submission: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
+        """
+        Tender platform authorization for Create Submission process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        create_submission_operation_id = platform_one.get_x_operation_id(access_token)
 
-        step_number += 1
-        with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
+        """
+        Send request to BPE host to create a Create Submission process.
+        """
+        try:
             """
-            Send request to BPE host to create a Create Submission process.
+            Build payload for Create Submission process.
             """
-            try:
-                """
-                Build payload for Create Submission process.
-                """
-                payload = copy.deepcopy(CreateSubmissionPayload(
-                    service_host,
-                    previous_fe_release
-                ))
+            payload = copy.deepcopy(CreateSubmissionPayload(
+                service_host,
+                previous_fe_release
+            ))
 
-                payload.prepare_submission_object(
-                    submission_position=2,
-                    quantity_of_candidates=3,
-                    quantity_of_additional_identifiers=3,
-                    quantity_of_persones=3,
-                    quantity_of_evidences=3,
-                    quantity_of_business_functions=3,
-                    quantity_of_bf_documents=3,
-                    quantity_of_main_economic_activities=3,
-                    quantity_of_bank_accounts=3,
-                    quantity_of_additional_account_identifiers=3,
-                    quantity_of_documents=3
-                )
-                payload.prepare_submission_object(
-                    submission_position=3,
-                    quantity_of_candidates=3,
-                    quantity_of_additional_identifiers=3,
-                    quantity_of_persones=3,
-                    quantity_of_evidences=3,
-                    quantity_of_business_functions=3,
-                    quantity_of_bf_documents=3,
-                    quantity_of_main_economic_activities=3,
-                    quantity_of_bank_accounts=3,
-                    quantity_of_additional_account_identifiers=3,
-                    quantity_of_documents=3
-                )
-                create_2_submission_payload = payload.build_payload()
-            except ValueError:
-                ValueError("Impossible to build payload for Create Submission process.")
-
-            create_submission_process(
-                host=bpe_host,
-                access_token=access_token,
-                x_operation_id=create_submission_operation_id,
-                payload=create_2_submission_payload,
-                test_mode=True,
-                cpid=ap_cpid,
-                ocid=fe_ocid
+            payload.prepare_submission_object(
+                submission_position=2,
+                quantity_of_candidates=3,
+                quantity_of_additional_identifiers=3,
+                quantity_of_persones=3,
+                quantity_of_evidences=3,
+                quantity_of_business_functions=3,
+                quantity_of_bf_documents=3,
+                quantity_of_main_economic_activities=3,
+                quantity_of_bank_accounts=3,
+                quantity_of_additional_account_identifiers=3,
+                quantity_of_documents=3
             )
+            payload.prepare_submission_object(
+                submission_position=3,
+                quantity_of_candidates=3,
+                quantity_of_additional_identifiers=3,
+                quantity_of_persones=3,
+                quantity_of_evidences=3,
+                quantity_of_business_functions=3,
+                quantity_of_bf_documents=3,
+                quantity_of_main_economic_activities=3,
+                quantity_of_bank_accounts=3,
+                quantity_of_additional_account_identifiers=3,
+                quantity_of_documents=3
+            )
+            create_2_submission_payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Create Submission process.")
 
-            create_2_submission_message = get_message_for_platform(create_submission_operation_id)
-            allure.attach(str(create_2_submission_message), "Message for platform.")
+        create_submission_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=create_submission_operation_id,
+            payload=create_2_submission_payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid
+        )
 
-            # Create Third Submission: full data model.
-            step_number += 1
-            with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
-                """
-                Tender platform authorization for Create Submission process.
-                As result get Tender platform's access token and process operation-id.
-                """
-                platform_one = PlatformAuthorization(bpe_host)
-                access_token = platform_one.get_access_token_for_platform_one()
-                create_submission_operation_id = platform_one.get_x_operation_id(access_token)
+        create_2_submission_message = get_message_for_platform(create_submission_operation_id)
+        allure.attach(str(create_2_submission_message), "Message for platform.")
+    time.sleep(5)
 
-            step_number += 1
-            with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
-                """
-                Send request to BPE host to create a Create Submission process.
-                """
-                try:
-                    """
-                    Build payload for Create Submission process.
-                    """
-                    payload = copy.deepcopy(CreateSubmissionPayload(
-                        service_host,
-                        previous_fe_release
-                    ))
+    # Create Third Submission: full data model.
+    step_number += 1
+    with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
+        """
+        Tender platform authorization for Create Submission process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        create_submission_operation_id = platform_one.get_x_operation_id(access_token)
 
-                    payload.prepare_submission_object(
-                        submission_position=4,
-                        quantity_of_candidates=3,
-                        quantity_of_additional_identifiers=3,
-                        quantity_of_persones=3,
-                        quantity_of_evidences=3,
-                        quantity_of_business_functions=3,
-                        quantity_of_bf_documents=3,
-                        quantity_of_main_economic_activities=3,
-                        quantity_of_bank_accounts=3,
-                        quantity_of_additional_account_identifiers=3,
-                        quantity_of_documents=3
-                    )
-                    payload.prepare_submission_object(
-                        submission_position=5,
-                        quantity_of_candidates=3,
-                        quantity_of_additional_identifiers=3,
-                        quantity_of_persones=3,
-                        quantity_of_evidences=3,
-                        quantity_of_business_functions=3,
-                        quantity_of_bf_documents=3,
-                        quantity_of_main_economic_activities=3,
-                        quantity_of_bank_accounts=3,
-                        quantity_of_additional_account_identifiers=3,
-                        quantity_of_documents=3
-                    )
-                    create_3_submission_payload = payload.build_payload()
-                except ValueError:
-                    ValueError("Impossible to build payload for Create Submisison process.")
+    step_number += 1
+    with allure.step(f'# {step_number}. Send a request to create a Create Submission process.'):
+        """
+        Send request to BPE host to create a Create Submission process.
+        """
+        try:
+            """
+            Build payload for Create Submission process.
+            """
+            payload = copy.deepcopy(CreateSubmissionPayload(
+                service_host,
+                previous_fe_release
+            ))
 
-                create_submission_process(
-                    host=bpe_host,
-                    access_token=access_token,
-                    x_operation_id=create_submission_operation_id,
-                    payload=create_3_submission_payload,
-                    test_mode=True,
-                    cpid=ap_cpid,
-                    ocid=fe_ocid
-                )
+            payload.prepare_submission_object(
+                submission_position=4,
+                quantity_of_candidates=3,
+                quantity_of_additional_identifiers=3,
+                quantity_of_persones=3,
+                quantity_of_evidences=3,
+                quantity_of_business_functions=3,
+                quantity_of_bf_documents=3,
+                quantity_of_main_economic_activities=3,
+                quantity_of_bank_accounts=3,
+                quantity_of_additional_account_identifiers=3,
+                quantity_of_documents=3
+            )
+            payload.prepare_submission_object(
+                submission_position=5,
+                quantity_of_candidates=3,
+                quantity_of_additional_identifiers=3,
+                quantity_of_persones=3,
+                quantity_of_evidences=3,
+                quantity_of_business_functions=3,
+                quantity_of_bf_documents=3,
+                quantity_of_main_economic_activities=3,
+                quantity_of_bank_accounts=3,
+                quantity_of_additional_account_identifiers=3,
+                quantity_of_documents=3
+            )
+            create_3_submission_payload = payload.build_payload()
+        except ValueError:
+            ValueError("Impossible to build payload for Create Submisison process.")
 
-                create_3_submission_message = get_message_for_platform(create_submission_operation_id)
-                allure.attach(str(create_3_submission_message), "Message for platform.")
+        create_submission_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=create_submission_operation_id,
+            payload=create_3_submission_payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid
+        )
+
+        create_3_submission_message = get_message_for_platform(create_submission_operation_id)
+        allure.attach(str(create_3_submission_message), "Message for platform.")
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
@@ -1213,6 +1232,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_1_operation_id)
         ei_1_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_1: required data model.
     fs_ocid_list = list()
@@ -1280,6 +1300,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_1: required data model.
     step_number += 1
@@ -1341,6 +1362,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         pn_1_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_1_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create EI_2: required data model.
     step_number += 1
@@ -1395,6 +1417,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         message = get_message_for_platform(ei_2_operation_id)
         ei_2_cpid = message['data']['ocid']
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FS_2: required data model.
     fs_ocid_list = list()
@@ -1462,6 +1485,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         fs_payloads_list.append(fs_payload)
         fs_message_list.append(message)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create PN_2: required data model.
     step_number += 1
@@ -1523,6 +1547,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         pn_2_url = f"{message['data']['url']}/{message['data']['outcomes']['pn'][0]['id']}"
         ms_2_url = f"{message['data']['url']}/{message['data']['ocid']}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create AP: required data model.
     step_number += 1
@@ -1590,6 +1615,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         ap_url = f"{message['data']['url']}/{ap_ocid}"
         fa_url = f"{message['data']['url']}/{ap_cpid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_1: required data model.
     step_number += 1
@@ -1622,6 +1648,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_1_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Outsource PN_2: required data model.
     step_number += 1
@@ -1654,6 +1681,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_1.
     step_number += 1
@@ -1686,6 +1714,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_2.
     step_number += 1
@@ -1718,6 +1747,8 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
     # Update AP: required data model.
     step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Update AP process.'):
@@ -1781,6 +1812,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(update_ap_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create FE: required data model.
     step_number += 1
@@ -1841,6 +1873,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
         fe_ocid = message['data']['outcomes']['fe'][0]['id']
         fe_url = f"{message['data']['url']}/{fe_ocid}"
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     previous_fe_release = requests.get(url=fe_url).json()
     # Amend FE: full data model.
@@ -1899,6 +1932,7 @@ def create_submission_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
         message = get_message_for_platform(amend_fe_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Create Submission: required data model.
     step_number += 1
