@@ -744,7 +744,7 @@ class RelationAggregatedPlanRelease:
                 new_parties[p_0]['address']['addressDetails']['locality'] = expected_locality_object[0]
             except ValueError:
                 ValueError("Impossible to prepare expected 'addressDetails' object for party "
-                                 "with 'role'= ['client'].")
+                           "with 'role'= ['client'].")
 
             if "additionalIdentifiers" in self.__list_of_ei_payload[p_0]['buyer']:
                 for a_0 in range(len(new_parties[p_0]['additionalIdentifiers'])):
@@ -857,7 +857,8 @@ class RelationAggregatedPlanRelease:
                             new_related_processes[exp]['id'] = \
                                 self.__actual_ap_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            new_related_processes[exp]['id'] = \
+                                f"The 'releases[0].relatedProcesses[{act}].id' must be UUID!"
                     except KeyError:
                         KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
 
@@ -887,6 +888,7 @@ class RelationAggregatedPlanRelease:
         self.__expected_fa_release['releases'][0]['relatedProcesses'] = \
             self.__previous_fa_release['releases'][0]['relatedProcesses']
 
+        expected_tender_value_amount = None
         try:
             """
             Prepare expected 'tender.value.amount' attribute.

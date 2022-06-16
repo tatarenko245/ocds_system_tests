@@ -1133,9 +1133,10 @@ class SubmissionPeriodEndRelease:
                                                     actual_fe_release['releases'][0]['parties'][apwcr_0][
                                                         'persones'][cp_0]['businessFunctions'][cp_1]['id']
                                             else:
-                                                raise ValueError(f"The 'self.__actual_fe_release['releases'][0]"
-                                                                 f"['parties'][{apwcr_0}]['persones'][{cp_1}]['id']' "
-                                                                 f"must be uuid.")
+                                                business_functions[cp_1]['id'] = \
+                                                        f"The 'self.__actual_fe_release['releases'][0]" \
+                                                        f"['parties'][{apwcr_0}]['persones'][{cp_1}]['id']' " \
+                                                        f"must be UUID!"
                             except KeyError:
                                 raise KeyError("Mismatch key into path 'self.__actual_fe_release['releases'][0]["
                                                f"'parties'][*]['persones'][{cp_1}]['id']'")
@@ -1460,10 +1461,10 @@ class SubmissionPeriodEndRelease:
                                                     actual_fe_release['releases'][0]['submissions'][
                                                         'details'][act_s]['requirementResponses'][r_0]['id']
                                             else:
-                                                raise ValueError(
-                                                    f"The 'self.__actual_fe_release['releases'][0]['submissions']"
-                                                    f"['details'][{act_s}]['requirementResponses']"
-                                                    f"[{r_0}]['id']' must be uuid.")
+                                                requirement_responses[r_0]['id'] = \
+                                                    f"The 'self.__actual_fe_release['releases'][0]['submissions']" \
+                                                    f"['details'][{act_s}]['requirementResponses']" \
+                                                    f"[{r_0}]['id']' must be UUID!"
                                         except KeyError:
                                             raise KeyError(
                                                 f"Mismatch key into path 'self.__actual_fe_release['releases'][0]"
@@ -1506,11 +1507,11 @@ class SubmissionPeriodEndRelease:
                                                                 'details'][act_s]['requirementResponses'][r_0][
                                                                 'evidences'][r_1]['id']
                                                     else:
-                                                        raise ValueError(
-                                                            f"The 'self.__actual_fe_release['releases'][0]"
-                                                            f"['submissions']['details'][{act_s}]"
-                                                            f"['requirementResponses'][{r_0}]['evidences']"
-                                                            f"[{r_1}]['id']' must be uuid.")
+                                                        evidences[r_1]['id'] = \
+                                                            f"The 'self.__actual_fe_release['releases'][0]" \
+                                                            f"['submissions']['details'][{act_s}]" \
+                                                            f"['requirementResponses'][{r_0}]['evidences']" \
+                                                            f"[{r_1}]['id']' must be uuid."
                                                 except KeyError:
                                                     raise KeyError(f"Mismatch key into path "
                                                                    f"'self.__actual_fe_release['releases'][0]"

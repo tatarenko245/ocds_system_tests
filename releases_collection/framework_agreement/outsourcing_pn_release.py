@@ -703,7 +703,8 @@ class OutsourcingPlanningNoticeRelease:
                             new_related_processes[exp]['id'] = \
                                 self.__actual_pn_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            new_related_processes[exp]['id'] = \
+                                f"The 'releases[0].relatedProcesses[{act}].id' must be UUID!"
                     except KeyError:
                         KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
 
@@ -794,7 +795,8 @@ class OutsourcingPlanningNoticeRelease:
                             new_related_processes[exp]['id'] = \
                                 self.__actual_fa_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            new_related_processes[exp]['id'] = \
+                                f"The 'releases[0].relatedProcesses[{act}].id' must be UUID!"
                     except KeyError:
                         KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{act}].id'")
 

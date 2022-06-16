@@ -1463,8 +1463,10 @@ class QualificationDeclareRelease:
                                                     actual_fa_release['releases'][0]['parties'][od][
                                                         'persones'][act]['businessFunctions'][act_1]['id']
                                             else:
-                                                ValueError(f"The 'releases[0].parties[{od}].persones[{act}."
-                                                           f"businessFunctions[{act_1}].id' must be uuid.")
+                                                expected_parties_object['persones'][exp][
+                                                    'businessFunctions'][exp_1]['id'] = \
+                                                    f"The 'releases[0].parties[{od}].persones[{act}." \
+                                                    f"businessFunctions[{act_1}].id' must be UUID!"
                                         except KeyError:
                                             KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
                                                      f"persones[{act}.businessFunctions[{act_1}].id'.")

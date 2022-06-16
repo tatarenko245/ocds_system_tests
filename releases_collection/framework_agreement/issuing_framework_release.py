@@ -1028,8 +1028,9 @@ class IssuingFrameworkRelease:
                 self.__expected_fe_release['releases'][0]['contracts'][0]['documents'][0]['id'] = \
                     actual_fe_release['releases'][0]['contracts'][0]['documents'][0]['id']
             else:
-                ValueError(f"The '{actual_fe_release['releases'][0]['contracts'][0]['documents'][0]['id'][:36]}' "
-                           f"must be uuid.")
+                self.__expected_fe_release['releases'][0]['contracts'][0]['documents'][0]['id'] = \
+                    f"The '{actual_fe_release['releases'][0]['contracts'][0]['documents'][0]['id'][:36]}' " \
+                    f"must be UUID!"
         except KeyError:
             KeyError("Mismatch key into path 'releases[0].contracts[0].documents[0].id'")
 
@@ -1053,9 +1054,9 @@ class IssuingFrameworkRelease:
                 self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id'] = \
                     actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']
             else:
-                ValueError(f"The "
-                           f"'{actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']}' "
-                           f"must be uuid.")
+                self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id'] = \
+                    f"The '{actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']}' " \
+                    f"must be UUID!"
         except KeyError:
             KeyError("Mismatch key into path 'releases[0].confirmationRequests[0].id'")
 
@@ -1120,9 +1121,9 @@ class IssuingFrameworkRelease:
                     self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id'] = \
                         actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']
                 else:
-                    ValueError(f"The "
-                               f"'{actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']}' "
-                               f"must be uuid.")
+                    self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id'] = \
+                        f"The '{actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['id']}' " \
+                        f"must be uuid!"
             except KeyError:
                 KeyError("Mismatch key into path 'releases[0].contracts[0].confirmationRequest[0].id'")
 

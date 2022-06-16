@@ -410,7 +410,7 @@ class UpdateAggregatedPlanRelease:
                                 lots_array[exp]['id'] = \
                                     self.__actual_ap_release['releases'][0]['tender']['lots'][act]['id']
                             else:
-                                ValueError(f"The 'releases[0].tender.lots[{act}].id' must be uuid.")
+                                lots_array[exp]['id'] = f"The 'releases[0].tender.lots[{act}].id' must be UUID!"
                         except KeyError:
                             KeyError(f"Mismatch key into path 'releases[0].tender.lots[{act}].id'")
 
@@ -434,7 +434,7 @@ class UpdateAggregatedPlanRelease:
                     if is_permanent_id_correct is True:
                         items_array[q_0]['id'] = self.__actual_ap_release['releases'][0]['tender']['items'][q_0]['id']
                     else:
-                        ValueError(f"The 'releases[0].tender.items[{q_0}].id' must be uuid.")
+                        items_array[q_0]['id'] = f"The 'releases[0].tender.items[{q_0}].id' must be uuid."
                 except KeyError:
                     KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
@@ -614,7 +614,7 @@ class UpdateAggregatedPlanRelease:
                                 items_array[exp]['id'] = \
                                     self.__actual_ap_release['releases'][0]['tender']['items'][act]['id']
                             else:
-                                ValueError(f"The 'releases[0].tender.items[{act}].id' must be uuid.")
+                                items_array[exp]['id'] = f"The 'releases[0].tender.items[{act}].id' must be uuid."
                         except KeyError:
                             KeyError(f"Mismatch key into path 'releases[0].tender.items[{act}].id'")
 

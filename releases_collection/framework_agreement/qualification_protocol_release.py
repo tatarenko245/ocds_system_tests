@@ -981,7 +981,8 @@ class QualificationProtocolRelease:
                 self.__expected_fe_release['releases'][0]['contracts'][0]['id'] = \
                     actual_fe_release['releases'][0]['contracts'][0]['id']
             else:
-                ValueError(f"The 'releases[0].tender.id' must be uuid.")
+                self.__expected_fe_release['releases'][0]['contracts'][0]['id'] = \
+                    f"The 'releases[0].tender.id' must be UUID!"
         except KeyError:
             KeyError("Mismatch key into path 'releases[0].tender.id'")
 

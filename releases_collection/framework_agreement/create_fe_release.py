@@ -576,7 +576,7 @@ class CreateFrameworkEstablishmentRelease:
                 self.__expected_fe_release['releases'][0]['tender']['id'] = \
                     self.__actual_fe_release['releases'][0]['tender']['id']
             else:
-                ValueError(f"The 'releases[0].tender.id' must be uuid.")
+                self.__expected_fe_release['releases'][0]['tender']['id'] = f"'releases[0].tender.id' must be UUID!"
         except KeyError:
             KeyError("Mismatch key into path 'releases[0].tender.id'")
 
@@ -608,7 +608,8 @@ class CreateFrameworkEstablishmentRelease:
                             expected_criteria_array[q_0]['id'] = \
                                 self.__actual_fe_release['releases'][0]['tender']['criteria'][q_0]['id']
                         else:
-                            ValueError(f"The 'releases[0].tender.criteria[{q_0}].id' must be uuid.")
+                            expected_criteria_array[q_0]['id'] = f"The 'releases[0].tender.criteria[{q_0}].id' " \
+                                                                 f"must be UUID!."
                     except KeyError:
                         KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}].id'")
 
@@ -656,8 +657,10 @@ class CreateFrameworkEstablishmentRelease:
                                     self.__actual_fe_release['releases'][0]['tender']['criteria'][q_0][
                                         'requirementGroups'][q_1]['id']
                             else:
-                                ValueError(f"The 'releases[0].tender.criteria[{q_0}].requirementGroups[{q_1}]."
-                                           f"id' must be uuid.")
+                                expected_requirement_groups_array[q_1]['id'] = \
+                                    f"The 'releases[0].tender.criteria[{q_0}].requirementGroups[{q_1}].id' " \
+                                    f"must be UUID!"
+
                         except KeyError:
                             KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
                                      f"requirementGroups[{q_1}].id'")
@@ -693,9 +696,9 @@ class CreateFrameworkEstablishmentRelease:
                                         self.__actual_fe_release['releases'][0]['tender']['criteria'][q_0][
                                             'requirementGroups'][q_1]['requirements'][q_2]['id']
                                 else:
-                                    ValueError(
-                                        f"The 'releases[0].tender.criteria[{q_0}].requirementGroups[{q_1}]."
-                                        f"requirements[{q_2}].id' must be uuid.")
+                                    expected_requirements_array[q_2]['id'] = \
+                                        f"The 'releases[0].tender.criteria[{q_0}].requirementGroups[{q_1}]." \
+                                        f"requirements[{q_2}].id' must be uuid."
                             except KeyError:
                                 KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
                                          f"requirementGroups[{q_1}].requirements[{q_2}].id'")
@@ -801,9 +804,9 @@ class CreateFrameworkEstablishmentRelease:
                                                     'requirementGroups'][q_1]['requirements'][q_2][
                                                     'eligibleEvidences'][q_3]['id']
                                         else:
-                                            ValueError(
-                                                f"The 'releases[0].tender.criteria[{q_0}].requirementGroups[{q_1}]."
-                                                f"requirements[{q_2}].eligibleEvidences[{q_3}].id' must be uuid.")
+                                            expected_eligible_evidences_array[q_3]['id'] = \
+                                                f"The 'releases[0].tender.criteria[{q_0}].requirementGroups[{q_1}]." \
+                                                f"requirements[{q_2}].eligibleEvidences[{q_3}].id' must be uuid."
                                     except KeyError:
                                         KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
                                                  f"requirementGroups[{q_1}].requirements[{q_2}]."
@@ -1022,9 +1025,9 @@ class CreateFrameworkEstablishmentRelease:
                                         self.__actual_fe_release['releases'][0]['parties'][q_0]['persones'][q_1][
                                             'businessFunctions'][q_2]['id']
                                 else:
-                                    ValueError(
-                                        f"The 'releases[0].parties[{q_0}].persones[{q_1}]."
-                                        f"businessFunctions[{q_2}].id' must be uuid.")
+                                    expected_business_functions_array[q_2]['id'] = \
+                                        f"The 'releases[0].parties[{q_0}].persones[{q_1}]." \
+                                        f"businessFunctions[{q_2}].id' must be uuid."
                             except KeyError:
                                 KeyError(f"Mismatch key into path 'releases[0].parties[{q_0}].persones[{q_1}]."
                                          f"businessFunctions[{q_2}].id'")
@@ -1128,8 +1131,8 @@ class CreateFrameworkEstablishmentRelease:
                 expected_related_processes_array[0]['id'] = \
                     self.__expected_fe_release['releases'][0]['relatedProcesses'][0]
             else:
-                ValueError(
-                    f"The 'releases[0].relatedProcesses[{0}].id' must be uuid.")
+                expected_related_processes_array[0]['id'] = \
+                    f"The 'releases[0].relatedProcesses[{0}].id' must be uuid."
         except KeyError:
             KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'.")
 
@@ -1169,7 +1172,8 @@ class CreateFrameworkEstablishmentRelease:
                                 expected_related_processes_array[exp]['id'] = \
                                     self.__actual_fe_release['releases'][0]['relatedProcesses'][act]['id']
                             else:
-                                ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                                expected_related_processes_array[exp]['id'] = \
+                                    f"The 'releases[0].relatedProcesses[{act}].id' must be uuid."
                         except KeyError:
                             KeyError("Mismatch key into path 'releases[0].relatedProcesses[*].id'")
 
@@ -1228,7 +1232,8 @@ class CreateFrameworkEstablishmentRelease:
                             new_related_processes[i]['id'] = \
                                 self.__actual_fa_release['releases'][0]['relatedProcesses'][act]['id']
                         else:
-                            ValueError(f"The 'releases[0].relatedProcesses[{act}].id' must be uuid.")
+                            new_related_processes[i]['id'] = \
+                                f"The 'releases[0].relatedProcesses[{act}].id' must be uuid."
                     except KeyError:
                         KeyError("Mismatch key into path 'releases[0].relatedProcesses[*].id'")
         final_expected_related_processes_array = list()
