@@ -5,7 +5,7 @@ import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
-     cleanup_table_of_services_for_create_confirmation_response
+    cleanup_table_of_services_for_create_confirmation_response
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_confirmation_response_process
 from messages_collection.framework_agreement.create_confirmation_response_message import \
@@ -20,10 +20,10 @@ from releases_collection.framework_agreement.create_confirmation_response_releas
 @allure.suite("Contracting")
 @allure.severity("Critical")
 @allure.testcase(url="")
-class TestCreateConfirmationResponse:
+class TestCreateConfirmationResponseByBuyer:
     @allure.testcase(url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-"
                          "C2U6SQyilBuziGjXGyME/edit#gid=0",
-                     name="Некоректно додаються персони до органзацій з роллю buyer")
+                     name="Why this test case was fall down?")
     @allure.title("Check records: based on full data model.")
     def test_case_1(self, get_parameters, connect_to_keyspace, issuing_framework_tc_1):
 
@@ -58,8 +58,8 @@ class TestCreateConfirmationResponse:
                 previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
             pass
         else:
-            ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
-                       f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+            raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} "
+                             f"and {previous_fe_release['releases'][0]['tender']['statusDetails']}.")
 
         """
         VR.COM-6.8.2: Check Contract state.
@@ -70,12 +70,12 @@ class TestCreateConfirmationResponse:
                         previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "issued":
                     pass
                 else:
-                    ValueError(f"Contract {contract_id} has invalid state: "
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+                    raise ValueError(f"Contract {contract_id} has invalid state: "
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
             else:
-                ValueError(f"Incorrect contract id into FE release: "
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+                raise ValueError(f"Incorrect contract id into FE release: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
         """
         Send request, depends on quantity of objects into
@@ -120,7 +120,7 @@ class TestCreateConfirmationResponse:
                             payload = payload.build_payload()
 
                         except ValueError:
-                            ValueError("Impossible to build payload for Create Confirmation Response process.")
+                            raise ValueError("Impossible to build payload for Create Confirmation Response process.")
 
                         synchronous_result = create_confirmation_response_process(
                             host=bpe_host,
@@ -175,7 +175,7 @@ class TestCreateConfirmationResponse:
 
                                 expected_message = expected_message.build_expected_platform_message(actual_message, 1)
                             except ValueError:
-                                ValueError("Impossible to build expected message for platform.")
+                                raise ValueError("Impossible to build expected message for platform.")
 
                             with allure.step('Compare actual and expected message for platform.'):
                                 allure.attach(json.dumps(actual_message), "Actual message.")
@@ -201,7 +201,7 @@ class TestCreateConfirmationResponse:
                                 ))
                                 expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                             except ValueError:
-                                ValueError("Impossible to build expected AP release.")
+                                raise ValueError("Impossible to build expected AP release.")
 
                             with allure.step("Compare actual and expected AP release."):
                                 allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -226,7 +226,7 @@ class TestCreateConfirmationResponse:
                                     previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
                                 )
                             except ValueError:
-                                ValueError("Impossible to build expected FE release.")
+                                raise ValueError("Impossible to build expected FE release.")
 
                             with allure.step("Compare actual and expected FE release."):
                                 allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -251,7 +251,7 @@ class TestCreateConfirmationResponse:
                                     previous_fa_release
                                 )
                             except ValueError:
-                                ValueError("Impossible to build expected FA release.")
+                                raise ValueError("Impossible to build expected FA release.")
 
                             with allure.step("Compare actual and expected FA release."):
                                 allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -267,7 +267,7 @@ class TestCreateConfirmationResponse:
             """
             CLean up the database.
             """
-            # Clean after Complete Qualification process:
+            # Clean after Create Confirmation Response process:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_create_confirmation_response(
@@ -275,11 +275,11 @@ class TestCreateConfirmationResponse:
             )
 
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.testcase(url="https://docs.google.com/spreadsheets/d/1taw-E-4lryj80XYGdVwi1G-"
                          "C2U6SQyilBuziGjXGyME/edit#gid=0",
-                     name="Некоректно додаються персони до органзацій з роллю buyer")
+                     name="Why this test case was fall down?")
     @allure.title("Check records: based on required data model.")
     def test_case_1(self, get_parameters, connect_to_keyspace, issuing_framework_tc_2):
 
@@ -314,8 +314,9 @@ class TestCreateConfirmationResponse:
                 previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
             pass
         else:
-            ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
-                       f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+            raise ValueError(
+                f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
 
         """
         VR.COM-6.8.2: Check Contract state.
@@ -326,12 +327,12 @@ class TestCreateConfirmationResponse:
                         previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "issued":
                     pass
                 else:
-                    ValueError(f"Contract {contract_id} has invalid state: "
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+                    raise ValueError(f"Contract {contract_id} has invalid state: "
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
             else:
-                ValueError(f"Incorrect contract id into FE release: "
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+                raise ValueError(f"Incorrect contract id into FE release: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
         """
         Send request, depends on quantity of objects into 
@@ -382,7 +383,7 @@ class TestCreateConfirmationResponse:
                             payload = payload.build_payload()
 
                         except ValueError:
-                            ValueError("Impossible to build payload for Create Confirmation Response process.")
+                            raise ValueError("Impossible to build payload for Create Confirmation Response process.")
 
                         synchronous_result = create_confirmation_response_process(
                             host=bpe_host,
@@ -437,7 +438,7 @@ class TestCreateConfirmationResponse:
 
                                 expected_message = expected_message.build_expected_platform_message(actual_message, 1)
                             except ValueError:
-                                ValueError("Impossible to build expected message for platform.")
+                                raise ValueError("Impossible to build expected message for platform.")
 
                             with allure.step('Compare actual and expected message for platform.'):
                                 allure.attach(json.dumps(actual_message), "Actual message.")
@@ -463,7 +464,7 @@ class TestCreateConfirmationResponse:
                                 ))
                                 expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                             except ValueError:
-                                ValueError("Impossible to build expected AP release.")
+                                raise ValueError("Impossible to build expected AP release.")
 
                             with allure.step("Compare actual and expected AP release."):
                                 allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -488,16 +489,16 @@ class TestCreateConfirmationResponse:
                                     previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
                                 )
                             except ValueError:
-                                ValueError("Impossible to build expected FE release.")
+                                raise ValueError("Impossible to build expected FE release.")
 
                             with allure.step("Compare actual and expected FE release."):
                                 allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
                                 allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
 
-                                # assert actual_fe_release == expected_fe_release, \
-                                #     allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                #                   f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-                                #                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                                assert actual_fe_release == expected_fe_release, \
+                                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                                  f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                                  f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
                         with allure.step(f'# {step_number}.4. Check FA release.'):
                             """
@@ -513,7 +514,7 @@ class TestCreateConfirmationResponse:
                                     previous_fa_release
                                 )
                             except ValueError:
-                                ValueError("Impossible to build expected FA release.")
+                                raise ValueError("Impossible to build expected FA release.")
 
                             with allure.step("Compare actual and expected FA release."):
                                 allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -529,7 +530,7 @@ class TestCreateConfirmationResponse:
             """
             CLean up the database.
             """
-            # Clean after Complete Qualification process:
+            # Clean after Create Confirmation Response process:
             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
 
             cleanup_table_of_services_for_create_confirmation_response(
@@ -537,4 +538,4 @@ class TestCreateConfirmationResponse:
             )
 
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

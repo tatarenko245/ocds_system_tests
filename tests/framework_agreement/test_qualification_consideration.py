@@ -130,7 +130,7 @@ class TestQualificationConsideration:
 
                         expected_message = expected_message.build_expected_message()
                     except ValueError:
-                        ValueError("Impossible to build expected message for platform.")
+                        raise ValueError("Impossible to build expected message for platform.")
 
                     with allure.step('Compare actual and expected message for platform.'):
                         allure.attach(json.dumps(actual_message), "Actual message.")
@@ -156,7 +156,7 @@ class TestQualificationConsideration:
                         expected_ap_release = expected_release.build_expected_ap_release(
                             previous_ap_release)
                     except ValueError:
-                        ValueError("Impossible to build expected AP release.")
+                        raise ValueError("Impossible to build expected AP release.")
 
                     with allure.step("Compare actual and expected AP release."):
                         allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -180,7 +180,7 @@ class TestQualificationConsideration:
                             previous_fe_release, actual_fe_release, qualification_list[q]['id']
                         )
                     except ValueError:
-                        ValueError("Impossible to build expected FE release.")
+                        raise ValueError("Impossible to build expected FE release.")
 
                     with allure.step("Compare actual and expected FE release."):
                         allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -203,7 +203,7 @@ class TestQualificationConsideration:
                         """
                         expected_fa_release = expected_release.build_expected_fa_release(previous_fa_release)
                     except ValueError:
-                        ValueError("Impossible to build expected FA release.")
+                        raise ValueError("Impossible to build expected FA release.")
 
                     with allure.step("Compare actual and expected FA release."):
                         allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -226,7 +226,7 @@ class TestQualificationConsideration:
             cleanup_table_of_services_for_qualification_consideration(
                 connect_to_ocds, connect_to_access, connect_to_qualification, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace, qualification_declare_tc_2):
@@ -339,7 +339,7 @@ class TestQualificationConsideration:
 
                         expected_message = expected_message.build_expected_message()
                     except ValueError:
-                        ValueError("Impossible to build expected message for platform.")
+                        raise ValueError("Impossible to build expected message for platform.")
 
                     with allure.step('Compare actual and expected message for platform.'):
                         allure.attach(json.dumps(actual_message), "Actual message.")
@@ -365,7 +365,7 @@ class TestQualificationConsideration:
                         expected_ap_release = expected_release.build_expected_ap_release(
                             previous_ap_release)
                     except ValueError:
-                        ValueError("Impossible to build expected AP release.")
+                        raise ValueError("Impossible to build expected AP release.")
 
                     with allure.step("Compare actual and expected AP release."):
                         allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -389,7 +389,7 @@ class TestQualificationConsideration:
                             previous_fe_release, actual_fe_release, qualification_list[q]['id']
                         )
                     except ValueError:
-                        ValueError("Impossible to build expected FE release.")
+                        raise ValueError("Impossible to build expected FE release.")
 
                     with allure.step("Compare actual and expected FE release."):
                         allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -412,7 +412,7 @@ class TestQualificationConsideration:
                         """
                         expected_fa_release = expected_release.build_expected_fa_release(previous_fa_release)
                     except ValueError:
-                        ValueError("Impossible to build expected FA release.")
+                        raise ValueError("Impossible to build expected FA release.")
 
                     with allure.step("Compare actual and expected FA release."):
                         allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -432,4 +432,4 @@ class TestQualificationConsideration:
             cleanup_table_of_services_for_qualification_consideration(
                 connect_to_ocds, connect_to_access, connect_to_qualification, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

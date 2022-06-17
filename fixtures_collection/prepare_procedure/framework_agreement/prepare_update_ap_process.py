@@ -73,7 +73,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -129,7 +129,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -198,7 +198,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -251,7 +251,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -307,7 +307,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -376,7 +376,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -442,7 +442,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
 
             ap_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create AP process.")
+            raise ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -649,7 +649,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Update AP process.")
+            raise ValueError("Impossible to build payload for Update AP process.")
 
         update_ap_process(
             host=bpe_host,
@@ -716,7 +716,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
         cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
     except ValueError:
-        ValueError("Impossible to cLean up the database.")
+        raise ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -777,7 +777,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -842,7 +842,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -902,7 +902,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -962,7 +962,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -1027,7 +1027,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -1087,7 +1087,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -1154,7 +1154,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
 
             ap_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create AP process.")
+            raise ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -1356,7 +1356,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Update AP process.")
+            raise ValueError("Impossible to build payload for Update AP process.")
 
         update_ap_process(
             host=bpe_host,
@@ -1423,4 +1423,4 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
         cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
     except ValueError:
-        ValueError("Impossible to cLean up the database.")
+        raise ValueError("Impossible to cLean up the database.")

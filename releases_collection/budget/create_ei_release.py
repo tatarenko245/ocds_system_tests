@@ -49,7 +49,7 @@ class ExpenditureItemRelease:
                 publisher_uri = "https://vpt.lrv.lt"
 
         except ValueError:
-            ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
+            raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
         # BR-4.228, BR-4.229, BR-4.230, BR-4.232, BR-4.234, BR-4.235,
         self.expected_ei_release = {
@@ -264,7 +264,8 @@ class ExpenditureItemRelease:
                             new_items_array[q_0]['id'] = \
                                 self.actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                         else:
-                            ValueError(f"The 'releases[0].tender.items[{q_0}].id' must be uuid.")
+                            new_items_array[q_0]['id'] = \
+                                f"The 'releases[0].tender.items[{q_0}].id' must be uuid."
                     except KeyError:
                         KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 

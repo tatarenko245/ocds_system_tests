@@ -5,7 +5,7 @@ import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
-     cleanup_table_of_services_for_qualification_declare
+    cleanup_table_of_services_for_qualification_declare
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import qualification_declare_process
 from functions_collection.some_functions import get_id_token_of_qualification_in_pending_awaiting_state
@@ -144,8 +144,8 @@ class TestQualificationDeclareNonConflictOfInterest:
 
                                 payload = payload.build_payload()
                             except ValueError:
-                                ValueError("Impossible to build payload for"
-                                           "Qualification Declare Non Conflict Interest process.")
+                                raise ValueError("Impossible to build payload for"
+                                                 "Qualification Declare Non Conflict Interest process.")
 
                             synchronous_result = qualification_declare_process(
                                 host=bpe_host,
@@ -198,7 +198,7 @@ class TestQualificationDeclareNonConflictOfInterest:
 
                                     expected_message = expected_message.build_expected_message()
                                 except ValueError:
-                                    ValueError("Impossible to build expected message for platform.")
+                                    raise ValueError("Impossible to build expected message for platform.")
 
                                 with allure.step('Compare actual and expected message for platform.'):
                                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -225,7 +225,7 @@ class TestQualificationDeclareNonConflictOfInterest:
                                     expected_ap_release = expected_release.build_expected_ap_release(
                                         previous_ap_release)
                                 except ValueError:
-                                    ValueError("Impossible to build expected AP release.")
+                                    raise ValueError("Impossible to build expected AP release.")
 
                                 with allure.step("Compare actual and expected AP release."):
                                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -249,7 +249,7 @@ class TestQualificationDeclareNonConflictOfInterest:
                                         previous_fe_release, actual_fe_release, qualification_list[q][0]
                                     )
                                 except ValueError:
-                                    ValueError("Impossible to build expected FE release.")
+                                    raise ValueError("Impossible to build expected FE release.")
 
                                 with allure.step("Compare actual and expected FE release."):
                                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -274,7 +274,7 @@ class TestQualificationDeclareNonConflictOfInterest:
                                         previous_fe_release, previous_fa_release, actual_fa_release
                                     )
                                 except ValueError:
-                                    ValueError("Impossible to build expected FA release.")
+                                    raise ValueError("Impossible to build expected FA release.")
 
                                 with allure.step("Compare actual and expected FA release."):
                                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -298,7 +298,7 @@ class TestQualificationDeclareNonConflictOfInterest:
             cleanup_table_of_services_for_qualification_declare(
                 connect_to_ocds, connect_to_access, connect_to_qualification, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace, submission_period_end_tc_2):
@@ -424,8 +424,8 @@ class TestQualificationDeclareNonConflictOfInterest:
                                 )
                                 payload = payload.build_payload()
                             except ValueError:
-                                ValueError("Impossible to build payload for"
-                                           "Qualification Declare Non Conflict Interest process.")
+                                raise ValueError("Impossible to build payload for"
+                                                 "Qualification Declare Non Conflict Interest process.")
 
                             synchronous_result = qualification_declare_process(
                                 host=bpe_host,
@@ -478,7 +478,7 @@ class TestQualificationDeclareNonConflictOfInterest:
 
                                     expected_message = expected_message.build_expected_message()
                                 except ValueError:
-                                    ValueError("Impossible to build expected message for platform.")
+                                    raise ValueError("Impossible to build expected message for platform.")
 
                                 with allure.step('Compare actual and expected message for platform.'):
                                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -505,7 +505,7 @@ class TestQualificationDeclareNonConflictOfInterest:
                                     expected_ap_release = expected_release.build_expected_ap_release(
                                         previous_ap_release)
                                 except ValueError:
-                                    ValueError("Impossible to build expected AP release.")
+                                    raise ValueError("Impossible to build expected AP release.")
 
                                 with allure.step("Compare actual and expected AP release."):
                                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -529,7 +529,7 @@ class TestQualificationDeclareNonConflictOfInterest:
                                         previous_fe_release, actual_fe_release, qualification_list[q][0]
                                     )
                                 except ValueError:
-                                    ValueError("Impossible to build expected FE release.")
+                                    raise ValueError("Impossible to build expected FE release.")
 
                                 with allure.step("Compare actual and expected FE release."):
                                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -554,7 +554,7 @@ class TestQualificationDeclareNonConflictOfInterest:
                                         previous_fe_release, previous_fa_release, actual_fa_release
                                     )
                                 except ValueError:
-                                    ValueError("Impossible to build expected FA release.")
+                                    raise ValueError("Impossible to build expected FA release.")
 
                                 with allure.step("Compare actual and expected FA release."):
                                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -578,4 +578,4 @@ class TestQualificationDeclareNonConflictOfInterest:
             cleanup_table_of_services_for_qualification_declare(
                 connect_to_ocds, connect_to_access, connect_to_qualification, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

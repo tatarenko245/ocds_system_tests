@@ -144,7 +144,7 @@ class TestCreateFE:
 
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Create FE process.")
+                raise ValueError("Impossible to build payload for Create FE process.")
 
             synchronous_result = create_fe_process(
                 host=bpe_host,
@@ -195,7 +195,7 @@ class TestCreateFE:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -240,7 +240,7 @@ class TestCreateFE:
 
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -266,7 +266,7 @@ class TestCreateFE:
 
                     expected_fe_release = expected_release.build_expected_fe_release(period_shift)
                 except ValueError:
-                    ValueError("Impossible to build expected FE release.")
+                    raise ValueError("Impossible to build expected FE release.")
 
                 with allure.step("Compare actual and expected FE release."):
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -287,7 +287,7 @@ class TestCreateFE:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -309,7 +309,7 @@ class TestCreateFE:
                 connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, cpid
             )
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     @allure.testcase(
@@ -375,7 +375,7 @@ class TestCreateFE:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Create FE process.")
+                raise ValueError("Impossible to build payload for Create FE process.")
 
             synchronous_result = create_fe_process(
                 host=bpe_host,
@@ -426,7 +426,7 @@ class TestCreateFE:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -471,7 +471,7 @@ class TestCreateFE:
 
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -497,7 +497,7 @@ class TestCreateFE:
 
                     expected_fe_release = expected_release.build_expected_fe_release(period_shift)
                 except ValueError:
-                    ValueError("Impossible to build expected FE release.")
+                    raise ValueError("Impossible to build expected FE release.")
 
                 with allure.step("Compare actual and expected FE release."):
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -518,7 +518,7 @@ class TestCreateFE:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -540,4 +540,4 @@ class TestCreateFE:
                 connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, cpid
             )
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

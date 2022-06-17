@@ -98,7 +98,7 @@ class TestUpdateAP:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Update AP process.")
+                raise ValueError("Impossible to build payload for Update AP process.")
 
             synchronous_result = update_ap_process(
                 host=bpe_host,
@@ -149,7 +149,7 @@ class TestUpdateAP:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -188,7 +188,7 @@ class TestUpdateAP:
 
                     expected_ap_release = expected_release.build_expected_ap_release()
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -209,7 +209,7 @@ class TestUpdateAP:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release()
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected MS release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
@@ -228,4 +228,4 @@ class TestUpdateAP:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

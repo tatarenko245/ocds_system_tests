@@ -15,22 +15,33 @@ from functions_collection.cassandra_methods import get_max_duration_of_fa_from_a
     cleanup_orchestrator_steps_by_cpid, cleanup_table_of_services_for_outsourcing_planning_notice, \
     cleanup_table_of_services_for_relation_aggregated_plan, cleanup_table_of_services_for_aggregated_plan, \
     cleanup_table_of_services_for_framework_establishment, cleanup_table_of_services_for_create_submission, \
-    cleanup_table_of_services_for_submission_period_end, cleanup_table_of_services_for_qualification_declare
+    cleanup_table_of_services_for_submission_period_end, cleanup_table_of_services_for_qualification_declare, \
+    cleanup_table_of_services_for_qualification_consideration, cleanup_table_of_services_for_qualification, \
+    get_value_from_qualification_rules, set_value_into_qualification_rules, \
+    cleanup_table_of_services_for_qualification_protocol, get_value_from_dossier_rules, set_value_into_dossier_rules, \
+    cleanup_table_of_services_for_complete_qualification, cleanup_table_of_services_for_issuing_framework, \
+    cleanup_table_of_services_for_create_confirmation_response
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
     create_ap_process, outsourcing_pn_process, relation_ap_process, update_ap_process, create_fe_process, \
-    amend_fe_process, create_submission_process, qualification_declare_process
+    amend_fe_process, create_submission_process, qualification_declare_process, qualification_consideration_process, \
+    qualification_process, qualification_protocol_process, complete_qualification_process, issuing_framework_process, \
+    create_confirmation_response_process
 from functions_collection.some_functions import time_bot, get_id_token_of_qualification_in_pending_awaiting_state
 from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 from payloads_collection.framework_agreement.amend_fe_payload import AmendFrameworkEstablishmentPayload
 from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
+from payloads_collection.framework_agreement.create_confirmation_response_payload import \
+    CreateConfirmationResponsePayload
 from payloads_collection.framework_agreement.create_fe_payload import FrameworkEstablishmentPayload
 from payloads_collection.framework_agreement.create_pn_payload import PlanningNoticePayload
 from payloads_collection.framework_agreement.create_submission_payload import CreateSubmissionPayload
+from payloads_collection.framework_agreement.issuing_framework_payload import IssuingFrameworkPayload
 from payloads_collection.framework_agreement.qualification_declare_payload import \
     QualificationDeclareNonConflictOfInterestPayload
+from payloads_collection.framework_agreement.qualification_payload import QualificationPayload
 from payloads_collection.framework_agreement.update_ap_payload import UpdateAggregatedPlan
 
 
@@ -41,8 +52,11 @@ from payloads_collection.framework_agreement.update_ap_payload import UpdateAggr
 # relation AP: payload isn't needed, update ap: full data model, create FE: full data model, amend FE: full data model,
 # create first Submission: full data model, create second Submission: full data model,
 # create third Submission: full data model, Submission Period End: payload isn't needed,
-# Qualification Declare: full data model.
-def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
+# Qualification Declare: full data model, Qualification Consideration: payload isn't needed,
+# Qualification: full data model, Qualification Protocol: payload isn't needed,
+# Complete Qualification: payload isn't needed, Issuing Framework: full data model,
+# Create Confirmation Response by Buyer: full data model.
+def create_confirmation_response_by_buyer_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
@@ -59,6 +73,8 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
     connect_to_clarification = connect_to_keyspace[3]
     connect_to_dossier = connect_to_keyspace[4]
     connect_to_qualification = connect_to_keyspace[5]
+    connect_to_submission = connect_to_keyspace[6]
+    connect_to_contracting = connect_to_keyspace[7]
 
     # Create EI_1: full data model.
     step_number = 1
@@ -260,7 +276,7 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
-                buyer_id=0,
+                buyer_id=10,
                 tender_classification_id=tender_classification_id)
             )
 
@@ -314,8 +330,8 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
                 ei_payload=ei_2_payload,
                 amount=89999.89,
                 currency=currency,
-                payer_id=1,
-                funder_id=2
+                payer_id=11,
+                funder_id=22
             ))
 
             payload.customize_buyer_additional_identifiers(
@@ -547,6 +563,7 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
 
         message = get_message_for_platform(outsource_2_operation_id)
         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
 
     # Relation AP for PN_1.
     step_number += 1
@@ -704,6 +721,11 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
             """
             Build payload for Create FE process.
             """
+            if environment == "dev":
+                pre_qualification_sec = 121
+            elif environment == "sandbox":
+                pre_qualification_sec = 300
+
             payload = copy.deepcopy(FrameworkEstablishmentPayload(
                 ap_payload=ap_payload,
                 host_to_service=service_host,
@@ -713,7 +735,7 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
                 person_title="Mr.",
                 business_functions_type="chairman",
                 tender_documents_type="tenderNotice",
-                pre_qualification_sec=121
+                pre_qualification_sec=pre_qualification_sec
             ))
 
             payload.customize_tender_pe_persones(
@@ -826,6 +848,10 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
             """
             Build payload for Amend FE process.
             """
+            if environment == "dev":
+                pre_qualification_sec = 740
+            elif environment == "sandbox":
+                pre_qualification_sec = 2240
             payload = copy.deepcopy(AmendFrameworkEstablishmentPayload(
                 ap_payload=ap_payload,
                 create_fe_payload=create_fe_payload,
@@ -837,7 +863,7 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
                 person_title="Ms.",
                 business_functions_type="contactPoint",
                 tender_documents_type="complaints",
-                pre_qualification_sec=500
+                pre_qualification_sec=pre_qualification_sec
             ))
 
             payload.customize_old_persones(
@@ -879,6 +905,24 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
     time.sleep(5)
 
     # Create First Submission: full data model.
+    min_qty_qualifications_for_invitation = copy.deepcopy(get_value_from_qualification_rules(
+        connect_to_qualification, country, pmd, "all", "minQtyQualificationsForInvitation"
+    ))
+
+    if int(min_qty_qualifications_for_invitation) > 3:
+        set_value_into_qualification_rules(
+            connect_to_qualification, 3, country, pmd, "all", "minQtyQualificationsForInvitation"
+        )
+
+    min_qty_submissions_for_returning = copy.deepcopy(get_value_from_dossier_rules(
+        connect_to_dossier, country, pmd, "completeQualification", "minQtySubmissionsForReturning"
+    ))
+
+    if int(min_qty_submissions_for_returning) > 3:
+        set_value_into_dossier_rules(
+            connect_to_dossier, 3, country, pmd, "completeQualification", "minQtySubmissionsForReturning"
+        )
+
     step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
         """
@@ -1000,7 +1044,7 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
             )
             create_2_submission_payload = payload.build_payload()
         except ValueError:
-            raise ValueError("Impossible to build payload for Create Submission process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1135,8 +1179,8 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
                                             "candidates": s['candidates'][cand]
                                         }
                                         candidates_list.append(candidate_dictionary)
-                        else:
-                            raise KeyError("The 'submissions' object is missed into FE release.")
+                    else:
+                        raise KeyError("The 'submissions' object is missed into FE release.")
     else:
         raise KeyError("The 'qualifications' array is missed into FE release.")
 
@@ -1211,12 +1255,418 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
                         message = get_message_for_platform(operation_id)
                         allure.attach(str(message), "Message for platform.")
 
+    previous_fe_release = requests.get(url=fe_url).json()
+    for i in range(len(previous_fe_release['releases'][0]['qualifications'])):
+
+        # Qualification Consideration: payload isn't needed.
+        """Get qualification in state = pending.awaiting: VR.COM-7.17.2"""
+        qualification_list = list()
+        for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
+            if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending":
+                if "statusDetails" in previous_fe_release['releases'][0]['qualifications'][q]:
+                    if previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "awaiting":
+                        qualification_list.append(
+                            {
+                                "id": previous_fe_release['releases'][0]['qualifications'][q]['id'],
+                                "token": None
+                            }
+                        )
+
+        """Get qualification.token by qualification.id for Qualification Consideration process."""
+        for ql in range(len(qualification_list)):
+            for qm in range(len(submission_period_end_message['data']['outcomes']['qualifications'])):
+                if submission_period_end_message['data']['outcomes']['qualifications'][qm]['id'] == \
+                        qualification_list[ql]['id']:
+                    qualification_list[ql]['token'] = \
+                        submission_period_end_message['data']['outcomes']['qualifications'][qm]['X-TOKEN']
+
+        """ Depends on quantity of qualifications in valid state, send requests"""
+        step_number = 1
+        for q in range(len(qualification_list)):
+            step_number += q
+            with allure.step(f"# {step_number}. Authorization platform one: Qualification Consideration process."):
+                """
+                Tender platform authorization for Qualification Consideration process.
+                As result get Tender platform's access token and process operation-id.
+                """
+                platform_one = PlatformAuthorization(bpe_host)
+                access_token = platform_one.get_access_token_for_platform_one()
+                operation_id = platform_one.get_x_operation_id(access_token)
+
+            step_number += 1
+            with allure.step(f"# {step_number}. Send a request to create a Qualification Consideration process."):
+                """
+                Send request to BPE host to create a Qualification Consideration process.
+                """
+                qualification_consideration_process(
+                    host=bpe_host,
+                    access_token=access_token,
+                    x_operation_id=operation_id,
+                    test_mode=True,
+                    cpid=ap_cpid,
+                    ocid=fe_ocid,
+                    qualification_id=qualification_list[q]['id'],
+                    qualification_token=qualification_list[q]['token']
+                )
+
+                message = get_message_for_platform(operation_id)
+                allure.attach(str(message), "Message for platform.")
+
+        time.sleep(15)
+        previous_fe_release = requests.get(url=fe_url).json()
+
+        time.sleep(5)
+        # Qualification: full data model.
+        """Get qualification in state = pending.consideration: VR.COM-7.17.2"""
+        qualification_list = list()
+        for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
+            if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending":
+                if "statusDetails" in previous_fe_release['releases'][0]['qualifications'][q]:
+                    if previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "consideration":
+                        qualification_list.append(
+                            {
+                                "id": previous_fe_release['releases'][0]['qualifications'][q]['id'],
+                                "token": None
+                            }
+                        )
+
+        """Get qualification.token by qualification.id for Qualification process."""
+        for ql in range(len(qualification_list)):
+            for qm in range(len(submission_period_end_message['data']['outcomes']['qualifications'])):
+                if submission_period_end_message['data']['outcomes']['qualifications'][qm]['id'] == \
+                        qualification_list[ql]['id']:
+                    qualification_list[ql]['token'] = \
+                        submission_period_end_message['data']['outcomes']['qualifications'][qm]['X-TOKEN']
+
+        """ Depends on quantity of qualifications in valid state, send requests"""
+        step_number = 1
+        for q in range(len(qualification_list)):
+            step_number += q
+
+            with allure.step(f"# {step_number}. Authorization platform one: Qualification process."):
+                """
+                Tender platform authorization for Qualification process.
+                As result get Tender platform's access token and process operation-id.
+                """
+                platform_one = PlatformAuthorization(bpe_host)
+                access_token = platform_one.get_access_token_for_platform_one()
+                operation_id = platform_one.get_x_operation_id(access_token)
+
+            step_number += 1
+            with allure.step(f"# {step_number}. Send a request to create a Qualification process."):
+                """
+                Send request to BPE host to create a Qualification process.
+                """
+                try:
+                    """
+                    Build payload for Qualification process.
+                    """
+                    payload = copy.deepcopy(QualificationPayload(service_host))
+                    payload.customize_qualification_documents(quantity_of_documents=3)
+                    payload = payload.build_payload(status="active")
+                except ValueError:
+                    raise ValueError("Impossible to build payload for Qualification Declare process.")
+
+                qualification_process(
+                    host=bpe_host,
+                    access_token=access_token,
+                    x_operation_id=operation_id,
+                    payload=payload,
+                    test_mode=True,
+                    cpid=ap_cpid,
+                    ocid=fe_ocid,
+                    qualification_id=qualification_list[q]['id'],
+                    qualification_token=qualification_list[q]['token']
+                )
+
+                message = get_message_for_platform(operation_id)
+                allure.attach(str(message), "Message for platform.")
+
+        time.sleep(15)
+        previous_fe_release = requests.get(url=fe_url).json()
+    time.sleep(5)
+
+    # Qualification Protocol: payload isn't needed.
+    """Get qualification in state = pending.active or pending.unsuccessful: VR.COM-7.24.2"""
+    qualification_list = list()
+    for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
+        if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending":
+            if "statusDetails" in previous_fe_release['releases'][0]['qualifications'][q]:
+                if previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "active" or \
+                        previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "unsuccessful":
+                    qualification_list.append(previous_fe_release['releases'][0]['qualifications'][q])
+
+    if len(previous_fe_release['releases'][0]['qualifications']) != len(qualification_list):
+        raise ValueError("Some qualifications have incorrect 'statusDetails' value.")
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Authorization platform one: Qualification Protocol process."):
+        """
+        Tender platform authorization for Qualification Protocol process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Qualification Protocol process."):
+        """
+        Send request to BPE host to create a Qualification process.
+        """
+
+        qualification_protocol_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
+        contract_id = message['data']['outcomes']['contracts'][0]['id']
+        contract_token = message['data']['outcomes']['contracts'][0]['X-TOKEN']
+    time.sleep(5)
+
+    # Complete Qualification: payload isn't needed.
+    step_number = 1
+    with allure.step(f"# {step_number}. Authorization platform one: Complete Qualification process."):
+        """
+        Tender platform authorization for Complete Qualification process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Complete Qualification process."):
+        """
+        Send request to BPE host to create a Complete Qualification process.
+        """
+
+        complete_qualification_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
+    # Issuing Framework: full data model.
+    previous_fe_release = requests.get(url=fe_url).json()
+    """
+    VR.COM-1.17.2: Check FE state.
+    """
+    if previous_fe_release['releases'][0]['tender']['status'] == "active" and \
+            previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
+        pass
+    else:
+        raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                         f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+
+    """
+    VR.COM-6.8.2: Check Contract state.
+    """
+    for i in range(len(previous_fe_release['releases'][0]['contracts'])):
+        if previous_fe_release['releases'][0]['contracts'][i]['id'] == contract_id:
+            if previous_fe_release['releases'][0]['contracts'][i]['status'] == "pending" and \
+                    previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
+                pass
+            else:
+                raise ValueError(f"Contract {contract_id} has invalid state: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+        else:
+            raise ValueError(f"Incorrect contract id into FE release: "
+                             f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
+        """
+        Tender platform authorization for Issuing Framework process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Issuing Framework process."):
+        """
+        Send request to BPE host to create a Issuing Framework process.
+        """
+
+        try:
+            """
+            Build payload for Issuing Framework process.
+            """
+            payload = copy.deepcopy(IssuingFrameworkPayload())
+            payload = payload.build_payload()
+        except ValueError:
+            raise ValueError("Impossible to build payload for Issuing Framework process.")
+
+        issuing_framework_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            contract_id=contract_id,
+            token=ap_token
+        )
+
+        platform_message = get_message_for_platform(operation_id)
+        allure.attach(str(platform_message), "Message for platform, initiator = platform.")
+
+        message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
+        for q in range(len(message)):
+            if "outcomes" in message[q]['data']:
+                if "requests" in message[q]['data']['outcomes']:
+                    issuing_framework_bpe_message = message[q]
+        allure.attach(str(issuing_framework_bpe_message), "Message for platform initiator = bpe.")
+    time.sleep(5)
+
+    # Create Confirmation Response by Buyer: full data model.
+    previous_fe_release = requests.get(url=fe_url).json()
+    """
+    VR.COM-1.17.2: Check FE state.
+    """
+    if previous_fe_release['releases'][0]['tender']['status'] == "active" and \
+            previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
+        pass
+    else:
+        raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                         f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+
+    """
+    VR.COM-6.8.2: Check Contract state.
+    """
+    for i in range(len(previous_fe_release['releases'][0]['contracts'])):
+        if previous_fe_release['releases'][0]['contracts'][i]['id'] == contract_id:
+            if previous_fe_release['releases'][0]['contracts'][i]['status'] == "pending" and \
+                    previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "issued":
+                pass
+            else:
+                raise ValueError(f"Contract {contract_id} has invalid state: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+        else:
+            raise ValueError(f"Incorrect contract id into FE release: "
+                             f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+
+    """
+    Send request, depends on quantity of objects into
+    'releases[0].contracts[0].confirmationRequests[0].request'
+    """
+    for q_0 in range(len(previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'])):
+        if previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][q_0]['source'] == "buyer":
+            for q_1 in range(len(
+                    previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][q_0]['requests']
+            )):
+                request_id = previous_fe_release['releases'][0]['contracts'][0][
+                    'confirmationRequests'][q_0]['requests'][q_1]['id']
+                request_token = None
+                for q in range(len(issuing_framework_bpe_message['data']['outcomes']['requests'])):
+                    if issuing_framework_bpe_message['data']['outcomes']['requests'][q]['id'] == request_id:
+                        request_token = issuing_framework_bpe_message['data']['outcomes']['requests'][q]['X-TOKEN']
+                step_number = 1
+                with allure.step(f"# {step_number}. Authorization platform one: Create Confirmation "
+                                 f"Response process."):
+                    """
+                    Tender platform authorization for Create Confirmation Response process.
+                    As result get Tender platform's access token and process operation-id.
+                    """
+                    platform_one = PlatformAuthorization(bpe_host)
+                    access_token = platform_one.get_access_token_for_platform_one()
+                    operation_id = platform_one.get_x_operation_id(access_token)
+
+                step_number += 1
+                with allure.step(f"# {step_number}. Send a request to create a Create Confirmation "
+                                 f"Response process."):
+                    """
+                    Send request to BPE host to create a Create Confirmation Response process.
+                    """
+
+                    try:
+                        """
+                        Build payload for Create Confirmation Response process.
+                        """
+                        payload = CreateConfirmationResponsePayload(environment, service_host, request_id)
+
+                        payload.customize_business_functions(quantity_of_bf=3, quantity_of_bf_documents=3)
+                        payload = payload.build_payload()
+
+                    except ValueError:
+                        raise ValueError("Impossible to build payload for Create Confirmation Response process.")
+
+                    create_confirmation_response_process(
+                        host=bpe_host,
+                        access_token=access_token,
+                        x_operation_id=operation_id,
+                        payload=payload,
+                        entity="contract",
+                        cpid=ap_cpid,
+                        ocid=fe_ocid,
+                        entity_id=contract_id,
+                        token=request_token,
+                        role="buyer",
+                        test_mode=True
+                    )
+
+                    message = get_message_for_platform(operation_id)
+                    allure.attach(str(message), "Message for platform.")
+
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
-        create_1_submission_payload, create_1_submission_message, \
+        create_1_submission_payload, create_1_submission_message,\
         create_2_submission_payload, create_2_submission_message,\
-        create_3_submission_payload, create_3_submission_message, submission_period_end_message
+        create_3_submission_payload, create_3_submission_message, submission_period_end_message, contract_id,\
+        contract_token, issuing_framework_bpe_message
+
+    try:
+        """
+        Set previous value into qualification.qualification_rules
+        """
+        new_min_qty_qualifications_for_invitation = copy.deepcopy(get_value_from_qualification_rules(
+            connect_to_qualification, country, pmd, "all", "minQtyQualificationsForInvitation"
+        ))
+
+        if int(min_qty_qualifications_for_invitation) != int(new_min_qty_qualifications_for_invitation):
+            set_value_into_qualification_rules(
+                connect_to_qualification, int(min_qty_qualifications_for_invitation), country, pmd, "all",
+                "minQtyQualificationsForInvitation"
+            )
+    except ValueError:
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
+
+    try:
+        """
+        Set previous value into dossier.rules
+        """
+        new_min_qty_submissions_for_returning = copy.deepcopy(get_value_from_dossier_rules(
+            connect_to_dossier, country, pmd, "completeQualification", "minQtySubmissionsForReturning"
+        ))
+
+        if int(min_qty_submissions_for_returning) != int(new_min_qty_submissions_for_returning):
+            set_value_into_qualification_rules(
+                connect_to_qualification, int(min_qty_qualifications_for_invitation), country, pmd, "all",
+                "minQtyQualificationsForInvitation"
+            )
+    except ValueError:
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -1300,6 +1750,46 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
         cleanup_table_of_services_for_qualification_declare(
             connect_to_ocds, connect_to_access, connect_to_qualification, ap_cpid)
 
+        # Clean after Qualification Consideration process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_qualification_consideration(
+            connect_to_ocds, connect_to_access, connect_to_qualification, ap_cpid)
+
+        # Clean after Qualification process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_qualification(
+            connect_to_ocds, connect_to_access, connect_to_qualification, connect_to_dossier, ap_cpid)
+
+        # Clean after Qualification Protocol process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_qualification_protocol(
+            connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+            connect_to_contracting, ap_cpid)
+
+        # Clean after Complete Qualification process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_complete_qualification(
+            connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+            ap_cpid
+        )
+
+        # Clean after Issuing Framework process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_issuing_framework(
+            connect_to_ocds, connect_to_access, connect_to_contracting, ap_cpid
+        )
+
+        # Clean after Create Confirmation Response process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_create_confirmation_response(
+            connect_to_ocds, connect_to_access, connect_to_contracting, ap_cpid
+        )
     except ValueError:
         raise ValueError("Impossible to cLean up the database.")
 
@@ -1310,8 +1800,11 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
 # create AP: required data model, outsource PN_1: payload isn't needed, outsource PN_2: payload isn't needed,
 # relation AP: payload isn't needed, update ap: required data model, create FE: required data model,
 # amend FE: required data model, create Submission: required data model, Submission Period End: payload isn't needed,
-# Qualification Declare: required data model.
-def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
+# Qualification Declare: required data model, Qualification Consideration: payload isn't needed,
+# Qualification: required data model, Qualification Protocol: payload isn't needed,
+# Complete Qualification: payload isn't needed, Issuing Framework: required data model,
+# Create Confirmation Response by Buyer: full data model.
+def create_confirmation_response_by_buyer_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
     environment = get_parameters[0]
     bpe_host = get_parameters[2]
     service_host = get_parameters[3]
@@ -1328,6 +1821,8 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
     connect_to_clarification = connect_to_keyspace[3]
     connect_to_dossier = connect_to_keyspace[4]
     connect_to_qualification = connect_to_keyspace[5]
+    connect_to_submission = connect_to_keyspace[6]
+    connect_to_contracting = connect_to_keyspace[7]
 
     # Create EI_1: required data model.
     step_number = 1
@@ -2057,7 +2552,7 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
                 person_title="Ms.",
                 business_functions_type="contactPoint",
                 tender_documents_type="complaints",
-                pre_qualification_sec=200
+                pre_qualification_sec=500
             ))
 
             payload.delete_optional_fields(
@@ -2085,6 +2580,24 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
     time.sleep(5)
 
     # Create Submission: required data model.
+    min_qty_qualifications_for_invitation = copy.deepcopy(get_value_from_qualification_rules(
+        connect_to_qualification, country, pmd, "all", "minQtyQualificationsForInvitation"
+    ))
+
+    if int(min_qty_qualifications_for_invitation) > 1:
+        set_value_into_qualification_rules(
+            connect_to_qualification, 1, country, pmd, "all", "minQtyQualificationsForInvitation"
+        )
+
+    min_qty_submissions_for_returning = copy.deepcopy(get_value_from_dossier_rules(
+        connect_to_dossier, country, pmd, "completeQualification", "minQtySubmissionsForReturning"
+    ))
+
+    if int(min_qty_submissions_for_returning) > 1:
+        set_value_into_dossier_rules(
+          connect_to_dossier, 1, country, pmd, "completeQualification", "minQtySubmissionsForReturning"
+        )
+
     step_number += 1
     with allure.step(f'# {step_number}. Authorization platform one: Create Submission process.'):
         """
@@ -2181,16 +2694,17 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
         candidates_list = list()
         for qu in previous_fe_release['releases'][0]['qualifications']:
             if qu['status'] == "pending":
-                if qu['statusDetails'] == "awaiting":
-                    if 'submissions' in previous_fe_release['releases'][0]:
-                        for s in previous_fe_release['releases'][0]['submissions']['details']:
-                            if s['id'] == qu['relatedSubmission']:
-                                for cand in range(len(s['candidates'])):
-                                    candidate_dictionary = {
-                                        "qualification_id": qu['id'],
-                                        "candidates": s['candidates'][cand]
-                                    }
-                                    candidates_list.append(candidate_dictionary)
+                if "statusDetails" in qu:
+                    if qu['statusDetails'] == "awaiting":
+                        if 'submissions' in previous_fe_release['releases'][0]:
+                            for s in previous_fe_release['releases'][0]['submissions']['details']:
+                                if s['id'] == qu['relatedSubmission']:
+                                    for cand in range(len(s['candidates'])):
+                                        candidate_dictionary = {
+                                            "qualification_id": qu['id'],
+                                            "candidates": s['candidates'][cand]
+                                        }
+                                        candidates_list.append(candidate_dictionary)
                     else:
                         raise KeyError("The 'submissions' object is missed into FE release.")
     else:
@@ -2270,11 +2784,430 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
 
                         message = get_message_for_platform(operation_id)
                         allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
+    previous_fe_release = requests.get(url=fe_url).json()
+    for i in range(len(previous_fe_release['releases'][0]['qualifications'])):
+
+        # Qualification Consideration: payload isn't needed.
+        """Get qualification in state = pending.awaiting: VR.COM-7.17.2"""
+        qualification_list = list()
+        for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
+            if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending":
+                if "statusDetails" in previous_fe_release['releases'][0]['qualifications'][q]:
+                    if previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "awaiting":
+                        qualification_list.append(
+                            {
+                                "id": previous_fe_release['releases'][0]['qualifications'][q]['id'],
+                                "token": None
+                            }
+                        )
+
+        """Get qualification.token by qualification.id for Qualification Consideration process."""
+        for ql in range(len(qualification_list)):
+            for qm in range(len(submission_period_end_message['data']['outcomes']['qualifications'])):
+                if submission_period_end_message['data']['outcomes']['qualifications'][qm]['id'] == \
+                        qualification_list[ql]['id']:
+                    qualification_list[ql]['token'] = \
+                        submission_period_end_message['data']['outcomes']['qualifications'][qm]['X-TOKEN']
+
+        """ Depends on quantity of qualifications in valid state, send requests"""
+        step_number = 1
+        for q in range(len(qualification_list)):
+            step_number += q
+            with allure.step(f"# {step_number}. Authorization platform one: Qualification Consideration process."):
+                """
+                Tender platform authorization for Qualification Consideration process.
+                As result get Tender platform's access token and process operation-id.
+                """
+                platform_one = PlatformAuthorization(bpe_host)
+                access_token = platform_one.get_access_token_for_platform_one()
+                operation_id = platform_one.get_x_operation_id(access_token)
+
+            step_number += 1
+            with allure.step(f"# {step_number}. Send a request to create a Qualification Consideration process."):
+                """
+                Send request to BPE host to create a Qualification Consideration process.
+                """
+                qualification_consideration_process(
+                    host=bpe_host,
+                    access_token=access_token,
+                    x_operation_id=operation_id,
+                    test_mode=True,
+                    cpid=ap_cpid,
+                    ocid=fe_ocid,
+                    qualification_id=qualification_list[q]['id'],
+                    qualification_token=qualification_list[q]['token']
+                )
+
+                message = get_message_for_platform(operation_id)
+                allure.attach(str(message), "Message for platform.")
+
+        time.sleep(15)
+        previous_fe_release = requests.get(url=fe_url).json()
+
+        time.sleep(5)
+        # Qualification: full data model.
+        """Get qualification in state = pending.consideration: VR.COM-7.17.2"""
+        qualification_list = list()
+        for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
+            if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending":
+                if "statusDetails" in previous_fe_release['releases'][0]['qualifications'][q]:
+                    if previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "consideration":
+                        qualification_list.append(
+                            {
+                                "id": previous_fe_release['releases'][0]['qualifications'][q]['id'],
+                                "token": None
+                            }
+                        )
+
+        """Get qualification.token by qualification.id for Qualification process."""
+        for ql in range(len(qualification_list)):
+            for qm in range(len(submission_period_end_message['data']['outcomes']['qualifications'])):
+                if submission_period_end_message['data']['outcomes']['qualifications'][qm]['id'] == \
+                        qualification_list[ql]['id']:
+                    qualification_list[ql]['token'] = \
+                        submission_period_end_message['data']['outcomes']['qualifications'][qm]['X-TOKEN']
+
+        """ Depends on quantity of qualifications in valid state, send requests"""
+        step_number = 1
+        for q in range(len(qualification_list)):
+            step_number += q
+
+            with allure.step(f"# {step_number}. Authorization platform one: Qualification process."):
+                """
+                Tender platform authorization for Qualification process.
+                As result get Tender platform's access token and process operation-id.
+                """
+                platform_one = PlatformAuthorization(bpe_host)
+                access_token = platform_one.get_access_token_for_platform_one()
+                operation_id = platform_one.get_x_operation_id(access_token)
+
+            step_number += 1
+            with allure.step(f"# {step_number}. Send a request to create a Qualification process."):
+                """
+                Send request to BPE host to create a Qualification process.
+                """
+                try:
+                    """
+                    Build payload for Qualification process.
+                    """
+                    payload = copy.deepcopy(QualificationPayload(service_host))
+                    payload.delete_optional_fields(
+                        "qualification.internalId",
+                        "qualification.description",
+                        "qualification.documents",
+                        doc_position=0
+                    )
+                    payload = payload.build_payload(status="active")
+                except ValueError:
+                    raise ValueError("Impossible to build payload for Qualification Declare process.")
+
+                qualification_process(
+                    host=bpe_host,
+                    access_token=access_token,
+                    x_operation_id=operation_id,
+                    payload=payload,
+                    test_mode=True,
+                    cpid=ap_cpid,
+                    ocid=fe_ocid,
+                    qualification_id=qualification_list[q]['id'],
+                    qualification_token=qualification_list[q]['token']
+                )
+
+                message = get_message_for_platform(operation_id)
+                allure.attach(str(message), "Message for platform.")
+
+        time.sleep(15)
+        previous_fe_release = requests.get(url=fe_url).json()
+    time.sleep(5)
+
+    # Qualification Protocol: payload isn't needed.
+    """Get qualification in state = pending.active or pending.unsuccessful: VR.COM-7.24.2"""
+    qualification_list = list()
+    for q in range(len(previous_fe_release['releases'][0]['qualifications'])):
+        if previous_fe_release['releases'][0]['qualifications'][q]['status'] == "pending":
+            if "statusDetails" in previous_fe_release['releases'][0]['qualifications'][q]:
+                if previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "active" or \
+                        previous_fe_release['releases'][0]['qualifications'][q]['statusDetails'] == "unsuccessful":
+                    qualification_list.append(previous_fe_release['releases'][0]['qualifications'][q])
+
+    if len(previous_fe_release['releases'][0]['qualifications']) != len(qualification_list):
+        raise ValueError("Some qualifications have incorrect 'statusDetails' value.")
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Authorization platform one: Qualification Protocol process."):
+        """
+        Tender platform authorization for Qualification Protocol process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Qualification Protocol process."):
+        """
+        Send request to BPE host to create a Qualification process.
+        """
+
+        qualification_protocol_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
+        contract_id = message['data']['outcomes']['contracts'][0]['id']
+        contract_token = message['data']['outcomes']['contracts'][0]['X-TOKEN']
+    time.sleep(5)
+
+    # Complete Qualification: payload isn't needed.
+    step_number = 1
+    with allure.step(f"# {step_number}. Authorization platform one: Complete Qualification process."):
+        """
+        Tender platform authorization for Complete Qualification process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Complete Qualification process."):
+        """
+        Send request to BPE host to create a Complete Qualification process.
+        """
+
+        complete_qualification_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            token=ap_token
+        )
+
+        message = get_message_for_platform(operation_id)
+        allure.attach(str(message), "Message for platform.")
+    time.sleep(5)
+
+    # Issuing Framework: required data model.
+    previous_fe_release = requests.get(url=fe_url).json()
+    """
+    VR.COM-1.17.2: Check FE state.
+    """
+    if previous_fe_release['releases'][0]['tender']['status'] == "active" and \
+            previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
+        pass
+    else:
+        ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                   f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+
+    """
+    VR.COM-6.8.2: Check Contract state.
+    """
+    for i in range(len(previous_fe_release['releases'][0]['contracts'])):
+        if previous_fe_release['releases'][0]['contracts'][i]['id'] == contract_id:
+            if previous_fe_release['releases'][0]['contracts'][i]['status'] == "pending" and \
+                    previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
+                pass
+            else:
+                raise ValueError(f"Contract {contract_id} has invalid state: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+        else:
+            raise ValueError(f"Incorrect contract id into FE release: "
+                             f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
+        """
+        Tender platform authorization for Issuing Framework process.
+        As result get Tender platform's access token and process operation-id.
+        """
+        platform_one = PlatformAuthorization(bpe_host)
+        access_token = platform_one.get_access_token_for_platform_one()
+        operation_id = platform_one.get_x_operation_id(access_token)
+
+    step_number += 1
+    with allure.step(f"# {step_number}. Send a request to create a Issuing Framework process."):
+        """
+        Send request to BPE host to create a Issuing Framework process.
+        """
+
+        try:
+            """
+            Build payload for Issuing Framework process.
+            """
+            payload = copy.deepcopy(IssuingFrameworkPayload())
+            payload.build_payload()
+            payload = payload.delete_optional_fields("contract")
+        except ValueError:
+            raise ValueError("Impossible to build payload for Issuing Framework process.")
+
+        issuing_framework_process(
+            host=bpe_host,
+            access_token=access_token,
+            x_operation_id=operation_id,
+            payload=payload,
+            test_mode=True,
+            cpid=ap_cpid,
+            ocid=fe_ocid,
+            contract_id=contract_id,
+            token=ap_token
+        )
+
+        platform_message = get_message_for_platform(operation_id)
+        allure.attach(str(platform_message), "Message for platform, initiator = platform.")
+
+        message = get_message_for_platform(ocid=fe_ocid, initiator="bpe")
+        for q in range(len(message)):
+            if "outcomes" in message[q]['data']:
+                if "requests" in message[q]['data']['outcomes']:
+                    issuing_framework_bpe_message = message[q]
+        allure.attach(str(issuing_framework_bpe_message), "Message for platform initiator = bpe.")
+    time.sleep(5)
+
+    # Create Confirmation Response by Buyer: required data model.
+    previous_fe_release = requests.get(url=fe_url).json()
+    """
+            VR.COM-1.17.2: Check FE state.
+            """
+    if previous_fe_release['releases'][0]['tender']['status'] == "active" and \
+            previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
+        pass
+    else:
+        raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                         f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+
+    """
+    VR.COM-6.8.2: Check Contract state.
+    """
+    for i in range(len(previous_fe_release['releases'][0]['contracts'])):
+        if previous_fe_release['releases'][0]['contracts'][i]['id'] == contract_id:
+            if previous_fe_release['releases'][0]['contracts'][i]['status'] == "pending" and \
+                    previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "issued":
+                pass
+            else:
+                raise ValueError(f"Contract {contract_id} has invalid state: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+        else:
+            raise ValueError(f"Incorrect contract id into FE release: "
+                             f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+
+    """
+    Send request, depends on quantity of objects into 
+    'releases[0].contracts[0].confirmationRequests[0].request'
+    """
+    for q_0 in range(len(previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'])):
+        if previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][q_0]['source'] == "buyer":
+            for q_1 in range(len(
+                    previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][q_0]['requests']
+            )):
+                request_id = previous_fe_release['releases'][0]['contracts'][0][
+                    'confirmationRequests'][q_0]['requests'][q_1]['id']
+                request_token = None
+                for q in range(len(issuing_framework_bpe_message['data']['outcomes']['requests'])):
+                    if issuing_framework_bpe_message['data']['outcomes']['requests'][q]['id'] == request_id:
+                        request_token = issuing_framework_bpe_message['data']['outcomes']['requests'][q]['X-TOKEN']
+                step_number = 1
+                with allure.step(f"# {step_number}. Authorization platform one: Create Confirmation "
+                                 f"Response process."):
+                    """
+                    Tender platform authorization for Create Confirmation Response process.
+                    As result get Tender platform's access token and process operation-id.
+                    """
+                    platform_one = PlatformAuthorization(bpe_host)
+                    access_token = platform_one.get_access_token_for_platform_one()
+                    operation_id = platform_one.get_x_operation_id(access_token)
+
+                step_number += 1
+                with allure.step(f"# {step_number}. Send a request to create a Create Confirmation "
+                                 f"Response process."):
+                    """
+                    Send request to BPE host to create a Create Confirmation Response process.
+                    """
+
+                    try:
+                        """
+                        Build payload for Create Confirmation Response process.
+                        """
+                        payload = CreateConfirmationResponsePayload(environment, service_host, request_id)
+
+                        payload.customize_business_functions(quantity_of_bf=1, quantity_of_bf_documents=0)
+                        payload.delete_optional_fields(
+                            "confirmationResponse.relatedPerson.identifier.uri",
+                            "confirmationResponse.relatedPerson.businessFunctions.documents",
+                            bf_position=0,
+                            bf_doc_position=0
+                        )
+                        payload = payload.build_payload()
+
+                    except ValueError:
+                        raise ValueError("Impossible to build payload for Create Confirmation Response process.")
+
+                    create_confirmation_response_process(
+                        host=bpe_host,
+                        access_token=access_token,
+                        x_operation_id=operation_id,
+                        payload=payload,
+                        entity="contract",
+                        cpid=ap_cpid,
+                        ocid=fe_ocid,
+                        entity_id=contract_id,
+                        token=request_token,
+                        role="buyer",
+                        test_mode=True
+                    )
+
+                    message = get_message_for_platform(operation_id)
+                    allure.attach(str(message), "Message for platform.")
 
     yield ap_cpid, ap_ocid, ap_token, ap_payload, ap_url, fa_url, pn_1_cpid, pn_1_ocid, pn_1_token, pn_1_payload,\
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url,\
-        create_submission_payload, create_submission_message, submission_period_end_message
+        create_submission_payload, create_submission_message, submission_period_end_message, contract_id,\
+        contract_token, issuing_framework_bpe_message
+
+    try:
+        """
+        Set previous value into qualification.qualification_rules
+        """
+        new_min_qty_qualifications_for_invitation = copy.deepcopy(get_value_from_qualification_rules(
+            connect_to_qualification, country, pmd, "all", "minQtyQualificationsForInvitation"
+        ))
+
+        if int(min_qty_qualifications_for_invitation) != int(new_min_qty_qualifications_for_invitation):
+            set_value_into_dossier_rules(
+                connect_to_dossier, int(min_qty_qualifications_for_invitation), country, pmd,
+                "completeQualification", "minQtySubmissionsForReturning"
+            )
+    except ValueError:
+        raise ValueError("Impossible to set previous value into dossier.rules.")
+
+    try:
+        """
+        Set previous value into dossier.rules
+        """
+        new_min_qty_submissions_for_returning = copy.deepcopy(get_value_from_dossier_rules(
+            connect_to_dossier, country, pmd, "completeQualification", "minQtySubmissionsForReturning"
+        ))
+
+        if int(min_qty_submissions_for_returning) != int(new_min_qty_submissions_for_returning):
+            set_value_into_qualification_rules(
+                connect_to_qualification, int(min_qty_qualifications_for_invitation), country, pmd, "all",
+                "minQtyQualificationsForInvitation"
+            )
+    except ValueError:
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -2357,5 +3290,46 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
 
         cleanup_table_of_services_for_qualification_declare(
             connect_to_ocds, connect_to_access, connect_to_qualification, ap_cpid)
+
+        # Clean after Qualification Consideration process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_qualification_consideration(
+            connect_to_ocds, connect_to_access, connect_to_qualification, ap_cpid)
+
+        # Clean after Qualification process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_qualification(
+            connect_to_ocds, connect_to_access, connect_to_qualification, connect_to_dossier, ap_cpid)
+
+        # Clean after Qualification Protocol process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_qualification_protocol(
+            connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+            connect_to_contracting, ap_cpid)
+
+        # Clean after Complete Qualification process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_complete_qualification(
+            connect_to_ocds, connect_to_access, connect_to_submission, connect_to_qualification, connect_to_dossier,
+            ap_cpid
+        )
+
+        # Clean after Issuing Framework process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_issuing_framework(
+            connect_to_ocds, connect_to_access, connect_to_contracting, ap_cpid
+        )
+
+        # Clean after Create Confirmation Response process:
+        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+
+        cleanup_table_of_services_for_create_confirmation_response(
+            connect_to_ocds, connect_to_access, connect_to_contracting, ap_cpid
+        )
     except ValueError:
         raise ValueError("Impossible to cLean up the database.")

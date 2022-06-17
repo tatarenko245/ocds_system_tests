@@ -95,7 +95,7 @@ class TestCreatePN:
                 payload = payload.build_payload()
 
             except ValueError:
-                ValueError("Impossible to build payload for CreatePlanningNotice process.")
+                raise ValueError("Impossible to build payload for CreatePlanningNotice process.")
 
             synchronous_result = create_pn_process(
                 host=bpe_host,
@@ -145,7 +145,7 @@ class TestCreatePN:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -185,7 +185,7 @@ class TestCreatePN:
 
                     expected_pn_release = expected_release.build_expected_pn_release()
                 except ValueError:
-                    ValueError("Impossible to build expected PN release.")
+                    raise ValueError("Impossible to build expected PN release.")
 
                 with allure.step('Compare actual and expected PN release.'):
                     allure.attach(json.dumps(actual_pn_release), "Actual PN release.")
@@ -212,7 +212,7 @@ class TestCreatePN:
                         tender_classification_id
                     )
                 except ValueError:
-                    ValueError("Impossible to build expected MS release.")
+                    raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step('Compare actual and expected MS release.'):
                     allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
@@ -230,7 +230,7 @@ class TestCreatePN:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace, create_fs_tc_2, create_fs_tc_3, ):
@@ -309,7 +309,7 @@ class TestCreatePN:
                 payload = payload.build_payload()
 
             except ValueError:
-                ValueError("Impossible to build payload for CreatePlanningNotice process.")
+                raise ValueError("Impossible to build payload for CreatePlanningNotice process.")
 
             synchronous_result = create_pn_process(
                 host=bpe_host,
@@ -359,7 +359,7 @@ class TestCreatePN:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -399,7 +399,7 @@ class TestCreatePN:
 
                     expected_pn_release = expected_release.build_expected_pn_release()
                 except ValueError:
-                    ValueError("Impossible to build expected PN release.")
+                    raise ValueError("Impossible to build expected PN release.")
 
                 with allure.step('Compare actual and expected PN release.'):
                     allure.attach(json.dumps(actual_pn_release), "Actual PN release.")
@@ -426,7 +426,7 @@ class TestCreatePN:
                         tender_classification_id
                     )
                 except ValueError:
-                    ValueError("Impossible to build expected MS release.")
+                    raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step('Compare actual and expected MS release.'):
                     allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
@@ -444,4 +444,4 @@ class TestCreatePN:
             cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
             cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

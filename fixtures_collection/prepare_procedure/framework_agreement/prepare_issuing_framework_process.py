@@ -103,7 +103,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -159,7 +159,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -228,7 +228,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -281,7 +281,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -337,7 +337,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -406,7 +406,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -472,7 +472,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
             ap_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create AP process.")
+            raise ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -679,7 +679,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Update AP process.")
+            raise ValueError("Impossible to build payload for Update AP process.")
 
         update_ap_process(
             host=bpe_host,
@@ -803,7 +803,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
             create_fe_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create FE process.")
+            raise ValueError("Impossible to build payload for Create FE process.")
 
         create_fe_process(
             host=bpe_host,
@@ -882,7 +882,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             payload.add_new_tender_documents(quantity_of_new_documents=3)
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Amend FE process.")
+            raise ValueError("Impossible to build payload for Amend FE process.")
 
         amend_fe_process(
             host=bpe_host,
@@ -970,7 +970,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             create_1_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submisison process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1039,7 +1039,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             create_2_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submisison process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1108,7 +1108,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             )
             create_3_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submisison process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1232,8 +1232,8 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
 
                             payload = payload.build_payload()
                         except ValueError:
-                            ValueError("Impossible to build payload for"
-                                       "Qualification Declare Non Conflict Interest process.")
+                            raise ValueError("Impossible to build payload for"
+                                             "Qualification Declare Non Conflict Interest process.")
 
                         qualification_declare_process(
                             host=bpe_host,
@@ -1360,7 +1360,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
                     payload.customize_qualification_documents(quantity_of_documents=3)
                     payload = payload.build_payload(status="active")
                 except ValueError:
-                    ValueError("Impossible to build payload for Qualification Declare process.")
+                    raise ValueError("Impossible to build payload for Qualification Declare process.")
 
                 qualification_process(
                     host=bpe_host,
@@ -1466,8 +1466,8 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
         pass
     else:
-        ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
-                   f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+        raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                         f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
 
     """
     VR.COM-6.8.2: Check Contract state.
@@ -1478,12 +1478,12 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
                     previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
                 pass
             else:
-                ValueError(f"Contract {contract_id} has invalid state: "
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+                raise ValueError(f"Contract {contract_id} has invalid state: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
         else:
-            ValueError(f"Incorrect contract id into FE release: "
-                       f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+            raise ValueError(f"Incorrect contract id into FE release: "
+                             f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
     step_number += 1
     with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
@@ -1508,7 +1508,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
             payload = copy.deepcopy(IssuingFrameworkPayload())
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Issuing Framework process.")
+            raise ValueError("Impossible to build payload for Issuing Framework process.")
 
         issuing_framework_process(
             host=bpe_host,
@@ -1554,7 +1554,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
                 "minQtyQualificationsForInvitation"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into qualification.qualification_rules.")
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -1570,7 +1570,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
                 "minQtyQualificationsForInvitation"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into qualification.qualification_rules.")
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -1689,7 +1689,7 @@ def issuing_framework_tc_1(get_parameters, prepare_currency, connect_to_keyspace
         )
 
     except ValueError:
-        ValueError("Impossible to cLean up the database.")
+        raise ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -1760,7 +1760,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -1825,7 +1825,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -1885,7 +1885,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -1945,7 +1945,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -2010,7 +2010,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -2070,7 +2070,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -2137,7 +2137,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
 
             ap_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create AP process.")
+            raise ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -2339,7 +2339,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Update AP process.")
+            raise ValueError("Impossible to build payload for Update AP process.")
 
         update_ap_process(
             host=bpe_host,
@@ -2398,7 +2398,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             create_fe_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create FE process.")
+            raise ValueError("Impossible to build payload for Create FE process.")
 
         create_fe_process(
             host=bpe_host,
@@ -2459,7 +2459,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Amend FE process.")
+            raise ValueError("Impossible to build payload for Amend FE process.")
 
         amend_fe_process(
             host=bpe_host,
@@ -2536,7 +2536,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             payload.prepare_submission_object(submission_position=0)
             create_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submission process.")
+            raise ValueError("Impossible to build payload for Create Submission process.")
 
         create_submission_process(
             host=bpe_host,
@@ -2664,8 +2664,8 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
                             )
                             payload = payload.build_payload()
                         except ValueError:
-                            ValueError("Impossible to build payload for"
-                                       "Qualification Declare Non Conflict Interest process.")
+                            raise ValueError("Impossible to build payload for"
+                                             "Qualification Declare Non Conflict Interest process.")
 
                         qualification_declare_process(
                             host=bpe_host,
@@ -2798,7 +2798,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
                     )
                     payload = payload.build_payload(status="active")
                 except ValueError:
-                    ValueError("Impossible to build payload for Qualification Declare process.")
+                    raise ValueError("Impossible to build payload for Qualification Declare process.")
 
                 qualification_process(
                     host=bpe_host,
@@ -2904,8 +2904,8 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
         pass
     else:
-        ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
-                   f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+        raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                         f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
 
     """
     VR.COM-6.8.2: Check Contract state.
@@ -2916,12 +2916,12 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
                     previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
                 pass
             else:
-                ValueError(f"Contract {contract_id} has invalid state: "
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+                raise ValueError(f"Contract {contract_id} has invalid state: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
         else:
-            ValueError(f"Incorrect contract id into FE release: "
-                       f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+            raise ValueError(f"Incorrect contract id into FE release: "
+                             f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
     step_number += 1
     with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
@@ -2947,7 +2947,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             payload.build_payload()
             payload = payload.delete_optional_fields("contract")
         except ValueError:
-            ValueError("Impossible to build payload for Issuing Framework process.")
+            raise ValueError("Impossible to build payload for Issuing Framework process.")
 
         issuing_framework_process(
             host=bpe_host,
@@ -2991,7 +2991,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
                 "completeQualification", "minQtySubmissionsForReturning"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into dossier.rules.")
+        raise ValueError("Impossible to set previous value into dossier.rules.")
 
     try:
         """
@@ -3007,7 +3007,7 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
                 "minQtyQualificationsForInvitation"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into qualification.qualification_rules.")
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -3125,4 +3125,4 @@ def issuing_framework_tc_2(get_parameters, prepare_currency, connect_to_keyspace
             connect_to_ocds, connect_to_access, connect_to_contracting, ap_cpid
         )
     except ValueError:
-        ValueError("Impossible to cLean up the database.")
+        raise ValueError("Impossible to cLean up the database.")

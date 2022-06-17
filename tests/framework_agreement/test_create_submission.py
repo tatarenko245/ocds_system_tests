@@ -92,7 +92,7 @@ class TestCreateSubmission:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Create Submisison process.")
+                raise ValueError("Impossible to build payload for Create Submisison process.")
 
             synchronous_result = create_submission_process(
                 host=bpe_host,
@@ -142,7 +142,7 @@ class TestCreateSubmission:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -165,7 +165,7 @@ class TestCreateSubmission:
                     expected_release = copy.deepcopy(CreateSubmissionRelease())
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -186,7 +186,7 @@ class TestCreateSubmission:
                     """
                     expected_fe_release = expected_release.build_expected_fe_release(previous_fe_release)
                 except ValueError:
-                    ValueError("Impossible to build expected FE release.")
+                    raise ValueError("Impossible to build expected FE release.")
 
                 with allure.step("Compare actual and expected FE release."):
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -208,7 +208,7 @@ class TestCreateSubmission:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release(previous_fa_release)
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -228,7 +228,7 @@ class TestCreateSubmission:
             cleanup_table_of_services_for_create_submission(
                 connect_to_ocds, connect_to_access, connect_to_dossier, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace, amend_fe_tc_2):
@@ -293,7 +293,7 @@ class TestCreateSubmission:
                 payload.prepare_submission_object(submission_position=0)
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Create Submission process.")
+                raise ValueError("Impossible to build payload for Create Submission process.")
 
             synchronous_result = create_submission_process(
                 host=bpe_host,
@@ -343,7 +343,7 @@ class TestCreateSubmission:
 
                     expected_message = expected_message.build_expected_message()
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message), "Actual message.")
@@ -365,7 +365,7 @@ class TestCreateSubmission:
                     expected_release = copy.deepcopy(CreateSubmissionRelease())
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -386,7 +386,7 @@ class TestCreateSubmission:
                     """
                     expected_fe_release = expected_release.build_expected_fe_release(previous_fe_release)
                 except ValueError:
-                    ValueError("Impossible to build expected FE release.")
+                    raise ValueError("Impossible to build expected FE release.")
 
                 with allure.step("Compare actual and expected FE release."):
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -408,7 +408,7 @@ class TestCreateSubmission:
                     """
                     expected_fa_release = expected_release.build_expected_fa_release(previous_fa_release)
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -428,4 +428,4 @@ class TestCreateSubmission:
             cleanup_table_of_services_for_create_submission(
                 connect_to_ocds, connect_to_access, connect_to_dossier, cpid)
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

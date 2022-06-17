@@ -5,7 +5,7 @@ import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
-     cleanup_table_of_services_for_issuing_framework
+    cleanup_table_of_services_for_issuing_framework
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import issuing_framework_process
 from messages_collection.framework_agreement.issuing_framework_message import IssuingFrameworkMessage
@@ -52,8 +52,8 @@ class TestIssuingFramework:
                 previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
             pass
         else:
-            ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
-                       f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+            raise ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} "
+                             f"and {previous_fe_release['releases'][0]['tender']['statusDetails']}.")
 
         """
         VR.COM-6.8.2: Check Contract state.
@@ -64,12 +64,12 @@ class TestIssuingFramework:
                         previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
                     pass
                 else:
-                    ValueError(f"Contract {contract_id} has invalid state: "
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+                    raise ValueError(f"Contract {contract_id} has invalid state: "
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
             else:
-                ValueError(f"Incorrect contract id into FE release: "
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+                raise ValueError(f"Incorrect contract id into FE release: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
@@ -94,7 +94,7 @@ class TestIssuingFramework:
                 payload = copy.deepcopy(IssuingFrameworkPayload())
                 payload = payload.build_payload()
             except ValueError:
-                ValueError("Impossible to build payload for Issuing Framework process.")
+                raise ValueError("Impossible to build payload for Issuing Framework process.")
 
             synchronous_result = issuing_framework_process(
                 host=bpe_host,
@@ -157,7 +157,7 @@ class TestIssuingFramework:
                     expected_bpe_message = expected_message.build_expected_bpe_message(actual_message_2, 2)
 
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message_1), "Actual platform message.")
@@ -189,7 +189,7 @@ class TestIssuingFramework:
                     ))
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -212,7 +212,7 @@ class TestIssuingFramework:
                         previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
                     )
                 except ValueError:
-                    ValueError("Impossible to build expected FE release.")
+                    raise ValueError("Impossible to build expected FE release.")
 
                 with allure.step("Compare actual and expected FE release."):
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -236,7 +236,7 @@ class TestIssuingFramework:
                         previous_fa_release
                     )
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -257,7 +257,7 @@ class TestIssuingFramework:
             )
 
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")
 
     @allure.testcase(url="")
     @allure.title("Check records: based on required data model.")
@@ -293,8 +293,9 @@ class TestIssuingFramework:
                 previous_fe_release['releases'][0]['tender']['statusDetails'] == "evaluation":
             pass
         else:
-            ValueError(f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
-                       f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
+            raise ValueError(
+                f"FE release has invalid state: {previous_fe_release['releases'][0]['tender']['status']} and"
+                f"{previous_fe_release['releases'][0]['tender']['statusDetails']}.")
 
         """
         VR.COM-6.8.2: Check Contract state.
@@ -305,12 +306,12 @@ class TestIssuingFramework:
                         previous_fe_release['releases'][0]['contracts'][i]['statusDetails'] == "contractProject":
                     pass
                 else:
-                    ValueError(f"Contract {contract_id} has invalid state: "
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
-                               f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
+                    raise ValueError(f"Contract {contract_id} has invalid state: "
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['status']} and"
+                                     f"{previous_fe_release['releases'][0]['contracts'][i]['statusDetails']}.")
             else:
-                ValueError(f"Incorrect contract id into FE release: "
-                           f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
+                raise ValueError(f"Incorrect contract id into FE release: "
+                                 f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Issuing Framework process."):
@@ -336,7 +337,7 @@ class TestIssuingFramework:
                 payload.build_payload()
                 payload = payload.delete_optional_fields("contract")
             except ValueError:
-                ValueError("Impossible to build payload for Issuing Framework process.")
+                raise ValueError("Impossible to build payload for Issuing Framework process.")
 
             synchronous_result = issuing_framework_process(
                 host=bpe_host,
@@ -398,7 +399,7 @@ class TestIssuingFramework:
                     expected_platform_message = expected_message.build_expected_platform_message(actual_message_1)
                     expected_bpe_message = expected_message.build_expected_bpe_message(actual_message_2, 1)
                 except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
+                    raise ValueError("Impossible to build expected message for platform.")
 
                 with allure.step('Compare actual and expected message for platform.'):
                     allure.attach(json.dumps(actual_message_1), "Actual platform message.")
@@ -430,7 +431,7 @@ class TestIssuingFramework:
                     ))
                     expected_ap_release = expected_release.build_expected_ap_release(previous_ap_release)
                 except ValueError:
-                    ValueError("Impossible to build expected AP release.")
+                    raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
                     allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
@@ -453,7 +454,7 @@ class TestIssuingFramework:
                         previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
                     )
                 except ValueError:
-                    ValueError("Impossible to build expected FE release.")
+                    raise ValueError("Impossible to build expected FE release.")
 
                 with allure.step("Compare actual and expected FE release."):
                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
@@ -477,7 +478,7 @@ class TestIssuingFramework:
                         previous_fa_release
                     )
                 except ValueError:
-                    ValueError("Impossible to build expected FA release.")
+                    raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
                     allure.attach(json.dumps(actual_fa_release), "Actual Fa release.")
@@ -498,4 +499,4 @@ class TestIssuingFramework:
             )
 
         except ValueError:
-            ValueError("Impossible to cLean up the database.")
+            raise ValueError("Impossible to cLean up the database.")

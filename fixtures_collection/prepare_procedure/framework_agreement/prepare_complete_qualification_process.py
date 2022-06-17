@@ -102,7 +102,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -158,7 +158,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -227,7 +227,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -280,7 +280,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -336,7 +336,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -405,7 +405,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -471,7 +471,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
 
             ap_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create AP process.")
+            raise ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -678,7 +678,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Update AP process.")
+            raise ValueError("Impossible to build payload for Update AP process.")
 
         update_ap_process(
             host=bpe_host,
@@ -802,7 +802,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
 
             create_fe_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create FE process.")
+            raise ValueError("Impossible to build payload for Create FE process.")
 
         create_fe_process(
             host=bpe_host,
@@ -881,7 +881,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             payload.add_new_tender_documents(quantity_of_new_documents=3)
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Amend FE process.")
+            raise ValueError("Impossible to build payload for Amend FE process.")
 
         amend_fe_process(
             host=bpe_host,
@@ -969,7 +969,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             create_1_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submisison process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1038,7 +1038,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             create_2_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submisison process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1107,7 +1107,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             )
             create_3_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submisison process.")
+            raise ValueError("Impossible to build payload for Create Submisison process.")
 
         create_submission_process(
             host=bpe_host,
@@ -1231,8 +1231,8 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
 
                             payload = payload.build_payload()
                         except ValueError:
-                            ValueError("Impossible to build payload for"
-                                       "Qualification Declare Non Conflict Interest process.")
+                            raise ValueError("Impossible to build payload for"
+                                             "Qualification Declare Non Conflict Interest process.")
 
                         qualification_declare_process(
                             host=bpe_host,
@@ -1359,7 +1359,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
                     payload.customize_qualification_documents(quantity_of_documents=3)
                     payload = payload.build_payload(status="active")
                 except ValueError:
-                    ValueError("Impossible to build payload for Qualification Declare process.")
+                    raise ValueError("Impossible to build payload for Qualification Declare process.")
 
                 qualification_process(
                     host=bpe_host,
@@ -1477,7 +1477,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
                 "minQtyQualificationsForInvitation"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into qualification.qualification_rules.")
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -1493,7 +1493,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
                 "minQtyQualificationsForInvitation"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into qualification.qualification_rules.")
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -1604,7 +1604,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
             ap_cpid
         )
     except ValueError:
-        ValueError("Impossible to cLean up the database.")
+        raise ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -1675,7 +1675,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             )
             ei_1_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -1740,7 +1740,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -1800,7 +1800,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             pn_1_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -1860,7 +1860,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             )
             ei_2_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create EI process.")
+            raise ValueError("Impossible to build payload for Create EI process.")
 
         create_ei_process(
             host=bpe_host,
@@ -1925,7 +1925,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             )
             fs_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Fs process.")
+            raise ValueError("Impossible to build payload for Create Fs process.")
 
         create_fs_process(
             host=bpe_host,
@@ -1985,7 +1985,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             pn_2_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create PN process.")
+            raise ValueError("Impossible to build payload for Create PN process.")
 
         create_pn_process(
             host=bpe_host,
@@ -2052,7 +2052,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
 
             ap_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create AP process.")
+            raise ValueError("Impossible to build payload for Create AP process.")
 
         create_ap_process(
             host=bpe_host,
@@ -2254,7 +2254,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Update AP process.")
+            raise ValueError("Impossible to build payload for Update AP process.")
 
         update_ap_process(
             host=bpe_host,
@@ -2312,7 +2312,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             create_fe_payload = payload.build_payload()
 
         except ValueError:
-            ValueError("Impossible to build payload for Create FE process.")
+            raise ValueError("Impossible to build payload for Create FE process.")
 
         create_fe_process(
             host=bpe_host,
@@ -2373,7 +2373,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             )
             payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Amend FE process.")
+            raise ValueError("Impossible to build payload for Amend FE process.")
 
         amend_fe_process(
             host=bpe_host,
@@ -2450,7 +2450,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             payload.prepare_submission_object(submission_position=0)
             create_submission_payload = payload.build_payload()
         except ValueError:
-            ValueError("Impossible to build payload for Create Submission process.")
+            raise ValueError("Impossible to build payload for Create Submission process.")
 
         create_submission_process(
             host=bpe_host,
@@ -2578,8 +2578,8 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
                             )
                             payload = payload.build_payload()
                         except ValueError:
-                            ValueError("Impossible to build payload for"
-                                       "Qualification Declare Non Conflict Interest process.")
+                            raise ValueError("Impossible to build payload for"
+                                             "Qualification Declare Non Conflict Interest process.")
 
                         qualification_declare_process(
                             host=bpe_host,
@@ -2712,7 +2712,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
                     )
                     payload = payload.build_payload(status="active")
                 except ValueError:
-                    ValueError("Impossible to build payload for Qualification Declare process.")
+                    raise ValueError("Impossible to build payload for Qualification Declare process.")
 
                 qualification_process(
                     host=bpe_host,
@@ -2828,7 +2828,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
                 "completeQualification", "minQtySubmissionsForReturning"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into dossier.rules.")
+        raise ValueError("Impossible to set previous value into dossier.rules.")
 
     try:
         """
@@ -2844,7 +2844,7 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
                 "minQtyQualificationsForInvitation"
             )
     except ValueError:
-        ValueError("Impossible to set previous value into qualification.qualification_rules.")
+        raise ValueError("Impossible to set previous value into qualification.qualification_rules.")
 
     try:
         """
@@ -2955,4 +2955,4 @@ def complete_qualification_tc_2(get_parameters, prepare_currency, connect_to_key
             ap_cpid
         )
     except ValueError:
-        ValueError("Impossible to cLean up the database.")
+        raise ValueError("Impossible to cLean up the database.")

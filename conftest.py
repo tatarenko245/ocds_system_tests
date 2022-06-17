@@ -16,4 +16,5 @@ pytest_plugins = [
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_qualification_protocol_process",
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_complete_qualification_process",
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_issuing_framework_process",
+    "fixtures_collection.prepare_procedure.framework_agreement.prepare_confirmation_response_by_buyer_process",
 ]
