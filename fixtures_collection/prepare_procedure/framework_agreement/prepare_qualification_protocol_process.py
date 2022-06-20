@@ -18,7 +18,8 @@ from functions_collection.cassandra_methods import get_max_duration_of_fa_from_a
     cleanup_table_of_services_for_submission_period_end, cleanup_table_of_services_for_qualification_declare, \
     cleanup_table_of_services_for_qualification_consideration, cleanup_table_of_services_for_qualification, \
     get_value_from_qualification_rules, set_value_into_qualification_rules, \
-    cleanup_table_of_services_for_qualification_protocol, get_value_from_dossier_rules, set_value_into_dossier_rules
+    cleanup_table_of_services_for_qualification_protocol, get_value_from_dossier_rules, set_value_into_dossier_rules, \
+    cleanup_orchestrator_steps_by_cpid_and_operationid
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
@@ -1465,7 +1466,7 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
         CLean up the database.
         """
         # Clean after Crate Ei_1 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ei_1_operation_id)
+        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_1_cpid, ei_1_operation_id)
         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
 
         # Clean after Crate FS_1 process:
@@ -1477,7 +1478,7 @@ def qualification_protocol_tc_1(get_parameters, prepare_currency, connect_to_key
         cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
         # Clean after Crate Ei_2 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ei_2_operation_id)
+        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_2_cpid, ei_2_operation_id)
         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
 
         # Clean after Crate FS_2 process:
@@ -2774,7 +2775,7 @@ def qualification_protocol_tc_2(get_parameters, prepare_currency, connect_to_key
         CLean up the database.
         """
         # Clean after Crate Ei_1 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ei_1_operation_id)
+        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_1_cpid, ei_1_operation_id)
         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
 
         # Clean after Crate FS_1 process:
@@ -2786,7 +2787,7 @@ def qualification_protocol_tc_2(get_parameters, prepare_currency, connect_to_key
         cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
         # Clean after Crate Ei_2 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ei_2_operation_id)
+        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_2_cpid, ei_2_operation_id)
         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
 
         # Clean after Crate FS_2 process:

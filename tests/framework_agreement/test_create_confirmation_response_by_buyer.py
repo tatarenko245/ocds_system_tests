@@ -12,12 +12,12 @@ from messages_collection.framework_agreement.create_confirmation_response_messag
     CreateConfirmationResponseMessage
 from payloads_collection.framework_agreement.create_confirmation_response_payload import \
     CreateConfirmationResponsePayload
-from releases_collection.framework_agreement.create_confirmation_response_release import \
+from releases_collection.framework_agreement.create_confirmation_response_by_buyer_release import \
     CreateConfirmationResponseRelease
 
 
 @allure.parent_suite("Framework Agreement")
-@allure.suite("Contracting")
+@allure.suite("Evaluation")
 @allure.severity("Critical")
 @allure.testcase(url="")
 class TestCreateConfirmationResponseByBuyer:

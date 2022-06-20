@@ -322,19 +322,19 @@ def create_confirmation_response_process(host, access_token, x_operation_id, pay
 
 
 @allure.step('# Prepared request: Next Confirmation Step.')
-def next_confirmation_step_process(host, access_token, x_operation_id, payload, cpid, ocid, entity, entity_id,
-                                   token, test_mode=False):
+def next_confirmation_step_process(host, access_token, x_operation_id, cpid, ocid, entity, entity_id,
+                                   entity_token, role, test_mode=False):
     request = requests.post(
         url=f"{host}/complete/confirmationStage/{entity}/{cpid}/{ocid}/{entity_id}",
         params={
+            "role": role,
             "testMode": test_mode
         },
         headers={
             "Authorization": f"Bearer {access_token}",
             "X-OPERATION-ID": x_operation_id,
             "Content-Type": "application/json",
-            "X-TOKEN": token},
-        json=payload)
+            "X-TOKEN": entity_token}
+    )
     allure.attach(f"{host}/complete/confirmationStage/{entity}/{cpid}/{ocid}/{entity_id}", 'URL')
-    allure.attach(json.dumps(payload), 'Prepared payload')
     return request

@@ -12,7 +12,6 @@ def cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cp_id):
 def cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id):
     get_process_id = connect_to_ocds.execute(
         f"SELECT * FROM orchestrator_operation WHERE operation_id = '{operation_id}';").one()
-
     process_id = get_process_id.process_id
     connect_to_ocds.execute(f"DELETE FROM orchestrator_operation_step WHERE process_id = '{process_id}';")
 
@@ -60,6 +59,10 @@ def cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_ac
 
 def cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid):
     connect_to_orchestrator.execute(f"DELETE FROM steps WHERE cpid = '{cpid}';")
+
+
+def cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, cpid, operation_id):
+    connect_to_orchestrator.execute(f"DELETE FROM steps WHERE cpid = '{cpid}' AND operation_id = '{operation_id}';")
 
 
 def cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, cpid):
@@ -273,3 +276,11 @@ def cleanup_table_of_services_for_create_confirmation_response(
     connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")
+
+
+def get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key):
+    """ Get some 'output' from orchestrator.decision_table"""
+
+    value = connect_to_orchestrator.execute(
+        f"""SELECT "output" FROM decision_table WHERE key = '{key}';""").one()
+    return value.output

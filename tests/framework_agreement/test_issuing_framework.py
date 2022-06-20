@@ -14,7 +14,7 @@ from releases_collection.framework_agreement.issuing_framework_release import Is
 
 
 @allure.parent_suite("Framework Agreement")
-@allure.suite("Contracting")
+@allure.suite("Evaluation")
 @allure.severity("Critical")
 @allure.testcase(url="")
 class TestIssuingFramework:
@@ -209,7 +209,8 @@ class TestIssuingFramework:
                     Build expected FE release.
                     """
                     expected_fe_release = expected_release.build_expected_fe_release(
-                        previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
+                        previous_fe_release, actual_fe_release, connect_to_submission, country, pmd,
+                        connect_to_orchestrator
                     )
                 except ValueError:
                     raise ValueError("Impossible to build expected FE release.")
@@ -451,7 +452,8 @@ class TestIssuingFramework:
                     Build expected FE release.
                     """
                     expected_fe_release = expected_release.build_expected_fe_release(
-                        previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
+                        previous_fe_release, actual_fe_release, connect_to_submission, country, pmd,
+                        connect_to_orchestrator
                     )
                 except ValueError:
                     raise ValueError("Impossible to build expected FE release.")
