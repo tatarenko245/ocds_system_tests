@@ -1015,7 +1015,7 @@ class NextConfirmationStepRelease:
         submissions_list = list()
         for s in range(len(previous_fe_release['releases'][0]['submissions']['details'])):
             if previous_fe_release['releases'][0]['submissions']['details'][s]['status'] == "valid":
-                submissions_list.append(previous_fe_release['releases'][0]['submissions']['details'][s])
+                submissions_list.append(previous_fe_release['releases'][0]['submissions']['details'][s]['id'])
 
         if len(submissions_list) < 1:
             raise ValueError("VR.COM-5.21.1: В сервисе должна существовать хотя бы одна запись о submission "
@@ -1023,6 +1023,8 @@ class NextConfirmationStepRelease:
 
         # FR.COM-5.21.2, FR.COM-5.21.3: get candidates[*].id, candidates[*]name for each of submission
         # in 'valid' status."""
+        print("\nSubmission list")
+        print(json.dumps(submissions_list))
         candidates_list = list()
         for i in range(len(submissions_list)):
             for submission in range(len(previous_fe_release['releases'][0]['submissions']['details'])):
@@ -1075,16 +1077,14 @@ class NextConfirmationStepRelease:
               f"{previous_contracts_array[0]['statusDetails']}-{procuringentity_id}"
 
         role = get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key)
-        print("\nУВАГА, Перевірка ролі 1")
-        print(role)
+
         if role is None:
             key = f"{country}-nextStepAfterBuyersConfirmation-{pmd}-" \
                   f"{previous_contracts_array[0]['status']}-" \
-                  f"{previous_contracts_array[0]['statusDetails']}-{procuringentity_id}"
+                  f"{previous_contracts_array[0]['statusDetails']}-all"
 
             role = get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key)
-        print("\nУВАГА, Перевірка ролі 2")
-        print(role)
+
         if role == "buyer":
             expected_confirmationrequest['source'] = "buyer"
         elif role == "procuringEntity":
@@ -1093,12 +1093,16 @@ class NextConfirmationStepRelease:
             expected_confirmationrequest['source'] = "tenderer"
         elif role == "invitedCandidate":
             expected_confirmationrequest['source'] = "invitedCandidate"
+        elif role == "invitedTenderer":
+            expected_confirmationrequest['source'] = "invitedCandidate"
         else:
             raise ValueError("Invalid value of role: FR.COM-6.12.6.")
 
         # FR.COM-6.12.1: Create confirmationRequest.request array.
         del expected_confirmationrequest['requests'][0]
         expected_expected_confirmationrequest_requests_list = list()
+        print("\ncandidate list")
+        print(candidates_list)
         for candidate in range(len(candidates_list)):
             expected_expected_confirmationrequest_requests_list.append(copy.deepcopy(
                 self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['requests'][0]
@@ -1108,6 +1112,9 @@ class NextConfirmationStepRelease:
 
             expected_expected_confirmationrequest_requests_list[candidate]['relatedOrganization']['name'] = \
                 candidates_list[candidate]['name']
+        expected_confirmationrequest['requests'] = expected_expected_confirmationrequest_requests_list
+        previous_contracts_array[0]['confirmationRequests'].append(expected_confirmationrequest)
+        self.__expected_fe_release['releases'][0]['contracts'] = previous_contracts_array
 
         """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
         self.__expected_fe_release['releases'][0]['qualifications'] = \

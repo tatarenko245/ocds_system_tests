@@ -214,6 +214,9 @@ class TestNextConfirmationStep:
                     )
                 except ValueError:
                     raise ValueError("Impossible to build expected FE release.")
+
+                allure.attach(json.dumps(actual_fe_release), "Actual FE release.")
+                allure.attach(json.dumps(expected_fe_release), "Expected FE release.")
 #
 #                 with allure.step("Compare actual and expected FE release."):
 #                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")

@@ -280,8 +280,7 @@ def cleanup_table_of_services_for_create_confirmation_response(
 
 def get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key):
     """ Get some 'output' from orchestrator.decision_table"""
-    print("\n Увага! Перевірка Запиту в БД")
-    print(f"""SELECT "output" FROM decision_table WHERE key = '{key}';""")
+
     value = connect_to_orchestrator.execute(
         f"""SELECT "output" FROM decision_table WHERE key = '{key}';""").one()
     if value is None:
