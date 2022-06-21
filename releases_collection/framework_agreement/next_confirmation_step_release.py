@@ -1070,17 +1070,17 @@ class NextConfirmationStepRelease:
             if previous_fe_release['releases'][0]['parties'][party]['roles'][0] == "procuringEntity":
                 procuringentity_id = previous_fe_release['releases'][0]['parties'][party]['id']
 
-        key = f"{country}-issuingFrameworkContract-{pmd}-" \
-              f"{self.__expected_fe_release['releases'][0]['contracts'][0]['status']}-" \
-              f"{self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']}-{procuringentity_id}"
+        key = f"{country}-nextStepAfterBuyersConfirmation-{pmd}-" \
+              f"{previous_contracts_array[0]['status']}-" \
+              f"{previous_contracts_array[0]['statusDetails']}-{procuringentity_id}"
 
         role = get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key)
         print("\nУВАГА, Перевірка ролі 1")
         print(role)
         if role is None:
-            key = f"{country}-issuingFrameworkContract-{pmd}-" \
-                  f"{self.__expected_fe_release['releases'][0]['contracts'][0]['status']}-" \
-                  f"{self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']}-all"
+            key = f"{country}-nextStepAfterBuyersConfirmation-{pmd}-" \
+                  f"{previous_contracts_array[0]['status']}-" \
+                  f"{previous_contracts_array[0]['statusDetails']}-{procuringentity_id}"
 
             role = get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key)
         print("\nУВАГА, Перевірка ролі 2")
