@@ -197,22 +197,23 @@ class TestNextConfirmationStep:
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-#
-#             with allure.step(f'# {step_number}.4. Check FE release.'):
-#                 """
-#                 Compare actual FE release and expected FE release.
-#                 """
-#                 actual_fe_release = requests.get(url=fe_url).json()
-#
-#                 try:
-#                     """
-#                     Build expected FE release.
-#                     """
-#                     expected_fe_release = expected_release.build_expected_fe_release(
-#                         previous_fe_release, actual_fe_release, connect_to_submission, country, pmd
-#                     )
-#                 except ValueError:
-#                     raise ValueError("Impossible to build expected FE release.")
+
+            with allure.step(f'# {step_number}.4. Check FE release.'):
+                """
+                Compare actual FE release and expected FE release.
+                """
+                actual_fe_release = requests.get(url=fe_url).json()
+
+                try:
+                    """
+                    Build expected FE release.
+                    """
+                    expected_fe_release = expected_release.build_expected_fe_release(
+                        previous_fe_release, actual_fe_release, actual_message_1, connect_to_orchestrator,
+                        connect_to_submission, country, pmd
+                    )
+                except ValueError:
+                    raise ValueError("Impossible to build expected FE release.")
 #
 #                 with allure.step("Compare actual and expected FE release."):
 #                     allure.attach(json.dumps(actual_fe_release), "Actual FE release.")

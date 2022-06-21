@@ -1500,7 +1500,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
         CLean up the database.
         """
         # Clean after Crate Ei_1 process:
-        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_ocds, ei_1_cpid, ei_1_operation_id)
+        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_1_cpid, ei_1_operation_id)
         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
 
         # Clean after Crate FS_1 process:
@@ -1512,7 +1512,7 @@ def complete_qualification_tc_1(get_parameters, prepare_currency, connect_to_key
         cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
         # Clean after Crate Ei_2 process:
-        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_ocds, ei_2_cpid, ei_2_operation_id)
+        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_2_cpid, ei_2_operation_id)
         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
 
         # Clean after Crate FS_2 process:

@@ -1066,12 +1066,23 @@ class IssuingFrameworkRelease:
             "digitalSignature"
 
         # Check flow for creating RequirementRequest, according to subprocess 'selectFlowCreateConfReqInContract':
+        procuringentity_id = None
+        for party in range(len(previous_fe_release['releases'][0]['parties'])):
+            if previous_fe_release['releases'][0]['parties'][party]['roles'][0] == "procuringEntity":
+                procuringentity_id = previous_fe_release['releases'][0]['parties'][party]['id']
 
         key = f"{country}-issuingFrameworkContract-{pmd}-" \
               f"{self.__expected_fe_release['releases'][0]['contracts'][0]['status']}-" \
-              f"{self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']}-all"
+              f"{self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']}-{procuringentity_id}"
 
         role = get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key)
+
+        if role is None:
+            key = f"{country}-issuingFrameworkContract-{pmd}-" \
+                  f"{self.__expected_fe_release['releases'][0]['contracts'][0]['status']}-" \
+                  f"{self.__expected_fe_release['releases'][0]['contracts'][0]['statusDetails']}-all"
+
+            role = get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key)
 
         # Create Create Confirmation Requests for 'buyer', according to
         # 'создание Confirmation Requests для buyer, если сущность FC (по-умолчанию)':
