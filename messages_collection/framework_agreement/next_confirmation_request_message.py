@@ -124,7 +124,7 @@ class NextConfirmationStepMessage:
             KeyError("The message is not correct: mismatch key 'X-RESPONSE-ID'.")
 
         if "initiator" in actual_message:
-            self.__bpe_message['initiator'] = "bpe"
+            self.__bpe_message['initiator'] = "platform"
         else:
             KeyError("The message is not correct: mismatch key 'initiator'.")
 

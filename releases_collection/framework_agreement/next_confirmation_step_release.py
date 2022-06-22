@@ -1,6 +1,5 @@
 """Prepare the expected releases of the next confirmation step process, framework agreement procedures."""
 import copy
-import fnmatch
 import json
 
 from functions_collection.cassandra_methods import get_parameter_from_submission_rules, \
@@ -1023,16 +1022,15 @@ class NextConfirmationStepRelease:
 
         # FR.COM-5.21.2, FR.COM-5.21.3: get candidates[*].id, candidates[*]name for each of submission
         # in 'valid' status."""
-        print("\nSubmission list")
-        print(json.dumps(submissions_list))
         candidates_list = list()
         for i in range(len(submissions_list)):
             for submission in range(len(previous_fe_release['releases'][0]['submissions']['details'])):
                 if previous_fe_release['releases'][0]['submissions']['details'][submission]['id'] == \
                         submissions_list[i]:
 
-                    for candidate in previous_fe_release['releases'][0]['submissions']['details'][submission][
-                            'candidates']:
+                    for candidate in range(len(
+                            previous_fe_release['releases'][0]['submissions']['details'][submission]['candidates']
+                    )):
 
                         candidate_object = {
                             "id": previous_fe_release['releases'][0]['submissions']['details'][submission][
@@ -1101,8 +1099,6 @@ class NextConfirmationStepRelease:
         # FR.COM-6.12.1: Create confirmationRequest.request array.
         del expected_confirmationrequest['requests'][0]
         expected_expected_confirmationrequest_requests_list = list()
-        print("\ncandidate list")
-        print(candidates_list)
         for candidate in range(len(candidates_list)):
             expected_expected_confirmationrequest_requests_list.append(copy.deepcopy(
                 self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][0]['requests'][0]
@@ -1115,6 +1111,56 @@ class NextConfirmationStepRelease:
         expected_confirmationrequest['requests'] = expected_expected_confirmationrequest_requests_list
         previous_contracts_array[0]['confirmationRequests'].append(expected_confirmationrequest)
         self.__expected_fe_release['releases'][0]['contracts'] = previous_contracts_array
+
+        # Set permanent id for releases[0].contracts[0].confirmationRequests object, which has correct value of source.
+        for exp in range(len(self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'])):
+            for act in range(len(actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'])):
+                if self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][exp]['source'] == \
+                        actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][act]['source']:
+                    try:
+                        """Set permanent id."""
+                        is_permanent_id_correct = is_it_uuid(
+                            actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][act]['id'])
+                        if is_permanent_id_correct is True:
+                            self.__expected_fe_release['releases'][0]['contracts'][0][
+                                'confirmationRequests'][exp]['id'] = \
+                                actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][act]['id']
+                        else:
+                            self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][exp] = \
+                                f"The id of entity must be uuid!"
+                    except KeyError:
+                        KeyError("Mismatch key into path 'releases[0].contracts[0].confirmationRequest[*].id'")
+
+                    for exp_can in range(len(
+                            self.__expected_fe_release['releases'][0]['contracts'][0][
+                                'confirmationRequests'][exp]['requests']
+                    )):
+                        for act_can in range(len(
+                                actual_fe_release['releases'][0]['contracts'][0][
+                                    'confirmationRequests'][act]['requests']
+                        )):
+                            if self.__expected_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][exp][
+                                    'requests'][exp_can]['relatedOrganization'] == \
+                                    actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][act][
+                                        'requests'][act_can]['relatedOrganization']:
+
+                                try:
+                                    """Set permanent id."""
+                                    is_permanent_id_correct = is_it_uuid(
+                                        actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][act][
+                                            'requests'][act_can]['id'])
+                                    if is_permanent_id_correct is True:
+                                        self.__expected_fe_release['releases'][0]['contracts'][0][
+                                            'confirmationRequests'][exp]['requests'][exp_can]['id'] = \
+                                            actual_fe_release['releases'][0]['contracts'][0]['confirmationRequests'][
+                                                act]['requests'][act_can]['id']
+                                    else:
+                                        self.__expected_fe_release['releases'][0]['contracts'][0][
+                                            'confirmationRequests'][exp]['requests'][exp_can]['id'] = \
+                                            f"The id of entity must be uuid!"
+                                except KeyError:
+                                    KeyError("Mismatch key into path 'releases[0].contracts[0].confirmationRequest[*]."
+                                             "requests[*].id'")
 
         """Prepare 'qualifications' array for expected FE release: releases[0].qualification"""
         self.__expected_fe_release['releases'][0]['qualifications'] = \

@@ -1153,7 +1153,7 @@ def qualification_declare_tc_1(get_parameters, prepare_currency, connect_to_keys
     """ Depends on quantity of requirements into criteria and
     depends on quantity of candidates into Create Submission payload and
     depends on quantity of qualifications into FE release, send requests"""
-    step_number = 1
+    step_number += 1
     for x in range(len(requirements_list)):
         for y in range(len(candidates_list)):
             for q in range(len(qualification_list)):
@@ -2209,7 +2209,7 @@ def qualification_declare_tc_2(get_parameters, prepare_currency, connect_to_keys
     """ Depends on quantity of requirements into criteria and
     depends on quantity of candidates into Create Submission payload and
     depends on quantity of qualifications into FE release, send requests"""
-    step_number = 1
+    step_number += 1
     for x in range(len(requirements_list)):
         for y in range(len(candidates_list)):
             for q in range(len(qualification_list)):

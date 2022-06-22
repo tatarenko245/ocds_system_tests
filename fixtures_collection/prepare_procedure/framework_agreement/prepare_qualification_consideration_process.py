@@ -1163,7 +1163,7 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
     """ Depends on quantity of requirements into criteria and
     depends on quantity of candidates into Create Submission payload and
     depends on quantity of qualifications into FE release, send requests"""
-    step_number = 1
+    step_number += 1
     for x in range(len(requirements_list)):
         for y in range(len(candidates_list)):
             for q in range(len(qualification_list)):
@@ -1248,7 +1248,7 @@ def qualification_consideration_tc_1(get_parameters, prepare_currency, connect_t
                     submission_period_end_message['data']['outcomes']['qualifications'][qm]['X-TOKEN']
 
     """ Depends on quantity of qualifications in valid state, send requests"""
-    step_number = 1
+    step_number += 1
     for q in range(len(qualification_list)):
         step_number += q
         with allure.step(f"# {step_number}. Authorization platform one: Qualification Consideration process."):
@@ -2281,7 +2281,7 @@ def qualification_consideration_tc_2(get_parameters, prepare_currency, connect_t
     """ Depends on quantity of requirements into criteria and
     depends on quantity of candidates into Create Submission payload and
     depends on quantity of qualifications into FE release, send requests"""
-    step_number = 1
+    step_number += 1
     for x in range(len(requirements_list)):
         for y in range(len(candidates_list)):
             for q in range(len(qualification_list)):
@@ -2370,7 +2370,7 @@ def qualification_consideration_tc_2(get_parameters, prepare_currency, connect_t
                     submission_period_end_message['data']['outcomes']['qualifications'][qm]['X-TOKEN']
 
     """ Depends on quantity of qualifications in valid state, send requests"""
-    step_number = 1
+    step_number += 1
     for q in range(len(qualification_list)):
         step_number += q
         with allure.step(f"# {step_number}. Authorization platform one: Qualification Consideration process."):
