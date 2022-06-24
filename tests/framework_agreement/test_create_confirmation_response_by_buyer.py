@@ -335,7 +335,7 @@ class TestCreateConfirmationResponseByBuyer:
                                  f"{previous_fe_release['releases'][0]['contracts'][i]['id']} != {contract_id}.")
 
         """
-        Send request, depends on quantity of objects into 
+        Send request, depends on quantity of objects into
         'releases[0].contracts[0].confirmationRequests[0].request'
         """
         for q_0 in range(len(previous_fe_release['releases'][0]['contracts'][0]['confirmationRequests'])):
