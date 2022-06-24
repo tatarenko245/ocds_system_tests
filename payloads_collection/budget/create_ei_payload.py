@@ -5,18 +5,28 @@ from jsonschema import validate
 
 from data_collection.data_constant import locality_scheme_tuple, typeOfBuyer_tuple, mainGeneralActivity_tuple, \
     mainSectoralActivity_tuple, region_id_tuple, unit_id_tuple, cpvs_tuple
-from functions_collection.mongo_methods import get_payload_model
+from data_collection.for_test_createEI_process.payload_full_model import *
 from functions_collection.prepare_date import ei_period
 from functions_collection.some_functions import generate_items_array, get_locality_id_according_with_region_id
 from payloads_collection.budget.temp_ei_scheme import ei_payload_scheme
 
 
 class ExpenditureItemPayload:
-    def __init__(self, connect_to_mongo_test_cluster, country, process, pmd, buyer_id, tender_classification_id):
+    def __init__(self, country, buyer_id, tender_classification_id, amount=None, currency=None):
 
         __ei_period = ei_period()
         self.__tender_classification_id = tender_classification_id
-        self.__payload = get_payload_model(connect_to_mongo_test_cluster, country, process, pmd)
+        self.__payload = payload_model
+
+        # Since we work with two country Moldova and Litua, we should to correct some attribute.
+        # It depends on country value and according with payload data model from documentation.
+        if country == "MD":
+            del self.__payload['planning']['budget']['amount']
+        elif country == "LT":
+            self.__payload['planning']['budget']['amount']['amount'] = amount
+            self.__payload['planning']['budget']['amount']['currency'] = currency
+        else:
+            raise ValueError(f"Error in payload! Invalid country value. Actual country = {country}")
 
         self.__payload['tender']['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['classification']['id'] = tender_classification_id
@@ -41,7 +51,7 @@ class ExpenditureItemPayload:
         return self.__tender_classification_id
 
     def delete_optional_fields(self, *args):
-        """Call this method last! Delete option fields from payload."""
+        """Call this method last, but before 'build_payload' method! Delete option fields from payload."""
         for a in args:
             del self.__payload[a]
 

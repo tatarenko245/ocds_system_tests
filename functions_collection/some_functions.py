@@ -130,6 +130,16 @@ def get_value_from_cpvs_dictionary_csv(cpvs, language):
                     3].replace('"', '')
 
 
+def get_value_from_state_for_entity_of_release_csv(country_id, pmd, process, release_type):
+    path = get_project_root()
+    with open(f'{path}/data_collection/state_for_entity_of_release.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(';')
+            if cur_arr[0] == country_id and cur_arr[1] == pmd and cur_arr[2] == process and cur_arr[3] == release_type:
+                return cur_arr[4]
+
+
 def get_value_from_cpv_dictionary_xls(cpv, language):
     path = get_project_root()
     # Open current xlsx file.

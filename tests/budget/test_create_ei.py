@@ -19,7 +19,7 @@ from releases_collection.budget.create_ei_release import ExpenditureItemRelease
 @allure.testcase(url="")
 class TestCreateEI:
     @allure.title("Check records: based on full data model.")
-    def test_case_1(self, connect_to_mongo_test_cluster, get_parameters, connect_to_keyspace):
+    def test_case_1(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
@@ -51,10 +51,6 @@ class TestCreateEI:
                 Build payload for Create EI process.
                 """
                 payload = copy.deepcopy(ExpenditureItemPayload(
-                    connect_to_mongo_test_cluster=connect_to_mongo_test_cluster,
-                    country=country,
-                    process="createEi",
-                    pmd=None,
                     buyer_id=0,
                     tender_classification_id=tender_classification_id)
                 )

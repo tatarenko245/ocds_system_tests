@@ -1,6 +1,7 @@
 """Prepare the expected release of the create expenditure item process, budget."""
 import copy
 
+from data_collection.for_test_createEI_process.ei_release_full_model import *
 from functions_collection.some_functions import get_value_from_cpvs_dictionary_csv, is_it_uuid, \
     get_value_from_cpv_dictionary_xls, get_value_from_classification_unit_dictionary_csv, \
     get_value_from_country_csv, get_value_from_region_csv, \
@@ -10,48 +11,40 @@ from functions_collection.some_functions import get_value_from_cpvs_dictionary_c
 class ExpenditureItemRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, host_to_service, language, ei_payload, ei_message, actual_ei_release,
-                 tender_classification_id):
+    def __init__(self, environment, host_to_service, language, tender_classification_id):
 
         self.environment = environment
         self.host = host_to_service
         self.language = language
-        self.ei_payload = ei_payload
-        self.ei_message = ei_message
-        self.actual_ei_release = actual_ei_release
         self.tender_classification_id = tender_classification_id
+        self.expected_ei_release = release_model
 
-        extensions = None
-        publisher_name = None
-        publisher_uri = None
-        self.__metadata_document_url = None
         try:
             if environment == "dev":
                 self.metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
 
-                extensions = [
+                self.extensions = [
                     "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
                     "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"
                 ]
 
-                publisher_name = "M-Tender"
-                publisher_uri = "https://www.mtender.gov.md"
+                self.publisher_name = "M-Tender"
+                self.publisher_uri = "https://www.mtender.gov.md"
 
             elif environment == "sandbox":
                 self.metadata_budget_url = "http://public.eprocurement.systems/budgets"
 
-                extensions = [
+                self.extensions = [
                     "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
                     "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.json"
                 ]
 
-                publisher_name = "Viešųjų pirkimų tarnyba"
-                publisher_uri = "https://vpt.lrv.lt"
+                self.publisher_name = "Viešųjų pirkimų tarnyba"
+                self.publisher_uri = "https://vpt.lrv.lt"
 
         except ValueError:
             raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
-        # BR-4.228, BR-4.229, BR-4.230, BR-4.232, BR-4.234, BR-4.235,
         self.expected_ei_release = {
             "uri": f"{self.metadata_budget_url}/{ei_message['data']['ocid']}/"
                    f"{ei_message['data']['outcomes']['ei'][0]['id']}",
@@ -214,9 +207,206 @@ class ExpenditureItemRelease:
             ]
         }
 
-    def build_expected_ei_release(self):
+    def build_expected_ei_release(self, payload, message_for_platform, actual_ei_release):
         """Build EI release."""
 
+        """Enrich general attribute for expected EI release"""
+        self.expected_ei_release['uri'] = f"{self.metadata_budget_url}/{message_for_platform['data']['ocid']}/" \
+                                          f"{message_for_platform['data']['outcomes']['ei'][0]['id']}"
+
+        self.expected_ei_release['version'] = "1.1"
+        self.expected_ei_release['extensions'] = self.extensions
+        self.expected_ei_release['publisher']['name'] = self.publisher_name
+        self.expected_ei_release['publisher']['uri'] = self.publisher_uri
+        self.expected_ei_release['license'] = "http://opendefinition.org/licenses/"
+        self.expected_ei_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
+
+        # FR.COM-3.5.6: Set created date for release.
+        self.expected_ei_release['publishedDate'] = message_for_platform['data']['operationDate']
+
+        """Enrich general attribute for expected EI release: releases[0]"""
+        # FR.COM-3.5.2: Set ocid.
+        self.expected_ei_release['releases'][0]['ocid'] = message_for_platform['data']['outcomes']['ei'][0]['id']
+
+        # FR.COM-3.5.4: Set id.
+        self.expected_ei_release['releases'][0]['id'] = f"{message_for_platform['data']['outcomes']['ei'][0]['id']}-" \
+                                                        f"{actual_ei_release['releases'][0]['id'][29:42]}"
+
+        # FR.COM-14.2.2: Set date.
+        self.expected_ei_release['releases'][0]['date'] = message_for_platform['data']['operationDate']
+
+        # FR.COM-3.5.7: Set tag.
+        self.expected_ei_release['releases'][0]['tag'] = ["compiled"]
+
+        # FR.COM-3.5.8: Set initiationType.
+        self.expected_ei_release['releases'][0]['initiationType'] = "tender"
+
+        # FR.COM-3.5.9: Set language.
+        self.expected_ei_release['releases'][0]['language'] = self.language
+
+        """Enrich attribute for expected EI release: releases[0].planning"""
+        # FR.COM-14.2.12: Set id.
+        self.expected_ei_release['releases'][0]['planning']['budget']['id'] = self.tender_classification_id
+
+        # FR.COM-14.2.14: Set period.
+        self.expected_ei_release['releases'][0]['planning']['budget']['period']['startDate'] = \
+            payload['planning']['budget']['period']['startDate']
+        self.expected_ei_release['releases'][0]['planning']['budget']['period']['endDate'] = \
+            payload['planning']['budget']['period']['endDate']
+
+        # FR.COM-14.2.15: Set amount.
+        if "amount" in payload['planning']['budget']:
+            self.expected_ei_release['releases'][0]['planning']['budget']['amount']['amount'] = \
+                payload['planning']['budget']['amount']['amount']
+            self.expected_ei_release['releases'][0]['planning']['budget']['amount']['currency'] = \
+                payload['planning']['budget']['amount']['currency']
+        else:
+            del self.expected_ei_release['releases'][0]['planning']['rationale']
+
+        # FR.COM-14.2.13: Set rationale.
+        if "rationale" in payload['planning']:
+            self.expected_ei_release['releases'][0]['planning']['rationale'] = payload['planning']['rationale']
+        else:
+            del self.expected_ei_release['releases'][0]['planning']['rationale']
+
+        """Enrich attribute for expected EI release: releases[0].parties"""
+        # According to actions of the 'budgetCreateEI' delegate.
+        buyer_role_array = list()
+        buyer_role_array.append(copy.deepcopy(self.expected_ei_release['releases'][0]['parties'][0]))
+
+        buyer_role_array[0]['id'] = f"{payload['buyer']['identifier']['scheme']}-" \
+                                    f"{payload['buyer']['identifier']['id']}"
+
+        buyer_role_array[0]['name'] = payload['buyer']['name']
+        buyer_role_array[0]['identifier']['scheme'] = payload['buyer']['identifier']['scheme']
+        buyer_role_array[0]['identifier']['id'] = payload['buyer']['identifier']['id']
+        buyer_role_array[0]['identifier']['legalName'] = payload['buyer']['identifier']['legalName']
+
+        if "uri" in payload['buyer']['identifier']:
+            buyer_role_array[0]['identifier']['uri'] = payload['buyer']['identifier']['uri']
+        else:
+            del buyer_role_array[0]['identifier']['uri']
+
+        buyer_role_array[0]['address']['streetAddress'] = payload['buyer']['address']['streetAddress']
+
+        if "postalCode" in payload['buyer']['address']:
+            buyer_role_array[0]['address']['postalCode'] = payload['buyer']['address']['postalCode']
+        else:
+            del buyer_role_array[0]['address']['postalCode']
+
+        try:
+            # Prepare addressDetails object for party with buyer role.
+            buyer_country_data = get_value_from_country_csv(
+                country=payload['buyer']['address']['addressDetails']['country']['id'],
+                language=self.language
+            )
+            expected_buyer_country_object = [{
+                "scheme": buyer_country_data[2],
+                "id": payload['buyer']['address']['addressDetails']['country']['id'],
+                "description": buyer_country_data[1],
+                "uri": buyer_country_data[3]
+            }]
+
+            buyer_region_data = get_value_from_region_csv(
+                region=payload['buyer']['address']['addressDetails']['region']['id'],
+                country=payload['buyer']['address']['addressDetails']['country']['id'],
+                language=self.language
+            )
+            expected_buyer_region_object = [{
+                "scheme": buyer_region_data[2],
+                "id": payload['buyer']['address']['addressDetails']['region']['id'],
+                "description": buyer_region_data[1],
+                "uri": buyer_region_data[3]
+            }]
+
+            if payload['buyer']['address']['addressDetails']['locality']['scheme'] == "CUATM":
+
+                buyer_locality_data = get_value_from_locality_csv(
+                    locality=payload['buyer']['address']['addressDetails']['locality']['id'],
+                    region=payload['buyer']['address']['addressDetails']['region']['id'],
+                    country=payload['buyer']['address']['addressDetails']['country']['id'],
+                    language=self.language
+                )
+                expected_buyer_locality_object = [{
+                    "scheme": buyer_locality_data[2],
+                    "id": payload['buyer']['address']['addressDetails']['locality']['id'],
+                    "description": buyer_locality_data[1],
+                    "uri": buyer_locality_data[3]
+                }]
+            else:
+                expected_buyer_locality_object = [{
+                    "scheme": payload['buyer']['address']['addressDetails']['locality']['scheme'],
+                    "id": payload['buyer']['address']['addressDetails']['locality']['id'],
+                    "description": payload['buyer']['address']['addressDetails']['locality']['description']
+                }]
+
+            buyer_role_array[0]['address']['addressDetails']['country'] = expected_buyer_country_object[0]
+            buyer_role_array[0]['address']['addressDetails']['region'] = expected_buyer_region_object[0]
+            buyer_role_array[0]['address']['addressDetails']['locality'] = expected_buyer_locality_object[0]
+        except ValueError:
+            ValueError(
+                "Impossible to prepare addressDetails object for party with buyer role.")
+
+        if "additionalIdentifiers" in spayload['buyer']:
+            for q_1 in range(len(self.ei_payload['buyer']['additionalIdentifiers'])):
+                buyer_role_array[0]['additionalIdentifiers'][q_1]['scheme'] = \
+                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['scheme']
+
+                buyer_role_array[0]['additionalIdentifiers'][q_1]['id'] = \
+                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['id']
+
+                buyer_role_array[0]['additionalIdentifiers'][q_1]['legalName'] = \
+                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['legalName']
+
+                buyer_role_array[0]['additionalIdentifiers'][q_1]['uri'] = \
+                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['uri']
+        else:
+            del buyer_role_array[0]['additionalIdentifiers']
+
+        if "faxNumber" in self.ei_payload['buyer']['contactPoint']:
+            buyer_role_array[0]['contactPoint']['faxNumber'] = self.ei_payload['buyer']['contactPoint']['faxNumber']
+        else:
+            del buyer_role_array[0]['contactPoint']['faxNumber']
+
+        if "url" in self.ei_payload['buyer']['contactPoint']:
+            buyer_role_array[0]['contactPoint']['url'] = self.ei_payload['buyer']['contactPoint']['url']
+        else:
+            del buyer_role_array[0]['contactPoint']['url']
+
+        buyer_role_array[0]['contactPoint']['name'] = self.ei_payload['buyer']['contactPoint']['name']
+        buyer_role_array[0]['contactPoint']['email'] = self.ei_payload['buyer']['contactPoint']['email']
+        buyer_role_array[0]['contactPoint']['telephone'] = self.ei_payload['buyer']['contactPoint']['telephone']
+
+        if "details" in self.ei_payload['buyer']:
+            if "typeOfBuyer" in self.ei_payload['buyer']['details']:
+                buyer_role_array[0]['details']['typeOfBuyer'] = self.ei_payload['buyer']['details']['typeOfBuyer']
+            else:
+                del buyer_role_array['buyer']['details']['typeOfBuyer']
+
+            if "mainGeneralActivity" in self.ei_payload['buyer']['details']:
+
+                buyer_role_array[0]['details']['mainGeneralActivity'] = \
+                    self.ei_payload['buyer']['details']['mainGeneralActivity']
+            else:
+                del buyer_role_array[0]['details']['mainGeneralActivity']
+
+            if "mainSectoralActivity" in self.ei_payload['buyer']['details']:
+
+                buyer_role_array[0]['details']['mainSectoralActivity'] = \
+                    self.ei_payload['buyer']['details']['mainSectoralActivity']
+            else:
+                del buyer_role_array[0]['details']['mainSectoralActivity']
+        else:
+            del buyer_role_array[0]['details']
+
+        buyer_role_array[0]['roles'] = ["buyer"]
+        self.expected_ei_release['releases'][0]['parties'] = buyer_role_array
+
+
+
+
+
+        # =====
         # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
         # BR-4.233
         if "items" in self.ei_payload['tender']:
@@ -340,7 +530,7 @@ class ExpenditureItemRelease:
                         }]
 
                         if self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'locality']['scheme'] == "CUATM":
+                            'locality']['scheme'] == "CUATM":
 
                             item_locality_data = get_value_from_locality_csv(
 
@@ -423,11 +613,11 @@ class ExpenditureItemRelease:
             expected_main_procurement_category = None
             if \
                     self.tender_classification_id[0:2] == "03" or \
-                    self.tender_classification_id[0] == "1" or \
-                    self.tender_classification_id[0] == "2" or \
-                    self.tender_classification_id[0] == "3" or \
-                    self.tender_classification_id[0:2] == "44" or \
-                    self.tender_classification_id[0:2] == "48":
+                            self.tender_classification_id[0] == "1" or \
+                            self.tender_classification_id[0] == "2" or \
+                            self.tender_classification_id[0] == "3" or \
+                            self.tender_classification_id[0:2] == "44" or \
+                            self.tender_classification_id[0:2] == "48":
                 expected_main_procurement_category = "goods"
 
             elif \
@@ -436,11 +626,11 @@ class ExpenditureItemRelease:
 
             elif \
                     self.tender_classification_id[0] == "5" or \
-                    self.tender_classification_id[0] == "6" or \
-                    self.tender_classification_id[0] == "7" or \
-                    self.tender_classification_id[0] == "8" or \
-                    self.tender_classification_id[0:2] == "92" or \
-                    self.tender_classification_id[0:2] == "98":
+                            self.tender_classification_id[0] == "6" or \
+                            self.tender_classification_id[0] == "7" or \
+                            self.tender_classification_id[0] == "8" or \
+                            self.tender_classification_id[0:2] == "92" or \
+                            self.tender_classification_id[0:2] == "98":
                 expected_main_procurement_category = "services"
 
             else:
@@ -476,154 +666,7 @@ class ExpenditureItemRelease:
 
         self.expected_ei_release['releases'][0]['buyer']['name'] = self.ei_payload['buyer']['name']
 
-        # Build the releases.parties array. Enrich or delete optional fields and enrich required fields:
-        # BR-4.2:
-        buyer_role_array = list()
-        buyer_role_array.append(copy.deepcopy(self.expected_ei_release['releases'][0]['parties'][0]))
 
-        buyer_role_array[0]['id'] = f"{self.ei_payload['buyer']['identifier']['scheme']}-" \
-                                    f"{self.ei_payload['buyer']['identifier']['id']}"
 
-        buyer_role_array[0]['name'] = self.ei_payload['buyer']['name']
-        buyer_role_array[0]['identifier']['scheme'] = self.ei_payload['buyer']['identifier']['scheme']
-        buyer_role_array[0]['identifier']['id'] = self.ei_payload['buyer']['identifier']['id']
-        buyer_role_array[0]['identifier']['legalName'] = self.ei_payload['buyer']['identifier']['legalName']
-
-        if "uri" in self.ei_payload['buyer']['identifier']:
-            buyer_role_array[0]['identifier']['uri'] = self.ei_payload['buyer']['identifier']['uri']
-        else:
-            del buyer_role_array[0]['identifier']['uri']
-
-        buyer_role_array[0]['address']['streetAddress'] = self.ei_payload['buyer']['address']['streetAddress']
-
-        if "postalCode" in self.ei_payload['buyer']['address']:
-            buyer_role_array[0]['address']['postalCode'] = self.ei_payload['buyer']['address']['postalCode']
-        else:
-            del buyer_role_array[0]['address']['postalCode']
-
-        try:
-            """
-            Prepare addressDetails object for party with buyer role.
-            """
-            buyer_country_data = get_value_from_country_csv(
-                country=self.ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                language=self.language
-            )
-            expected_buyer_country_object = [{
-                "scheme": buyer_country_data[2],
-                "id": self.ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                "description": buyer_country_data[1],
-                "uri": buyer_country_data[3]
-            }]
-
-            buyer_region_data = get_value_from_region_csv(
-                region=self.ei_payload['buyer']['address']['addressDetails']['region']['id'],
-                country=self.ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                language=self.language
-            )
-            expected_buyer_region_object = [{
-                "scheme": buyer_region_data[2],
-                "id": self.ei_payload['buyer']['address']['addressDetails']['region']['id'],
-                "description": buyer_region_data[1],
-                "uri": buyer_region_data[3]
-            }]
-
-            if self.ei_payload['buyer']['address']['addressDetails']['locality']['scheme'] == "CUATM":
-
-                buyer_locality_data = get_value_from_locality_csv(
-                    locality=self.ei_payload['buyer']['address']['addressDetails']['locality']['id'],
-                    region=self.ei_payload['buyer']['address']['addressDetails']['region']['id'],
-                    country=self.ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                    language=self.language
-                )
-                expected_buyer_locality_object = [{
-                    "scheme": buyer_locality_data[2],
-                    "id": self.ei_payload['buyer']['address']['addressDetails']['locality']['id'],
-                    "description": buyer_locality_data[1],
-                    "uri": buyer_locality_data[3]
-                }]
-            else:
-                expected_buyer_locality_object = [{
-                    "scheme": self.ei_payload['buyer']['address']['addressDetails']['locality']['scheme'],
-                    "id": self.ei_payload['buyer']['address']['addressDetails']['locality']['id'],
-                    "description": self.ei_payload['buyer']['address']['addressDetails']['locality']['description']
-                }]
-
-            buyer_role_array[0]['address']['addressDetails']['country'] = expected_buyer_country_object[0]
-            buyer_role_array[0]['address']['addressDetails']['region'] = expected_buyer_region_object[0]
-            buyer_role_array[0]['address']['addressDetails']['locality'] = expected_buyer_locality_object[0]
-        except ValueError:
-            ValueError(
-                "Impossible to prepare addressDetails object for party with buyer role.")
-
-        if "additionalIdentifiers" in self.ei_payload['buyer']:
-            for q_1 in range(len(self.ei_payload['buyer']['additionalIdentifiers'])):
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['scheme'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['scheme']
-
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['id'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['id']
-
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['legalName'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['legalName']
-
-                buyer_role_array[0]['additionalIdentifiers'][q_1]['uri'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['uri']
-        else:
-            del buyer_role_array[0]['additionalIdentifiers']
-
-        if "faxNumber" in self.ei_payload['buyer']['contactPoint']:
-            buyer_role_array[0]['contactPoint']['faxNumber'] = self.ei_payload['buyer']['contactPoint']['faxNumber']
-        else:
-            del buyer_role_array[0]['contactPoint']['faxNumber']
-
-        if "url" in self.ei_payload['buyer']['contactPoint']:
-            buyer_role_array[0]['contactPoint']['url'] = self.ei_payload['buyer']['contactPoint']['url']
-        else:
-            del buyer_role_array[0]['contactPoint']['url']
-
-        buyer_role_array[0]['contactPoint']['name'] = self.ei_payload['buyer']['contactPoint']['name']
-        buyer_role_array[0]['contactPoint']['email'] = self.ei_payload['buyer']['contactPoint']['email']
-        buyer_role_array[0]['contactPoint']['telephone'] = self.ei_payload['buyer']['contactPoint']['telephone']
-
-        if "details" in self.ei_payload['buyer']:
-            if "typeOfBuyer" in self.ei_payload['buyer']['details']:
-                buyer_role_array[0]['details']['typeOfBuyer'] = self.ei_payload['buyer']['details']['typeOfBuyer']
-            else:
-                del buyer_role_array['buyer']['details']['typeOfBuyer']
-
-            if "mainGeneralActivity" in self.ei_payload['buyer']['details']:
-
-                buyer_role_array[0]['details']['mainGeneralActivity'] = \
-                    self.ei_payload['buyer']['details']['mainGeneralActivity']
-            else:
-                del buyer_role_array[0]['details']['mainGeneralActivity']
-
-            if "mainSectoralActivity" in self.ei_payload['buyer']['details']:
-
-                buyer_role_array[0]['details']['mainSectoralActivity'] = \
-                    self.ei_payload['buyer']['details']['mainSectoralActivity']
-            else:
-                del buyer_role_array[0]['details']['mainSectoralActivity']
-        else:
-            del buyer_role_array[0]['details']
-
-        buyer_role_array[0]['roles'] = ["buyer"]
-        self.expected_ei_release['releases'][0]['parties'] = buyer_role_array
-
-        # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
-        # BR-4.233:
-        self.expected_ei_release['releases'][0]['planning']['budget']['id'] = self.tender_classification_id
-
-        self.expected_ei_release['releases'][0]['planning']['budget']['period']['startDate'] = \
-            self.ei_payload['planning']['budget']['period']['startDate']
-
-        self.expected_ei_release['releases'][0]['planning']['budget']['period']['endDate'] = \
-            self.ei_payload['planning']['budget']['period']['endDate']
-
-        if "rationale" in self.ei_payload['planning']:
-            self.expected_ei_release['releases'][0]['planning']['rationale'] = self.ei_payload['planning']['rationale']
-        else:
-            del self.expected_ei_release['releases'][0]['planning']['rationale']
 
         return self.expected_ei_release
