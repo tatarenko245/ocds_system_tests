@@ -51,6 +51,7 @@ class TestCreateEI:
                 Build payload for Create EI process.
                 """
                 payload = copy.deepcopy(ExpenditureItemPayload(
+                    country=country,
                     buyer_id=0,
                     tender_classification_id=tender_classification_id)
                 )
@@ -132,15 +133,11 @@ class TestCreateEI:
                     Build expected EI release.
                     """
                     expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment=environment,
-                        host_to_service=service_host,
-                        language=language,
-                        ei_payload=payload,
-                        ei_message=actual_message,
-                        actual_ei_release=actual_release,
-                        tender_classification_id=tender_classification_id
+                        environment, language, tender_classification_id
                     ))
-                    expected_release = expected_release.build_expected_ei_release()
+                    expected_release = expected_release.build_expected_ei_release(
+                        payload, actual_message, actual_release
+                    )
                 except ValueError:
                     ValueError("Impossible to build expected EI release.")
 

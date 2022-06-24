@@ -11,10 +11,9 @@ from functions_collection.some_functions import get_value_from_cpvs_dictionary_c
 class ExpenditureItemRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, host_to_service, language, tender_classification_id):
+    def __init__(self, environment, language, tender_classification_id):
 
         self.environment = environment
-        self.host = host_to_service
         self.language = language
         self.tender_classification_id = tender_classification_id
         self.expected_ei_release = release_model
@@ -44,168 +43,6 @@ class ExpenditureItemRelease:
 
         except ValueError:
             raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
-
-        self.expected_ei_release = {
-            "uri": f"{self.metadata_budget_url}/{ei_message['data']['ocid']}/"
-                   f"{ei_message['data']['outcomes']['ei'][0]['id']}",
-
-            "version": "1.1",
-            "extensions": extensions,
-            "publisher": {
-                "name": publisher_name,
-                "uri": publisher_uri
-            },
-            "license": "http://opendefinition.org/licenses/",
-            "publicationPolicy": "http://opendefinition.org/licenses/",
-            "publishedDate": ei_message['data']['operationDate'],
-            "releases": [
-                {
-                    "ocid": ei_message['data']['outcomes']['ei'][0]['id'],
-
-                    "id": f"{ei_message['data']['outcomes']['ei'][0]['id']}-"
-                          f"{actual_ei_release['releases'][0]['id'][29:42]}",
-
-                    "date": ei_message['data']['operationDate'],
-                    "tag": [
-                        "compiled"
-                    ],
-                    "language": language,
-                    "initiationType": "tender",
-                    "tender": {
-                        "id": "",
-                        "title": "",
-                        "description": "",
-                        "status": "planning",
-                        "statusDetails": "empty",
-                        "items": [
-                            {
-                                "id": "",
-                                "description": "",
-                                "classification": {
-                                    "scheme": "",
-                                    "id": "",
-                                    "description": ""
-                                },
-                                "additionalClassifications": [
-                                    {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": ""
-                                    }
-                                ],
-                                "quantity": 0,
-                                "unit": {
-                                    "name": "",
-                                    "id": ""
-                                },
-                                "deliveryAddress": {
-                                    "streetAddress": "",
-                                    "postalCode": "",
-                                    "addressDetails": {
-                                        "country": {
-                                            "scheme": "",
-                                            "id": "",
-                                            "description": "",
-                                            "uri": ""
-                                        },
-                                        "region": {
-                                            "scheme": "",
-                                            "id": "",
-                                            "description": "",
-                                            "uri": ""
-                                        },
-                                        "locality": {
-                                            "scheme": "",
-                                            "id": "",
-                                            "description": "",
-                                            "uri": ""
-                                        }
-                                    }
-                                }
-                            }
-                        ],
-                        "mainProcurementCategory": "",
-                        "classification": {
-                            "scheme": "",
-                            "id": "",
-                            "description": ""
-                        }
-                    },
-                    "buyer": {
-                        "id": "",
-                        "name": ""
-                    },
-                    "parties": [
-                        {
-                            "id": "",
-                            "name": "",
-                            "identifier": {
-                                "scheme": "",
-                                "id": "",
-                                "legalName": "",
-                                "uri": ""
-                            },
-                            "address": {
-                                "streetAddress": "",
-                                "postalCode": "",
-                                "addressDetails": {
-                                    "country": {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": "",
-                                        "uri": ""
-                                    },
-                                    "region": {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": "",
-                                        "uri": ""
-                                    },
-                                    "locality": {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": "",
-                                        "uri": ""
-                                    }
-                                }
-                            },
-                            "additionalIdentifiers": [
-                                {
-                                    "scheme": "",
-                                    "id": "",
-                                    "legalName": "",
-                                    "uri": ""
-                                }
-                            ],
-                            "contactPoint": {
-                                "name": "",
-                                "email": "",
-                                "telephone": "",
-                                "faxNumber": "",
-                                "url": ""
-                            },
-                            "details": {
-                                "typeOfBuyer": "",
-                                "mainGeneralActivity": "",
-                                "mainSectoralActivity": ""
-                            },
-                            "roles": [""]
-                        }
-                    ],
-                    "planning": {
-                        "budget": {
-                            "id": "",
-                            "period": {
-                                "startDate": "",
-                                "endDate": ""
-                            }
-                        },
-                        "rationale": ""
-                    }
-
-                }
-            ]
-        }
 
     def build_expected_ei_release(self, payload, message_for_platform, actual_ei_release):
         """Build EI release."""
@@ -294,8 +131,8 @@ class ExpenditureItemRelease:
         else:
             del buyer_role_array[0]['address']['postalCode']
 
+        # Prepare addressDetails object for party with buyer role.
         try:
-            # Prepare addressDetails object for party with buyer role.
             buyer_country_data = get_value_from_country_csv(
                 country=payload['buyer']['address']['addressDetails']['country']['id'],
                 language=self.language
@@ -439,7 +276,6 @@ class ExpenditureItemRelease:
 
                     # FR.COM-14.2.10: Set id.
                     try:
-                        # Set permanent id.
                         is_permanent_id_correct = is_it_uuid(
                             actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                         )
@@ -449,24 +285,24 @@ class ExpenditureItemRelease:
                                 actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                         else:
                             new_items_array[q_0]['id'] = \
-                                f"The 'releases[0].tender.items[{q_0}].id' must be uuid."
+                                f"FR.COM-14.2.10: the 'releases[0].tender.items[{q_0}].id' must be uuid."
                     except KeyError:
                         KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
-                    new_items_array[q_0]['description'] = self.ei_payload['tender']['items'][q_0]['description']
+                    new_items_array[q_0]['description'] = payload['tender']['items'][q_0]['description']
 
                     expected_cpv_data = get_value_from_cpv_dictionary_xls(
-                        cpv=self.ei_payload['tender']['items'][q_0]['classification']['id'],
+                        cpv=payload['tender']['items'][q_0]['classification']['id'],
                         language=self.language
                     )
 
                     new_items_array[q_0]['classification']['scheme'] = "CPV"
                     new_items_array[q_0]['classification']['id'] = expected_cpv_data[0]
                     new_items_array[q_0]['classification']['description'] = expected_cpv_data[1]
-                    new_items_array[q_0]['quantity'] = int(float(self.ei_payload['tender']['items'][q_0]['quantity']))
+                    new_items_array[q_0]['quantity'] = int(float(payload['tender']['items'][q_0]['quantity']))
 
                     expected_unit_data = get_value_from_classification_unit_dictionary_csv(
-                        unit_id=self.ei_payload['tender']['items'][q_0]['unit']['id'],
+                        unit_id=payload['tender']['items'][q_0]['unit']['id'],
                         language=self.language
                     )
 
@@ -474,29 +310,26 @@ class ExpenditureItemRelease:
                     new_items_array[q_0]['unit']['name'] = expected_unit_data[1]
 
                     new_items_array[q_0]['deliveryAddress']['streetAddress'] = \
-                        self.ei_payload['tender']['items'][q_0]['deliveryAddress']['streetAddress']
+                        payload['tender']['items'][q_0]['deliveryAddress']['streetAddress']
 
-                    if "postalCode" in self.ei_payload['tender']['items'][q_0]['deliveryAddress']:
+                    if "postalCode" in payload['tender']['items'][q_0]['deliveryAddress']:
 
                         new_items_array[q_0]['deliveryAddress']['postalCode'] = \
-                            self.ei_payload['tender']['items'][q_0]['deliveryAddress']['postalCode']
+                            payload['tender']['items'][q_0]['deliveryAddress']['postalCode']
                     else:
                         del new_items_array[q_0]['deliveryAddress']['postalCode']
 
+                    # Prepare addressDetails object for items array.
                     try:
-                        """
-                        Prepare addressDetails object for items array.
-                        """
                         item_country_data = get_value_from_country_csv(
 
-                            country=self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                            country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'country']['id'],
-
                             language=self.language
                         )
                         expected_item_country_object = [{
                             "scheme": item_country_data[2],
-                            "id": self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                            "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'country']['id'],
 
                             "description": item_country_data[1],
@@ -505,44 +338,39 @@ class ExpenditureItemRelease:
 
                         item_region_data = get_value_from_region_csv(
 
-                            region=self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                            region=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'region']['id'],
-
-                            country=self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                            country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'country']['id'],
-
                             language=self.language
                         )
                         expected_item_region_object = [{
                             "scheme": item_region_data[2],
 
-                            "id": self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                            "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'region']['id'],
 
                             "description": item_region_data[1],
                             "uri": item_region_data[3]
                         }]
 
-                        if self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                            'locality']['scheme'] == "CUATM":
+                        if payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                'locality']['scheme'] == "CUATM":
 
                             item_locality_data = get_value_from_locality_csv(
 
-                                locality=self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                locality=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                     'locality']['id'],
-
-                                region=self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                region=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                     'region']['id'],
-
-                                country=self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                     'country']['id'],
-
                                 language=self.language
                             )
                             expected_item_locality_object = [{
                                 "scheme": item_locality_data[2],
 
-                                "id": self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                     'locality']['id'],
 
                                 "description": item_locality_data[1],
@@ -551,13 +379,13 @@ class ExpenditureItemRelease:
                         else:
                             expected_item_locality_object = [{
 
-                                "scheme": self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                "scheme": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                     'locality']['scheme'],
 
-                                "id": self.ei_payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                     'locality']['id'],
 
-                                "description": self.ei_payload['tender']['items'][q_0]['deliveryAddress'][
+                                "description": payload['tender']['items'][q_0]['deliveryAddress'][
                                     'addressDetails']['locality']['description']
                             }]
 
@@ -578,40 +406,40 @@ class ExpenditureItemRelease:
         else:
             del self.expected_ei_release['releases'][0]['tender']['items']
 
-        if "description" in self.ei_payload['tender']:
-            self.expected_ei_release['releases'][0]['tender']['description'] = self.ei_payload['tender']['description']
+        # FR.COM-14.2.6: Set description.
+        if "description" in payload['tender']:
+            self.expected_ei_release['releases'][0]['tender']['description'] = payload['tender']['description']
         else:
             del self.expected_ei_release['releases'][0]['tender']['description']
 
+        # FR.COM-14.2.3: Set id.
         try:
-            """Set permanent id."""
-
-            is_permanent_id_correct = is_it_uuid(self.actual_ei_release['releases'][0]['tender']['id'])
+            is_permanent_id_correct = is_it_uuid(actual_ei_release['releases'][0]['tender']['id'])
             if is_permanent_id_correct is True:
 
                 self.expected_ei_release['releases'][0]['tender']['id'] = \
-                    self.actual_ei_release['releases'][0]['tender']['id']
+                    actual_ei_release['releases'][0]['tender']['id']
             else:
                 ValueError(f"The 'releases[0].tender.id' must be uuid.")
         except KeyError:
             KeyError("Mismatch key into path 'releases[0].tender.id'")
 
-        self.expected_ei_release['releases'][0]['tender']['title'] = self.ei_payload['tender']['title']
-        self.expected_ei_release['releases'][0]['tender']['status'] = "planning"
-        self.expected_ei_release['releases'][0]['tender']['statusDetails'] = "empty"
+        # FR.COM-14.2.5: Set title.
+        self.expected_ei_release['releases'][0]['tender']['title'] = payload['tender']['title']
 
+        # FR.COM-14.2.4: Set state.
+        self.expected_ei_release['releases'][0]['tender']['status'] = "planning"
+
+        # FR.COM-14.2.8:  Set mainProcurementCategory.
         try:
-            """
-           Enrich mainProcurementCategory, depends on tender.classification.id.
-           """
             expected_main_procurement_category = None
             if \
                     self.tender_classification_id[0:2] == "03" or \
-                            self.tender_classification_id[0] == "1" or \
-                            self.tender_classification_id[0] == "2" or \
-                            self.tender_classification_id[0] == "3" or \
-                            self.tender_classification_id[0:2] == "44" or \
-                            self.tender_classification_id[0:2] == "48":
+                    self.tender_classification_id[0] == "1" or \
+                    self.tender_classification_id[0] == "2" or \
+                    self.tender_classification_id[0] == "3" or \
+                    self.tender_classification_id[0:2] == "44" or \
+                    self.tender_classification_id[0:2] == "48":
                 expected_main_procurement_category = "goods"
 
             elif \
@@ -620,11 +448,11 @@ class ExpenditureItemRelease:
 
             elif \
                     self.tender_classification_id[0] == "5" or \
-                            self.tender_classification_id[0] == "6" or \
-                            self.tender_classification_id[0] == "7" or \
-                            self.tender_classification_id[0] == "8" or \
-                            self.tender_classification_id[0:2] == "92" or \
-                            self.tender_classification_id[0:2] == "98":
+                    self.tender_classification_id[0] == "6" or \
+                    self.tender_classification_id[0] == "7" or \
+                    self.tender_classification_id[0] == "8" or \
+                    self.tender_classification_id[0:2] == "92" or \
+                    self.tender_classification_id[0:2] == "98":
                 expected_main_procurement_category = "services"
 
             else:
@@ -636,12 +464,8 @@ class ExpenditureItemRelease:
         except KeyError:
             KeyError("Could not parse tender.classification.id.")
 
-        # BR-12.2.1:
+        # FR.COM-14.2.7:  Set classification.id.
         try:
-            """
-            Enrich releases.tender.classification object, depends on items into payload.
-            """
-
             expected_cpv_data = get_value_from_cpv_dictionary_xls(
                 cpv=self.tender_classification_id,
                 language=self.language
@@ -651,16 +475,15 @@ class ExpenditureItemRelease:
             self.expected_ei_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
             self.expected_ei_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
         except ValueError:
-            ValueError("Impossible to enrich releases.tender.classification object.")
+            ValueError("FR.COM-14.2.7: impossible to set tender.classification object.")
 
-        # Build the releases.buyer object. Enrich or delete optional fields and enrich required fields:
-        # BR-4.5:
+        """Enrich attribute for expected EI release: releases[0].buyer"""
+        # According to actions of the 'budgetCreateEI' delegate.
+
+        # FR.COM-14.2.11: Set buyer.
         self.expected_ei_release['releases'][0]['buyer']['id'] = \
-            f"{self.ei_payload['buyer']['identifier']['scheme']}-{self.ei_payload['buyer']['identifier']['id']}"
+            f"{payload['buyer']['identifier']['scheme']}-{payload['buyer']['identifier']['id']}"
 
-        self.expected_ei_release['releases'][0]['buyer']['name'] = self.ei_payload['buyer']['name']
-
-
-
+        self.expected_ei_release['releases'][0]['buyer']['name'] = payload['buyer']['name']
 
         return self.expected_ei_release
