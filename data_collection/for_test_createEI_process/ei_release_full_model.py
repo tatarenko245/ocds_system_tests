@@ -151,6 +151,10 @@ release_model = {
                     "period": {
                         "startDate": "",
                         "endDate": ""
+                    },
+                    "amount": {
+                        "amount": 0,
+                        "currency": ""
                     }
                 },
                 "rationale": ""

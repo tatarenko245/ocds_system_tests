@@ -16,7 +16,7 @@ class ExpenditureItemRelease:
         self.environment = environment
         self.language = language
         self.tender_classification_id = tender_classification_id
-        self.expected_ei_release = release_model
+        self.expected_ei_release = copy.deepcopy(release_model)
 
         try:
             if environment == "dev":
@@ -98,7 +98,7 @@ class ExpenditureItemRelease:
             self.expected_ei_release['releases'][0]['planning']['budget']['amount']['currency'] = \
                 payload['planning']['budget']['amount']['currency']
         else:
-            del self.expected_ei_release['releases'][0]['planning']['rationale']
+            del self.expected_ei_release['releases'][0]['planning']['budget']['amount']
 
         # FR.COM-14.2.13: Set rationale.
         if "rationale" in payload['planning']:
@@ -138,7 +138,7 @@ class ExpenditureItemRelease:
                 language=self.language
             )
             expected_buyer_country_object = [{
-                "scheme": buyer_country_data[2],
+                "scheme": buyer_country_data[2].upper(),
                 "id": payload['buyer']['address']['addressDetails']['country']['id'],
                 "description": buyer_country_data[1],
                 "uri": buyer_country_data[3]
@@ -328,7 +328,7 @@ class ExpenditureItemRelease:
                             language=self.language
                         )
                         expected_item_country_object = [{
-                            "scheme": item_country_data[2],
+                            "scheme": item_country_data[2].upper(),
                             "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'country']['id'],
 

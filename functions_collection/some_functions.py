@@ -125,7 +125,7 @@ def get_value_from_cpvs_dictionary_csv(cpvs, language):
         reader = csv.reader(f)
         for row in reader:
             cur_arr = row[0].split(';')
-            if cur_arr[0] == cpvs and cur_arr[3] == f'"{language.lower()}"':
+            if cur_arr[0] == cpvs and cur_arr[3] == f'"{language}"':
                 return cur_arr[0].replace('"', ''), cur_arr[1].replace('"', ''), cur_arr[2].replace('"', ''), cur_arr[
                     3].replace('"', '')
 
@@ -160,7 +160,7 @@ def get_value_from_cpv_dictionary_xls(cpv, language):
 
     if column_number > 0:
         for column in range(0, column_number):
-            if language.upper() in sheet.col(column)[0].value:
+            if language in sheet.col(column)[0].value:
                 requested_column.append(column)
     new_cpv = sheet.cell_value(rowx=int(requested_row[0]), colx=0)
     description = sheet.cell_value(rowx=int(requested_row[0]), colx=int(requested_column[0]))
@@ -173,7 +173,7 @@ def get_value_from_classification_unit_dictionary_csv(unit_id, language):
         reader = csv.reader(f)
         for row in reader:
             cur_arr = row[0].split(',')
-            if cur_arr[0] == f'{unit_id}' and cur_arr[4].replace(';', '') == f'"{language.lower()}"':
+            if cur_arr[0] == f'{unit_id}' and cur_arr[4].replace(';', '') == f'"{language}"':
                 return cur_arr[0].replace("'", ""), cur_arr[2].replace('"', '')
 
 
@@ -304,7 +304,7 @@ def get_value_from_country_csv(country, language):
     with open(f'{path}/data_collection/country.csv') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[0] == country and row[4] == language.lower():
+            if row[0] == country and row[4] == language:
                 return row
 
 
@@ -313,7 +313,7 @@ def get_value_from_region_csv(region, country, language):
     with open(f'{path}/data_collection/region.csv') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[0] == region and row[4] == country and row[5] == language.lower():
+            if row[0] == region and row[4] == country and row[5] == language:
                 return row
 
 
@@ -322,7 +322,7 @@ def get_value_from_locality_csv(locality, region, country, language):
     with open(f'{path}/data_collection/locality.csv') as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[0] == locality and row[4] == region and row[5] == country and row[6] == language.lower():
+            if row[0] == locality and row[4] == region and row[5] == country and row[6] == language:
                 return row
 
 
