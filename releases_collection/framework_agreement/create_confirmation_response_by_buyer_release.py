@@ -1406,27 +1406,27 @@ class CreateConfirmationResponseRelease:
                                                         'releases'][0]['parties'][od]['persones'][act][
                                                         'businessFunctions'][act_1]['period']:
 
-                                                # # Set terminal id for 'persones[*].businessFucntions[*].id':
-                                                # try:
-                                                #     """Set permanent id."""
-                                                #     is_permanent_id_correct = is_it_uuid(
-                                                #         actual_fe_release['releases'][0]['parties'][od]['persones'][
-                                                #             act]['businessFunctions'][act_1]['id']
-                                                #     )
-                                                #     if is_permanent_id_correct is True:
-                                                #
-                                                #         actual_buyer_party['persones'][exp][
-                                                #             'businessFunctions'][exp_1]['id'] = \
-                                                #             actual_fe_release['releases'][0]['parties'][od][
-                                                #                 'persones'][act]['businessFunctions'][act_1]['id']
-                                                #     else:
-                                                #         actual_buyer_party['persones'][exp][
-                                                #             'businessFunctions'][exp_1]['id'] = \
-                                                #             f"'persones[{act}.businessFunctions[{act_1}].id' " \
-                                                #             f"must be UUID!"
-                                                # except KeyError:
-                                                #     KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
-                                                #              f"persones[{act}.businessFunctions[{act_1}].id'.")
+                                                # Set terminal id for 'persones[*].businessFucntions[*].id':
+                                                try:
+                                                    """Set permanent id."""
+                                                    is_permanent_id_correct = is_it_uuid(
+                                                        actual_fe_release['releases'][0]['parties'][od]['persones'][
+                                                            act]['businessFunctions'][act_1]['id']
+                                                    )
+                                                    if is_permanent_id_correct is True:
+
+                                                        actual_buyer_party['persones'][exp][
+                                                            'businessFunctions'][exp_1]['id'] = \
+                                                            actual_fe_release['releases'][0]['parties'][od][
+                                                                'persones'][act]['businessFunctions'][act_1]['id']
+                                                    else:
+                                                        actual_buyer_party['persones'][exp][
+                                                            'businessFunctions'][exp_1]['id'] = \
+                                                            f"'persones[{act}.businessFunctions[{act_1}].id' " \
+                                                            f"must be UUID!"
+                                                except KeyError:
+                                                    KeyError(f"Mismatch key into path 'releases[0].parties[{od}]."
+                                                             f"persones[{act}.businessFunctions[{act_1}].id'.")
 
                                                 if "documents" in actual_fe_release['releases'][0]['parties'][od][
                                                         'persones'][act]['businessFunctions'][act_1] and \
