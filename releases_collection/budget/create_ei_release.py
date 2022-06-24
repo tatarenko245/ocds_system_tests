@@ -347,53 +347,53 @@ class ExpenditureItemRelease:
             ValueError(
                 "Impossible to prepare addressDetails object for party with buyer role.")
 
-        if "additionalIdentifiers" in spayload['buyer']:
-            for q_1 in range(len(self.ei_payload['buyer']['additionalIdentifiers'])):
+        if "additionalIdentifiers" in payload['buyer']:
+            for q_1 in range(len(payload['buyer']['additionalIdentifiers'])):
                 buyer_role_array[0]['additionalIdentifiers'][q_1]['scheme'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['scheme']
+                    payload['buyer']['additionalIdentifiers'][q_1]['scheme']
 
                 buyer_role_array[0]['additionalIdentifiers'][q_1]['id'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['id']
+                    payload['buyer']['additionalIdentifiers'][q_1]['id']
 
                 buyer_role_array[0]['additionalIdentifiers'][q_1]['legalName'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['legalName']
+                    payload['buyer']['additionalIdentifiers'][q_1]['legalName']
 
                 buyer_role_array[0]['additionalIdentifiers'][q_1]['uri'] = \
-                    self.ei_payload['buyer']['additionalIdentifiers'][q_1]['uri']
+                    payload['buyer']['additionalIdentifiers'][q_1]['uri']
         else:
             del buyer_role_array[0]['additionalIdentifiers']
 
-        if "faxNumber" in self.ei_payload['buyer']['contactPoint']:
-            buyer_role_array[0]['contactPoint']['faxNumber'] = self.ei_payload['buyer']['contactPoint']['faxNumber']
+        if "faxNumber" in payload['buyer']['contactPoint']:
+            buyer_role_array[0]['contactPoint']['faxNumber'] = payload['buyer']['contactPoint']['faxNumber']
         else:
             del buyer_role_array[0]['contactPoint']['faxNumber']
 
-        if "url" in self.ei_payload['buyer']['contactPoint']:
-            buyer_role_array[0]['contactPoint']['url'] = self.ei_payload['buyer']['contactPoint']['url']
+        if "url" in payload['buyer']['contactPoint']:
+            buyer_role_array[0]['contactPoint']['url'] = payload['buyer']['contactPoint']['url']
         else:
             del buyer_role_array[0]['contactPoint']['url']
 
-        buyer_role_array[0]['contactPoint']['name'] = self.ei_payload['buyer']['contactPoint']['name']
-        buyer_role_array[0]['contactPoint']['email'] = self.ei_payload['buyer']['contactPoint']['email']
-        buyer_role_array[0]['contactPoint']['telephone'] = self.ei_payload['buyer']['contactPoint']['telephone']
+        buyer_role_array[0]['contactPoint']['name'] = payload['buyer']['contactPoint']['name']
+        buyer_role_array[0]['contactPoint']['email'] = payload['buyer']['contactPoint']['email']
+        buyer_role_array[0]['contactPoint']['telephone'] = payload['buyer']['contactPoint']['telephone']
 
-        if "details" in self.ei_payload['buyer']:
-            if "typeOfBuyer" in self.ei_payload['buyer']['details']:
-                buyer_role_array[0]['details']['typeOfBuyer'] = self.ei_payload['buyer']['details']['typeOfBuyer']
+        if "details" in payload['buyer']:
+            if "typeOfBuyer" in payload['buyer']['details']:
+                buyer_role_array[0]['details']['typeOfBuyer'] = payload['buyer']['details']['typeOfBuyer']
             else:
                 del buyer_role_array['buyer']['details']['typeOfBuyer']
 
-            if "mainGeneralActivity" in self.ei_payload['buyer']['details']:
+            if "mainGeneralActivity" in payload['buyer']['details']:
 
                 buyer_role_array[0]['details']['mainGeneralActivity'] = \
-                    self.ei_payload['buyer']['details']['mainGeneralActivity']
+                    payload['buyer']['details']['mainGeneralActivity']
             else:
                 del buyer_role_array[0]['details']['mainGeneralActivity']
 
-            if "mainSectoralActivity" in self.ei_payload['buyer']['details']:
+            if "mainSectoralActivity" in payload['buyer']['details']:
 
                 buyer_role_array[0]['details']['mainSectoralActivity'] = \
-                    self.ei_payload['buyer']['details']['mainSectoralActivity']
+                    payload['buyer']['details']['mainSectoralActivity']
             else:
                 del buyer_role_array[0]['details']['mainSectoralActivity']
         else:
@@ -402,34 +402,29 @@ class ExpenditureItemRelease:
         buyer_role_array[0]['roles'] = ["buyer"]
         self.expected_ei_release['releases'][0]['parties'] = buyer_role_array
 
+        """Enrich attribute for expected EI release: releases[0].tender"""
+        # According to actions of the 'budgetCreateEI' delegate.
 
-
-
-
-        # =====
-        # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
-        # BR-4.233
-        if "items" in self.ei_payload['tender']:
+        # FR.COM-14.2.9: Set items.
+        if "items" in payload['tender']:
             try:
-                """
-                Build the releases.tender.items array.
-                """
+                # Build the releases.tender.items array.
                 new_items_array = list()
-                for q_0 in range(len(self.ei_payload['tender']['items'])):
+                for q_0 in range(len(payload['tender']['items'])):
 
                     new_items_array.append(copy.deepcopy(
                         self.expected_ei_release['releases'][0]['tender']['items'][0]))
 
                     # Enrich or delete optional fields:
-                    if "additionalClassifications" in self.ei_payload['tender']['items'][q_0]:
+                    if "additionalClassifications" in payload['tender']['items'][q_0]:
                         new_item_additional_classifications_array = list()
-                        for q_1 in range(len(self.ei_payload['tender']['items'][q_0]['additionalClassifications'])):
+                        for q_1 in range(len(payload['tender']['items'][q_0]['additionalClassifications'])):
                             new_item_additional_classifications_array.append(copy.deepcopy(
                                 self.expected_ei_release['releases'][0]['tender']['items'][0][
                                     'additionalClassifications'][0]))
 
                             expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
-                                cpvs=self.ei_payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
+                                cpvs=payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
                                 language=self.language
                             )
 
@@ -442,17 +437,16 @@ class ExpenditureItemRelease:
                     else:
                         del new_items_array[q_0]['additionalClassifications']
 
-                    # Enrich required fields:
+                    # FR.COM-14.2.10: Set id.
                     try:
-                        """Set permanent id."""
-
+                        # Set permanent id.
                         is_permanent_id_correct = is_it_uuid(
-                            self.actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
+                            actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                         )
                         if is_permanent_id_correct is True:
 
                             new_items_array[q_0]['id'] = \
-                                self.actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
+                                actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                         else:
                             new_items_array[q_0]['id'] = \
                                 f"The 'releases[0].tender.items[{q_0}].id' must be uuid."
