@@ -312,7 +312,7 @@ class TestCreateEI:
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        if bool(clean_up_database) is True:
+        if clean_up_database is True:
             try:
                 """
                 CLean up the database.
