@@ -3,9 +3,9 @@ import copy
 
 from data_collection.for_test_createEI_process.ei_release_full_model import *
 from functions_collection.some_functions import get_value_from_cpvs_dictionary_csv, is_it_uuid, \
-    get_value_from_cpv_dictionary_xls, get_value_from_classification_unit_dictionary_csv, \
+    get_value_from_classification_unit_dictionary_csv, \
     get_value_from_country_csv, get_value_from_region_csv, \
-    get_value_from_locality_csv
+    get_value_from_locality_csv, get_value_from_cpv_dictionary_csv
 
 
 class ExpenditureItemRelease:
@@ -291,11 +291,10 @@ class ExpenditureItemRelease:
 
                     new_items_array[q_0]['description'] = payload['tender']['items'][q_0]['description']
 
-                    expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                    expected_cpv_data = get_value_from_cpv_dictionary_csv(
                         cpv=payload['tender']['items'][q_0]['classification']['id'],
                         language=self.language
                     )
-
                     new_items_array[q_0]['classification']['scheme'] = "CPV"
                     new_items_array[q_0]['classification']['id'] = expected_cpv_data[0]
                     new_items_array[q_0]['classification']['description'] = expected_cpv_data[1]
@@ -466,7 +465,7 @@ class ExpenditureItemRelease:
 
         # FR.COM-14.2.7:  Set classification.id.
         try:
-            expected_cpv_data = get_value_from_cpv_dictionary_xls(
+            expected_cpv_data = get_value_from_cpv_dictionary_csv(
                 cpv=self.tender_classification_id,
                 language=self.language
             )
