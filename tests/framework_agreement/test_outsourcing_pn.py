@@ -153,9 +153,9 @@ class TestOutsourcingPN:
                 except ValueError:
                     raise ValueError("Impossible to build expected PN release.")
 
-                with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_pn_release), "Actual message.")
-                    allure.attach(json.dumps(expected_pn_release), "Expected message.")
+                with allure.step('Compare actual and expected PN release.'):
+                    allure.attach(json.dumps(actual_pn_release), "Actual release.")
+                    allure.attach(json.dumps(expected_pn_release), "Expected release.")
 
                     assert actual_pn_release == expected_pn_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -175,8 +175,8 @@ class TestOutsourcingPN:
                     raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
+                    allure.attach(json.dumps(actual_ms_release), "Actual release.")
+                    allure.attach(json.dumps(expected_ms_release), "Expected release.")
 
                     assert actual_ms_release == expected_ms_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -196,8 +196,8 @@ class TestOutsourcingPN:
                     raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
-                    allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
-                    allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
+                    allure.attach(json.dumps(actual_ap_release), "Actual release.")
+                    allure.attach(json.dumps(expected_ap_release), "Expected release.")
 
                     assert actual_ap_release == expected_ap_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -217,8 +217,8 @@ class TestOutsourcingPN:
                     raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
-                    allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
-                    allure.attach(json.dumps(expected_fa_release), "Expected FA release.")
+                    allure.attach(json.dumps(actual_fa_release), "Actual release.")
+                    allure.attach(json.dumps(expected_fa_release), "Expected release.")
 
                     assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -378,9 +378,9 @@ class TestOutsourcingPN:
                 except ValueError:
                     raise ValueError("Impossible to build expected PN release.")
 
-                with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_pn_release), "Actual message.")
-                    allure.attach(json.dumps(expected_pn_release), "Expected message.")
+                with allure.step('Compare actual and expected PN release.'):
+                    allure.attach(json.dumps(actual_pn_release), "Actual release.")
+                    allure.attach(json.dumps(expected_pn_release), "Expected release.")
 
                     assert actual_pn_release == expected_pn_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -400,8 +400,8 @@ class TestOutsourcingPN:
                     raise ValueError("Impossible to build expected MS release.")
 
                 with allure.step("Compare actual and expected MS release."):
-                    allure.attach(json.dumps(actual_ms_release), "Actual MS release.")
-                    allure.attach(json.dumps(expected_ms_release), "Expected MS release.")
+                    allure.attach(json.dumps(actual_ms_release), "Actual release.")
+                    allure.attach(json.dumps(expected_ms_release), "Expected release.")
 
                     assert actual_ms_release == expected_ms_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -421,8 +421,8 @@ class TestOutsourcingPN:
                     raise ValueError("Impossible to build expected AP release.")
 
                 with allure.step("Compare actual and expected AP release."):
-                    allure.attach(json.dumps(actual_ap_release), "Actual AP release.")
-                    allure.attach(json.dumps(expected_ap_release), "Expected AP release.")
+                    allure.attach(json.dumps(actual_ap_release), "Actual release.")
+                    allure.attach(json.dumps(expected_ap_release), "Expected release.")
 
                     assert actual_ap_release == expected_ap_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
@@ -442,8 +442,8 @@ class TestOutsourcingPN:
                     raise ValueError("Impossible to build expected FA release.")
 
                 with allure.step("Compare actual and expected FA release."):
-                    allure.attach(json.dumps(actual_fa_release), "Actual FA release.")
-                    allure.attach(json.dumps(expected_fa_release), "Expected FA release.")
+                    allure.attach(json.dumps(actual_fa_release), "Actual release.")
+                    allure.attach(json.dumps(expected_fa_release), "Expected release.")
 
                     assert actual_fa_release == expected_fa_release, \
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "

@@ -130,6 +130,27 @@ def get_value_from_cpvs_dictionary_csv(cpvs, language):
                     3].replace('"', '')
 
 
+def get_value_from_state_for_entity_of_release_csv(country_id, pmd, process, release_type):
+    path = get_project_root()
+    with open(f'{path}/data_collection/state_for_entity_of_release.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(';')
+            if cur_arr[0] == country_id and cur_arr[1] == pmd and cur_arr[2] == process and cur_arr[3] == release_type:
+                return cur_arr[4]
+
+
+def get_value_from_cpv_dictionary_csv(cpv, language):
+    path = get_project_root()
+    with open(f'{path}/data_collection/CPV_dictionary.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = str(row).replace("['", "").replace("']", "")
+            cur_arr = cur_arr.split(';')
+            if cur_arr[0].replace("'", "") == cpv and cur_arr[5].replace("'", "") == f'"{language.lower()}"':
+                return cur_arr[0].replace("'", ""), cur_arr[3].replace('"', '').replace("'", "").replace('  ', ' ')
+
+
 def get_value_from_cpv_dictionary_xls(cpv, language):
     path = get_project_root()
     # Open current xlsx file.
@@ -150,7 +171,7 @@ def get_value_from_cpv_dictionary_xls(cpv, language):
 
     if column_number > 0:
         for column in range(0, column_number):
-            if language.upper() in sheet.col(column)[0].value:
+            if language in sheet.col(column)[0].value:
                 requested_column.append(column)
     new_cpv = sheet.cell_value(rowx=int(requested_row[0]), colx=0)
     description = sheet.cell_value(rowx=int(requested_row[0]), colx=int(requested_column[0]))
@@ -230,6 +251,7 @@ def generate_tender_classification_id(items_array):
             new.append(classification_1[9])
         else:
             new.append("0")
+        isinstance(new, list)
         new_classification_id = copy.deepcopy(
             str(new[0] + new[1] + new[2] + new[3] + new[4] + new[5] + new[6] + new[7]))
         tender_classification_id = f"{new_classification_id[0:3]}00000"

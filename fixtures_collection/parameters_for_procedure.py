@@ -15,6 +15,7 @@ def get_parameters():
     pmd = os.getenv("PMD")
     cassandra_username = os.getenv("CASSANDRA_USERNAME")
     cassandra_password = os.getenv("CASSANDRA_PASSWORD")
+    clean_up_database = os.getenv("CLEAN_UP_DB")
 
     hosts = get_hosts(environment)
     tender_classification_id = prepare_tender_classification_id()
@@ -27,6 +28,7 @@ def get_parameters():
     allure.attach(language, "Language")
     allure.attach(pmd, "pmd")
     allure.attach(tender_classification_id, "tenderClassificationId")
+    allure.attach(clean_up_database, "Need to clean up the database?")
 
     yield \
         environment,\
@@ -38,4 +40,5 @@ def get_parameters():
         pmd,\
         cassandra_username,\
         cassandra_password,\
-        tender_classification_id
+        tender_classification_id,\
+        clean_up_database

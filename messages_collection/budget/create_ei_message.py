@@ -8,8 +8,9 @@ from functions_collection.some_functions import is_it_uuid
 class ExpenditureItemMessage:
     """ Class creates instance of message for platform."""
 
-    def __init__(self, environment, actual_message, expected_quantity_of_outcomes_ei=1, test_mode=False):
+    def __init__(self, environment, country, actual_message, expected_quantity_of_outcomes_ei=1, test_mode=False):
         self.environment = environment
+        self.country = country
         self.actual_message = actual_message
         self.test_mode = test_mode
         self.expected_quantity_of_outcomes_ei = expected_quantity_of_outcomes_ei
@@ -68,9 +69,9 @@ class ExpenditureItemMessage:
 
         if "ocid" in self.actual_message['data']:
             if self.test_mode is False:
-                is_ocid_correct = fnmatch.fnmatch(self.actual_message["data"]["ocid"], "ocds-t1s2t3-MD-*")
+                is_ocid_correct = fnmatch.fnmatch(self.actual_message["data"]["ocid"], f"ocds-t1s2t3-{self.country}-*")
             else:
-                is_ocid_correct = fnmatch.fnmatch(self.actual_message["data"]["ocid"], "test-t1s2t3-MD-*")
+                is_ocid_correct = fnmatch.fnmatch(self.actual_message["data"]["ocid"], f"test-t1s2t3-{self.country}-*")
 
             if is_ocid_correct is True:
                 self.__message['data']['ocid'] = self.actual_message['data']['ocid']
@@ -100,11 +101,11 @@ class ExpenditureItemMessage:
 
             if self.test_mode is False:
                 is_ei_id_correct = fnmatch.fnmatch(
-                    self.actual_message["data"]["outcomes"]["ei"][obj]["id"], "ocds-t1s2t3-MD-*"
+                    self.actual_message["data"]["outcomes"]["ei"][obj]["id"], f"ocds-t1s2t3-{self.country}-*"
                 )
             else:
                 is_ei_id_correct = fnmatch.fnmatch(
-                    self.actual_message["data"]["outcomes"]["ei"][obj]["id"], "test-t1s2t3-MD-*"
+                    self.actual_message["data"]["outcomes"]["ei"][obj]["id"], f"test-t1s2t3-{self.country}-*"
                 )
 
             if is_ei_id_correct is True:

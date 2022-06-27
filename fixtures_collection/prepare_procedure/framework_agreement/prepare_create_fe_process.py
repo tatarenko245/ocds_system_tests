@@ -13,7 +13,7 @@ from functions_collection.cassandra_methods import get_max_duration_of_fa_from_a
     cleanup_table_of_services_for_financial_source, cleanup_table_of_services_for_planning_notice, \
     cleanup_orchestrator_steps_by_cpid, cleanup_table_of_services_for_outsourcing_planning_notice, \
     cleanup_table_of_services_for_relation_aggregated_plan, cleanup_table_of_services_for_aggregated_plan, \
-    cleanup_table_of_services_for_framework_establishment, cleanup_orchestrator_steps_by_cpid_and_operationid
+    cleanup_table_of_services_for_framework_establishment
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
@@ -39,6 +39,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
     language = get_parameters[5]
     pmd = get_parameters[6]
     tender_classification_id = get_parameters[9]
+    clean_up_database = get_parameters[10]
 
     currency = prepare_currency
 
@@ -70,8 +71,11 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
+                country=country,
                 buyer_id=0,
-                tender_classification_id=tender_classification_id)
+                tender_classification_id=tender_classification_id,
+                amount=100000.00,
+                currency=currency)
             )
 
             payload.customize_tender_items(
@@ -248,8 +252,11 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
-                buyer_id=0,
-                tender_classification_id=tender_classification_id)
+                country=country,
+                buyer_id=10,
+                tender_classification_id=tender_classification_id,
+                amount=100000.00,
+                currency=currency)
             )
 
             payload.customize_tender_items(
@@ -795,62 +802,63 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url
 
-    try:
-        """
-        CLean up the database.
-        """
-        # Clean after Crate Ei_1 process:
-        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_1_cpid, ei_1_operation_id)
-        cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
+    if bool(clean_up_database) is True:
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Crate Ei_1 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ei_1_cpid)
+            cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
 
-        # Clean after Crate FS_1 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_1_operation_id)
-        cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_1_cpid)
+            # Clean after Crate FS_1 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_1_operation_id)
+            cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_1_cpid)
 
-        # Clean after Crate PN_1 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_1_operation_id)
-        cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
+            # Clean after Crate PN_1 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_1_operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
-        # Clean after Crate Ei_2 process:
-        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_2_cpid, ei_2_operation_id)
-        cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
+            # Clean after Crate Ei_2 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ei_2_cpid)
+            cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
 
-        # Clean after Crate FS_2 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_2_operation_id)
-        cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_2_cpid)
+            # Clean after Crate FS_2 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_2_operation_id)
+            cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_2_cpid)
 
-        # Clean after Crate PN_2 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_2_operation_id)
-        cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
+            # Clean after Crate PN_2 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_2_operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
 
-        # Clean after Crate AP process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ap_operation_id)
-        cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
+            # Clean after Crate AP process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ap_operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
 
-        # Clean after Outsourcing PN_1 process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_1_cpid)
-        cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
+            # Clean after Outsourcing PN_1 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_1_cpid)
+            cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
-        # Clean after Outsourcing PN_2 process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_2_cpid)
-        cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
+            # Clean after Outsourcing PN_2 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_2_cpid)
+            cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
 
-        # Clean after Relation AP process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
-        cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
+            # Clean after Relation AP process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+            cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
-        # Clean after Update AP process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, update_ap_operation_id)
-        cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
+            # Clean after Update AP process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, update_ap_operation_id)
+            cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
-        # Clean after Framework Establishment process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, create_fe_operation_id)
+            # Clean after Framework Establishment process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, create_fe_operation_id)
 
-        cleanup_table_of_services_for_framework_establishment(
-            connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
-        )
-    except ValueError:
-        raise ValueError("Impossible to cLean up the database.")
+            cleanup_table_of_services_for_framework_establishment(
+                connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
+            )
+        except ValueError:
+            raise ValueError("Impossible to cLean up the database.")
 
 
 @pytest.fixture(scope="function")
@@ -866,6 +874,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
     language = get_parameters[5]
     pmd = get_parameters[6]
     tender_classification_id = get_parameters[9]
+    clean_up_database = get_parameters[10]
 
     currency = prepare_currency
 
@@ -897,8 +906,11 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
+                country=country,
                 buyer_id=0,
-                tender_classification_id=tender_classification_id)
+                tender_classification_id=tender_classification_id,
+                amount=100000.00,
+                currency=currency)
             )
 
             payload.delete_optional_fields(
@@ -1082,8 +1094,11 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
-                buyer_id=0,
-                tender_classification_id=tender_classification_id)
+                country=country,
+                buyer_id=10,
+                tender_classification_id=tender_classification_id,
+                amount=100000.00,
+                currency=currency)
             )
 
             payload.delete_optional_fields(
@@ -1572,59 +1587,60 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
         pn_1_url, ms_1_url, pn_2_cpid, pn_2_ocid, pn_2_token, pn_2_payload, pn_2_url, ms_2_url, ei_1_payload,\
         ei_2_payload, currency, tender_classification_id, create_fe_payload, fe_ocid, fe_url
 
-    try:
-        """
-        CLean up the database.
-        """
-        # Clean after Crate Ei_1 process:
-        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_1_cpid, ei_1_operation_id)
-        cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
+    if bool(clean_up_database) is True:
+        try:
+            """
+            CLean up the database.
+            """
+            # Clean after Crate Ei_1 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ei_1_cpid)
+            cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_1_cpid)
 
-        # Clean after Crate FS_1 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_1_operation_id)
-        cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_1_cpid)
+            # Clean after Crate FS_1 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_1_operation_id)
+            cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_1_cpid)
 
-        # Clean after Crate PN_1 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_1_operation_id)
-        cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
+            # Clean after Crate PN_1 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_1_operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
-        # Clean after Crate Ei_2 process:
-        cleanup_orchestrator_steps_by_cpid_and_operationid(connect_to_orchestrator, ei_2_cpid, ei_2_operation_id)
-        cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
+            # Clean after Crate Ei_2 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ei_2_cpid)
+            cleanup_table_of_services_for_expenditure_item(connect_to_ocds, ei_2_cpid)
 
-        # Clean after Crate FS_2 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_2_operation_id)
-        cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_2_cpid)
+            # Clean after Crate FS_2 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, fs_2_operation_id)
+            cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_2_cpid)
 
-        # Clean after Crate PN_2 process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_2_operation_id)
-        cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
+            # Clean after Crate PN_2 process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, pn_2_operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
 
-        # Clean after Crate AP process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ap_operation_id)
-        cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
+            # Clean after Crate AP process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, ap_operation_id)
+            cleanup_table_of_services_for_planning_notice(connect_to_ocds, connect_to_access, ap_cpid)
 
-        # Clean after Outsourcing PN_1 process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_1_cpid)
-        cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
+            # Clean after Outsourcing PN_1 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_1_cpid)
+            cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_1_cpid)
 
-        # Clean after Outsourcing PN_2 process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_2_cpid)
-        cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
+            # Clean after Outsourcing PN_2 process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, pn_2_cpid)
+            cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, connect_to_access, pn_2_cpid)
 
-        # Clean after Relation AP process:
-        cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
-        cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
+            # Clean after Relation AP process:
+            cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, ap_cpid)
+            cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
-        # Clean after Update AP process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, update_ap_operation_id)
-        cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
+            # Clean after Update AP process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, update_ap_operation_id)
+            cleanup_table_of_services_for_aggregated_plan(connect_to_ocds, connect_to_access, ap_cpid)
 
-        # Clean after Framework Establishment process:
-        cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, create_fe_operation_id)
+            # Clean after Framework Establishment process:
+            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, create_fe_operation_id)
 
-        cleanup_table_of_services_for_framework_establishment(
-            connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
-        )
-    except ValueError:
-        raise ValueError("Impossible to cLean up the database.")
+            cleanup_table_of_services_for_framework_establishment(
+                connect_to_ocds, connect_to_access, connect_to_clarification, connect_to_dossier, ap_cpid
+            )
+        except ValueError:
+            raise ValueError("Impossible to cLean up the database.")
