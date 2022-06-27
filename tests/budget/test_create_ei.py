@@ -157,7 +157,7 @@ class TestCreateEI:
                         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        if bool(clean_up_database) is True:
+        if clean_up_database is True:
             try:
                 """
                 CLean up the database.
@@ -167,6 +167,11 @@ class TestCreateEI:
                 cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
             except ValueError:
                 ValueError("Impossible to cLean up the database.")
+        else:
+            with allure.step("The steps of process."):
+                allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                              f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                              f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
     @allure.title("Check records: based on required data model.")
     def test_case_2(self, get_parameters, connect_to_keyspace):
