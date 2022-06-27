@@ -322,4 +322,3 @@ class TestCreateEI:
                 cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
             except ValueError:
                 ValueError("Impossible to cLean up the database.")
-
