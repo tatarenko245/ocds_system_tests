@@ -15,7 +15,7 @@ def get_parameters():
     pmd = os.getenv("PMD")
     cassandra_username = os.getenv("CASSANDRA_USERNAME")
     cassandra_password = os.getenv("CASSANDRA_PASSWORD")
-    clean_up_database = os.getenv("Is need to clean up the database?")
+    clean_up_database = os.getenv("Is_need_to_clean_up_the_database?")
 
     hosts = get_hosts(environment)
     tender_classification_id = prepare_tender_classification_id()
