@@ -18,6 +18,7 @@ class ExpenditureItemPayload:
         __ei_period = ei_period()
         self.__tender_classification_id = tender_classification_id
         self.__payload = copy.deepcopy(payload_model)
+        self.__country = country
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
         # It depends on country value and according with payload data model from documentation.
@@ -130,29 +131,21 @@ class ExpenditureItemPayload:
 
         for q_0 in range(quantity_of_items):
 
-            new_items_array[q_0]['description'] = f"create ei: tender.items{q_0}.description"
+            affordable_schemes = get_affordable_schemes(self.__country)
+
+            new_items_array[q_0]['description'] = f"create ei: tender.items[{q_0}].description"
 
             new_items_array[q_0]['deliveryAddress']['streetAddress'] = \
-                f"create ei: tender.items{q_0}.deliveryAddress.streetAddress"
+                f"create ei: tender.items[{q_0}].deliveryAddress.streetAddress"
 
             new_items_array[q_0]['deliveryAddress']['postalCode'] = \
-                f"create ei: tender.items{q_0}.deliveryAddress.postalCode"
+                f"create ei: tender.items[{q_0}].deliveryAddress.postalCode"
 
-            new_items_array[q_0]['deliveryAddress']['addressDetails']['region']['id'] = \
-                f"{random.choice(region_id_tuple)}"
-
-            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']['id'] = \
-                get_locality_id_according_with_region_id(
-                    new_items_array[q_0]['deliveryAddress']['addressDetails']['region']['id'])
-
-            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']['scheme'] = \
-                f"{random.choice(locality_scheme_tuple)}"
-
-            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']['description'] = \
-                f"create ei: tender.items{q_0}.deliveryAddress.addressDetails.locality.description"
-
-            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']['uri'] = \
-                f"create ei: tender.items{q_0}.deliveryAddress.addressDetails.locality.uri"
+            new_items_array[q_0]['deliveryAddress']['addressDetails']['country']['scheme'] = affordable_schemes[1]
+            new_items_array[q_0]['deliveryAddress']['addressDetails']['region']['scheme'] = affordable_schemes[2]
+            new_items_array[q_0]['deliveryAddress']['addressDetails']['region']['id'] = affordable_schemes[3]
+            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']['scheme'] = affordable_schemes[4]
+            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']['id'] = affordable_schemes[5]
 
             new_items_array[q_0]['unit']['id'] = f"{random.choice(unit_id_tuple)}"
             del new_items_array[q_0]['additionalClassifications'][0]
