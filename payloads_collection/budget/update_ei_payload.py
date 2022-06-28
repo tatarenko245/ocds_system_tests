@@ -4,13 +4,14 @@ import random
 from data_collection.data_constant import locality_scheme_tuple, typeOfBuyer_tuple, mainGeneralActivity_tuple, \
     mainSectoralActivity_tuple, region_id_tuple, unit_id_tuple, cpvs_tuple
 from data_collection.for_test_updateEI_process.payload_full_model import payload_model
+from functions_collection.cassandra_methods import get_value_from_ocds_budgetrules
 from functions_collection.prepare_date import ei_period
 from functions_collection.some_functions import generate_items_array, get_locality_id_according_with_region_id, \
     get_affordable_schemes
 
 
 class ExpenditureItemPayload:
-    def __init__(self, country, buyer_id, tender_classification_id, amount):
+    def __init__(self, connect_to_ocds, country, buyer_id, tender_classification_id, amount):
 
         affordable_schemes = get_affordable_schemes(country)
         __ei_period = ei_period()
@@ -19,14 +20,15 @@ class ExpenditureItemPayload:
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
         # It depends on country value and according with payload data model from documentation.
-        if country == "MD":
+        presence_ei_amount = get_value_from_ocds_budgetrules(connect_to_ocds, f"{country}-updateEI", "presenceEIAmount")
+
+        if bool(presence_ei_amount) is False:
             del self.__payload['planning']['budget']['amount']
-        elif country == "LT":
+        elif bool(presence_ei_amount) is True:
             self.__payload['planning']['budget']['amount']['amount'] = amount
         else:
-            raise ValueError(f"Error in payload! Invalid country value. Actual country = {country}")
+            raise ValueError(f"Error in payload! Invalid SQL request: 'ocds.budget_rules'.")
 
-        self.__payload['tender']['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = \
             affordable_schemes[1]
@@ -39,19 +41,6 @@ class ExpenditureItemPayload:
             affordable_schemes[4]
         self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = \
             affordable_schemes[5]
-        self.__payload['planning']['budget']['period']['startDate'] = __ei_period[0]
-        self.__payload['planning']['budget']['period']['endDate'] = __ei_period[1]
-        self.__payload['buyer']['identifier']['id'] = f"{buyer_id}"
-        self.__payload['buyer']['identifier']['scheme'] = affordable_schemes[0]
-        self.__payload['buyer']['address']['addressDetails']['country']['scheme'] = affordable_schemes[1]
-        self.__payload['buyer']['address']['addressDetails']['country']['id'] = country
-        self.__payload['buyer']['address']['addressDetails']['region']['scheme'] = affordable_schemes[2]
-        self.__payload['buyer']['address']['addressDetails']['region']['id'] = affordable_schemes[3]
-        self.__payload['buyer']['address']['addressDetails']['locality']['scheme'] = affordable_schemes[4]
-        self.__payload['buyer']['address']['addressDetails']['locality']['id'] = affordable_schemes[5]
-        self.__payload['buyer']['details']['typeOfBuyer'] = f"{random.choice(typeOfBuyer_tuple)}"
-        self.__payload['buyer']['details']['mainGeneralActivity'] = f"{random.choice(mainGeneralActivity_tuple)}"
-        self.__payload['buyer']['details']['mainSectoralActivity'] = f"{random.choice(mainSectoralActivity_tuple)}"
 
     def build_payload(self):
         return self.__payload

@@ -255,7 +255,7 @@ affordable_shemes = {
         {
             "country": "LT",
             "registration_schemes": [
-                "LT-IDNO"
+                "LT-RC"
             ],
             "country_schemes": [
                 "ISO-ALPHA2"
@@ -276,6 +276,25 @@ affordable_shemes = {
             ],
             "locality_id": [
                 "some_locality_id"
+            ]
+        }
+    ]
+}
+
+affordable_currency = {
+    "data": [
+        {
+            "country": "MD",
+            "currency": [
+                "EUR",
+                "USD",
+                "MDL"
+            ]
+        },
+        {
+            "country": "LT",
+            "currency": [
+                "EUR"
             ]
         }
     ]

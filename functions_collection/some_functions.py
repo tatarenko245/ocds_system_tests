@@ -11,7 +11,7 @@ import pytz
 import xlrd
 
 from data_collection.data_constant import cpv_category_tuple, cpv_goods_high_level_tuple, cpv_works_high_level_tuple, \
-    cpv_services_high_level_tuple, affordable_shemes
+    cpv_services_high_level_tuple, affordable_shemes, affordable_currency
 from data_collection.data_constant import cpv_goods_low_level_03_tuple, cpv_goods_low_level_1_tuple, \
     cpv_goods_low_level_2_tuple, \
     cpv_goods_low_level_3_tuple, cpv_goods_low_level_44_tuple, cpv_goods_low_level_48_tuple, \
@@ -121,7 +121,7 @@ def get_project_root() -> Path:
 
 def get_value_from_cpvs_dictionary_csv(cpvs, language):
     path = get_project_root()
-    with open(f'{path}/data_collection/CPVS_dictionary.csv') as f:
+    with open(f'{path}/data_collection/CPVS.csv') as f:
         reader = csv.reader(f)
         for row in reader:
             cur_arr = row[0].split(';')
@@ -142,7 +142,7 @@ def get_value_from_state_for_entity_of_release_csv(country_id, pmd, process, rel
 
 def get_value_from_cpv_dictionary_csv(cpv, language):
     path = get_project_root()
-    with open(f'{path}/data_collection/CPV_dictionary.csv') as f:
+    with open(f'{path}/data_collection/CPV.csv') as f:
         reader = csv.reader(f)
         for row in reader:
             cur_arr = str(row).replace("['", "").replace("']", "")
@@ -154,7 +154,7 @@ def get_value_from_cpv_dictionary_csv(cpv, language):
 def get_value_from_cpv_dictionary_xls(cpv, language):
     path = get_project_root()
     # Open current xlsx file.
-    excel_data_file = xlrd.open_workbook(f'{path}/data_collection/CPV_dictionary.xls')
+    excel_data_file = xlrd.open_workbook(f'{path}/data_collection/CPV.xls')
     # Take current page of the file.
     sheet = excel_data_file.sheet_by_index(0)
 
@@ -180,7 +180,7 @@ def get_value_from_cpv_dictionary_xls(cpv, language):
 
 def get_value_from_classification_unit_dictionary_csv(unit_id, language):
     path = get_project_root()
-    with open(f'{path}/data_collection/Units_dictionary.csv') as f:
+    with open(f'{path}/data_collection/Units.csv') as f:
         reader = csv.reader(f)
         for row in reader:
             cur_arr = row[0].split(',')
@@ -581,3 +581,11 @@ def get_affordable_schemes(country_id: str):
                 if region_id[:3] == temp_locality_list[q][:3]:
                     locality_id = temp_locality_list[q]
             return registration_scheme, country_scheme, region_scheme, region_id, locality_scheme, locality_id
+
+
+def get_affordable_currency(country_id: str):
+    data = affordable_currency
+    for i in range(len(data['data'])):
+        if data['data'][i]['country'] == country_id:
+            currency = f"{random.choice(data['data'][i]['currency'])}"
+            return currency

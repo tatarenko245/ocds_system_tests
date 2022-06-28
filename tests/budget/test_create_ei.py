@@ -1,16 +1,15 @@
 import copy
 import json
-import random
 
 import allure
 import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
-from data_collection.data_constant import currency_tuple
 from functions_collection.cassandra_methods import cleanup_table_of_services_for_expenditure_item, \
      cleanup_orchestrator_steps_by_cpid
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ei_process
+from functions_collection.some_functions import get_affordable_currency
 from messages_collection.budget.create_ei_message import ExpenditureItemMessage
 from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
 from releases_collection.budget.create_ei_release import ExpenditureItemRelease
@@ -34,7 +33,7 @@ class TestCreateEI:
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_orchestrator = connect_to_keyspace[1]
 
-        currency = f"{random.choice(currency_tuple)}"
+        currency = get_affordable_currency(country)
 
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
@@ -188,7 +187,7 @@ class TestCreateEI:
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_orchestrator = connect_to_keyspace[1]
 
-        currency = f"{random.choice(currency_tuple)}"
+        currency = get_affordable_currency(country)
 
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
@@ -211,6 +210,7 @@ class TestCreateEI:
                 Build payload for Create EI process.
                 """
                 payload = copy.deepcopy(ExpenditureItemPayload(
+                    connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
                     tender_classification_id=tender_classification_id,

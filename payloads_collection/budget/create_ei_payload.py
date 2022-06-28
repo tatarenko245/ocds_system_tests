@@ -1,4 +1,5 @@
 import copy
+import json
 import random
 
 from data_collection.data_constant import locality_scheme_tuple, typeOfBuyer_tuple, mainGeneralActivity_tuple, \
@@ -20,15 +21,17 @@ class ExpenditureItemPayload:
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
         # It depends on country value and according with payload data model from documentation.
-        presence_ei_amount = get_value_from_ocds_budgetrules(connect_to_ocds, f"{country}-createEI", "presenceEIAmount")
+        presence_ei_amount = json.loads(
+            get_value_from_ocds_budgetrules(connect_to_ocds, f"{country}-createEI", "presenceEIAmount")
+        )
 
-        if bool(presence_ei_amount) is False:
+        if presence_ei_amount is False:
             del self.__payload['planning']['budget']['amount']
-        elif bool(presence_ei_amount) is True:
+        elif presence_ei_amount is True:
             self.__payload['planning']['budget']['amount']['amount'] = amount
             self.__payload['planning']['budget']['amount']['currency'] = currency
         else:
-            raise ValueError(f"Error in payload! Invalid SQL query: 'ocds.budget_rules'.")
+            raise ValueError(f"Error in payload! Invalid SQL request: 'ocds.budget_rules'.")
 
         self.__payload['tender']['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['classification']['id'] = tender_classification_id
