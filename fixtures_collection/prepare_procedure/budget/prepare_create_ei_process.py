@@ -48,6 +48,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
+                connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,
                 tender_classification_id=tender_classification_id,
@@ -74,9 +75,10 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
         )
         message = get_message_for_platform(operation_id)
         cpid = message['data']['ocid']
+        ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message,
+        yield payload, cpid, message, ei_url
 
         if clean_up_database is True:
             try:
@@ -131,6 +133,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(ExpenditureItemPayload(
+                connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,
                 tender_classification_id=tender_classification_id,

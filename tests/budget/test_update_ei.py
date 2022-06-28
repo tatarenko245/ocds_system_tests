@@ -34,12 +34,22 @@ class TestUpdateEI:
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_orchestrator = connect_to_keyspace[1]
 
-        currency = f"{random.choice(currency_tuple)}"
+        ei_url = create_ei_tc_1[3]
+        previous_ei_release = requests.get(ei_url).json()
+
+        """
+        VR.COM-14.9.2: Check EI state.
+        """
+        if previous_ei_release['releases'][0]['tender']['status'] == "planning":
+            pass
+        else:
+            raise ValueError(f"The EI release has invalid state: "
+                             f"{previous_ei_release['releases'][0]['tender']['status']}.")
 
         step_number = 1
-        with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
+        with allure.step(f"# {step_number}. Authorization platform one: Update EI process."):
             """
-            Tender platform authorization for Create EI process.
+            Tender platform authorization for Update EI process.
             As result, get tender platform's access token and process operation-id.
             """
             platform_one = PlatformAuthorization(bpe_host)
@@ -47,14 +57,14 @@ class TestUpdateEI:
             operation_id = platform_one.get_x_operation_id(access_token)
 
         step_number += 1
-        with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
+        with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
-            Send api request to BPE host to create a CreateEi process.
+            Send api request to BPE host to create a Update EI process.
             And save in variable cpid.
             """
             try:
                 """
-                Build payload for Create EI process.
+                Build payload for Update EI process.
                 """
                 payload = copy.deepcopy(ExpenditureItemPayload(
                     country=country,
@@ -70,7 +80,7 @@ class TestUpdateEI:
                 )
                 payload = payload.build_payload()
             except ValueError:
-                raise ValueError("Impossible to build payload for Create EI process.")
+                raise ValueError("Impossible to build payload for Update EI process.")
 
             synchronous_result = create_ei_process(
                 host=bpe_host,
@@ -112,6 +122,7 @@ class TestUpdateEI:
                     """
                     expected_message = copy.deepcopy(ExpenditureItemMessage(
                         environment=environment,
+                        country=country,
                         actual_message=actual_message,
                         test_mode=True)
                     )
@@ -172,5 +183,3 @@ class TestUpdateEI:
                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-
-

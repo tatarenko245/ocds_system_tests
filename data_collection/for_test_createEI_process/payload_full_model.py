@@ -8,8 +8,8 @@ payload_model = {
         },
         "items": [
             {
-                "id": "0",
-                "description": "create ei: tender.items0.description",
+                "id": f"create ei: tender.items[{0}].id",
+                "description": f"create ei: tender.items[{0}].description",
                 "classification": {
                     "id": "45112420-5",
                     "scheme": "CPV"
@@ -21,27 +21,27 @@ payload_model = {
                     }
                 ],
                 "deliveryAddress": {
-                    "streetAddress": "create ei: tender.items0.deliveryAddress.streetAddress",
-                    "postalCode": "create ei: tender.items0.deliveryAddress.postalCode",
+                    "streetAddress": f"create ei: tender.items[{0}].deliveryAddress.streetAddress",
+                    "postalCode": f"create ei: tender.items[{0}].deliveryAddress.postalCode",
                     "addressDetails": {
                         "country": {
                             "id": "MD",
-                            "description": "create ei: tender.items0.deliveryAddress.addressDetails.country."
+                            "description": f"create ei: tender.items[{0}].deliveryAddress.addressDetails.country."
                                            "description",
                             "scheme": "ISO-ALPHA2"
                         },
                         "region": {
                             "id": "2500000",
-                            "description": "create ei: tender.items0.deliveryAddress.addressDetails.region."
+                            "description": f"create ei: tender.items[{0}].deliveryAddress.addressDetails.region."
                                            "description",
                             "scheme": "CUATM"
                         },
                         "locality": {
                             "id": "2501000",
-                            "description": "create ei: tender.items0.deliveryAddress.addressDetails.locality."
+                            "description": f"create ei: tender.items[{0}].deliveryAddress.addressDetails.locality."
                                            "description",
                             "scheme": "CUATM",
-                            "uri": "create ei: tender.items0.deliveryAddress.addressDetails.locality.uri"
+                            "uri": f"create ei: tender.items[{0}].deliveryAddress.addressDetails.locality.uri"
                         }
                     }
                 },

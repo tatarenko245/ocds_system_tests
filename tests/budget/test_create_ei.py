@@ -57,6 +57,7 @@ class TestCreateEI:
                 Build payload for Create EI process.
                 """
                 payload = copy.deepcopy(ExpenditureItemPayload(
+                    connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
                     tender_classification_id=tender_classification_id,

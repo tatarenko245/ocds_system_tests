@@ -3,15 +3,14 @@ import random
 
 from data_collection.data_constant import locality_scheme_tuple, typeOfBuyer_tuple, mainGeneralActivity_tuple, \
     mainSectoralActivity_tuple, region_id_tuple, unit_id_tuple, cpvs_tuple
-from data_collection.for_test_createEI_process.payload_full_model import *
-from functions_collection.cassandra_methods import get_value_from_ocds_budgetrules
+from data_collection.for_test_updateEI_process.payload_full_model import payload_model
 from functions_collection.prepare_date import ei_period
 from functions_collection.some_functions import generate_items_array, get_locality_id_according_with_region_id, \
     get_affordable_schemes
 
 
 class ExpenditureItemPayload:
-    def __init__(self, connect_to_ocds, country, buyer_id, tender_classification_id, amount, currency):
+    def __init__(self, country, buyer_id, tender_classification_id, amount):
 
         affordable_schemes = get_affordable_schemes(country)
         __ei_period = ei_period()
@@ -20,15 +19,12 @@ class ExpenditureItemPayload:
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
         # It depends on country value and according with payload data model from documentation.
-        presence_ei_amount = get_value_from_ocds_budgetrules(connect_to_ocds, f"{country}-createEI", "presenceEIAmount")
-
-        if bool(presence_ei_amount) is False:
+        if country == "MD":
             del self.__payload['planning']['budget']['amount']
-        elif bool(presence_ei_amount) is True:
+        elif country == "LT":
             self.__payload['planning']['budget']['amount']['amount'] = amount
-            self.__payload['planning']['budget']['amount']['currency'] = currency
         else:
-            raise ValueError(f"Error in payload! Invalid SQL query: 'ocds.budget_rules'.")
+            raise ValueError(f"Error in payload! Invalid country value. Actual country = {country}")
 
         self.__payload['tender']['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['classification']['id'] = tender_classification_id

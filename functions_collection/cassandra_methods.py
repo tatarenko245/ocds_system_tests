@@ -287,3 +287,14 @@ def get_value_from_orchestrator_decisiontable(connect_to_orchestrator, key):
         return value
     else:
         return value.output
+
+
+def get_value_from_ocds_budgetrules(connect_to_ocds, key, parameter):
+    """ Get some 'value' from ocds.budget_rules"""
+
+    value = connect_to_ocds.execute(
+        f"""SELECT "value" FROM budget_rules WHERE key = '{key}' AND parameter = '{parameter}';""").one()
+    if value is None:
+        return value
+    else:
+        return value.value
