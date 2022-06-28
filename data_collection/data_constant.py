@@ -218,6 +218,69 @@ locality_scheme_tuple = (
     "other",
 )
 
+affordable_shemes = {
+    "data": [
+        {
+            "country": "MD",
+            "registration_schemes": [
+                "BY-ADR",
+                "MD-IDNO",
+                "UZ-KTUT"
+            ],
+            "country_schemes": [
+                "ISO-ALPHA2"
+            ],
+            "region_schemes": [
+                "CUATM"
+            ],
+            "region_id": [
+                "1700000",
+                "2500000",
+                "2900000",
+                "3400000",
+                "4800000"
+            ],
+            "locality_schemes": [
+                "CUATM",
+                "other"
+            ],
+            "locality_id": [
+                "1701000",
+                "2501000",
+                "2901000",
+                "3401000",
+                "4801000"
+            ]
+        },
+        {
+            "country": "LT",
+            "registration_schemes": [
+                "LT-IDNO"
+            ],
+            "country_schemes": [
+                "ISO-ALPHA2"
+            ],
+            "region_schemes": [
+                "ISO-ALPHA2"
+            ],
+            "region_id": [
+                "LT-AL",
+                "LT-KL",
+                "LT-KU",
+                "LT-MR",
+                "LT-PN"
+
+            ],
+            "locality_schemes": [
+                "other"
+            ],
+            "locality_id": [
+                "some_locality_id"
+            ]
+        }
+    ]
+}
+
 currency_tuple = (
     "USD",
     "EUR",
@@ -351,13 +414,11 @@ pmd_for_pn_framework_agreement = (
     "TEST_MC",
 )
 
-
 documentType_for_qualification_process = (
     "notice",
     "evaluationReports",
     "conflictOfInterest",
 )
-
 
 confirmationResponse_type = (
     "document",

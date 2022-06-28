@@ -11,7 +11,7 @@ import pytz
 import xlrd
 
 from data_collection.data_constant import cpv_category_tuple, cpv_goods_high_level_tuple, cpv_works_high_level_tuple, \
-    cpv_services_high_level_tuple
+    cpv_services_high_level_tuple, affordable_shemes
 from data_collection.data_constant import cpv_goods_low_level_03_tuple, cpv_goods_low_level_1_tuple, \
     cpv_goods_low_level_2_tuple, \
     cpv_goods_low_level_3_tuple, cpv_goods_low_level_44_tuple, cpv_goods_low_level_48_tuple, \
@@ -564,3 +564,20 @@ def get_id_token_of_qualification_in_pending_awaiting_state(actual_qualification
                 qualification_id = actual_qualification_id_list[q]
                 qualification_token = feed_point_message['data']['outcomes']['qualifications'][f]['X-TOKEN']
                 yield qualification_id, qualification_token
+
+
+def get_affordable_schemes(country_id: str):
+    data = affordable_shemes
+    for i in range(len(data['data'])):
+        if data['data'][i]['country'] == country_id:
+            registration_scheme = f"{random.choice(data['data'][i]['registration_schemes'])}"
+            country_scheme = f"{random.choice(data['data'][i]['country_schemes'])}"
+            region_scheme = f"{random.choice(data['data'][i]['region_schemes'])}"
+            region_id = f"{random.choice(data['data'][i]['region_id'])}"
+            locality_scheme = f"{random.choice(data['data'][i]['locality_schemes'])}"
+            locality_id = f"{random.choice(data['data'][i]['locality_id'])}"
+            temp_locality_list = data['data'][i]['locality_id']
+            for q in range(len(temp_locality_list)):
+                if region_id[:3] == temp_locality_list[q][:3]:
+                    locality_id = temp_locality_list[q]
+            return registration_scheme, country_scheme, region_scheme, region_id, locality_scheme, locality_id

@@ -5,12 +5,14 @@ from data_collection.data_constant import locality_scheme_tuple, typeOfBuyer_tup
     mainSectoralActivity_tuple, region_id_tuple, unit_id_tuple, cpvs_tuple
 from data_collection.for_test_createEI_process.payload_full_model import *
 from functions_collection.prepare_date import ei_period
-from functions_collection.some_functions import generate_items_array, get_locality_id_according_with_region_id
+from functions_collection.some_functions import generate_items_array, get_locality_id_according_with_region_id, \
+    get_affordable_schemes
 
 
 class ExpenditureItemPayload:
     def __init__(self, country, buyer_id, tender_classification_id, amount, currency):
 
+        affortable_schemes = get_affordable_schemes(country)
         __ei_period = ei_period()
         self.__tender_classification_id = tender_classification_id
         self.__payload = copy.deepcopy(payload_model)
@@ -27,13 +29,27 @@ class ExpenditureItemPayload:
 
         self.__payload['tender']['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['classification']['id'] = tender_classification_id
+        self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = \
+            affortable_schemes[1]
+        self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['id'] = country
+        self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['scheme'] = \
+            affortable_schemes[2]
+        self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['region']['id'] = \
+            affortable_schemes[3]
         self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['scheme'] = \
-            f"{random.choice(locality_scheme_tuple)}"
+            affortable_schemes[4]
+        self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = \
+            affortable_schemes[5]
         self.__payload['planning']['budget']['period']['startDate'] = __ei_period[0]
         self.__payload['planning']['budget']['period']['endDate'] = __ei_period[1]
         self.__payload['buyer']['identifier']['id'] = f"{buyer_id}"
-        self.__payload['buyer']['address']['addressDetails']['locality']['scheme'] = \
-            f"{random.choice(locality_scheme_tuple)}"
+        self.__payload['buyer']['identifier']['scheme'] = affortable_schemes[0]
+        self.__payload['buyer']['address']['addressDetails']['country']['scheme'] = affortable_schemes[1]
+        self.__payload['buyer']['address']['addressDetails']['country']['id'] = country
+        self.__payload['buyer']['address']['addressDetails']['region']['scheme'] = affortable_schemes[2]
+        self.__payload['buyer']['address']['addressDetails']['region']['id'] = affortable_schemes[3]
+        self.__payload['buyer']['address']['addressDetails']['locality']['scheme'] = affortable_schemes[4]
+        self.__payload['buyer']['address']['addressDetails']['locality']['id'] = affortable_schemes[5]
         self.__payload['buyer']['details']['typeOfBuyer'] = f"{random.choice(typeOfBuyer_tuple)}"
         self.__payload['buyer']['details']['mainGeneralActivity'] = f"{random.choice(mainGeneralActivity_tuple)}"
         self.__payload['buyer']['details']['mainSectoralActivity'] = f"{random.choice(mainSectoralActivity_tuple)}"
