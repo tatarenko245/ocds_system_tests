@@ -353,49 +353,52 @@ class ExpenditureItemRelease:
                             "uri": item_region_data[3]
                         }]
 
-                        if payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'locality']['scheme'] == "CUATM":
+                        if "locality" in payload['tender']['items'][q_0]['deliveryAddress']['addressDetails']:
+                            if payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                    'locality']['scheme'] != "other":
 
-                            item_locality_data = get_value_from_locality_csv(
+                                item_locality_data = get_value_from_locality_csv(
 
-                                locality=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['id'],
-                                region=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'region']['id'],
-                                country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'country']['id'],
-                                language=self.language
-                            )
-                            expected_item_locality_object = [{
-                                "scheme": item_locality_data[2],
+                                    locality=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                        'locality']['id'],
+                                    region=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                        'region']['id'],
+                                    country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                        'country']['id'],
+                                    language=self.language
+                                )
+                                expected_item_locality_object = [{
+                                    "scheme": item_locality_data[2],
 
-                                "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['id'],
+                                    "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                        'locality']['id'],
 
-                                "description": item_locality_data[1],
-                                "uri": item_locality_data[3]
-                            }]
+                                    "description": item_locality_data[1],
+                                    "uri": item_locality_data[3]
+                                }]
+                            else:
+                                expected_item_locality_object = [{
+
+                                    "scheme": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                        'locality']['scheme'],
+
+                                    "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
+                                        'locality']['id'],
+
+                                    "description": payload['tender']['items'][q_0]['deliveryAddress'][
+                                        'addressDetails']['locality']['description']
+                                }]
+
+                            new_items_array[q_0]['deliveryAddress']['addressDetails']['locality'] = \
+                                expected_item_locality_object[0]
                         else:
-                            expected_item_locality_object = [{
-
-                                "scheme": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['scheme'],
-
-                                "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['id'],
-
-                                "description": payload['tender']['items'][q_0]['deliveryAddress'][
-                                    'addressDetails']['locality']['description']
-                            }]
+                            del new_items_array[q_0]['deliveryAddress']['addressDetails']['locality']
 
                         new_items_array[q_0]['deliveryAddress']['addressDetails']['country'] = \
                             expected_item_country_object[0]
 
                         new_items_array[q_0]['deliveryAddress']['addressDetails']['region'] = \
                             expected_item_region_object[0]
-
-                        new_items_array[q_0]['deliveryAddress']['addressDetails']['locality'] = \
-                            expected_item_locality_object[0]
                     except ValueError:
                         ValueError("Impossible to prepare addressDetails object for items array")
 
