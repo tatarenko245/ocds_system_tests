@@ -2,13 +2,12 @@ import copy
 import json
 import random
 
-from data_collection.data_constant import locality_scheme_tuple, typeOfBuyer_tuple, mainGeneralActivity_tuple, \
-    mainSectoralActivity_tuple, region_id_tuple, unit_id_tuple, cpvs_tuple
+from data_collection.data_constant import typeOfBuyer_tuple, mainGeneralActivity_tuple, \
+    mainSectoralActivity_tuple, unit_id_tuple, cpvs_tuple
 from data_collection.for_test_createEI_process.payload_full_model import *
 from functions_collection.cassandra_methods import get_value_from_ocds_budgetrules
 from functions_collection.prepare_date import ei_period
-from functions_collection.some_functions import generate_items_array, get_locality_id_according_with_region_id, \
-    get_affordable_schemes
+from functions_collection.some_functions import generate_items_array, get_affordable_schemes
 
 
 class ExpenditureItemPayload:
@@ -35,6 +34,7 @@ class ExpenditureItemPayload:
             raise ValueError(f"Error in payload! Invalid SQL request: 'ocds.budget_rules'.")
 
         self.__payload['tender']['classification']['id'] = tender_classification_id
+
         self.__payload['tender']['items'][0]['classification']['id'] = tender_classification_id
         self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['country']['scheme'] = \
             affordable_schemes[1]
@@ -47,8 +47,10 @@ class ExpenditureItemPayload:
             affordable_schemes[4]
         self.__payload['tender']['items'][0]['deliveryAddress']['addressDetails']['locality']['id'] = \
             affordable_schemes[5]
+
         self.__payload['planning']['budget']['period']['startDate'] = __ei_period[0]
         self.__payload['planning']['budget']['period']['endDate'] = __ei_period[1]
+
         self.__payload['buyer']['identifier']['id'] = f"{buyer_id}"
         self.__payload['buyer']['identifier']['scheme'] = affordable_schemes[0]
         self.__payload['buyer']['address']['addressDetails']['country']['scheme'] = affordable_schemes[1]

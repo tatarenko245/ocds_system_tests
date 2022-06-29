@@ -75,10 +75,11 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
         )
         message = get_message_for_platform(operation_id)
         cpid = message['data']['ocid']
+        token = message['data']['outcomes']['ei'][0]['X-TOKEN']
         ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message, ei_url
+        yield payload, cpid, message, ei_url, token
 
         if clean_up_database is True:
             try:
@@ -168,9 +169,11 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
         )
         message = get_message_for_platform(operation_id)
         cpid = message['data']['ocid']
+        token = message['data']['outcomes']['ei'][0]['X-TOKEN']
+        ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message,
+        yield payload, cpid, message, ei_url, token
 
         if clean_up_database is True:
             try:

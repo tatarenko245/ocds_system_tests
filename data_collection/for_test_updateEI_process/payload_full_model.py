@@ -25,7 +25,9 @@ payload_model = {
                     }
                 ],
                 "quantity": 20.0,
-                "unit": "19",
+                "unit": {
+                    "id": "19"
+                },
                 "deliveryAddress": {
                     "streetAddress": f"update ei: tender.items[{0}].deliveryAddress.streetAddress",
                     "postalCode": f"update ei: tender.items[{0}].deliveryAddress.postalCode",

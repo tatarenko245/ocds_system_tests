@@ -8,12 +8,10 @@ import requests
 from class_collection.platform_authorization import PlatformAuthorization
 from data_collection.data_constant import currency_tuple
 from functions_collection.cassandra_methods import cleanup_table_of_services_for_expenditure_item, \
-     cleanup_orchestrator_steps_by_cpid
+    cleanup_orchestrator_steps_by_cpid
 from functions_collection.get_message_for_platform import get_message_for_platform
-from functions_collection.requests_collection import create_ei_process
-from messages_collection.budget.create_ei_message import ExpenditureItemMessage
-from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
-from releases_collection.budget.create_ei_release import ExpenditureItemRelease
+from functions_collection.requests_collection import create_ei_process, update_ei_process
+from payloads_collection.budget.update_ei_payload import ExpenditureItemPayload
 
 
 @allure.parent_suite("Budget")
@@ -34,9 +32,12 @@ class TestUpdateEI:
         connect_to_ocds = connect_to_keyspace[0]
         connect_to_orchestrator = connect_to_keyspace[1]
 
+        cpid = create_ei_tc_1[1]
         ei_url = create_ei_tc_1[3]
+        token = create_ei_tc_1[4]
         previous_ei_release = requests.get(ei_url).json()
-
+        print("\nPrevious release")
+        print(json.dumps(previous_ei_release))
         """
         VR.COM-14.9.2: Check EI state.
         """
@@ -67,119 +68,128 @@ class TestUpdateEI:
                 Build payload for Update EI process.
                 """
                 payload = copy.deepcopy(ExpenditureItemPayload(
+                    connect_to_ocds=connect_to_ocds,
                     country=country,
-                    buyer_id=0,
                     tender_classification_id=tender_classification_id,
-                    amount=100000.00,
-                    currency=currency)
+                    amount=100000.00)
                 )
 
-                payload.customize_tender_items(
-                    quantity_of_items=3,
-                    quantity_of_items_additional_classifications=3
+                payload.add_new_tender_items(
+                    quantity_of_items=1,
+                    quantity_of_new_additional_classifications=1
+                )
+
+                payload.update_old_tender_items(
+                    previous_ei_release['releases'][0]['tender']['items'][1]['id'],
+                    previous_ei_release['releases'][0]['tender']['items'][2]['id'],
+                    previous_items_list=previous_ei_release['releases'][0]['tender']['items'],
+                    quantity_of_new_additional_classifications=2
                 )
                 payload = payload.build_payload()
             except ValueError:
                 raise ValueError("Impossible to build payload for Update EI process.")
 
-            synchronous_result = create_ei_process(
+            print("\npayload")
+            print(json.dumps(payload))
+            synchronous_result = update_ei_process(
                 host=bpe_host,
                 access_token=access_token,
                 x_operation_id=operation_id,
-                country=country,
-                language=language,
+                cpid=cpid,
+                token=token,
                 payload=payload,
                 test_mode=True
             )
             message = get_message_for_platform(operation_id)
             cpid = message['data']['ocid']
             allure.attach(str(message), "Message for platform.")
+            actual_release = requests.get(ei_url).json()
 
-        step_number += 1
-        with allure.step(f"# {step_number}. See result"):
-            """
-            Check the results of TestCase.
-            """
-
-            with allure.step(f"# {step_number}.1. Check status code"):
-                """
-                Check the status code of sending the request.
-                """
-                with allure.step('Compare actual status code and expected status code of sending request.'):
-                    allure.attach(str(synchronous_result.status_code), "Actual status code.")
-                    allure.attach(str(202), "Expected status code.")
-                    assert synchronous_result.status_code == 202
-
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
-                """
-                Check the message for platform.
-                """
-                actual_message = message
-
-                try:
-                    """
-                    Build expected message for platform.
-                    """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
-                        environment=environment,
-                        country=country,
-                        actual_message=actual_message,
-                        test_mode=True)
-                    )
-
-                    expected_message = expected_message.build_expected_message()
-                except ValueError:
-                    ValueError("Impossible to build expected message for platform.")
-
-                with allure.step('Compare actual and expected message for platform.'):
-                    allure.attach(json.dumps(actual_message), "Actual message.")
-                    allure.attach(json.dumps(expected_message), "Expected message.")
-
-                    assert actual_message == expected_message, \
-                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-                                      f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-
-            with allure.step(f'# {step_number}.3. Check EI release.'):
-                """
-                Compare actual EI release and expected EI release.
-                """
-                url = f"{actual_message['data']['url']}/{cpid}"
-                actual_release = requests.get(url=url).json()
-
-                try:
-                    """
-                    Build expected EI release.
-                    """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment, language, tender_classification_id
-                    ))
-                    expected_release = expected_release.build_expected_ei_release(
-                        payload, actual_message, actual_release
-                    )
-                except ValueError:
-                    ValueError("Impossible to build expected EI release.")
-
-                with allure.step("Compare actual and expected releases."):
-                    allure.attach(json.dumps(actual_release), "Actual release.")
-                    allure.attach(json.dumps(expected_release), "Expected release.")
-
-                    assert actual_release == expected_release, \
-                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-                                      f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
-        if clean_up_database is True:
-            try:
-                """
-                CLean up the database.
-                """
-                # Clean after Crate EI process:
-                cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
-                cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
-            except ValueError:
-                ValueError("Impossible to cLean up the database.")
-        else:
-            with allure.step("The steps of process."):
-                allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                              f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-                              f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+        # step_number += 1
+        # with allure.step(f"# {step_number}. See result"):
+        #     """
+        #     Check the results of TestCase.
+        #     """
+        #
+        #     with allure.step(f"# {step_number}.1. Check status code"):
+        #         """
+        #         Check the status code of sending the request.
+        #         """
+        #         with allure.step('Compare actual status code and expected status code of sending request.'):
+        #             allure.attach(str(synchronous_result.status_code), "Actual status code.")
+        #             allure.attach(str(202), "Expected status code.")
+        #             assert synchronous_result.status_code == 202
+        #
+        #     with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+        #         """
+        #         Check the message for platform.
+        #         """
+        #         actual_message = message
+        #
+        #         try:
+        #             """
+        #             Build expected message for platform.
+        #             """
+        #             expected_message = copy.deepcopy(ExpenditureItemMessage(
+        #                 environment=environment,
+        #                 country=country,
+        #                 actual_message=actual_message,
+        #                 test_mode=True)
+        #             )
+        #
+        #             expected_message = expected_message.build_expected_message()
+        #         except ValueError:
+        #             ValueError("Impossible to build expected message for platform.")
+        #
+        #         with allure.step('Compare actual and expected message for platform.'):
+        #             allure.attach(json.dumps(actual_message), "Actual message.")
+        #             allure.attach(json.dumps(expected_message), "Expected message.")
+        #
+        #             assert actual_message == expected_message, \
+        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+        #                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+        #                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+        #
+        #     with allure.step(f'# {step_number}.3. Check EI release.'):
+        #         """
+        #         Compare actual EI release and expected EI release.
+        #         """
+        #         url = f"{actual_message['data']['url']}/{cpid}"
+        #         actual_release = requests.get(url=url).json()
+        #
+        #         try:
+        #             """
+        #             Build expected EI release.
+        #             """
+        #             expected_release = copy.deepcopy(ExpenditureItemRelease(
+        #                 environment, language, tender_classification_id
+        #             ))
+        #             expected_release = expected_release.build_expected_ei_release(
+        #                 payload, actual_message, actual_release
+        #             )
+        #         except ValueError:
+        #             ValueError("Impossible to build expected EI release.")
+        #
+        #         with allure.step("Compare actual and expected releases."):
+        #             allure.attach(json.dumps(actual_release), "Actual release.")
+        #             allure.attach(json.dumps(expected_release), "Expected release.")
+        #
+        #             assert actual_release == expected_release, \
+        #                 allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+        #                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+        #                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+        # if clean_up_database is True:
+        #     try:
+        #         """
+        #         CLean up the database.
+        #         """
+        #         # Clean after Crate EI process:
+        #         cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
+        #         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
+        #     except ValueError:
+        #         ValueError("Impossible to cLean up the database.")
+        # else:
+        #     with allure.step("The steps of process."):
+        #         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+        #                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+        #                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
