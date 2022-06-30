@@ -83,27 +83,37 @@ class ExpenditureItemRelease:
         self.expected_ei_release['releases'][0]['planning']['budget']['period']['endDate'] = \
             previous_ei_release['releases'][0]['planning']['budget']['period']['endDate']
 
-        # Set planning.rationale:
-        # FR.COM-14.1.2: is present in payload.
-        if "rationale" in payload['planning']:
-            self.expected_ei_release['releases'][0]['planning']['rationale'] = payload['planning']['rationale']
-        # FR.COM-14.1.1: isn't present in payload.
-        else:
-            # FR-10.3.1.3: get value from previous release.
-            if "rationale" in previous_ei_release['releases'][0]['planning']:
-                self.expected_ei_release['releases'][0]['planning']['rationale'] = \
-                    previous_ei_release['releases'][0]['planning']['rationale']
+        if "planning" in payload:
+            # Set planning.rationale:
+            # FR.COM-14.1.2: is present in payload.
+            if "rationale" in payload['planning']:
+                self.expected_ei_release['releases'][0]['planning']['rationale'] = payload['planning']['rationale']
+            # FR.COM-14.1.1: isn't present in payload.
             else:
-                del self.expected_ei_release['releases'][0]['planning']['rationale']
+                # FR-10.3.1.3: get value from previous release.
+                if "rationale" in previous_ei_release['releases'][0]['planning']:
+                    self.expected_ei_release['releases'][0]['planning']['rationale'] = \
+                        previous_ei_release['releases'][0]['planning']['rationale']
+                else:
+                    del self.expected_ei_release['releases'][0]['planning']['rationale']
 
-        # Set amount:
-        # FR.COM-14.1.3: is present in payload.
-        if "budget" in payload['planning']:
-            if "amount" in payload['planning']['budget']:
-                self.expected_ei_release['releases'][0]['planning']['budget']['amount']['amount'] = \
-                    payload['planning']['budget']['amount']['amount']
-                self.expected_ei_release['releases'][0]['planning']['budget']['amount']['currency'] = \
-                    previous_ei_release['releases'][0]['planning']['budget']['amount']['currency']
+            if "budget" in payload['planning']:
+                # Set amount:
+                # FR.COM-14.1.3: is present in payload.
+                if "amount" in payload['planning']['budget']:
+
+                    self.expected_ei_release['releases'][0]['planning']['budget']['amount']['amount'] = \
+                        payload['planning']['budget']['amount']['amount']
+
+                    self.expected_ei_release['releases'][0]['planning']['budget']['amount']['currency'] = \
+                        previous_ei_release['releases'][0]['planning']['budget']['amount']['currency']
+                else:
+                    # FR-10.3.1.3: get value from previous release.
+                    if "amount" in previous_ei_release['releases'][0]['planning']['budget']:
+                        self.expected_ei_release['releases'][0]['planning']['budget']['amount'] = \
+                            previous_ei_release['releases'][0]['planning']['budget']['amount']
+                    else:
+                        del self.expected_ei_release['releases'][0]['planning']['budget']['amount']
             else:
                 # FR-10.3.1.3: get value from previous release.
                 if "amount" in previous_ei_release['releases'][0]['planning']['budget']:
@@ -111,6 +121,12 @@ class ExpenditureItemRelease:
                         previous_ei_release['releases'][0]['planning']['budget']['amount']
                 else:
                     del self.expected_ei_release['releases'][0]['planning']['budget']['amount']
+        else:
+            # FR-10.3.1.3: get value from previous release.
+            if "planning" in previous_ei_release['releases'][0]:
+                self.expected_ei_release['releases'][0]['planning'] = previous_ei_release['releases'][0]['planning']
+            else:
+                del self.expected_ei_release['releases'][0]['planning']
 
         """Enrich attribute for expected EI release: releases[0].parties"""
         # BR-10.3.1.1: Set parties.
@@ -581,6 +597,26 @@ class ExpenditureItemRelease:
                             except ValueError:
                                 ValueError("Impossible to prepare addressDetails object for items array")
 
+                            if new_item_object['id'] == "":
+                                # FR.COM-14.1.7: Set id.
+                                for a in range(len(actual_ei_release['releases'][0]['tender']['items'])):
+                                    if actual_ei_release['releases'][0]['tender']['items'][a]['description'] == \
+                                            new_item_object['description']:
+
+                                        try:
+                                            is_permanent_id_correct = is_it_uuid(
+                                                actual_ei_release['releases'][0]['tender']['items'][a]['id']
+                                            )
+                                            if is_permanent_id_correct is True:
+
+                                                new_item_object['id'] = \
+                                                    actual_ei_release['releases'][0]['tender']['items'][a]['id']
+                                            else:
+                                                new_item_object['id'] = \
+                                                    f"FR.COM-14.1.7: the 'releases[0].tender.items[{a}].id' " \
+                                                    f"must be uuid."
+                                        except KeyError:
+                                            KeyError(f"Mismatch key into path 'releases[0].tender.items[{a}].id'")
                             expected_items_array.append(new_item_object)
 
                 # Sort objects in expected items array.
@@ -588,40 +624,14 @@ class ExpenditureItemRelease:
                 for a in range(len(actual_ei_release['releases'][0]['tender']['items'])):
                     for e in range(len(expected_items_array)):
 
-                        if actual_ei_release['releases'][0]['tender']['items'][a]['description'] == \
-                                expected_items_array[e]['description'] and \
-                                actual_ei_release['releases'][0]['tender']['items'][a]['classification'] == \
-                                expected_items_array[e]['classification'] and \
-                                actual_ei_release['releases'][0]['tender']['items'][a]['unit'] == \
-                                expected_items_array[e]['unit'] and \
-                                actual_ei_release['releases'][0]['tender']['items'][a]['quantity'] == \
-                                expected_items_array[e]['quantity'] and \
-                                actual_ei_release['releases'][0]['tender']['items'][a]['deliveryAddress'] == \
-                                expected_items_array[e]['deliveryAddress']:
-
-                            # FR.COM-14.1.7: Set id.
-                            if expected_items_array[e]['id'] == "":
-
-                                try:
-                                    is_permanent_id_correct = is_it_uuid(
-                                        actual_ei_release['releases'][0]['tender']['items'][a]['id']
-                                    )
-                                    if is_permanent_id_correct is True:
-
-                                        expected_items_array[e]['id'] = \
-                                            actual_ei_release['releases'][0]['tender']['items'][a]['id']
-                                    else:
-                                        expected_items_array[e]['id'] = \
-                                            f"FR.COM-14.1.7: the 'releases[0].tender.items[{a}].id' must be uuid."
-                                except KeyError:
-                                    KeyError(f"Mismatch key into path 'releases[0].tender.items[{a}].id'")
+                        if actual_ei_release['releases'][0]['tender']['items'][a]['id'] == \
+                                expected_items_array[e]['id']:
 
                             temp_array.append(expected_items_array[e])
 
                 expected_items_array = temp_array
 
                 self.expected_ei_release['releases'][0]['tender']['items'] = expected_items_array
-
             else:
                 self.expected_ei_release['releases'][0]['tender']['items'] = \
                     previous_ei_release['releases'][0]['tender']['items']
