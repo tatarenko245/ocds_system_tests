@@ -157,7 +157,7 @@ class TestUpdateEI:
                 url = f"{actual_message['data']['url']}/{cpid}"
                 actual_release = requests.get(url=url).json()
                 print("\n Actual release")
-                print(json.dumps(actual_release))
+                print(json.dumps(actual_release['releases'][0]['tender']['items']))
                 try:
                     """
                     Build expected EI release.
@@ -172,7 +172,7 @@ class TestUpdateEI:
                     ValueError("Impossible to build expected EI release.")
 
                 print("\nExpected release")
-                print(json.dumps(expected_release))
+                print(json.dumps(expected_release['releases'][0]['tender']['items']))
         #
         #         with allure.step("Compare actual and expected releases."):
         #             allure.attach(json.dumps(actual_release), "Actual release.")

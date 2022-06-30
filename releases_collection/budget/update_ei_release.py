@@ -166,81 +166,332 @@ class ExpenditureItemRelease:
             if "items" in payload['tender']:
                 previous_items_array = previous_ei_release['releases'][0]['tender']['items']
 
-                for actual in range(len(payload['tender']['items'])):
+                # Check what kind of the item object is present into payload (old or new).
+                previous_release_items_id = list()
+                for q in range(len(previous_items_array)):
+                    previous_release_items_id.append(previous_items_array[q]['id'])
+
+                payload_items_id = list()
+                for q in range(len(payload['tender']['items'])):
+                    payload_items_id.append(payload['tender']['items'][q]['id'])
+
+                expected_items_array = list()
+
+                # Get items objects from previous release, which should be copied with data from previous release.
+                items_id_for_copied = list(set(previous_release_items_id) - set(payload_items_id))
+
+                for i in range(len(items_id_for_copied)):
                     for previous in range(len(previous_items_array)):
-                        if payload['tender']['items'][actual]['id'] == previous_items_array[previous]['id']:
+                        if items_id_for_copied[i] == previous_items_array[previous]['id']:
+                            expected_items_array.append(previous_items_array[previous])
 
-                            # FR.COM-14.1.9: Update description.
-                            previous_items_array[previous]['description'] = \
-                                payload['tender']['items'][actual]['description']
+                # Get items objects from previous release, which should be update with data from payload or
+                # which should be copied with data from previous release.
+                items_id_for_updating = list(set(previous_release_items_id) & set(payload_items_id))
 
-                            # FR.COM-14.1.10: Update additionalClassifications.
-                            if "additionalClassifications" in payload['tender']['items'][actual]:
-                                for q_0 in range(len(payload['tender']['items'][actual]['additionalClassifications'])):
-                                    for q_1 in range(len(previous_items_array[previous]['additionalClassifications'])):
+                for i in range(len(items_id_for_updating)):
+                    for actual in range(len(payload['tender']['items'])):
+                        for previous in range(len(previous_items_array)):
+                            if items_id_for_updating[i] == payload['tender']['items'][actual]['id'] == \
+                                    previous_items_array[previous]['id']:
 
-                                        actual_scheme = payload['tender']['items'][actual][
-                                            'additionalClassifications'][q_0]['scheme']
+                                # FR.COM-14.1.9: Update description.
+                                previous_items_array[previous]['description'] = \
+                                    payload['tender']['items'][actual]['description']
 
-                                        actual_id = payload['tender']['items'][actual][
-                                            'additionalClassifications'][q_0]['id']
+                                # FR.COM-14.1.10: Update additionalClassifications.
+                                if "additionalClassifications" in payload['tender']['items'][actual]:
+                                    expected_additionalclassifications_array = list()
 
-                                        actual_identifier = f"{actual_scheme}-{actual_id}"
-                                        previous_scheme = previous_items_array[previous][
-                                            'additionalClassifications'][q_1]['scheme']
+                                    # Check what kind of the additionalClassification object is present into
+                                    # payload (old or new).
+                                    previous_release_additionalclassification_id = list()
 
-                                        previous_id = previous_items_array[previous][
-                                            'additionalClassifications'][q_1]['id']
+                                    for q in range(len(previous_items_array[previous]['additionalClassifications'])):
+                                        previous_release_additionalclassification_id.append(
+                                            previous_items_array[previous]['additionalClassifications'][q]['id']
+                                        )
 
-                                        previous_identifier = f"{previous_scheme}-{previous_id}"
-
-                                        if previous_identifier != actual_identifier:
-                                            additionalclassification_object = copy.deepcopy(
-                                                self.expected_ei_release['releases'][0]['tender']['items'][0][
-                                                    'additionalClassifications'][0]
+                                    payload_additionalclassification_id = list()
+                                    for q in range(len(
+                                            payload['tender']['items'][actual]['additionalClassifications']
                                             )
-                                            expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
-                                                cpvs=actual_id,
+                                    ):
+                                        payload_additionalclassification_id.append(
+                                            payload['tender']['items'][actual]['additionalClassifications'][q]['id']
+                                        )
+
+                                    # Get additionalClassifications objects of item from payload,
+                                    # which should be copied to actual release with data from previous release.
+                                    additionalclassification_id_for_copied = list(
+                                        set(previous_release_additionalclassification_id) -
+                                        set(payload_additionalclassification_id)
+                                    )
+
+                                    for y in range(len(additionalclassification_id_for_copied)):
+                                        for q in range(len(
+                                                previous_items_array[previous]['additionalClassifications']
+                                                )
+                                        ):
+                                            if additionalclassification_id_for_copied[y] == \
+                                                    previous_items_array[previous]['additionalClassifications'][q][
+                                                        'id']:
+
+                                                expected_additionalclassifications_array.append(
+                                                    previous_items_array[previous]['additionalClassifications'][q]
+                                                )
+
+                                    # Get additionalClassifications objects of item from payload,
+                                    # which should be add to actual release with data from payload.
+                                    additionalclassification_id_for_add = list(
+                                        set(payload_additionalclassification_id) -
+                                        set(previous_release_additionalclassification_id)
+                                    )
+
+                                    for y in range(len(additionalclassification_id_for_add)):
+                                        for q in range(len(
+                                                payload['tender']['items'][actual]['additionalClassifications']
+                                                )
+                                        ):
+                                            if additionalclassification_id_for_add[y] == \
+                                                    payload['tender']['items'][actual]['additionalClassifications'][q][
+                                                        'id']:
+
+                                                additionalclassification_object = copy.deepcopy(
+                                                    release_model['releases'][0]['tender']['items'][0][
+                                                        'additionalClassifications'][0]
+                                                )
+
+                                                expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
+                                                    cpvs=payload['tender']['items'][actual][
+                                                        'additionalClassifications'][q]['id'],
+                                                    language=self.language
+                                                )
+
+                                                additionalclassification_object['scheme'] = payload['tender'][
+                                                    'items'][actual]['additionalClassifications'][q]['scheme']
+
+                                                additionalclassification_object['id'] = expected_cpvs_data[0]
+                                                additionalclassification_object['description'] = expected_cpvs_data[2]
+
+                                                expected_additionalclassifications_array.append(
+                                                    additionalclassification_object
+                                                )
+
+                                    # Sort objects in expected additionalClassifications array.
+                                    for a_0 in range(len(actual_ei_release['releases'][0]['tender']['items'])):
+                                        if actual_ei_release['releases'][0]['tender']['items'][a_0]['id'] == \
+                                                previous_items_array[previous]['id']:
+
+                                            temp_array = list()
+
+                                            for a_1 in range(len(
+                                                    actual_ei_release['releases'][0]['tender']['items'][a_0][
+                                                        'additionalClassifications']
+                                                    )
+                                            ):
+
+                                                for e_1 in range(len(expected_additionalclassifications_array)):
+
+                                                    if actual_ei_release['releases'][0]['tender']['items'][a_0][
+                                                            'additionalClassifications'][a_1]['id'] == \
+                                                            expected_additionalclassifications_array[e_1]['id']:
+
+                                                        temp_array.append(expected_additionalclassifications_array[e_1])
+
+                                            expected_additionalclassifications_array = temp_array
+
+                                    # Set additionalClassifications.
+                                    previous_items_array[previous]['additionalClassifications'] = \
+                                        expected_additionalclassifications_array
+
+                                else:
+                                    # FR-10.3.1.3: get value from previous release.
+                                    if "additionalClassifications" in \
+                                            previous_ei_release['releases'][0]['tender']['items'][previous]:
+
+                                        self.expected_ei_release['releases'][0]['tender']['items'][previous][
+                                            'additionalClassifications'] = \
+                                            previous_ei_release['releases'][0]['tender']['items'][previous][
+                                            'additionalClassifications']
+                                    else:
+                                        del self.expected_ei_release['releases'][0]['tender']['items'][previous][
+                                            'additionalClassifications']
+
+                                # FR.COM-14.1.11: Update quantity.
+                                previous_items_array[previous]['quantity'] = \
+                                    payload['tender']['items'][actual]['quantity']
+
+                                # FR.COM-14.1.12: Update unit.
+                                expected_unit_data = get_value_from_classification_unit_dictionary_csv(
+                                    unit_id=payload['tender']['items'][actual]['unit']['id'],
+                                    language=self.language
+                                )
+
+                                previous_items_array[previous]['unit']['id'] = expected_unit_data[0]
+                                previous_items_array[previous]['unit']['name'] = expected_unit_data[1]
+
+                                # FR.COM-14.1.13: Update deliveryAddress.
+                                previous_items_array[previous]['deliveryAddress']['streetAddress'] = \
+                                    payload['tender']['items'][actual]['deliveryAddress']['streetAddress']
+
+                                if "postalCode" in payload['tender']['items'][actual]['deliveryAddress']:
+
+                                    previous_items_array[previous]['deliveryAddress']['postalCode'] = \
+                                        payload['tender']['items'][actual]['deliveryAddress']['postalCode']
+
+                                # Prepare addressDetails object for items array.
+                                try:
+                                    item_country_data = get_value_from_country_csv(
+
+                                        country=payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
+                                            'country']['id'],
+                                        language=self.language
+                                    )
+                                    expected_item_country_object = [{
+                                        "scheme": item_country_data[2].upper(),
+                                        "id": payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
+                                            'country']['id'],
+
+                                        "description": item_country_data[1],
+                                        "uri": item_country_data[3]
+                                    }]
+
+                                    item_region_data = get_value_from_region_csv(
+
+                                        region=payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
+                                            'region']['id'],
+                                        country=payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
+                                            'country']['id'],
+                                        language=self.language
+                                    )
+                                    expected_item_region_object = [{
+                                        "scheme": item_region_data[2],
+
+                                        "id": payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
+                                            'region']['id'],
+
+                                        "description": item_region_data[1],
+                                        "uri": item_region_data[3]
+                                    }]
+
+                                    if "locality" in payload['tender']['items'][actual]['deliveryAddress'][
+                                            'addressDetails']:
+
+                                        if payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
+                                                'locality']['scheme'] != "other":
+
+                                            item_locality_data = get_value_from_locality_csv(
+
+                                                locality=payload['tender']['items'][actual]['deliveryAddress'][
+                                                    'addressDetails']['locality']['id'],
+                                                region=payload['tender']['items'][actual]['deliveryAddress'][
+                                                    'addressDetails']['region']['id'],
+                                                country=payload['tender']['items'][actual]['deliveryAddress'][
+                                                    'addressDetails']['country']['id'],
                                                 language=self.language
                                             )
+                                            expected_item_locality_object = [{
+                                                "scheme": item_locality_data[2],
 
-                                            additionalclassification_object['scheme'] = actual_scheme
-                                            additionalclassification_object['id'] = expected_cpvs_data[0]
-                                            additionalclassification_object['description'] = expected_cpvs_data[2]
+                                                "id": payload['tender']['items'][actual]['deliveryAddress'][
+                                                    'addressDetails']['locality']['id'],
 
-                                            previous_items_array[previous]['additionalClassifications'].append(
-                                                additionalclassification_object
-                                            )
+                                                "description": item_locality_data[1],
+                                                "uri": item_locality_data[3]
+                                            }]
+                                        else:
+                                            expected_item_locality_object = [{
+
+                                                "scheme":
+                                                    payload['tender']['items'][actual]['deliveryAddress'][
+                                                        'addressDetails']['locality']['scheme'],
+
+                                                "id": payload['tender']['items'][actual]['deliveryAddress'][
+                                                    'addressDetails']['locality']['id'],
+
+                                                "description": payload['tender']['items'][actual]['deliveryAddress'][
+                                                    'addressDetails']['locality']['description']
+                                            }]
+
+                                        previous_items_array[previous]['deliveryAddress']['addressDetails'][
+                                            'locality'] = expected_item_locality_object[0]
+                                    else:
+                                        del previous_items_array[previous]['deliveryAddress']['addressDetails'][
+                                            'locality']
+
+                                    previous_items_array[previous]['deliveryAddress']['addressDetails']['country'] = \
+                                        expected_item_country_object[0]
+
+                                    previous_items_array[previous]['deliveryAddress']['addressDetails']['region'] = \
+                                        expected_item_region_object[0]
+                                except ValueError:
+                                    ValueError("Impossible to prepare addressDetails object for items array")
+
+                                expected_items_array.append(previous_items_array[previous])
+
+                # Get items objects from payload, which should be add to actual release with data from payload.
+                items_id_for_add = list(set(payload_items_id) - set(previous_release_items_id))
+
+                for i in range(len(items_id_for_add)):
+                    for actual in range(len(payload['tender']['items'])):
+                        if items_id_for_add[i] == payload['tender']['items'][actual]['id']:
+
+                            new_item_object = copy.deepcopy(release_model['releases'][0]['tender']['items'][0])
+
+                            new_item_object['description'] = payload['tender']['items'][actual]['description']
+
+                            expected_cpv_data = get_value_from_cpv_dictionary_csv(
+                                cpv=payload['tender']['items'][actual]['classification']['id'],
+                                language=self.language
+                            )
+                            new_item_object['classification']['scheme'] = "CPV"
+                            new_item_object['classification']['id'] = expected_cpv_data[0]
+                            new_item_object['classification']['description'] = expected_cpv_data[1]
+
+                            if "additionalClassifications" in payload['tender']['items'][actual]:
+                                new_item_additional_classifications_array = list()
+
+                                for q_1 in range(len(payload['tender']['items'][actual]['additionalClassifications'])):
+                                    new_item_additional_classifications_array.append(copy.deepcopy(
+                                        release_model['releases'][0]['tender']['items'][0][
+                                            'additionalClassifications'][0]))
+
+                                    expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
+                                        cpvs=payload['tender']['items'][actual]['additionalClassifications'][q_1]['id'],
+                                        language=self.language
+                                    )
+
+                                    new_item_additional_classifications_array[q_1]['scheme'] = "CPVS"
+                                    new_item_additional_classifications_array[q_1]['id'] = expected_cpvs_data[0]
+
+                                    new_item_additional_classifications_array[q_1]['description'] = \
+                                        expected_cpvs_data[2]
+
+                                new_item_object['additionalClassifications'] = new_item_additional_classifications_array
                             else:
-                                # FR-10.3.1.3: get value from previous release.
-                                if "additionalClassifications" in \
-                                        previous_ei_release['releases'][0]['tender']['items'][previous]:
+                                del new_item_object['additionalClassifications']
 
-                                    self.expected_ei_release['releases'][0]['tender']['items'][previous][
-                                        'additionalClassifications'] = \
-                                        previous_ei_release['releases'][0]['tender']['items'][previous][
-                                        'additionalClassifications']
-                                else:
-                                    del self.expected_ei_release['releases'][0]['tender']['items'][previous][
-                                        'additionalClassifications']
+                            new_item_object['quantity'] = int(float(
+                                payload['tender']['items'][actual]['quantity']
+                            ))
 
-                            # FR.COM-14.1.11: Update quantity.
                             expected_unit_data = get_value_from_classification_unit_dictionary_csv(
                                 unit_id=payload['tender']['items'][actual]['unit']['id'],
                                 language=self.language
                             )
 
-                            previous_items_array[previous]['unit']['id'] = expected_unit_data[0]
-                            previous_items_array[previous]['unit']['name'] = expected_unit_data[1]
+                            new_item_object['unit']['id'] = expected_unit_data[0]
+                            new_item_object['unit']['name'] = expected_unit_data[1]
 
-                            # FR.COM-14.1.13: Update deliveryAddress.
-                            previous_items_array[previous]['deliveryAddress']['streetAddress'] = \
+                            new_item_object['deliveryAddress']['streetAddress'] = \
                                 payload['tender']['items'][actual]['deliveryAddress']['streetAddress']
 
                             if "postalCode" in payload['tender']['items'][actual]['deliveryAddress']:
-
-                                previous_items_array[previous]['deliveryAddress']['postalCode'] = \
+                                new_item_object['deliveryAddress']['postalCode'] = \
                                     payload['tender']['items'][actual]['deliveryAddress']['postalCode']
+                            else:
+                                del new_item_object['deliveryAddress']['postalCode']
 
                             # Prepare addressDetails object for items array.
                             try:
@@ -279,7 +530,6 @@ class ExpenditureItemRelease:
 
                                 if "locality" in payload['tender']['items'][actual]['deliveryAddress'][
                                         'addressDetails']:
-
                                     if payload['tender']['items'][actual]['deliveryAddress']['addressDetails'][
                                             'locality']['scheme'] != "other":
 
@@ -297,7 +547,8 @@ class ExpenditureItemRelease:
                                             "scheme": item_locality_data[2],
 
                                             "id": payload['tender']['items'][actual]['deliveryAddress'][
-                                                'addressDetails']['locality']['id'],
+                                                'addressDetails'][
+                                                'locality']['id'],
 
                                             "description": item_locality_data[1],
                                             "uri": item_locality_data[3]
@@ -305,34 +556,72 @@ class ExpenditureItemRelease:
                                     else:
                                         expected_item_locality_object = [{
 
-                                            "scheme":
-                                                payload['tender']['items'][actual]['deliveryAddress'][
-                                                    'addressDetails']['locality']['scheme'],
+                                            "scheme": payload['tender']['items'][actual]['deliveryAddress'][
+                                                'addressDetails'][
+                                                'locality']['scheme'],
 
                                             "id": payload['tender']['items'][actual]['deliveryAddress'][
-                                                'addressDetails']['locality']['id'],
+                                                'addressDetails'][
+                                                'locality']['id'],
 
                                             "description": payload['tender']['items'][actual]['deliveryAddress'][
                                                 'addressDetails']['locality']['description']
                                         }]
 
-                                    previous_items_array[previous]['deliveryAddress']['addressDetails']['locality'] = \
+                                    new_item_object['deliveryAddress']['addressDetails']['locality'] = \
                                         expected_item_locality_object[0]
                                 else:
-                                    del previous_items_array[previous]['deliveryAddress']['addressDetails']['locality']
+                                    del new_item_object['deliveryAddress']['addressDetails']['locality']
 
-                                previous_items_array[previous]['deliveryAddress']['addressDetails']['country'] = \
+                                new_item_object['deliveryAddress']['addressDetails']['country'] = \
                                     expected_item_country_object[0]
 
-                                previous_items_array[previous]['deliveryAddress']['addressDetails']['region'] = \
+                                new_item_object['deliveryAddress']['addressDetails']['region'] = \
                                     expected_item_region_object[0]
                             except ValueError:
                                 ValueError("Impossible to prepare addressDetails object for items array")
 
-                for actual in range(len(payload['tender']['items'])):
-                    for previous in range(len(previous_items_array)):
-                        if payload['tender']['items'][actual]['id'] != previous_items_array[previous]['id']:
-                            # Дописати тут
+                            expected_items_array.append(new_item_object)
+
+                # Sort objects in expected items array.
+                temp_array = list()
+                for a in range(len(actual_ei_release['releases'][0]['tender']['items'])):
+                    for e in range(len(expected_items_array)):
+
+                        if actual_ei_release['releases'][0]['tender']['items'][a]['description'] == \
+                                expected_items_array[e]['description'] and \
+                                actual_ei_release['releases'][0]['tender']['items'][a]['classification'] == \
+                                expected_items_array[e]['classification'] and \
+                                actual_ei_release['releases'][0]['tender']['items'][a]['unit'] == \
+                                expected_items_array[e]['unit'] and \
+                                actual_ei_release['releases'][0]['tender']['items'][a]['quantity'] == \
+                                expected_items_array[e]['quantity'] and \
+                                actual_ei_release['releases'][0]['tender']['items'][a]['deliveryAddress'] == \
+                                expected_items_array[e]['deliveryAddress']:
+
+                            # FR.COM-14.1.7: Set id.
+                            if expected_items_array[e]['id'] == "":
+
+                                try:
+                                    is_permanent_id_correct = is_it_uuid(
+                                        actual_ei_release['releases'][0]['tender']['items'][a]['id']
+                                    )
+                                    if is_permanent_id_correct is True:
+
+                                        expected_items_array[e]['id'] = \
+                                            actual_ei_release['releases'][0]['tender']['items'][a]['id']
+                                    else:
+                                        expected_items_array[e]['id'] = \
+                                            f"FR.COM-14.1.7: the 'releases[0].tender.items[{a}].id' must be uuid."
+                                except KeyError:
+                                    KeyError(f"Mismatch key into path 'releases[0].tender.items[{a}].id'")
+
+                            temp_array.append(expected_items_array[e])
+
+                expected_items_array = temp_array
+
+                self.expected_ei_release['releases'][0]['tender']['items'] = expected_items_array
+
             else:
                 self.expected_ei_release['releases'][0]['tender']['items'] = \
                     previous_ei_release['releases'][0]['tender']['items']
@@ -345,14 +634,14 @@ class ExpenditureItemRelease:
                     for q_0 in range(len(payload['tender']['items'])):
 
                         new_items_array.append(copy.deepcopy(
-                            self.expected_ei_release['releases'][0]['tender']['items'][0]))
+                            release_model['releases'][0]['tender']['items'][0]))
 
                         # Enrich or delete optional fields:
                         if "additionalClassifications" in payload['tender']['items'][q_0]:
                             new_item_additional_classifications_array = list()
                             for q_1 in range(len(payload['tender']['items'][q_0]['additionalClassifications'])):
                                 new_item_additional_classifications_array.append(copy.deepcopy(
-                                    self.expected_ei_release['releases'][0]['tender']['items'][0][
+                                    release_model['releases'][0]['tender']['items'][0][
                                         'additionalClassifications'][0]))
 
                                 expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
@@ -380,7 +669,7 @@ class ExpenditureItemRelease:
                                     actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
                             else:
                                 new_items_array[q_0]['id'] = \
-                                    f"FR.COM-14.2.10: the 'releases[0].tender.items[{q_0}].id' must be uuid."
+                                    f"FR.COM-14.1.7: the 'releases[0].tender.items[{q_0}].id' must be uuid."
                         except KeyError:
                             KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
@@ -502,168 +791,6 @@ class ExpenditureItemRelease:
                     ValueError("Impossible to build the expected releases.tender.items array.")
             else:
                 del self.expected_ei_release['releases'][0]['tender']['items']
-
-        if "items" in payload['tender']:
-            try:
-                # Build the releases.tender.items array.
-                new_items_array = list()
-                for q_0 in range(len(payload['tender']['items'])):
-
-                    new_items_array.append(copy.deepcopy(
-                        self.expected_ei_release['releases'][0]['tender']['items'][0]))
-
-                    # Enrich or delete optional fields:
-                    if "additionalClassifications" in payload['tender']['items'][q_0]:
-                        new_item_additional_classifications_array = list()
-                        for q_1 in range(len(payload['tender']['items'][q_0]['additionalClassifications'])):
-                            new_item_additional_classifications_array.append(copy.deepcopy(
-                                self.expected_ei_release['releases'][0]['tender']['items'][0][
-                                    'additionalClassifications'][0]))
-
-                            expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
-                                cpvs=payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
-                                language=self.language
-                            )
-
-                            new_item_additional_classifications_array[q_1]['scheme'] = "CPVS"
-                            new_item_additional_classifications_array[q_1]['id'] = expected_cpvs_data[0]
-                            new_item_additional_classifications_array[q_1]['description'] = expected_cpvs_data[2]
-
-                        new_items_array[q_0]['additionalClassifications'] = \
-                            new_item_additional_classifications_array
-                    else:
-                        del new_items_array[q_0]['additionalClassifications']
-
-                    # FR.COM-14.2.10: Set id.
-                    try:
-                        is_permanent_id_correct = is_it_uuid(
-                            actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
-                        )
-                        if is_permanent_id_correct is True:
-
-                            new_items_array[q_0]['id'] = \
-                                actual_ei_release['releases'][0]['tender']['items'][q_0]['id']
-                        else:
-                            new_items_array[q_0]['id'] = \
-                                f"FR.COM-14.2.10: the 'releases[0].tender.items[{q_0}].id' must be uuid."
-                    except KeyError:
-                        KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
-
-                    new_items_array[q_0]['description'] = payload['tender']['items'][q_0]['description']
-
-                    expected_cpv_data = get_value_from_cpv_dictionary_csv(
-                        cpv=payload['tender']['items'][q_0]['classification']['id'],
-                        language=self.language
-                    )
-                    new_items_array[q_0]['classification']['scheme'] = "CPV"
-                    new_items_array[q_0]['classification']['id'] = expected_cpv_data[0]
-                    new_items_array[q_0]['classification']['description'] = expected_cpv_data[1]
-                    new_items_array[q_0]['quantity'] = int(float(payload['tender']['items'][q_0]['quantity']))
-
-                    expected_unit_data = get_value_from_classification_unit_dictionary_csv(
-                        unit_id=payload['tender']['items'][q_0]['unit']['id'],
-                        language=self.language
-                    )
-
-                    new_items_array[q_0]['unit']['id'] = expected_unit_data[0]
-                    new_items_array[q_0]['unit']['name'] = expected_unit_data[1]
-
-                    new_items_array[q_0]['deliveryAddress']['streetAddress'] = \
-                        payload['tender']['items'][q_0]['deliveryAddress']['streetAddress']
-
-                    if "postalCode" in payload['tender']['items'][q_0]['deliveryAddress']:
-
-                        new_items_array[q_0]['deliveryAddress']['postalCode'] = \
-                            payload['tender']['items'][q_0]['deliveryAddress']['postalCode']
-                    else:
-                        del new_items_array[q_0]['deliveryAddress']['postalCode']
-
-                    # Prepare addressDetails object for items array.
-                    try:
-                        item_country_data = get_value_from_country_csv(
-
-                            country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'country']['id'],
-                            language=self.language
-                        )
-                        expected_item_country_object = [{
-                            "scheme": item_country_data[2].upper(),
-                            "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'country']['id'],
-
-                            "description": item_country_data[1],
-                            "uri": item_country_data[3]
-                        }]
-
-                        item_region_data = get_value_from_region_csv(
-
-                            region=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'region']['id'],
-                            country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'country']['id'],
-                            language=self.language
-                        )
-                        expected_item_region_object = [{
-                            "scheme": item_region_data[2],
-
-                            "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'region']['id'],
-
-                            "description": item_region_data[1],
-                            "uri": item_region_data[3]
-                        }]
-
-                        if payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                'locality']['scheme'] == "CUATM":
-
-                            item_locality_data = get_value_from_locality_csv(
-
-                                locality=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['id'],
-                                region=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'region']['id'],
-                                country=payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'country']['id'],
-                                language=self.language
-                            )
-                            expected_item_locality_object = [{
-                                "scheme": item_locality_data[2],
-
-                                "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['id'],
-
-                                "description": item_locality_data[1],
-                                "uri": item_locality_data[3]
-                            }]
-                        else:
-                            expected_item_locality_object = [{
-
-                                "scheme": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['scheme'],
-
-                                "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
-                                    'locality']['id'],
-
-                                "description": payload['tender']['items'][q_0]['deliveryAddress'][
-                                    'addressDetails']['locality']['description']
-                            }]
-
-                        new_items_array[q_0]['deliveryAddress']['addressDetails']['country'] = \
-                            expected_item_country_object[0]
-
-                        new_items_array[q_0]['deliveryAddress']['addressDetails']['region'] = \
-                            expected_item_region_object[0]
-
-                        new_items_array[q_0]['deliveryAddress']['addressDetails']['locality'] = \
-                            expected_item_locality_object[0]
-                    except ValueError:
-                        ValueError("Impossible to prepare addressDetails object for items array")
-
-                self.expected_ei_release['releases'][0]['tender']['items'] = new_items_array
-            except ValueError:
-                ValueError("Impossible to build the expected releases.tender.items array.")
-        else:
-            del self.expected_ei_release['releases'][0]['tender']['items']
 
         """Enrich attribute for expected EI release: releases[0].buyer"""
         # FR-10.3.1.3: get value from previous release.
