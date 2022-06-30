@@ -252,8 +252,6 @@ class TestUpdateEI:
             except ValueError:
                 raise ValueError("Impossible to build payload for Update EI process.")
 
-            print("\npayload")
-            print(json.dumps(payload))
             synchronous_result = update_ei_process(
                 host=bpe_host,
                 access_token=access_token,

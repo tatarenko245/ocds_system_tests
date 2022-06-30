@@ -40,8 +40,7 @@ class ExpenditureItemPayload:
 
     def delete_optional_fields(self, *args, item_position=0, additional_classification_position=0):
         """Call this method last, but before 'build_payload' method! Delete option fields from payload."""
-        print("\nPayload from file")
-        print(json.dumps(payload_model))
+
         for a in args:
             if a == "planning":
                 del self.__payload['planning']
