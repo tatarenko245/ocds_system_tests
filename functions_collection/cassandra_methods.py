@@ -298,3 +298,11 @@ def get_value_from_ocds_budgetrules(connect_to_ocds, key, parameter):
         return value
     else:
         return value.value
+
+
+def get_cpid_from_orchestrator_steps(connect_to_orchestrator, operation_id):
+    value = connect_to_orchestrator.execute(f"SELECT * FROM orchestrator.steps WHERE operation_id='{operation_id}' "
+                                            f"ALLOW FILTERING;").one()
+
+    cpid = value.cpid
+    return cpid
