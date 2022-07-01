@@ -20,7 +20,8 @@ from releases_collection.budget.create_ei_release import ExpenditureItemRelease
 @allure.parent_suite("Budget")
 @allure.suite("Expenditure item")
 @allure.severity("Critical")
-@allure.testcase(url="")
+@allure.testcase(url="https://docs.google.com/spreadsheets/d/1-I_7nLopu_q2wAyWzfTyscHMBL4GA1sIL6IpwBk-QCw/edit#gid=0",
+                 name="Test Suite")
 class TestCreateEI:
     @allure.title("Створення EI, повна модель")
     def test_case_1(self, get_parameters, connect_to_keyspace):
