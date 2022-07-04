@@ -23,7 +23,7 @@ from releases_collection.budget.create_ei_release import ExpenditureItemRelease
 @allure.testcase(url="https://docs.google.com/spreadsheets/d/1-I_7nLopu_q2wAyWzfTyscHMBL4GA1sIL6IpwBk-QCw/edit#gid=0",
                  name="Test Suite")
 class TestCreateEI:
-    @allure.title("Створення EI, повна модель")
+    @allure.title("Створення EI, повна модель.")
     def test_case_1(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -68,8 +68,8 @@ class TestCreateEI:
                 )
 
                 payload.customize_tender_items(
-                    quantity_of_items=3,
-                    quantity_of_items_additional_classifications=3
+                    quantity_of_items=1,
+                    quantity_of_items_additional_classifications=1
                 )
                 payload = payload.build_payload()
             except ValueError:
@@ -177,7 +177,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Створення EI, опціональна модель, без айтемів")
+    @allure.title("Створення EI, опціональна модель, без айтемів.")
     def test_case_2(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -339,7 +339,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Створення EI, опціональна модель, з айтемами")
+    @allure.title("Створення EI, опціональна модель, з айтемами.")
     def test_case_3(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -397,6 +397,7 @@ class TestCreateEI:
                     "buyer.contactPoint.url",
                     "buyer.details",
                     "tender.items.additionalClassifications",
+                    "tender.items.deliveryAddress.streetAddress",
                     "tender.items.deliveryAddress.postalCode",
                     "tender.items.deliveryAddress.addressDetails.locality",
                     item_position=0, additional_classification_position=0
@@ -508,7 +509,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Значення language не входить в перелік mdm.languages[*] для країни")
+    @allure.title("Значення language не входить в перелік mdm.languages[*] для країни.")
     def test_case_4(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -648,7 +649,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Значення planning.budget.period.endDate раніше planning.budget.period.startDate")
+    @allure.title("Значення planning.budget.period.endDate раніше planning.budget.period.startDate.")
     def test_case_5(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -791,7 +792,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Значення planning.budget.period.endDate дорівнює planning.budget.period.startDate ")
+    @allure.title("Значення planning.budget.period.endDate дорівнює planning.budget.period.startDate.")
     def test_case_6(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -934,7 +935,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Значення planning.budget.period.endDate раніше date в запиті")
+    @allure.title("Значення planning.budget.period.endDate раніше date в запиті.")
     def test_case_7(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -1645,7 +1646,7 @@ class TestCreateEI:
                                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
     @allure.title("Значення tender.classification.id повинно містити три знаки коду, "
-                  "а інші знаки (з 4 по 8) не повинні дорівнювати 0")
+                  "а інші знаки (з 4 по 8) не повинні дорівнювати 0.")
     def test_case_13(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -1786,7 +1787,7 @@ class TestCreateEI:
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
     @allure.title("Ідентифікатор класифікатор tender.classification.id не співпадає за першими трьома знаками з "
-                  "tender.items[*].classification.id")
+                  "tender.items[*].classification.id.")
     def test_case_14(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -1929,7 +1930,7 @@ class TestCreateEI:
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
     @allure.title("Дубль ідентифікатора додаткового класифікатора айтема "
-                  "(tender.items[*].additionalClassifications[*].id) ")
+                  "(tender.items[*].additionalClassifications[*].id).")
     def test_case_15(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -2071,7 +2072,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Значення tender.items[*].quantity = 0")
+    @allure.title("Значення tender.items[*].quantity = 0.")
     def test_case_16(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -2214,7 +2215,7 @@ class TestCreateEI:
                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-    @allure.title("Дубль ідентифікатора додаткового класифікатора організації (buyer.additionalIdentifiers.id)")
+    @allure.title("Дубль ідентифікатора додаткового класифікатора організації (buyer.additionalIdentifiers.id).")
     def test_case_18(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -2357,7 +2358,7 @@ class TestCreateEI:
                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
     @allure.title("Значення buyer.identifier.scheme для країни організації (buyer.address.addressDetails.country.id) "
-                  "не входить в перелік mdm.registrationSchemes[*].schemes[*] для країни")
+                  "не входить в перелік mdm.registrationSchemes[*].schemes[*] для країни.")
     def test_case_19(self, get_parameters, connect_to_keyspace):
 
         environment = get_parameters[0]
@@ -2469,6 +2470,151 @@ class TestCreateEI:
                                           "(buyer.address.addressDetails.country.id) from the request must be "
                                           "included in the list of mdm.registrationSchemes[*].schemes[*] values "
                                           "provided for the same country in the request."
+                    )
+                except ValueError:
+                    ValueError("Impossible to build expected message for platform.")
+
+                with allure.step('Compare actual and expected message for platform.'):
+                    allure.attach(json.dumps(actual_message), "Actual message.")
+                    allure.attach(json.dumps(expected_message), "Expected message.")
+
+                    cpid = get_cpid_from_orchestrator_steps(connect_to_orchestrator, operation_id)
+
+                    assert actual_message == expected_message, \
+                        allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                      f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                                      f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+        if clean_up_database is True:
+            try:
+                """
+                CLean up the database.
+                """
+                # Clean after Crate EI process:
+                cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
+                cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
+            except ValueError:
+                ValueError("Impossible to cLean up the database.")
+        else:
+            with allure.step("The steps of process."):
+                allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                              f"cpid = '{cpid}' and operation_id = '{operation_id}' "
+                              f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+    @allure.title("Дубль айтема (tender.items[*].id).")
+    def test_case_20(self, get_parameters, connect_to_keyspace):
+
+        environment = get_parameters[0]
+        bpe_host = get_parameters[2]
+        country = get_parameters[4]
+        language = get_parameters[5]
+        tender_classification_id = get_parameters[9]
+        clean_up_database = get_parameters[10]
+
+        connect_to_ocds = connect_to_keyspace[0]
+        connect_to_orchestrator = connect_to_keyspace[1]
+
+        currency = get_affordable_currency(country)
+
+        step_number = 1
+        with allure.step(f"# {step_number}. Authorization platform one: Create EI process."):
+            """
+            Tender platform authorization for Create EI process.
+            As result, get tender platform's access token and process operation-id.
+            """
+            platform_one = PlatformAuthorization(bpe_host)
+            access_token = platform_one.get_access_token_for_platform_one()
+            operation_id = platform_one.get_x_operation_id(access_token)
+
+        step_number += 1
+        with allure.step(f"# {step_number}. Send a request to create a Create EI process."):
+            """
+            Send api request to BPE host to create a CreateEi process.
+            And save in variable cpid.
+            """
+            try:
+                """
+                Build payload for Create EI process.
+                """
+                payload = copy.deepcopy(ExpenditureItemPayload(
+                    connect_to_ocds=connect_to_ocds,
+                    country=country,
+                    buyer_id=0,
+                    tender_classification_id=tender_classification_id,
+                    amount=10000.00,
+                    currency=currency)
+                )
+
+                payload.delete_optional_fields(
+                    "tender.description",
+                    "planning.rationale",
+                    "buyer.identifier.uri",
+                    "buyer.additionalIdentifiers",
+                    "buyer.address.postalCode",
+                    "buyer.contactPoint.faxNumber",
+                    "buyer.contactPoint.url",
+                    "buyer.details"
+                )
+
+                payload.customize_tender_items(
+                    quantity_of_items=2,
+                    quantity_of_items_additional_classifications=1
+                )
+
+                payload = payload.build_payload()
+                payload['tender']['items'][1]['id'] = payload['tender']['items'][0]['id']
+
+            except ValueError:
+                ValueError("Impossible to build payload for Create EI process.")
+
+            synchronous_result = create_ei_process(
+                host=bpe_host,
+                access_token=access_token,
+                x_operation_id=operation_id,
+                country=country,
+                language=language,
+                payload=payload,
+                test_mode=True
+            )
+            message = get_message_for_platform(operation_id)
+            allure.attach(str(message), "Message for platform.")
+
+        step_number += 1
+        with allure.step(f"# {step_number}. See result"):
+            """
+            Check the results of TestCase.
+            """
+
+            with allure.step(f"# {step_number}.1. Check status code"):
+                """
+                Check the status code of sending the request.
+                """
+                with allure.step('Compare actual status code and expected status code of sending request.'):
+                    allure.attach(str(synchronous_result.status_code), "Actual status code.")
+                    allure.attach(str(202), "Expected status code.")
+                    assert synchronous_result.status_code == 202
+
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+                """
+                Check the message for platform.
+                """
+                actual_message = message
+
+                try:
+                    """
+                    Build expected message for platform.
+                    """
+                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        environment=environment,
+                        country=country,
+                        actual_message=actual_message,
+                        test_mode=True)
+                    )
+
+                    expected_message = expected_message.build_expected_failure_message(
+                        error_code="VR.COM-14.1.14/10",
+                        error_description="The identifier of each item (tender.items[*].id) from the "
+                                          "request must be unique. Duplicated id '0'."
                     )
                 except ValueError:
                     ValueError("Impossible to build expected message for platform.")

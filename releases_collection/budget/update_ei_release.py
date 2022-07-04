@@ -221,105 +221,165 @@ class ExpenditureItemRelease:
 
                                     # Check what kind of the additionalClassification object is present into
                                     # payload (old or new).
-                                    previous_release_additionalclassification_id = list()
+                                    if "additionalClassifications" in previous_items_array[previous]:
+                                        previous_release_additionalclassification_id = list()
 
-                                    for q in range(len(previous_items_array[previous]['additionalClassifications'])):
-                                        previous_release_additionalclassification_id.append(
-                                            previous_items_array[previous]['additionalClassifications'][q]['id']
-                                        )
-
-                                    payload_additionalclassification_id = list()
-                                    for q in range(len(
-                                            payload['tender']['items'][actual]['additionalClassifications']
-                                            )
-                                    ):
-                                        payload_additionalclassification_id.append(
-                                            payload['tender']['items'][actual]['additionalClassifications'][q]['id']
-                                        )
-
-                                    # Get additionalClassifications objects of item from payload,
-                                    # which should be copied to actual release with data from previous release.
-                                    additionalclassification_id_for_copied = list(
-                                        set(previous_release_additionalclassification_id) -
-                                        set(payload_additionalclassification_id)
-                                    )
-
-                                    for y in range(len(additionalclassification_id_for_copied)):
                                         for q in range(len(
-                                                previous_items_array[previous]['additionalClassifications']
-                                                )
-                                        ):
-                                            if additionalclassification_id_for_copied[y] == \
-                                                    previous_items_array[previous]['additionalClassifications'][q][
-                                                        'id']:
+                                                previous_items_array[previous]['additionalClassifications'])):
+                                            previous_release_additionalclassification_id.append(
+                                                previous_items_array[previous]['additionalClassifications'][q]['id']
+                                            )
 
-                                                expected_additionalclassifications_array.append(
-                                                    previous_items_array[previous]['additionalClassifications'][q]
-                                                )
-
-                                    # Get additionalClassifications objects of item from payload,
-                                    # which should be add to actual release with data from payload.
-                                    additionalclassification_id_for_add = list(
-                                        set(payload_additionalclassification_id) -
-                                        set(previous_release_additionalclassification_id)
-                                    )
-
-                                    for y in range(len(additionalclassification_id_for_add)):
+                                        payload_additionalclassification_id = list()
                                         for q in range(len(
                                                 payload['tender']['items'][actual]['additionalClassifications']
                                                 )
                                         ):
-                                            if additionalclassification_id_for_add[y] == \
-                                                    payload['tender']['items'][actual]['additionalClassifications'][q][
-                                                        'id']:
+                                            payload_additionalclassification_id.append(
+                                                payload['tender']['items'][actual]['additionalClassifications'][q]['id']
+                                            )
 
-                                                additionalclassification_object = copy.deepcopy(
-                                                    release_model['releases'][0]['tender']['items'][0][
-                                                        'additionalClassifications'][0]
-                                                )
+                                        # Get additionalClassifications objects of item from payload,
+                                        # which should be copied to actual release with data from previous release.
+                                        additionalclassification_id_for_copied = list(
+                                            set(previous_release_additionalclassification_id) -
+                                            set(payload_additionalclassification_id)
+                                        )
 
-                                                expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
-                                                    cpvs=payload['tender']['items'][actual][
-                                                        'additionalClassifications'][q]['id'],
-                                                    language=self.language
-                                                )
-
-                                                additionalclassification_object['scheme'] = payload['tender'][
-                                                    'items'][actual]['additionalClassifications'][q]['scheme']
-
-                                                additionalclassification_object['id'] = expected_cpvs_data[0]
-                                                additionalclassification_object['description'] = expected_cpvs_data[2]
-
-                                                expected_additionalclassifications_array.append(
-                                                    additionalclassification_object
-                                                )
-
-                                    # Sort objects in expected additionalClassifications array.
-                                    for a_0 in range(len(actual_ei_release['releases'][0]['tender']['items'])):
-                                        if actual_ei_release['releases'][0]['tender']['items'][a_0]['id'] == \
-                                                previous_items_array[previous]['id']:
-
-                                            temp_array = list()
-
-                                            for a_1 in range(len(
-                                                    actual_ei_release['releases'][0]['tender']['items'][a_0][
-                                                        'additionalClassifications']
+                                        for y in range(len(additionalclassification_id_for_copied)):
+                                            for q in range(len(
+                                                    previous_items_array[previous]['additionalClassifications']
                                                     )
                                             ):
+                                                if additionalclassification_id_for_copied[y] == \
+                                                        previous_items_array[previous]['additionalClassifications'][q][
+                                                            'id']:
 
-                                                for e_1 in range(len(expected_additionalclassifications_array)):
+                                                    expected_additionalclassifications_array.append(
+                                                        previous_items_array[previous]['additionalClassifications'][q]
+                                                    )
 
-                                                    if actual_ei_release['releases'][0]['tender']['items'][a_0][
+                                        # Get additionalClassifications objects of item from payload,
+                                        # which should be add to actual release with data from payload.
+                                        additionalclassification_id_for_add = list(
+                                            set(payload_additionalclassification_id) -
+                                            set(previous_release_additionalclassification_id)
+                                        )
+
+                                        for y in range(len(additionalclassification_id_for_add)):
+                                            for q in range(len(
+                                                    payload['tender']['items'][actual]['additionalClassifications']
+                                                    )
+                                            ):
+                                                if additionalclassification_id_for_add[y] == \
+                                                        payload['tender']['items'][actual][
+                                                            'additionalClassifications'][q]['id']:
+
+                                                    additionalclassification_object = copy.deepcopy(
+                                                        release_model['releases'][0]['tender']['items'][0][
+                                                            'additionalClassifications'][0]
+                                                    )
+
+                                                    expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
+                                                        cpvs=payload['tender']['items'][actual][
+                                                            'additionalClassifications'][q]['id'],
+                                                        language=self.language
+                                                    )
+
+                                                    additionalclassification_object['scheme'] = payload['tender'][
+                                                        'items'][actual]['additionalClassifications'][q]['scheme']
+
+                                                    additionalclassification_object['id'] = expected_cpvs_data[0]
+
+                                                    additionalclassification_object['description'] = \
+                                                        expected_cpvs_data[2]
+
+                                                    expected_additionalclassifications_array.append(
+                                                        additionalclassification_object
+                                                    )
+
+                                        # Sort objects in expected additionalClassifications array.
+                                        for a_0 in range(len(actual_ei_release['releases'][0]['tender']['items'])):
+                                            if actual_ei_release['releases'][0]['tender']['items'][a_0]['id'] == \
+                                                    previous_items_array[previous]['id']:
+
+                                                temp_array = list()
+
+                                                for a_1 in range(len(
+                                                        actual_ei_release['releases'][0]['tender']['items'][a_0][
+                                                            'additionalClassifications']
+                                                        )
+                                                ):
+
+                                                    for e_1 in range(len(expected_additionalclassifications_array)):
+
+                                                        if actual_ei_release['releases'][0]['tender']['items'][a_0][
+                                                                'additionalClassifications'][a_1]['id'] == \
+                                                                expected_additionalclassifications_array[e_1]['id']:
+
+                                                            temp_array.append(
+                                                                expected_additionalclassifications_array[e_1]
+                                                            )
+
+                                                expected_additionalclassifications_array = temp_array
+
+                                        # Set additionalClassifications.
+                                        previous_items_array[previous]['additionalClassifications'] = \
+                                            expected_additionalclassifications_array
+
+                                    else:
+                                        for q in range(len(
+                                                payload['tender']['items'][actual]['additionalClassifications']
+                                            )
+                                        ):
+                                            additionalclassification_object = copy.deepcopy(
+                                                release_model['releases'][0]['tender']['items'][0][
+                                                    'additionalClassifications'][0]
+                                            )
+
+                                            expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
+                                                cpvs=payload['tender']['items'][actual][
+                                                    'additionalClassifications'][q]['id'],
+                                                language=self.language
+                                            )
+
+                                            additionalclassification_object['scheme'] = payload['tender'][
+                                                'items'][actual]['additionalClassifications'][q]['scheme']
+
+                                            additionalclassification_object['id'] = expected_cpvs_data[0]
+                                            additionalclassification_object['description'] = expected_cpvs_data[2]
+
+                                            expected_additionalclassifications_array.append(
+                                                additionalclassification_object
+                                            )
+
+                                        # Sort objects in expected additionalClassifications array.
+                                        for a_0 in range(len(actual_ei_release['releases'][0]['tender']['items'])):
+                                            if actual_ei_release['releases'][0]['tender']['items'][a_0]['id'] == \
+                                                    previous_items_array[previous]['id']:
+
+                                                temp_array = list()
+
+                                                for a_1 in range(len(
+                                                        actual_ei_release['releases'][0]['tender']['items'][a_0][
+                                                            'additionalClassifications']
+                                                        )
+                                                ):
+
+                                                    for e_1 in range(len(expected_additionalclassifications_array)):
+
+                                                        if actual_ei_release['releases'][0]['tender']['items'][a_0][
                                                             'additionalClassifications'][a_1]['id'] == \
-                                                            expected_additionalclassifications_array[e_1]['id']:
+                                                                expected_additionalclassifications_array[e_1]['id']:
+                                                            temp_array.append(
+                                                                expected_additionalclassifications_array[e_1]
+                                                            )
 
-                                                        temp_array.append(expected_additionalclassifications_array[e_1])
+                                                expected_additionalclassifications_array = temp_array
 
-                                            expected_additionalclassifications_array = temp_array
-
-                                    # Set additionalClassifications.
-                                    previous_items_array[previous]['additionalClassifications'] = \
-                                        expected_additionalclassifications_array
+                                        # Set additionalClassifications.
+                                        previous_items_array[previous]['additionalClassifications'] = \
+                                            expected_additionalclassifications_array
 
                                 else:
                                     # FR-10.3.1.3: get value from previous release.
@@ -348,8 +408,10 @@ class ExpenditureItemRelease:
                                 previous_items_array[previous]['unit']['name'] = expected_unit_data[1]
 
                                 # FR.COM-14.1.13: Update deliveryAddress.
-                                previous_items_array[previous]['deliveryAddress']['streetAddress'] = \
-                                    payload['tender']['items'][actual]['deliveryAddress']['streetAddress']
+                                if "streetAddress" in payload['tender']['items'][actual]['deliveryAddress']:
+
+                                    previous_items_array[previous]['deliveryAddress']['streetAddress'] = \
+                                        payload['tender']['items'][actual]['deliveryAddress']['streetAddress']
 
                                 if "postalCode" in payload['tender']['items'][actual]['deliveryAddress']:
 
@@ -432,9 +494,6 @@ class ExpenditureItemRelease:
 
                                         previous_items_array[previous]['deliveryAddress']['addressDetails'][
                                             'locality'] = expected_item_locality_object[0]
-                                    else:
-                                        del previous_items_array[previous]['deliveryAddress']['addressDetails'][
-                                            'locality']
 
                                     previous_items_array[previous]['deliveryAddress']['addressDetails']['country'] = \
                                         expected_item_country_object[0]

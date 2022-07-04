@@ -86,6 +86,8 @@ class ExpenditureItemPayload:
                 del self.__payload['tender']['items'][item_position][
                     'additionalClassifications'][additional_classification_position]
 
+            elif a == "tender.items.deliveryAddress.streetAddress":
+                del self.__payload['tender']['items'][item_position]['deliveryAddress']['streetAddress']
             elif a == "tender.items.deliveryAddress.postalCode":
                 del self.__payload['tender']['items'][item_position]['deliveryAddress']['postalCode']
             elif a == "tender.items.deliveryAddress.addressDetails.locality":

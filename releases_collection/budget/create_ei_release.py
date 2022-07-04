@@ -308,8 +308,12 @@ class ExpenditureItemRelease:
                     new_items_array[q_0]['unit']['id'] = expected_unit_data[0]
                     new_items_array[q_0]['unit']['name'] = expected_unit_data[1]
 
-                    new_items_array[q_0]['deliveryAddress']['streetAddress'] = \
-                        payload['tender']['items'][q_0]['deliveryAddress']['streetAddress']
+                    if "streetAddress" in payload['tender']['items'][q_0]['deliveryAddress']:
+
+                        new_items_array[q_0]['deliveryAddress']['streetAddress'] = \
+                            payload['tender']['items'][q_0]['deliveryAddress']['streetAddress']
+                    else:
+                        del new_items_array[q_0]['deliveryAddress']['streetAddress']
 
                     if "postalCode" in payload['tender']['items'][q_0]['deliveryAddress']:
 

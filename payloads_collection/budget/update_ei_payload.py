@@ -53,6 +53,8 @@ class ExpenditureItemPayload:
                 del self.__payload['tender']
             elif a == "tender.description":
                 del self.__payload['tender']['description']
+            elif a == "tender.title":
+                del self.__payload['tender']['title']
             elif a == "tender.items":
                 del self.__payload['tender']['items']
             elif a == f"tender.items[{item_position}]":
@@ -60,6 +62,8 @@ class ExpenditureItemPayload:
             elif a == f"tender.items[{item_position}].additionalClassifications[{additional_classification_position}]":
                 del self.__payload['tender']['items'][item_position][
                     'additionalClassifications'][additional_classification_position]
+            elif a == f"tender.items[{item_position}].deliveryAddress.streetAddress":
+                del self.__payload['tender']['items'][item_position]['deliveryAddress']['streetAddress']
             elif a == f"tender.items[{item_position}].deliveryAddress.postalCode":
                 del self.__payload['tender']['items'][item_position]['deliveryAddress']['postalCode']
             elif a == f"tender.items[{item_position}].deliveryAddress.addressDetails.locality":
@@ -140,6 +144,11 @@ class ExpenditureItemPayload:
                 if i == previous_items_list[previous_item]['id']:
                     previous_item_object = copy.deepcopy(previous_items_list[previous_item])
 
+                    # If previous_items_list was got from release, should delete redundant attribute,
+                    # according to payload data model.
+                    if "description" in previous_item_object['classification']:
+                        del previous_item_object['classification']['description']
+
                     previous_item_object['description'] = f"update ei: tender.items[{i}].description"
                     previous_item_object['quantity'] = 44.44
 
@@ -148,6 +157,11 @@ class ExpenditureItemPayload:
                     while unit_id == previous_item_object['unit']['id']:
                         unit_id = f"{random.choice(unit_id_tuple)}"
                     previous_item_object['unit']['id'] = unit_id
+
+                    # If previous_items_list was got from release, should delete redundant attribute,
+                    # according to payload data model.
+                    if "name" in previous_item_object['unit']:
+                        del previous_item_object['unit']['name']
 
                     # Add additionalClassifications, if 'additionalClassifications' array
                     # isn't present into previous item object
