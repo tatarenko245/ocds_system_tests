@@ -19,7 +19,9 @@ from releases_collection.budget.update_ei_release import ExpenditureItemRelease
 @allure.parent_suite("Budget")
 @allure.suite("Expenditure item")
 @allure.severity("Critical")
-@allure.testcase(url="")
+@allure.testcase(url="https://docs.google.com/spreadsheets/d/1-I_7nLopu_q2wAyWzfTyscHMBL4GA1sIL6IpwBk-QCw/"
+                     "edit#gid=109394188",
+                 name="Test Suite")
 class TestUpdateEI:
     @allure.title("Оновлення EI (додавання даних).")
     def test_case_1(self, get_parameters, connect_to_keyspace, create_ei_tc_2):
