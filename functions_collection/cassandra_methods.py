@@ -1,4 +1,7 @@
+import copy
 import datetime
+import json
+import uuid
 
 
 def cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cp_id):
@@ -306,3 +309,36 @@ def get_cpid_from_orchestrator_steps(connect_to_orchestrator, operation_id):
 
     cpid = value.cpid
     return cpid
+
+
+def get_some_parameter_from_orchestrator_steps_by_cpid_and_operationid(
+        connect_to_orchestrator, cpid, operation_id, task_id):
+    process_data = connect_to_orchestrator.execute(
+        f"SELECT * FROM steps WHERE cpid = '{cpid}' AND operation_id = '{operation_id}';"
+    ).one()
+
+    process_id = process_data.process_id
+
+    value = connect_to_orchestrator.execute(
+        f"SELECT * FROM steps WHERE cpid = '{cpid}' AND operation_id = '{operation_id}' "
+        f"AND process_id = '{process_id}' AND task_id = '{task_id}';").one()
+
+    request_data = json.loads(value.request)
+    response_data = json.loads(value.response)
+
+    return request_data, response_data
+
+
+def set_tender_status_for_ocds_budgetei(connect_to_ocds, cpid, tender_status: str):
+
+    previous_data = connect_to_ocds.execute(f"SELECT * FROM budget_ei WHERE cp_id = '{cpid}';").one()
+
+    previous_token_entity = previous_data.token_entity
+    previous_json_data = json.loads(previous_data.json_data)
+
+    new_json_data = copy.deepcopy(previous_json_data)
+
+    new_json_data['tender']['status'] = tender_status
+
+    connect_to_ocds.execute(f"""UPDATE budget_ei SET json_data = '{json.dumps(new_json_data)}' WHERE  
+    cp_id = '{cpid}' AND token_entity = {previous_token_entity};""").one()

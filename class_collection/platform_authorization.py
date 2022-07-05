@@ -26,9 +26,8 @@ class PlatformAuthorization:
         access_token = requests.get(
             url=self.host + '/auth/signin',
             headers={
-                'Authorization': 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk='
+                'Authorization': 'Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk'
             }).json()
-        access_token = access_token['data']['tokens']['access']
         access_token = access_token['data']['tokens']['access']
         allure.attach(self.host + '/auth/signin', 'HOST')
         allure.attach('Basic YXV0b21hdGlvbl91c2VyOnBhc3N3b3Jk=', 'Platform credentials for authorization')

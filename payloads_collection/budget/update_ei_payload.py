@@ -59,6 +59,8 @@ class ExpenditureItemPayload:
                 del self.__payload['tender']['items']
             elif a == f"tender.items[{item_position}]":
                 del self.__payload['tender']['items'][{item_position}]
+            elif a == f"tender.items[{item_position}].additionalClassifications":
+                del self.__payload['tender']['items'][item_position]['additionalClassifications']
             elif a == f"tender.items[{item_position}].additionalClassifications[{additional_classification_position}]":
                 del self.__payload['tender']['items'][item_position][
                     'additionalClassifications'][additional_classification_position]
