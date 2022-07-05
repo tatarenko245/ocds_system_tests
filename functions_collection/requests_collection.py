@@ -32,7 +32,8 @@ def update_ei_process(host, access_token, x_operation_id, cpid, token, payload, 
             "Authorization": f"Bearer {access_token}",
             "X-OPERATION-ID": x_operation_id,
             "Content-Type": "application/json",
-            "X-TOKEN": token},
+            "X-TOKEN": token
+        },
         params={
             "testMode": test_mode
         },
@@ -40,6 +41,24 @@ def update_ei_process(host, access_token, x_operation_id, cpid, token, payload, 
     )
     allure.attach(f"{host}/do/ei/{cpid}", "URL")
     allure.attach(json.dumps(payload), "Prepared payload")
+    return request
+
+
+@allure.step('# Prepared request: Confirm EI.')
+def confirm_ei_process(host, access_token, x_operation_id, cpid, token, test_mode=False):
+    request = requests.post(
+        url=f"{host}/do/confirmation/ei/{cpid}",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-OPERATION-ID": x_operation_id,
+            "Content-Type": "application/json",
+            "X-TOKEN": token
+        },
+        params={
+            "testMode": test_mode
+        }
+    )
+    allure.attach(f"{host}/do/confirmation/ei/{cpid}", "URL")
     return request
 
 

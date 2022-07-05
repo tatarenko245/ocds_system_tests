@@ -66,7 +66,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -233,7 +232,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -397,7 +395,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -611,7 +608,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -775,7 +771,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -985,7 +980,6 @@ class TestUpdateEI:
             with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
                 """
                 Send api request to BPE host to create a Update EI process.
-                And save in variable cpid.
                 """
                 try:
                     """
@@ -1131,7 +1125,6 @@ class TestUpdateEI:
             with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
                 """
                 Send api request to BPE host to create a Update EI process.
-                And save in variable cpid.
                 """
                 try:
                     """
@@ -1267,7 +1260,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -1409,7 +1401,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -1552,7 +1543,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -1695,7 +1685,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -1836,7 +1825,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -1977,7 +1965,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -2113,7 +2100,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """
@@ -2251,7 +2237,6 @@ class TestUpdateEI:
         with allure.step(f"# {step_number}. Send a request to create a Update EI process."):
             """
             Send api request to BPE host to create a Update EI process.
-            And save in variable cpid.
             """
             try:
                 """

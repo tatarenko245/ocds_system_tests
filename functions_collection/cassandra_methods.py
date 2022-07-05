@@ -1,7 +1,6 @@
 import copy
 import datetime
 import json
-import uuid
 
 
 def cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cp_id):
