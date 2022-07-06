@@ -1,6 +1,7 @@
 """Prepare the expected release of the create expenditure item process, budget."""
 import copy
 
+from data_collection.data_constant import affordable_shemes
 from data_collection.for_test_createEI_process.ei_release_full_model import *
 from functions_collection.some_functions import get_value_from_cpvs_dictionary_csv, is_it_uuid, \
     get_value_from_classification_unit_dictionary_csv, \
@@ -11,12 +12,17 @@ from functions_collection.some_functions import get_value_from_cpvs_dictionary_c
 class ExpenditureItemRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, language, tender_classification_id):
+    def __init__(self, environment, country, language, tender_classification_id):
 
         self.environment = environment
         self.language = language
         self.tender_classification_id = tender_classification_id
         self.expected_ei_release = copy.deepcopy(release_model)
+
+        for c in range(len(affordable_shemes['data'])):
+            if affordable_shemes['data'][c]['country'] == country:
+                self.__items_additionalclassifications_scheme = affordable_shemes['data'][c][
+                    'items_additionalclassifications_scheme'][0]
 
         try:
             if environment == "dev":
@@ -138,7 +144,7 @@ class ExpenditureItemRelease:
                 language=self.language
             )
             expected_buyer_country_object = [{
-                "scheme": buyer_country_data[2].upper(),
+                "scheme": buyer_country_data[2],
                 "id": payload['buyer']['address']['addressDetails']['country']['id'],
                 "description": buyer_country_data[1],
                 "uri": buyer_country_data[3]
@@ -218,7 +224,7 @@ class ExpenditureItemRelease:
             if "typeOfBuyer" in payload['buyer']['details']:
                 buyer_role_array[0]['details']['typeOfBuyer'] = payload['buyer']['details']['typeOfBuyer']
             else:
-                del buyer_role_array['buyer']['details']['typeOfBuyer']
+                del buyer_role_array[0]['details']['typeOfBuyer']
 
             if "mainGeneralActivity" in payload['buyer']['details']:
 
@@ -265,7 +271,9 @@ class ExpenditureItemRelease:
                                 language=self.language
                             )
 
-                            new_item_additional_classifications_array[q_1]['scheme'] = "CPVS"
+                            new_item_additional_classifications_array[q_1]['scheme'] = \
+                                self.__items_additionalclassifications_scheme
+
                             new_item_additional_classifications_array[q_1]['id'] = expected_cpvs_data[0]
                             new_item_additional_classifications_array[q_1]['description'] = expected_cpvs_data[2]
 
@@ -331,7 +339,7 @@ class ExpenditureItemRelease:
                             language=self.language
                         )
                         expected_item_country_object = [{
-                            "scheme": item_country_data[2].upper(),
+                            "scheme": item_country_data[2],
                             "id": payload['tender']['items'][q_0]['deliveryAddress']['addressDetails'][
                                 'country']['id'],
 

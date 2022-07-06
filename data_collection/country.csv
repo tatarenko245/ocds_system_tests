@@ -2,6 +2,6 @@ code,name,scheme,uri,language_code
 LT,Lithuania,ISO-ALPHA2,https://www.iso.org,EN
 LT,Lituania,ISO-ALPHA2,https://www.iso.org,LT
 LT,Литва,ISO-ALPHA2,https://www.iso.org,RU
-MD,"Moldova, Republic of",ISO-ALPHA2,https://www.iso.org,EN
-MD,"Moldova, Republica",ISO-ALPHA2,https://www.iso.org,RO
-MD,Республика Молдова,ISO-ALPHA2,https://www.iso.org,RU
+MD,"Moldova, Republic of",iso-alpha2,https://www.iso.org,EN
+MD,"Moldova, Republica",iso-alpha2,https://www.iso.org,RO
+MD,Республика Молдова,iso-alpha2,https://www.iso.org,RU

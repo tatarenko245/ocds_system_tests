@@ -64,6 +64,34 @@ class ExpenditureItemPayload:
         self.__payload['buyer']['details']['mainSectoralActivity'] = f"{random.choice(mainSectoralActivity_tuple)}"
 
     def build_payload(self):
+
+        # For business needs: Republic of Moldova uses the specific payload model.
+        if self.__country == "MD":
+            del self.__payload['tender']['classification']['scheme']
+
+            if "items" in self.__payload['tender']:
+                for i in range(len(self.__payload['tender']['items'])):
+                    del self.__payload['tender']['items'][i]['classification']['scheme']
+
+                    if "additionalClassifications" in self.__payload['tender']['items'][i]:
+                        for a in range(len(self.__payload['tender']['items'][i]['additionalClassifications'])):
+                            del self.__payload['tender']['items'][i]['additionalClassifications'][a]['scheme']
+
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'country']['description']
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'country']['scheme']
+
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'region']['description']
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'region']['scheme']
+
+            del self.__payload['buyer']['address']['addressDetails']['country']['description']
+            del self.__payload['buyer']['address']['addressDetails']['country']['scheme']
+            del self.__payload['buyer']['address']['addressDetails']['region']['description']
+            del self.__payload['buyer']['address']['addressDetails']['region']['scheme']
+
         return self.__payload
 
     def get_tender_classification_id(self):

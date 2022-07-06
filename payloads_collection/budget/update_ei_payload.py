@@ -36,6 +36,28 @@ class ExpenditureItemPayload:
         del self.__payload['tender']['items']
 
     def build_payload(self):
+
+        # For business needs: Republic of Moldova uses the specific payload model.
+        if self.__country == "MD":
+
+            if "items" in self.__payload['tender']:
+                for i in range(len(self.__payload['tender']['items'])):
+                    del self.__payload['tender']['items'][i]['classification']['scheme']
+
+                    if "additionalClassifications" in self.__payload['tender']['items'][i]:
+                        for a in range(len(self.__payload['tender']['items'][i]['additionalClassifications'])):
+                            del self.__payload['tender']['items'][i]['additionalClassifications'][a]['scheme']
+
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'country']['description']
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'country']['scheme']
+
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'region']['description']
+                    del self.__payload['tender']['items'][i]['deliveryAddress']['addressDetails'][
+                        'region']['scheme']
+
         return self.__payload
 
     def delete_optional_fields(self, *args, item_position=0, additional_classification_position=0):

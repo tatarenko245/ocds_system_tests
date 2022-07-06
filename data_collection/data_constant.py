@@ -250,6 +250,9 @@ affordable_shemes = {
                 "2901000",
                 "3401000",
                 "4801000"
+            ],
+            "items_additionalclassifications_scheme": [
+                "CPVS"
             ]
         },
         {
@@ -276,6 +279,9 @@ affordable_shemes = {
             ],
             "locality_id": [
                 "some_locality_id"
+            ],
+            "items_additionalclassifications_scheme": [
+                "CPVS"
             ]
         }
     ]

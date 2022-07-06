@@ -159,7 +159,7 @@ class TestUpdateEI:
                     Build expected EI release.
                     """
                     expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment, language, tender_classification_id
+                        environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
                         payload, actual_message, actual_release, previous_ei_release
@@ -322,7 +322,7 @@ class TestUpdateEI:
                     Build expected EI release.
                     """
                     expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment, language, tender_classification_id
+                        environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
                         payload, actual_message, actual_release, previous_ei_release
@@ -535,7 +535,7 @@ class TestUpdateEI:
                     Build expected EI release.
                     """
                     expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment, language, tender_classification_id
+                        environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
                         payload, actual_message, actual_release, previous_ei_release
@@ -698,7 +698,7 @@ class TestUpdateEI:
                     Build expected EI release.
                     """
                     expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment, language, tender_classification_id
+                        environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
                         payload, actual_message, actual_release, previous_ei_release
@@ -906,7 +906,7 @@ class TestUpdateEI:
                     Build expected EI release.
                     """
                     expected_release = copy.deepcopy(ExpenditureItemRelease(
-                        environment, language, tender_classification_id
+                        environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
                         payload, actual_message, actual_release, previous_ei_release
