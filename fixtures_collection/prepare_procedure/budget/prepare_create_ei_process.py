@@ -10,7 +10,7 @@ from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by
     cleanup_table_of_services_for_expenditure_item
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ei_process
-from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
+from payloads_collection.budget.create_ei_payload import CreateExpenditureItemPayload
 
 
 @pytest.fixture(scope="function")
@@ -47,7 +47,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,
@@ -133,7 +133,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,
@@ -227,7 +227,7 @@ def create_ei_tc_3(get_parameters, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,

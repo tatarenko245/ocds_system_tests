@@ -11,7 +11,7 @@ from functions_collection.prepare_date import ei_period
 from functions_collection.some_functions import generate_items_array, get_affordable_schemes
 
 
-class ExpenditureItemPayload:
+class UpdateExpenditureItemPayload:
     def __init__(self, connect_to_ocds, country, tender_classification_id, amount):
 
         __ei_period = ei_period()

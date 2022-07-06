@@ -1,10 +1,10 @@
-"""Prepare the expected release of the confirm expenditure item process, budget."""
+"""Prepare the expected release of the withdraw expenditure item process, budget."""
 import copy
 
 from data_collection.for_test_confirmEI_process.ei_release_full_model import *
 
 
-class ConfirmExpenditureItemRelease:
+class WithdrawExpenditureItemRelease:
     """This class creates instance of release."""
 
     def __init__(self, environment, language, tender_classification_id):
@@ -44,7 +44,7 @@ class ConfirmExpenditureItemRelease:
         """Build EI release."""
 
         """Enrich general attribute for expected EI release"""
-        # BR.COM-3.6.1: get value from previous release.
+        # Get value from previous release.
 
         self.expected_ei_release['uri'] = previous_ei_release['uri']
         self.expected_ei_release['version'] = previous_ei_release['version']
@@ -56,7 +56,7 @@ class ConfirmExpenditureItemRelease:
         self.expected_ei_release['publishedDate'] = previous_ei_release['publishedDate']
 
         """Enrich general attribute for expected EI release: releases[0]"""
-        # BR.COM-3.6.1: get value from previous release.
+        # Get value from previous release.
 
         self.expected_ei_release['releases'][0]['ocid'] = previous_ei_release['releases'][0]['ocid']
 
@@ -71,7 +71,7 @@ class ConfirmExpenditureItemRelease:
         self.expected_ei_release['releases'][0]['date'] = message_for_platform['data']['operationDate']
 
         """Enrich attribute for expected EI release: releases[0].planning"""
-        # BR.COM-3.6.1: get value from previous release.
+        # Get value from previous release.
 
         self.expected_ei_release['releases'][0]['planning']['budget']['id'] = \
             previous_ei_release['releases'][0]['planning']['budget']['id']
@@ -101,12 +101,12 @@ class ConfirmExpenditureItemRelease:
             del self.expected_ei_release['releases'][0]['planning']['budget']['amount']
 
         """Enrich attribute for expected EI release: releases[0].parties"""
-        # BR.COM-3.6.1: get value from previous release.
+        # Get value from previous release.
 
         self.expected_ei_release['releases'][0]['parties'] = previous_ei_release['releases'][0]['parties']
 
         """Enrich attribute for expected EI release: releases[0].tender"""
-        # BR.COM-3.6.1: get value from previous release.
+        # Get value from previous release.
 
         self.expected_ei_release['releases'][0]['tender']['id'] = previous_ei_release['releases'][0]['tender']['id']
 
@@ -144,10 +144,10 @@ class ConfirmExpenditureItemRelease:
             del self.expected_ei_release['releases'][0]['tender']['items']
 
         # FR.COM-14.13.1: Set status.
-        self.expected_ei_release['releases'][0]['tender']['status'] = "planned"
+        self.expected_ei_release['releases'][0]['tender']['status'] = "planning"
 
         """Enrich attribute for expected EI release: releases[0].buyer"""
-        # BR.COM-3.6.1: get value from previous release.
+        # Get value from previous release.
 
         self.expected_ei_release['releases'][0]['buyer']['id'] = previous_ei_release['releases'][0]['buyer']['id']
         self.expected_ei_release['releases'][0]['buyer']['name'] = previous_ei_release['releases'][0]['buyer']['name']

@@ -9,7 +9,7 @@ from functions_collection.some_functions import get_value_from_cpvs_dictionary_c
     get_value_from_locality_csv, get_value_from_cpv_dictionary_csv
 
 
-class ExpenditureItemRelease:
+class UpdateExpenditureItemRelease:
     """This class creates instance of release."""
 
     def __init__(self, environment, country, language, tender_classification_id):

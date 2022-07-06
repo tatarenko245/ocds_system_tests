@@ -1,19 +1,17 @@
-""" Prepare expected message for platform, the create expenditure item process of budget."""
-import copy
+""" Prepare expected message for platform, the withdraw expenditure item process of budget."""
 import fnmatch
 
 from functions_collection.some_functions import is_it_uuid
 
 
-class CreateExpenditureItemMessage:
+class WithdrawExpenditureItemMessage:
     """ Class creates instance of message for platform."""
 
-    def __init__(self, environment, country, actual_message, expected_quantity_of_outcomes_ei=1, test_mode=False):
+    def __init__(self, environment, country, actual_message, test_mode=False):
         self.environment = environment
         self.country = country
         self.actual_message = actual_message
         self.test_mode = test_mode
-        self.expected_quantity_of_outcomes_ei = expected_quantity_of_outcomes_ei
 
         if environment == "dev":
             self.budget_url = "http://dev.public.eprocurement.systems/budgets"
@@ -27,15 +25,7 @@ class CreateExpenditureItemMessage:
             "data": {
                 "ocid": "",
                 "url": "",
-                "operationDate": "",
-                "outcomes": {
-                    "ei": [
-                        {
-                            "id": "",
-                            "X-TOKEN": ""
-                        }
-                    ]
-                }
+                "operationDate": ""
             }
         }
 
@@ -107,32 +97,6 @@ class CreateExpenditureItemMessage:
         else:
             KeyError("The message is not correct: mismatch key 'data.operationDate'.")
 
-        outcomes_ei_array = list()
-        for obj in range(self.expected_quantity_of_outcomes_ei):
-            outcomes_ei_array.append(copy.deepcopy(self.__success_message['data']['outcomes']['ei'][0]))
-
-            if self.test_mode is False:
-                is_ei_id_correct = fnmatch.fnmatch(
-                    self.actual_message["data"]["outcomes"]["ei"][obj]["id"], f"ocds-t1s2t3-{self.country}-*"
-                )
-            else:
-                is_ei_id_correct = fnmatch.fnmatch(
-                    self.actual_message["data"]["outcomes"]["ei"][obj]["id"], f"test-t1s2t3-{self.country}-*"
-                )
-
-            if is_ei_id_correct is True:
-                outcomes_ei_array[obj]['id'] = self.actual_message["data"]["outcomes"]["ei"][obj]["id"]
-            else:
-                ValueError(f"The message is not correct: 'data.outcomes.ei[{obj}].id'.")
-
-            is_ei_token_correct = is_it_uuid(self.actual_message["data"]["outcomes"]["ei"][obj]["X-TOKEN"])
-
-            if is_ei_token_correct is True:
-                outcomes_ei_array[obj]['X-TOKEN'] = self.actual_message["data"]["outcomes"]["ei"][obj]["X-TOKEN"]
-            else:
-                ValueError(f"The message is not correct: 'data.outcomes.ei[{obj}].X-TOKEN'.")
-
-        self.__success_message['data']['outcomes']['ei'] = outcomes_ei_array
         return self.__success_message
 
     def build_expected_failure_message(self, error_code, error_description=None):

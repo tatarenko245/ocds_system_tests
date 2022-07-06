@@ -19,4 +19,5 @@ pytest_plugins = [
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_issuing_framework_process",
     "fixtures_collection.prepare_procedure.framework_agreement.prepare_confirmation_response_by_buyer_process",
     "fixtures_collection.prepare_procedure.budget.prepare_create_ei_process",
+    "fixtures_collection.prepare_procedure.budget.prepare_confirm_ei_process",
 ]

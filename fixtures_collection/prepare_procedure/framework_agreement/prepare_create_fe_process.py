@@ -18,7 +18,7 @@ from functions_collection.get_message_for_platform import get_message_for_platfo
 from functions_collection.mdm_methods import get_standard_criteria
 from functions_collection.requests_collection import create_ei_process, create_fs_process, create_pn_process, \
     create_ap_process, outsourcing_pn_process, relation_ap_process, update_ap_process, create_fe_process
-from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
+from payloads_collection.budget.create_ei_payload import CreateExpenditureItemPayload
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
 from payloads_collection.framework_agreement.create_fe_payload import FrameworkEstablishmentPayload
@@ -70,7 +70,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 country=country,
                 buyer_id=0,
                 tender_classification_id=tender_classification_id,
@@ -251,7 +251,7 @@ def create_fe_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 country=country,
                 buyer_id=10,
                 tender_classification_id=tender_classification_id,
@@ -905,7 +905,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 country=country,
                 buyer_id=0,
                 tender_classification_id=tender_classification_id,
@@ -1093,7 +1093,7 @@ def create_fe_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
-            payload = copy.deepcopy(ExpenditureItemPayload(
+            payload = copy.deepcopy(CreateExpenditureItemPayload(
                 country=country,
                 buyer_id=10,
                 tender_classification_id=tender_classification_id,

@@ -4,7 +4,7 @@ import fnmatch
 from functions_collection.some_functions import is_it_uuid
 
 
-class ExpenditureItemMessage:
+class ConfirmExpenditureItemMessage:
     """ Class creates instance of message for platform."""
 
     def __init__(self, environment, country, actual_message, test_mode=False):

@@ -12,9 +12,9 @@ from functions_collection.get_message_for_platform import get_message_for_platfo
 from functions_collection.prepare_date import ei_period, old_period
 from functions_collection.requests_collection import create_ei_process
 from functions_collection.some_functions import get_affordable_currency
-from messages_collection.budget.create_ei_message import ExpenditureItemMessage
-from payloads_collection.budget.create_ei_payload import ExpenditureItemPayload
-from releases_collection.budget.create_ei_release import ExpenditureItemRelease
+from messages_collection.budget.create_ei_message import CreateExpenditureItemMessage
+from payloads_collection.budget.create_ei_payload import CreateExpenditureItemPayload
+from releases_collection.budget.create_ei_release import CreateExpenditureItemRelease
 
 
 @allure.parent_suite("Budget")
@@ -58,7 +58,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -113,7 +113,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -144,7 +144,7 @@ class TestCreateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(CreateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -212,7 +212,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -275,7 +275,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -306,7 +306,7 @@ class TestCreateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(CreateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -374,7 +374,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -445,7 +445,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -476,7 +476,7 @@ class TestCreateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(CreateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -543,7 +543,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -607,7 +607,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -684,7 +684,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -750,7 +750,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -827,7 +827,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -893,7 +893,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -970,7 +970,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -1037,7 +1037,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1116,7 +1116,7 @@ class TestCreateEI:
                     """
                     Build payload for Create EI process.
                     """
-                    payload = copy.deepcopy(ExpenditureItemPayload(
+                    payload = copy.deepcopy(CreateExpenditureItemPayload(
                         connect_to_ocds=connect_to_ocds,
                         country=country,
                         buyer_id=0,
@@ -1182,7 +1182,7 @@ class TestCreateEI:
                         """
                         Build expected message for platform.
                         """
-                        expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                             environment=environment,
                             country=country,
                             actual_message=actual_message,
@@ -1259,7 +1259,7 @@ class TestCreateEI:
                     """
                     Build payload for Create EI process.
                     """
-                    payload = copy.deepcopy(ExpenditureItemPayload(
+                    payload = copy.deepcopy(CreateExpenditureItemPayload(
                         connect_to_ocds=connect_to_ocds,
                         country=country,
                         buyer_id=0,
@@ -1323,7 +1323,7 @@ class TestCreateEI:
                         """
                         Build expected message for platform.
                         """
-                        expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                             environment=environment,
                             country=country,
                             actual_message=actual_message,
@@ -1399,7 +1399,7 @@ class TestCreateEI:
                     """
                     Build payload for Create EI process.
                     """
-                    payload = copy.deepcopy(ExpenditureItemPayload(
+                    payload = copy.deepcopy(CreateExpenditureItemPayload(
                         connect_to_ocds=connect_to_ocds,
                         country=country,
                         buyer_id=0,
@@ -1462,7 +1462,7 @@ class TestCreateEI:
                         """
                         Build expected message for platform.
                         """
-                        expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                             environment=environment,
                             country=country,
                             actual_message=actual_message,
@@ -1540,7 +1540,7 @@ class TestCreateEI:
                     """
                     Build payload for Create EI process.
                     """
-                    payload = copy.deepcopy(ExpenditureItemPayload(
+                    payload = copy.deepcopy(CreateExpenditureItemPayload(
                         connect_to_ocds=connect_to_ocds,
                         country=country,
                         buyer_id=0,
@@ -1602,7 +1602,7 @@ class TestCreateEI:
                         """
                         Build expected message for platform.
                         """
-                        expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                             environment=environment,
                             country=country,
                             actual_message=actual_message,
@@ -1681,7 +1681,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -1743,7 +1743,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1822,7 +1822,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -1886,7 +1886,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1965,7 +1965,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -2030,7 +2030,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -2107,7 +2107,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -2173,7 +2173,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -2250,7 +2250,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -2315,7 +2315,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -2393,7 +2393,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -2457,7 +2457,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -2536,7 +2536,7 @@ class TestCreateEI:
                 """
                 Build payload for Create EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(CreateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     buyer_id=0,
@@ -2604,7 +2604,7 @@ class TestCreateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(CreateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,

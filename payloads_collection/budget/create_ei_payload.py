@@ -10,7 +10,7 @@ from functions_collection.prepare_date import ei_period
 from functions_collection.some_functions import generate_items_array, get_affordable_schemes
 
 
-class ExpenditureItemPayload:
+class CreateExpenditureItemPayload:
     def __init__(self, connect_to_ocds, country, buyer_id, tender_classification_id, amount, currency):
 
         affordable_schemes = get_affordable_schemes(country)

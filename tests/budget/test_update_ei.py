@@ -13,9 +13,9 @@ from functions_collection.cassandra_methods import cleanup_table_of_services_for
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import update_ei_process
 from functions_collection.some_functions import get_affordable_currency
-from messages_collection.budget.update_ei_message import ExpenditureItemMessage
-from payloads_collection.budget.update_ei_payload import ExpenditureItemPayload
-from releases_collection.budget.update_ei_release import ExpenditureItemRelease
+from messages_collection.budget.update_ei_message import UpdateExpenditureItemMessage
+from payloads_collection.budget.update_ei_payload import UpdateExpenditureItemPayload
+from releases_collection.budget.update_ei_release import UpdateExpenditureItemRelease
 
 
 @allure.parent_suite("Budget")
@@ -71,7 +71,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -127,7 +127,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -158,7 +158,7 @@ class TestUpdateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(UpdateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -237,7 +237,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -290,7 +290,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -321,7 +321,7 @@ class TestUpdateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(UpdateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -400,7 +400,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -503,7 +503,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -534,7 +534,7 @@ class TestUpdateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(UpdateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -613,7 +613,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -666,7 +666,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -697,7 +697,7 @@ class TestUpdateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(UpdateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -776,7 +776,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -874,7 +874,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -905,7 +905,7 @@ class TestUpdateEI:
                     """
                     Build expected EI release.
                     """
-                    expected_release = copy.deepcopy(ExpenditureItemRelease(
+                    expected_release = copy.deepcopy(UpdateExpenditureItemRelease(
                         environment, country, language, tender_classification_id
                     ))
                     expected_release = expected_release.build_expected_ei_release(
@@ -985,7 +985,7 @@ class TestUpdateEI:
                     """
                     Build payload for Update EI process.
                     """
-                    payload = copy.deepcopy(ExpenditureItemPayload(
+                    payload = copy.deepcopy(UpdateExpenditureItemPayload(
                         connect_to_ocds=connect_to_ocds,
                         country=country,
                         tender_classification_id=tender_classification_id,
@@ -1035,7 +1035,7 @@ class TestUpdateEI:
                         allure.attach(str(202), "Expected status code.")
                         assert synchronous_result.status_code == 202
 
-                with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+                with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                     """
                     Check the message for platform.
                     """
@@ -1045,7 +1045,7 @@ class TestUpdateEI:
                         """
                         Build expected message for platform.
                         """
-                        expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                             environment=environment,
                             country=country,
                             actual_message=actual_message,
@@ -1130,7 +1130,7 @@ class TestUpdateEI:
                     """
                     Build payload for Update EI process.
                     """
-                    payload = copy.deepcopy(ExpenditureItemPayload(
+                    payload = copy.deepcopy(UpdateExpenditureItemPayload(
                         connect_to_ocds=connect_to_ocds,
                         country=country,
                         tender_classification_id=tender_classification_id,
@@ -1170,7 +1170,7 @@ class TestUpdateEI:
                         allure.attach(str(202), "Expected status code.")
                         assert synchronous_result.status_code == 202
 
-                with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+                with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                     """
                     Check the message for platform.
                     """
@@ -1180,7 +1180,7 @@ class TestUpdateEI:
                         """
                         Build expected message for platform.
                         """
-                        expected_message = copy.deepcopy(ExpenditureItemMessage(
+                        expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                             environment=environment,
                             country=country,
                             actual_message=actual_message,
@@ -1265,7 +1265,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -1310,7 +1310,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -1320,7 +1320,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1406,7 +1406,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -1451,7 +1451,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -1461,7 +1461,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1548,7 +1548,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -1595,7 +1595,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -1605,7 +1605,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1690,7 +1690,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -1736,7 +1736,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -1746,7 +1746,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1830,7 +1830,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -1876,7 +1876,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -1886,7 +1886,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -1970,7 +1970,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -2010,7 +2010,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -2020,7 +2020,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -2105,7 +2105,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -2153,7 +2153,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -2163,7 +2163,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
@@ -2242,7 +2242,7 @@ class TestUpdateEI:
                 """
                 Build payload for Update EI process.
                 """
-                payload = copy.deepcopy(ExpenditureItemPayload(
+                payload = copy.deepcopy(UpdateExpenditureItemPayload(
                     connect_to_ocds=connect_to_ocds,
                     country=country,
                     tender_classification_id=tender_classification_id,
@@ -2282,7 +2282,7 @@ class TestUpdateEI:
                     allure.attach(str(202), "Expected status code.")
                     assert synchronous_result.status_code == 202
 
-            with allure.step(f'# {step_number}.2. Check the message for the platform, the Create EI process.'):
+            with allure.step(f'# {step_number}.2. Check the message for the platform, the Update EI process.'):
                 """
                 Check the message for platform.
                 """
@@ -2292,7 +2292,7 @@ class TestUpdateEI:
                     """
                     Build expected message for platform.
                     """
-                    expected_message = copy.deepcopy(ExpenditureItemMessage(
+                    expected_message = copy.deepcopy(UpdateExpenditureItemMessage(
                         environment=environment,
                         country=country,
                         actual_message=actual_message,
