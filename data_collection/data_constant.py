@@ -449,3 +449,17 @@ confirmationResponse_type = (
     "document",
     "hash"
 )
+
+
+awardCriteria_tuple = (
+    "priceOnly",
+    "ratedCriteria",
+    "qualityOnly",
+    "costOnly"
+)
+
+
+awardCriteriaDetails_tuple = (
+    "automated",
+    "manual"
+)

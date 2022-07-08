@@ -19,6 +19,13 @@ def pn_period():
     return start_date
 
 
+def enquiry_period(tenderperiod_startdate):
+    tenderperiod_startdate = datetime.datetime.strptime(tenderperiod_startdate, "%Y-%m-%dT%H:%M:%SZ")
+    duration_date_end = tenderperiod_startdate - datetime.timedelta(days=4)
+    end_date = duration_date_end.strftime('%Y-%m-01T%H:%M:%SZ')
+    return end_date
+
+
 def contact_period(max_duration_of_fa=None):
     date = datetime.datetime.now()
     if max_duration_of_fa is None:

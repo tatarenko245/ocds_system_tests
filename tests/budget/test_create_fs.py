@@ -1,17 +1,15 @@
 import copy
 import json
-import random
 import allure
 import requests
 
 from deepdiff import DeepDiff
 from class_collection.platform_authorization import PlatformAuthorization
-from data_collection.data_constant import currency_tuple
 from functions_collection.cassandra_methods import get_process_id_by_operation_id, \
     cleanup_ocds_orchestrator_operation_step_by_operation_id, cleanup_table_of_services_for_financial_source
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_fs_process
-from functions_collection.some_functions import is_it_uuid
+from functions_collection.some_functions import is_it_uuid, get_affordable_currency
 from messages_collection.budget.create_fs_message import FinancialSourceMessage
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 from releases_collection.budget.create_fs_release import FinancialSourceRelease
@@ -30,6 +28,7 @@ class TestCreateFS:
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
         service_host = get_parameters[3]
+        country = get_parameters[4]
         language = get_parameters[5]
 
         connect_to_ocds = connect_to_keyspace[0]
@@ -41,7 +40,8 @@ class TestCreateFS:
         url = f"{ei_message['data']['url']}/{cpid}"
         actual_ei_release_before_fs_creating = requests.get(url=url).json()
 
-        currency = f"{random.choice(currency_tuple)}"
+        currency = get_affordable_currency(country)
+
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Create FS process."):
             """
@@ -297,6 +297,7 @@ class TestCreateFS:
         environment = get_parameters[0]
         bpe_host = get_parameters[2]
         service_host = get_parameters[3]
+        country = get_parameters[4]
         language = get_parameters[5]
 
         connect_to_ocds = connect_to_keyspace[0]
@@ -308,7 +309,8 @@ class TestCreateFS:
         url = f"{ei_message['data']['url']}/{cpid}"
         actual_ei_release_before_fs_creating = requests.get(url=url).json()
 
-        currency = f"{random.choice(currency_tuple)}"
+        currency = get_affordable_currency(country)
+
         step_number = 1
         with allure.step(f"# {step_number}. Authorization platform one: Create FS process."):
             """

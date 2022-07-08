@@ -2,9 +2,9 @@ import copy
 import json
 import random
 
+from data_collection.Budget.for_test_createEI_process.payload_full_model import payload_model
 from data_collection.data_constant import typeOfBuyer_tuple, mainGeneralActivity_tuple, \
     mainSectoralActivity_tuple, unit_id_tuple, cpvs_tuple
-from data_collection.for_test_createEI_process.payload_full_model import *
 from functions_collection.cassandra_methods import get_value_from_ocds_budgetrules
 from functions_collection.prepare_date import ei_period
 from functions_collection.some_functions import generate_items_array, get_affordable_schemes

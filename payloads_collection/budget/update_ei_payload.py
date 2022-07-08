@@ -3,8 +3,9 @@ import json
 import random
 import re
 
+from data_collection.Budget.for_test_updateEI_process.payload_full_model import payload_model
 from data_collection.data_constant import unit_id_tuple, cpvs_tuple
-from data_collection.for_test_updateEI_process.payload_full_model import payload_model
+
 
 from functions_collection.cassandra_methods import get_value_from_ocds_budgetrules
 from functions_collection.prepare_date import ei_period
