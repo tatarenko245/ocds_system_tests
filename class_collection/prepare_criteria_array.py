@@ -31,6 +31,7 @@ class CriteriaArray:
             "title": "",
             "description": "",
             "relatesTo": "",
+            "relatedItem": "",
             "requirementGroups": [{
                 "id": "0-0",
                 "description": "",
@@ -70,33 +71,48 @@ class CriteriaArray:
         """Delete optional fields."""
 
         for a in args:
-            if a == "criteria.description":
+            if a == "criteria.classification":
+                del self.criteria_array[criteria_position]['classification']
+
+            elif a == "criteria.description":
                 del self.criteria_array[criteria_position]['description']
+
+            elif a == "criteria.relatedItem":
+                del self.criteria_array[criteria_position]['relatedItem']
+
             elif a == "criteria.requirementGroups.description":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'description']
+
             elif a == "criteria.requirementGroups.requirements.description":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['description']
+
             elif a == "criteria.requirementGroups.requirements.period":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['period']
+
             elif a == "criteria.requirementGroups.requirements.expectedValue":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['expectedValue']
+
             elif a == "criteria.requirementGroups.requirements.minValue":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['minValue']
+
             elif a == "criteria.requirementGroups.requirements.maxValue":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['maxValue']
+
             elif a == "criteria.requirementGroups.requirements.eligibleEvidences":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['eligibleEvidences']
+
             elif a == "criteria.requirementGroups.requirements.eligibleEvidences.description":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['eligibleEvidences'][eligible_evidences_position][
                     'description']
+
             elif a == "criteria.requirementGroups.requirements.eligibleEvidences.relatedDocument":
                 del self.criteria_array[criteria_position]['requirementGroups'][requirement_groups_position][
                     'requirements'][requirements_position]['eligibleEvidences'][eligible_evidences_position][

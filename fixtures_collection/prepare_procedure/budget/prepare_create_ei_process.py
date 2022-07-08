@@ -79,7 +79,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
         ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message, ei_url, token
+        yield payload, cpid, message, ei_url, token, currency
 
         if clean_up_database is True:
             try:

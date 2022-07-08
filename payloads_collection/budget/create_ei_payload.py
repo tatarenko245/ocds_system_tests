@@ -20,7 +20,7 @@ class CreateExpenditureItemPayload:
         self.__country = country
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
-        # It depends on country value and according with payload data model from documentation.
+        # It depends on country value and according to payload data model from documentation.
         presence_ei_amount = json.loads(
             get_value_from_ocds_budgetrules(connect_to_ocds, f"{country}-createEI", "presenceEIAmount")
         )

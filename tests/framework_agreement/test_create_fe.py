@@ -97,6 +97,7 @@ class TestCreateFE:
                 )
                 # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
                 some_criteria.delete_optional_fields(
+                    "criteria.relatedItem",
                     "criteria.requirementGroups.requirements.minValue",
                     "criteria.requirementGroups.requirements.maxValue",
                     # "criteria.description",
@@ -126,6 +127,7 @@ class TestCreateFE:
                 #  Delete redundant attribute: 'expectedValue', because attributes 'maxValue' and
                 #  'minValue' will be used.
                 some_criteria.delete_optional_fields(
+                    "criteria.relatedItem",
                     "criteria.requirementGroups.requirements.expectedValue",
                     # "criteria.description",
                     # "criteria.requirementGroups.description",
