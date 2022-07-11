@@ -5,16 +5,14 @@ import random
 from class_collection.document_registration import Document
 from class_collection.prepare_criteria_array import CriteriaArray
 from data_collection.OpenProcedure.for_test_createPIN_process.payload_full_model import payload_model
-from data_collection.data_constant import locality_scheme_tuple, \
-    documentType_tuple, unit_id_tuple, cpvs_tuple, region_id_tuple, reductionCriteria_tuple, \
+from data_collection.data_constant import documentType_tuple, unit_id_tuple, cpvs_tuple, reductionCriteria_tuple, \
     qualificationSystemMethod_tuple, legal_basis_tuple, awardCriteria_tuple, awardCriteriaDetails_tuple, \
     person_title_tuple, business_function_type_2_tuple
 from functions_collection.mdm_methods import get_standard_criteria
 
 from functions_collection.prepare_date import pn_period, contact_period, enquiry_period, old_period
 from functions_collection.some_functions import generate_items_array, generate_lots_array, \
-    get_locality_id_according_with_region_id, get_affordable_schemes, set_eligibility_evidences_unique_temporary_id, \
-    set_criteria_array_unique_temporary_id
+    get_affordable_schemes, set_eligibility_evidences_unique_temporary_id, set_criteria_array_unique_temporary_id
 
 
 class PriorInformationNoticePayload:
@@ -404,7 +402,7 @@ class PriorInformationNoticePayload:
 
         self.payload['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
 
-    def customize_tender_items(self, quantity_of_items, quantity_of_items_additional_classifications):
+    def customize_tender_items(self, quantity_of_items, quantity_of_items_additionalclassifications):
         """
         The max quantity of items must be 5, because it depends on cpvs_tuple from data_of_enum.
         The quantity of lot_id_list must be equal the quantity_of_items.
@@ -420,23 +418,27 @@ class PriorInformationNoticePayload:
 
         for q_0 in range(quantity_of_items):
 
+            new_items_array[q_0]['classification']['scheme'] = "CPV"
             new_items_array[q_0]['internalId'] = f"create pin: tender.items{q_0}.internalId"
             new_items_array[q_0]['description'] = f"create pin: tender.items{q_0}.description"
             new_items_array[q_0]['unit']['id'] = f"{random.choice(unit_id_tuple)}"
 
             list_of_additional_classification_id = list()
-            for q_1 in range(quantity_of_items_additional_classifications):
+            del new_items_array[q_0]['additionalClassifications'][0]
+            for q_1 in range(quantity_of_items_additionalclassifications):
                 new_items_array[q_0]['additionalClassifications'].append(
                     copy.deepcopy(self.payload['tender']['items'][0]['additionalClassifications'][0]))
 
-                while len(list_of_additional_classification_id) < quantity_of_items_additional_classifications:
+                while len(list_of_additional_classification_id) < quantity_of_items_additionalclassifications:
                     additional_classification_id = f"{random.choice(cpvs_tuple)}"
                     if additional_classification_id not in list_of_additional_classification_id:
                         list_of_additional_classification_id.append(additional_classification_id)
 
-            for q_1 in range(quantity_of_items_additional_classifications):
+            for q_1 in range(quantity_of_items_additionalclassifications):
                 new_items_array[q_0]['additionalClassifications'][q_1]['id'] = \
                     list_of_additional_classification_id[q_1]
+
+                new_items_array[q_0]['additionalClassifications'][q_1]['scheme'] = "CPVS"
 
             new_items_array[q_0]['relatedLot'] = lot_id_list[q_0]
 
@@ -526,7 +528,10 @@ class PriorInformationNoticePayload:
 
                 recurrence_dates_array = list()
                 for q_1 in range(quantity_of_recurrence_dates):
-                    recurrence_dates_object = copy.deepcopy(self.payload['tender']['lots'][q_0]['recurrence']['dates'][0])
+
+                    recurrence_dates_object = copy.deepcopy(
+                        self.payload['tender']['lots'][q_0]['recurrence']['dates'][0]
+                    )
 
                     recurrence_dates_object['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
 
@@ -554,8 +559,6 @@ class PriorInformationNoticePayload:
             else:
                 new_lots_array[q_0]['hasRenewal'] = False
                 del new_lots_array[q_0]['renewal']
-
-
 
         self.payload['tender']['lots'] = new_lots_array
 

@@ -105,18 +105,21 @@ class TestCreatePIN:
 
                     payload.customize_tender_lots(
                         quantity_of_lots=1,
-                        quantity_of_options=0,
-                        quantity_of_recurrence_dates=0,
+                        quantity_of_options=1,
+                        quantity_of_recurrence_dates=1,
                         quantity_of_renewal=1
                         )
 
                     payload.customize_tender_items(
                         quantity_of_items=1,
-                        quantity_of_items_additional_classifications=1
+                        quantity_of_items_additionalclassifications=1
                     )
 
                     payload.customize_tender_electronicauctions_object()
-                    payload.customize_tender_documents(quantity_of_documents=1)
+
+                    payload.customize_tender_documents(
+                        quantity_of_documents=1
+                    )
 
                     payload.customize_tender_procuringentity_additionalidentifiers(
                         quantity_of_tender_procuring_entity_additional_identifiers=1
@@ -151,7 +154,7 @@ class TestCreatePIN:
                     raise ValueError("Impossible to build payload for Create PIN process.")
 
                 print("\n PIN payload")
-                print(payload)
+                print(json.dumps(payload))
 
             #     synchronous_result = create_pin_process(
             #         host=bpe_host,
