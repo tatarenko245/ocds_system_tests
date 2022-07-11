@@ -3,80 +3,120 @@ import copy
 import random
 
 from class_collection.document_registration import Document
+from class_collection.prepare_criteria_array import CriteriaArray
 from data_collection.OpenProcedure.for_test_createPIN_process.payload_full_model import payload_model
-from data_collection.data_constant import cpv_goods_low_level_03_tuple, cpv_goods_low_level_1_tuple, \
-    cpv_goods_low_level_2_tuple, cpv_goods_low_level_3_tuple, cpv_goods_low_level_44_tuple, \
-    cpv_goods_low_level_48_tuple, cpv_works_low_level_45_tuple, cpv_services_low_level_5_tuple, \
-    cpv_services_low_level_6_tuple, cpv_services_low_level_7_tuple, cpv_services_low_level_8_tuple, \
-    cpv_services_low_level_92_tuple, cpv_services_low_level_98_tuple, locality_scheme_tuple, \
-    documentType_tuple, unit_id_tuple, cpvs_tuple, region_id_tuple
+from data_collection.data_constant import locality_scheme_tuple, \
+    documentType_tuple, unit_id_tuple, cpvs_tuple, region_id_tuple, reductionCriteria_tuple, \
+    qualificationSystemMethod_tuple, legal_basis_tuple, awardCriteria_tuple, awardCriteriaDetails_tuple, \
+    person_title_tuple, business_function_type_2_tuple
+from functions_collection.mdm_methods import get_standard_criteria
 
-from functions_collection.prepare_date import pn_period, contact_period, enquiry_period
+from functions_collection.prepare_date import pn_period, contact_period, enquiry_period, old_period
 from functions_collection.some_functions import generate_items_array, generate_lots_array, \
-    get_locality_id_according_with_region_id
+    get_locality_id_according_with_region_id, get_affordable_schemes, set_eligibility_evidences_unique_temporary_id, \
+    set_criteria_array_unique_temporary_id
 
 
 class PriorInformationNoticePayload:
     """This class creates instance of payload."""
 
-    def __init__(
-            self, pmd, connect_to_ocds, country, amount, currency, tender_classification_id, host_to_service, fs_id=None):
+    def __init__(self, environment, language, host_to_service, country, amount, currency, tender_classification_id):
 
         self.payload = copy.deepcopy(payload_model)
-        self.pmd = pmd
+
+        self.host = host_to_service
+        self.country = country
+        self.affordable_schemes = get_affordable_schemes(country)
+        self.amount = amount
+        self.currency = currency
+
         self.tender_classification_id = tender_classification_id
+        self.tenderperiod_startdate = pn_period()
+        self.enquiryperiod_enddate = enquiry_period(self.tenderperiod_startdate)
 
-
-
-        __document_one = Document(host=host_to_service)
-        self.__document_one_was_uploaded = __document_one.uploading_document()
-
-        self.__amount = amount
-        self.__currency = currency
-
-        self.__host = host_to_service
-        item_classification_id = None
-        try:
-            if tender_classification_id[0:3] == "031":
-                item_classification_id = random.choice(cpv_goods_low_level_03_tuple)
-            elif tender_classification_id[0:3] == "146":
-                item_classification_id = random.choice(cpv_goods_low_level_1_tuple)
-            elif tender_classification_id[0:3] == "221":
-                item_classification_id = random.choice(cpv_goods_low_level_2_tuple)
-            elif tender_classification_id[0:3] == "301":
-                item_classification_id = random.choice(cpv_goods_low_level_3_tuple)
-            elif tender_classification_id[0:3] == "444":
-                item_classification_id = random.choice(cpv_goods_low_level_44_tuple)
-            elif tender_classification_id[0:3] == "482":
-                item_classification_id = random.choice(cpv_goods_low_level_48_tuple)
-            elif tender_classification_id[0:3] == "451":
-                item_classification_id = random.choice(cpv_works_low_level_45_tuple)
-            elif tender_classification_id[0:3] == "515":
-                item_classification_id = random.choice(cpv_services_low_level_5_tuple)
-            elif tender_classification_id[0:3] == "637":
-                item_classification_id = random.choice(cpv_services_low_level_6_tuple)
-            elif tender_classification_id[0:3] == "713":
-                item_classification_id = random.choice(cpv_services_low_level_7_tuple)
-            elif tender_classification_id[0:3] == "851":
-                item_classification_id = random.choice(cpv_services_low_level_8_tuple)
-            elif tender_classification_id[0:3] == "923":
-                item_classification_id = random.choice(cpv_services_low_level_92_tuple)
-            elif tender_classification_id[0:3] == "983":
-                item_classification_id = random.choice(cpv_services_low_level_98_tuple)
-        except ValueError:
-            ValueError("Check tender_classification_id")
+        # Get all 'standard' criteria from eMDM service.
+        self.standard_criteria = get_standard_criteria(environment, self.country, language)
 
     def build_payload(self):
-        """Build payload."""
+        """Build payload, based on full data model."""
 
-        # Enrich or delete specific attributes, depends on pmd.
-        if self.pmd == "OT" or "SV" or "MV" or "TEST_OT" or "TEST_SV" or "TEST_MV":
-            del self.payload['tender']['secondStage']
-            del self.payload['tender']['otherCriteria']
+        # Set regular value for some attribute
+        self.payload['planning']['rationale'] = "create pin: planning.rationale"
+        self.payload['planning']['budget']['description'] = "create pin: planning.description"
+        self.payload['planning']['budget']['description'] = "create pin: planning.budgetBreakdown[0].id"
 
+        self.payload['tender']['title'] = "create pin: tender.title"
+        self.payload['tender']['description'] = "create pin: tender.description"
+        self.payload['tender']['secondStage']['minimumCandidates'] = 1.00
+        self.payload['tender']['secondStage']['maximumCandidates'] = 5.00
+        self.payload['tender']['otherCriteria'] = f"{random.choice(reductionCriteria_tuple)}"
+        self.payload['tender']['qualificationSystemMethods'] = [f"{random.choice(qualificationSystemMethod_tuple)}"]
         self.payload['tender']['classification']['id'] = self.tender_classification_id
+        self.payload['tender']['classification']['scheme'] = "CPV"
+        self.payload['tender']['legalBasis'] = f"{random.choice(legal_basis_tuple)}"
+        self.payload['tender']['procurementMethodRationale'] = "create pin: tender.procurementMethodRationale"
+        self.payload['tender']['awardCriteria'] = f"{random.choice(awardCriteria_tuple)}"
+        self.payload['tender']['awardCriteriaDetails'] = f"{random.choice(awardCriteriaDetails_tuple)}"
+        self.payload['tender']['tenderPeriod']['startDate'] = self.tenderperiod_startdate
+        self.payload['tender']['enquiryPeriod']['endDate'] = self.enquiryperiod_enddate
 
+        self.payload['tender']['procuringEntity']['name'] = "create pin: procuringEntity.name"
+        self.payload['tender']['procuringEntity']['identifier']['id'] = "create pin: procuringEntity.identifier.id"
 
+        self.payload['tender']['procuringEntity']['identifier']['legalName'] = \
+            "create pin: procuringEntity.identifier.legalName"
+
+        self.payload['tender']['procuringEntity']['identifier']['scheme'] = \
+            "create pin: procuringEntity.identifier.scheme"
+
+        self.payload['tender']['procuringEntity']['identifier']['uri'] = "create pin: procuringEntity.identifier.uri"
+
+        self.payload['tender']['procuringEntity']['address']['streetAddress'] = \
+            "create pin: procuringEntity.address.streetAddress"
+
+        self.payload['tender']['procuringEntity']['address']['postalCode'] = \
+            "create pin: procuringEntity.address.postalCode"
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'] = self.country
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['scheme'] = \
+            self.affordable_schemes[1]
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['description'] = \
+            "create pin: tender.procuringEntity.address.addressDetails.country.description"
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'] = \
+            self.affordable_schemes[2]
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['scheme'] = \
+            self.affordable_schemes[3]
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = \
+            "create pin: tender.procuringEntity.address.addressDetails.region.description"
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme'] = \
+            self.affordable_schemes[4]
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'] = \
+            self.affordable_schemes[5]
+
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['description'] = \
+            "create pin: tender.procuringEntity.address.addressDetails.locality.description"
+
+        self.payload['tender']['procuringEntity']['contactPoint']['name'] = \
+            "create pin: procuringEntity.contactPoint.name"
+
+        self.payload['tender']['procuringEntity']['contactPoint']['email'] = \
+            "create pin: procuringEntity.contactPoint.email"
+
+        self.payload['tender']['procuringEntity']['contactPoint']['telephone'] = \
+            "create pin: procuringEntity.contactPoint.telephone"
+
+        self.payload['tender']['procuringEntity']['contactPoint']['faxNumber'] = \
+            "create pin: procuringEntity.contactPoint.faxNumber"
+
+        self.payload['tender']['procuringEntity']['contactPoint']['url'] = \
+            "create pin: procuringEntity.contactPoint.url"
 
         return self.payload
 
@@ -333,7 +373,7 @@ class PriorInformationNoticePayload:
             lot_id_list.append(self.payload['tender']['lots'][q]['id'])
         return lot_id_list
 
-    def customize_planning_budget_budget_breakdown(self, list_of_classifications: list):
+    def customize_planning_budget_budgetbreakdown(self, list_of_classifications: list):
         """Customize planning.budget.budgetBreakdown array."""
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
@@ -350,8 +390,8 @@ class PriorInformationNoticePayload:
             new_budget_breakdown_array.append(copy.deepcopy(self.payload['planning']['budget']['budgetBreakdown'][0]))
 
             new_budget_breakdown_array[q_0]['id'] = f"{q_0}"
-            new_budget_breakdown_array[q_0]['amount'] = round(self.__amount / len(list_of_classifications), 2)
-            new_budget_breakdown_array[q_0]['amount'] = self.__currency
+            new_budget_breakdown_array[q_0]['amount'] = round(self.amount / len(list_of_classifications), 2)
+            new_budget_breakdown_array[q_0]['currency'] = self.currency
 
             new_budget_breakdown_array[q_0]['classifications']['ei'] = list_of_classifications[q_0]['ei']
 
@@ -364,21 +404,24 @@ class PriorInformationNoticePayload:
 
         self.payload['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
 
-    def customize_tender_items(self, lot_id_list, quantity_of_items, quantity_of_items_additional_classifications):
+    def customize_tender_items(self, quantity_of_items, quantity_of_items_additional_classifications):
         """
         The max quantity of items must be 5, because it depends on cpvs_tuple from data_of_enum.
         The quantity of lot_id_list must be equal the quantity_of_items.
         """
+
+        lot_id_list = self.get_lots_id_from_payload()
+
         new_items_array = generate_items_array(
             quantity_of_object=quantity_of_items,
             item_object=copy.deepcopy(self.payload['tender']['items'][0]),
-            tender_classification_id=self.__tender_classification_id
+            tender_classification_id=self.tender_classification_id
         )
 
         for q_0 in range(quantity_of_items):
 
-            new_items_array[q_0]['internalId'] = f"create pn: tender.items{q_0}.internalId"
-            new_items_array[q_0]['description'] = f"create pn: tender.items{q_0}.description"
+            new_items_array[q_0]['internalId'] = f"create pin: tender.items{q_0}.internalId"
+            new_items_array[q_0]['description'] = f"create pin: tender.items{q_0}.description"
             new_items_array[q_0]['unit']['id'] = f"{random.choice(unit_id_tuple)}"
 
             list_of_additional_classification_id = list()
@@ -399,7 +442,8 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['items'] = new_items_array
 
-    def customize_tender_lots(self, quantity_of_lots):
+    def customize_tender_lots(self, quantity_of_lots, quantity_of_options, quantity_of_recurrence_dates,
+                              quantity_of_renewal):
         """Customize tender.lots array."""
 
         new_lots_array = generate_lots_array(
@@ -407,64 +451,162 @@ class PriorInformationNoticePayload:
             lot_object=copy.deepcopy(self.payload['tender']['lots'][0])
         )
         for q_0 in range(quantity_of_lots):
-            new_lots_array[q_0]['internalId'] = f"create pn: tender.lots{q_0}.internalId"
-            new_lots_array[q_0]['title'] = f"create pn: tender.lotss{q_0}.title"
-            new_lots_array[q_0]['description'] = f"create pn: tender.lots{q_0}.description"
-            new_lots_array[q_0]['value']['amount'] = round(self.__amount / quantity_of_lots, 2)
-            new_lots_array[q_0]['value']['currency'] = self.__currency
+            new_lots_array[q_0]['internalId'] = f"create pin: tender.lots{q_0}.internalId"
+            new_lots_array[q_0]['title'] = f"create pin: tender.lotss{q_0}.title"
+            new_lots_array[q_0]['description'] = f"create pin: tender.lots{q_0}.description"
+            new_lots_array[q_0]['value']['amount'] = round(self.amount / quantity_of_lots, 2)
+            new_lots_array[q_0]['value']['currency'] = self.currency
 
-            __contact_period = contact_period()
-            new_lots_array[q_0]['contractPeriod']['startDate'] = __contact_period[0]
-            new_lots_array[q_0]['contractPeriod']['endDate'] = __contact_period[1]
+            _contact_period = contact_period()
+            new_lots_array[q_0]['contractPeriod']['startDate'] = _contact_period[0]
+            new_lots_array[q_0]['contractPeriod']['endDate'] = _contact_period[1]
 
-            new_lots_array[q_0]['placeOfPerformance']['streetAddress'] = \
-                f"create pn: tender.lots{q_0}.placeOfPerformance.streetAddress"
+            new_lots_array[q_0]['placeOfPerformance']['address']['streetAddress'] = \
+                f"create pin: tender.lots{q_0}.placeOfPerformance.streetAddress"
 
-            new_lots_array[q_0]['placeOfPerformance']['postalCode'] = \
-                f"create pn: tender.lots{q_0}.placeOfPerformance.postalCode"
+            new_lots_array[q_0]['placeOfPerformance']['address']['postalCode'] = \
+                f"create pin: tender.lots{q_0}.placeOfPerformance.postalCode"
+
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['country']['id'] = self.country
+
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['country']['scheme'] = \
+                self.affordable_schemes[1]
+
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['country']['description'] = \
+                f"create pin: tender.lots[{q_0}].placeOfPerformance.address.addressDetails.country.description"
 
             new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['id'] = \
-                f"{random.choice(region_id_tuple)}"
+                self.affordable_schemes[2]
 
-            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['locality']['id'] = \
-                get_locality_id_according_with_region_id(
-                    new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['id'])
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['scheme'] = \
+                self.affordable_schemes[3]
+
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['description'] = \
+                f"create pin: tender.lots[{q_0}].placeOfPerformance.address.addressDetails.region.description"
 
             new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['locality']['scheme'] = \
-                f"{random.choice(locality_scheme_tuple)}"
+                self.affordable_schemes[4]
+
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['locality']['id'] = \
+                self.affordable_schemes[5]
 
             new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['locality']['description'] = \
-                f"create pn: tender.lots{q_0}.placeOfPerformance.address.addressDetails.locality.description"
+                f"create pin: tender.lots{q_0}.placeOfPerformance.address.addressDetails.locality.description"
 
             new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['locality']['uri'] = \
-                f"create pn: tender.lots{q_0}.placeOfPerformance.address.addressDetails.locality.uri"
+                f"create pin: tender.lots{q_0}.placeOfPerformance.address.addressDetails.locality.uri"
 
             new_lots_array[q_0]['placeOfPerformance']['description'] = \
-                f"create pn: tender.lots{q_0}.placeOfPerformance.description"
+                f"create pin: tender.lots{q_0}.placeOfPerformance.description"
+
+            if quantity_of_options > 0:
+                new_lots_array[q_0]['hasOptions'] = True
+
+                options_array = list()
+                for q_1 in range(quantity_of_options):
+                    options_object = copy.deepcopy(self.payload['tender']['lots'][q_0]['options'][0])
+
+                    options_object['description'] = f"create pin: tender.lots{q_0}.options[{q_1}].description"
+                    options_object['period']['durationInDays'] = 90
+                    options_object['period']['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
+                    options_object['period']['endDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
+                    options_object['period']['maxExtentDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
+                    options_array.append(options_object)
+
+                new_lots_array[q_0]['options'] = options_array
+            else:
+                new_lots_array[q_0]['hasOptions'] = False
+                del new_lots_array[q_0]['options']
+
+            if quantity_of_recurrence_dates > 0:
+                new_lots_array[q_0]['hasRecurrence'] = True
+
+                new_lots_array[q_0]['recurrence']['description'] = \
+                    f"create pin: tender.lots{q_0}.recurrence.description"
+
+                recurrence_dates_array = list()
+                for q_1 in range(quantity_of_recurrence_dates):
+                    recurrence_dates_object = copy.deepcopy(self.payload['tender']['lots'][q_0]['recurrence']['dates'][0])
+
+                    recurrence_dates_object['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
+
+                    recurrence_dates_array.append(recurrence_dates_object)
+
+                new_lots_array[q_0]['recurrence']['dates'] = recurrence_dates_array
+            else:
+                new_lots_array[q_0]['hasRecurrence'] = False
+                del new_lots_array[q_0]['recurrence']
+
+            if quantity_of_renewal == 1:
+                new_lots_array[q_0]['hasRenewal'] = True
+                new_lots_array[q_0]['renewal']['description'] = f"create pin: tender.lots{q_0}.renewal.description"
+                new_lots_array[q_0]['renewal']['minimumRenewals'] = q_0 + 1.23
+                new_lots_array[q_0]['renewal']['maximumRenewals'] = q_0 + 2.24
+
+                new_lots_array[q_0]['renewal']['period']['durationInDays'] = 7.7
+
+                new_lots_array[q_0]['renewal']['period']['startDate'] = \
+                    new_lots_array[q_0]['contractPeriod']['startDate']
+
+                new_lots_array[q_0]['renewal']['period']['endDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
+                new_lots_array[q_0]['renewal']['period']['maxExtentDate'] = '15'
+
+            else:
+                new_lots_array[q_0]['hasRenewal'] = False
+                del new_lots_array[q_0]['renewal']
+
+
 
         self.payload['tender']['lots'] = new_lots_array
 
-    def customize_tender_documents(self, lot_id_list, quantity_of_documents):
+    def customize_tender_electronicauctions_object(self):
+        """Call this method after customize 'tender.lots' array"""
+
+        self.payload['tender']['procurementMethodModalities'] = ['electronicAuction']
+        electronic_auctions_object = copy.deepcopy(self.payload['tender']['electronicAuctions'])
+        del electronic_auctions_object['details'][0]
+
+        for q_0 in range(len(self.payload['tender']['lots'])):
+            electronic_auctions_object['details'].append(copy.deepcopy(
+                self.payload['tender']['electronicAuctions']['details'][0]
+            ))
+
+            electronic_auctions_object['details'][q_0]['id'] = f"{q_0}"
+            electronic_auctions_object['details'][q_0]['relatedLot'] = self.payload['tender']['lots'][q_0]['id']
+
+            # 'electronicAuctionModalities' array must contain only one object
+            electronic_auctions_object['details'][q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference'][
+                'amount'] = round(self.payload['tender']['lots'][q_0]['value']['amount'] * 0.1, 2)
+
+            electronic_auctions_object['details'][q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference'][
+                'currency'] = self.currency
+
+        self.payload['tender']['electronicAuctions'] = electronic_auctions_object
+
+    def customize_tender_documents(self, quantity_of_documents):
         """
         The quantity of lot_id_list must be equal the quantity_of_documents.
         """
+
+        lot_id_list = self.get_lots_id_from_payload()
+
         new_documents_array = list()
         for q_0 in range(quantity_of_documents):
             new_documents_array.append(copy.deepcopy(self.payload['tender']['documents'][0]))
 
-            document_two = Document(host=self.__host)
+            document_two = Document(host=self.host)
             document_two_was_uploaded = document_two.uploading_document()
 
             new_documents_array[q_0]['id'] = document_two_was_uploaded[0]["data"]["id"]
             new_documents_array[q_0]['documentType'] = f"{random.choice(documentType_tuple)}"
-            new_documents_array[q_0]['title'] = f"create pn: tender.documents{q_0}.title"
-            new_documents_array[q_0]['description'] = f"create pn: tender.documents{q_0}.description"
+            new_documents_array[q_0]['title'] = f"create pin: tender.documents{q_0}.title"
+            new_documents_array[q_0]['description'] = f"create pin: tender.documents{q_0}.description"
 
             new_documents_array[q_0]['relatedLots'] = [lot_id_list[q_0]]
 
         self.payload['tender']['documents'] = new_documents_array
 
-    def customize_tender_procuring_entity_additional_identifiers(
+    def customize_tender_procuringentity_additionalidentifiers(
             self, quantity_of_tender_procuring_entity_additional_identifiers):
         """ Customize tender.procuringEntity.additionalIdentifiers array."""
 
@@ -487,6 +629,136 @@ class PriorInformationNoticePayload:
                 f"create fs: tender.procuringEntity.additionalIdentifiers{q}.uri"
 
         self.payload['tender']['procuringEntity']['additionalIdentifiers'] = new_additional_identifiers_array
+
+    def customize_tender_procuringentity_bf_persones_array(
+            self, quantity_of_persones_objects, quantity_of_bf_objects, quantity_of_documents_objects,
+            person_title=None, businessfunctions_type=None):
+        """Add new oblects to tender.procuringEntity.persones array."""
+
+        if person_title is None:
+            person_title = f"{random.choice(person_title_tuple)}"
+        else:
+            person_title = person_title
+
+        if businessfunctions_type is None:
+            businessfunctions_type = f"{random.choice(business_function_type_2_tuple)}"
+        else:
+            businessfunctions_type = businessfunctions_type
+
+        businessfunctions_period_startdate = old_period()[0]
+
+        persones_array = list()
+        for q_0 in range(quantity_of_persones_objects):
+            persones_array.append(copy.deepcopy(
+                self.payload['tender']['procuringEntity']['persones'][0]
+            ))
+
+            persones_array[q_0]['title'] = person_title
+            persones_array[q_0]['name'] = f"create pin: tender.procuringEntity.persones[{q_0}].name"
+            persones_array[q_0]['identifier']['scheme'] = self.affordable_schemes[0]
+            persones_array[q_0]['identifier']['id'] = f"create pin: tender.procuringEntity.persones[{q_0}].id"
+            persones_array[q_0]['identifier']['uri'] = f"create pin: tender.procuringEntity.persones[{q_0}].uri"
+
+            persones_array[q_0]['businessFunctions'] = list()
+            for q_1 in range(quantity_of_bf_objects):
+
+                persones_array[q_0]['businessFunctions'].append(copy.deepcopy(
+                    self.payload['tender']['procuringEntity']['persones'][0]['businessFunctions'][0])
+                )
+
+                persones_array[q_0]['businessFunctions'][q_1]['id'] = f"{q_1}"
+                persones_array[q_0]['businessFunctions'][q_1]['type'] = businessfunctions_type
+
+                persones_array[q_0]['businessFunctions'][q_1]['jobTitle'] = \
+                    f"create pin: tender.procuringEntity.persones[{q_0}].['businessFunctions'][{q_1}].jobTitle"
+
+                persones_array[q_0]['businessFunctions'][q_1]['period']['startDate'] = \
+                    businessfunctions_period_startdate
+
+                persones_array[q_0]['businessFunctions'][q_1]['documents'] = list()
+                for q_2 in range(quantity_of_documents_objects):
+
+                    persones_array[q_0]['businessFunctions'][q_1]['documents'].append(copy.deepcopy(
+                        self.payload['tender']['procuringEntity']['persones'][0]['businessFunctions'][0][
+                            'documents'][0])
+                    )
+
+                    document_three = Document(host=self.host)
+                    document_three_was_uploaded = document_three.uploading_document()
+
+                    persones_array[q_0]['businessFunctions'][q_1]['documents'][q_2]['id'] = \
+                        document_three_was_uploaded[0]["data"]["id"]
+
+                    persones_array[q_0]['businessFunctions'][q_1]['documents'][q_2]['documentType'] = \
+                        "regulatoryDocument"
+
+                    persones_array[q_0]['businessFunctions'][q_1]['documents'][q_2]['title'] = \
+                        f"amend fe: tender.procuringEntity.persones[{q_0}].['businessFunctions'][{q_1}]." \
+                        f"documents[{q_2}.title"
+
+                    persones_array[q_0]['businessFunctions'][q_1]['documents'][q_2]['description'] = \
+                        f"amend fe: tender.procuringEntity.persones[{q_0}].['businessFunctions'][{q_1}]." \
+                        f"documents[{q_2}.description"
+
+        self.payload['tender']['procuringEntity']['persones'] = persones_array
+
+    def prepare_exclusion_criteria(self, *args, language, environment):
+        # Prepare 'exclusion' criteria for payload.
+
+        some_criteria = CriteriaArray(
+            host_to_service=self.host,
+            country=self.country,
+            language=language,
+            environment=environment,
+            quantity_of_criteria_objects=len(self.standard_criteria[1]),
+            quantity_of_requirement_groups_objects=1,
+            quantity_of_requirements_objects=2,
+            quantity_of_eligible_evidences_objects=2,
+            type_of_standard_criteria=1
+        )
+
+        # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
+        some_criteria.delete_optional_fields(args)
+
+        some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+        some_criteria.set_unique_temporary_id_for_eligible_evidences()
+        some_criteria.set_unique_temporary_id_for_criteria()
+        exclusion_criteria_array = some_criteria.build_criteria_array()
+        return exclusion_criteria_array
+
+    def prepare_selection_criteria(self, *args, language, environment):
+        # Prepare 'selection' criteria for payload.
+
+        some_criteria = CriteriaArray(
+            host_to_service=self.host,
+            country=self.country,
+            language=language,
+            environment=environment,
+            quantity_of_criteria_objects=len(self.standard_criteria[2]),
+            quantity_of_requirement_groups_objects=2,
+            quantity_of_requirements_objects=2,
+            quantity_of_eligible_evidences_objects=2,
+            type_of_standard_criteria=1
+        )
+
+        # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
+        some_criteria.delete_optional_fields(args)
+
+        some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+        some_criteria.set_unique_temporary_id_for_eligible_evidences()
+        some_criteria.set_unique_temporary_id_for_criteria()
+        selection_criteria_array = some_criteria.build_criteria_array()
+        return selection_criteria_array
+
+    def customize_tender_criteria(self, exclusion_criteria_array, selection_criteria_array):
+        """Customize tender.criteria array."""
+
+        # Prepare new criteria array.
+        new_criteria_array = exclusion_criteria_array + selection_criteria_array
+        new_criteria_array = set_eligibility_evidences_unique_temporary_id(new_criteria_array)
+        new_criteria_array = set_criteria_array_unique_temporary_id(new_criteria_array)
+
+        self.payload['tender']['criteria'] = new_criteria_array
 
     def __del__(self):
         print(f"The instance of PlanPayload class: {__name__} was deleted.")

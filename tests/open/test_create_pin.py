@@ -82,14 +82,14 @@ class TestCreatePIN:
                     Build payload for Create PIN process.
                     """
                     payload = copy.deepcopy(PriorInformationNoticePayload(
-                        connect_to_ocds=connect_to_ocds,
+                        environment=environment,
+                        language=language,
+                        host_to_service=service_host,
                         country=country,
                         amount=5000.00,
                         currency=currency,
                         tender_classification_id=tender_classification_id,
-                        host_to_service=service_host,
-                        fs_id=fs_ocid)
-                    )
+                        ))
 
                     list_of_classifications = [
                         {
@@ -101,12 +101,56 @@ class TestCreatePIN:
                             'fs': 'test-t1s2t3-MD-1657278051706-FS-1657278059193'
                         }
                     ]
-                    payload.customize_planning_budget_budget_breakdown(list_of_classifications)
+                    payload.customize_planning_budget_budgetbreakdown(list_of_classifications)
+
+                    payload.customize_tender_lots(
+                        quantity_of_lots=1,
+                        quantity_of_options=0,
+                        quantity_of_recurrence_dates=0,
+                        quantity_of_renewal=1
+                        )
+
+                    payload.customize_tender_items(
+                        quantity_of_items=1,
+                        quantity_of_items_additional_classifications=1
+                    )
+
+                    payload.customize_tender_electronicauctions_object()
+                    payload.customize_tender_documents(quantity_of_documents=1)
+
+                    payload.customize_tender_procuringentity_additionalidentifiers(
+                        quantity_of_tender_procuring_entity_additional_identifiers=1
+                    )
+
+                    payload.customize_tender_procuringentity_bf_persones_array(
+                        quantity_of_persones_objects=1,
+                        quantity_of_bf_objects=1,
+                        quantity_of_documents_objects=1
+                    )
+                    exclusion_criteria_array = payload.prepare_exclusion_criteria(
+                        "criteria.relatedItem",
+                        "criteria.requirementGroups.requirements.minValue",
+                        "criteria.requirementGroups.requirements.maxValue",
+                        language=language,
+                        environment=environment
+                    )
+
+                    selection_criteria_array = payload.prepare_selection_criteria(
+                        "criteria.relatedItem",
+                        "criteria.requirementGroups.requirements.expectedValue",
+                        language=language,
+                        environment=environment
+                    )
+
+                    payload.customize_tender_criteria(
+                        exclusion_criteria_array, selection_criteria_array
+                    )
+
                     payload = payload.build_payload()
                 except ValueError:
                     raise ValueError("Impossible to build payload for Create PIN process.")
 
-                print("\n FS payload")
+                print("\n PIN payload")
                 print(payload)
 
             #     synchronous_result = create_pin_process(

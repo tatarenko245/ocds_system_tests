@@ -64,6 +64,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(CreateExpenditureItemPayload(
+                connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,
                 tender_classification_id=tender_classification_id,
@@ -245,6 +246,7 @@ def update_ap_tc_1(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(CreateExpenditureItemPayload(
+                connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=10,
                 tender_classification_id=tender_classification_id,
@@ -769,6 +771,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(CreateExpenditureItemPayload(
+                connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=0,
                 tender_classification_id=tender_classification_id,
@@ -957,6 +960,7 @@ def update_ap_tc_2(get_parameters, prepare_currency, connect_to_keyspace):
             Build payload for Create EI process.
             """
             payload = copy.deepcopy(CreateExpenditureItemPayload(
+                connect_to_ocds=connect_to_ocds,
                 country=country,
                 buyer_id=10,
                 tender_classification_id=tender_classification_id,
