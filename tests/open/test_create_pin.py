@@ -161,6 +161,16 @@ class TestCreatePIN:
                     other_conversions_array = payload.prepare_other_conversions(other_criteria_array)
                     payload.customize_tender_conversions(selection_conversions_array, other_conversions_array)
 
+                    lots_id = payload.get_lots_id_from_payload()
+
+                    relates_to = {
+                        "relatesTo": "lot",
+                        "relatedItems": lots_id
+                    }
+
+                    payload.customize_tender_targets(
+                        targets_dict=relates_to
+                    )
                     payload = payload.build_payload()
                 except ValueError:
                     raise ValueError("Impossible to build payload for Create PIN process.")

@@ -19,7 +19,8 @@ from functions_collection.some_functions import generate_items_array, generate_l
 class PriorInformationNoticePayload:
     """This class creates instance of payload."""
 
-    def __init__(self, environment, language, host_to_service, country, amount, currency, tender_classification_id):
+    def __init__(self, environment: str, language: str, host_to_service: str, country: str, amount: float or int,
+                 currency: str, tender_classification_id: str):
 
         self.payload = copy.deepcopy(payload_model)
 
@@ -120,10 +121,12 @@ class PriorInformationNoticePayload:
         return self.payload
 
     def delete_optional_fields(
-            self, *args, pe_additionalidentifiers_position=0, pe_persones_position=0, pe_persones_bf_position=0,
-            pe_persones_bf_documents_position=0, criteria_position=0, conversion_position=0, target_position=0,
-            lot_position=0, lot_options_position=0, lot_recurrence_dates_position=0, item_position=0,
-            item_additionalclassification_position=0, document_position=0):
+            self, *args: tuple, pe_additionalidentifiers_position: int = 0, pe_persones_position: int = 0,
+            pe_persones_bf_position: int = 0, pe_persones_bf_documents_position: int = 0, criteria_position: int = 0,
+            conversion_position: int = 0, target_position: int = 0, lot_position: int = 0,
+            lot_options_position: int = 0, lot_recurrence_dates_position: int = 0, item_position: int = 0,
+            item_additionalclassification_position: int = 0,
+            document_position: int = 0):
         """Call this method last! Delete option fields from payload."""
 
         for a in args:
@@ -403,7 +406,7 @@ class PriorInformationNoticePayload:
 
         self.payload['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
 
-    def customize_tender_items(self, quantity_of_items, quantity_of_items_additionalclassifications):
+    def customize_tender_items(self, quantity_of_items: int, quantity_of_items_additionalclassifications: int):
         """
         The max quantity of items must be 5, because it depends on cpvs_tuple from data_of_enum.
         The quantity of lot_id_list must be equal the quantity_of_items.
@@ -445,8 +448,8 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['items'] = new_items_array
 
-    def customize_tender_lots(self, quantity_of_lots, quantity_of_options, quantity_of_recurrence_dates,
-                              quantity_of_renewal):
+    def customize_tender_lots(self, quantity_of_lots: int, quantity_of_options: int, quantity_of_recurrence_dates: int,
+                              quantity_of_renewal: int):
         """Customize tender.lots array."""
 
         new_lots_array = generate_lots_array(
@@ -529,7 +532,6 @@ class PriorInformationNoticePayload:
 
                 recurrence_dates_array = list()
                 for q_1 in range(quantity_of_recurrence_dates):
-
                     recurrence_dates_object = copy.deepcopy(
                         self.payload['tender']['lots'][q_0]['recurrence']['dates'][0]
                     )
@@ -587,7 +589,7 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['electronicAuctions'] = electronic_auctions_object
 
-    def customize_tender_documents(self, quantity_of_documents):
+    def customize_tender_documents(self, quantity_of_documents: int):
         """
         The quantity of lot_id_list must be equal the quantity_of_documents.
         """
@@ -611,7 +613,7 @@ class PriorInformationNoticePayload:
         self.payload['tender']['documents'] = new_documents_array
 
     def customize_tender_procuringentity_additionalidentifiers(
-            self, quantity_of_tender_procuring_entity_additional_identifiers):
+            self, quantity_of_tender_procuring_entity_additional_identifiers: int):
         """ Customize tender.procuringEntity.additionalIdentifiers array."""
 
         new_additional_identifiers_array = list()
@@ -635,8 +637,8 @@ class PriorInformationNoticePayload:
         self.payload['tender']['procuringEntity']['additionalIdentifiers'] = new_additional_identifiers_array
 
     def customize_tender_procuringentity_bf_persones_array(
-            self, quantity_of_persones_objects, quantity_of_bf_objects, quantity_of_documents_objects,
-            person_title=None, businessfunctions_type=None):
+            self, quantity_of_persones_objects: int, quantity_of_bf_objects: int, quantity_of_documents_objects: int,
+            person_title: str = None, businessfunctions_type: str = None):
         """Add new oblects to tender.procuringEntity.persones array."""
 
         if person_title is None:
@@ -681,7 +683,6 @@ class PriorInformationNoticePayload:
 
                 persones_array[q_0]['businessFunctions'][q_1]['documents'] = list()
                 for q_2 in range(quantity_of_documents_objects):
-
                     persones_array[q_0]['businessFunctions'][q_1]['documents'].append(copy.deepcopy(
                         self.payload['tender']['procuringEntity']['persones'][0]['businessFunctions'][0][
                             'documents'][0])
@@ -706,7 +707,7 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['procuringEntity']['persones'] = persones_array
 
-    def prepare_exclusion_criteria(self, *args, language, environment, criteria_relates_to):
+    def prepare_exclusion_criteria(self, *args: tuple, language: str, environment: str, criteria_relates_to: str):
         # Prepare 'exclusion' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -730,7 +731,7 @@ class PriorInformationNoticePayload:
         exclusion_criteria_array = some_criteria.build_criteria_array()
         return exclusion_criteria_array
 
-    def prepare_selection_criteria(self, *args, language, environment, criteria_relates_to):
+    def prepare_selection_criteria(self, *args: tuple, language: str, environment: str, criteria_relates_to: str):
         # Prepare 'selection' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -754,7 +755,7 @@ class PriorInformationNoticePayload:
         selection_criteria_array = some_criteria.build_criteria_array()
         return selection_criteria_array
 
-    def prepare_other_criteria(self, *args, language, environment, criteria_relates_to):
+    def prepare_other_criteria(self, *args: tuple, language: str, environment: str, criteria_relates_to: str):
         # Prepare 'other' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -778,7 +779,8 @@ class PriorInformationNoticePayload:
         other_criteria_array = some_criteria.build_criteria_array()
         return other_criteria_array
 
-    def customize_tender_criteria(self, exclusion_criteria_array, selection_criteria_array, other_criteria_array):
+    def customize_tender_criteria(self, exclusion_criteria_array: list, selection_criteria_array: list,
+                                  other_criteria_array: list):
         """Customize tender.criteria array."""
 
         # Prepare new criteria array.
@@ -788,7 +790,7 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['criteria'] = new_criteria_array
 
-    def prepare_selection_conversions(self, selection_criteria_array):
+    def prepare_selection_conversions(self, selection_criteria_array: list):
         """Prepare conversion array"""
 
         requirements_objects = list()
@@ -837,7 +839,7 @@ class PriorInformationNoticePayload:
         )
         return conversion_array_for_selection_criteria
 
-    def prepare_other_conversions(self, other_criteria_array):
+    def prepare_other_conversions(self, other_criteria_array: list):
         """Prepare conversion array"""
 
         requirements_objects = list()
@@ -884,7 +886,7 @@ class PriorInformationNoticePayload:
         )
         return conversion_array_for_other_criteria
 
-    def customize_tender_conversions(self, selection_conversions_array, other_conversions_array):
+    def customize_tender_conversions(self, selection_conversions_array: list, other_conversions_array: list):
         """Customize tender.conversions array.
         According to VR.COM-1.60.79, conversion shouldn't relate with CRITERION.EXCLUSION."""
 
@@ -894,8 +896,45 @@ class PriorInformationNoticePayload:
         new_conversions_array = set_conversions_unique_temporary_id(conversions_array)
         self.payload['tender']['conversions'] = new_conversions_array
 
-    # def customize_tender_targets(self):
+    def customize_tender_targets(self, quantity_of_observations: int = 1, **targets_dict: dict):
+        """Customize tender.targets array"""
 
+        targets_list = list()
+        for q_0 in range(len(targets_dict['targets_dict']['relatedItems'])):
+
+            targets_list.append(copy.deepcopy(
+                self.payload['tender']['targets'][0]
+            ))
+
+            targets_list[q_0]['id'] = f"{q_0}"
+            targets_list[q_0]['title'] = f"create pin: tender.targets[{q_0}].title"
+            targets_list[q_0]['relatesTo'] = targets_dict['targets_dict']['relatesTo']
+            targets_list[q_0]['relatedItem'] = targets_dict['targets_dict']['relatedItems'][q_0]
+
+            observations_list = list()
+            for q_1 in range(quantity_of_observations):
+                observations_list.append(copy.deepcopy(
+                    self.payload['tender']['targets'][0]['observations'][0]
+                ))
+
+                observations_list[q_1]['id'] = f"{q_1}"
+
+                observation_period = contact_period()
+                observations_list[q_1]['period']['startDate'] = observation_period[0]
+                observations_list[q_1]['period']['endDate'] = observation_period[1]
+                observations_list[q_1]['measure'] = True
+                observations_list[q_1]['unit']['id'] = f"{random.choice(unit_id_tuple)}"
+
+                observations_list[q_1]['dimensions']['requirementClassIdPR'] = \
+                    f"create pin: tender.targets[{q_0}].observations[{q_1}].dimensions.requirementClassIdPR"
+
+                observations_list[q_1]['notes'] = f"create pin: tender.targets[{q_0}].observations[{q_1}].notes"
+
+                observations_list[q_1]['relatedRequirementId'] = \
+                    f"create pin: tender.targets[{q_0}].observations[{q_1}].relatedRequirementId"
+
+            targets_list[q_0]['observations'] = observations_list
+        self.payload['tender']['targets'] = targets_list
 
     def __del__(self):
         print(f"The instance of PlanPayload class: {__name__} was deleted.")
