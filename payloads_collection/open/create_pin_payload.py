@@ -1,5 +1,6 @@
 """Prepare the expected payloads of the prior information notice process, open procedures."""
 import copy
+import json
 import random
 
 from class_collection.document_registration import Document
@@ -34,6 +35,8 @@ class PriorInformationNoticePayload:
 
         # Get all 'standard' criteria from eMDM service.
         self.standard_criteria = get_standard_criteria(environment, self.country, language)
+        print("\nПЕРЕВІРКА СТАНДАРТНИХ КРИТЕРІЇВ")
+        print(json.dumps(self.standard_criteria))
 
     def build_payload(self):
         """Build payload, based on full data model."""
@@ -741,7 +744,31 @@ class PriorInformationNoticePayload:
             quantity_of_requirement_groups_objects=2,
             quantity_of_requirements_objects=2,
             quantity_of_eligible_evidences_objects=2,
-            type_of_standard_criteria=1
+            type_of_standard_criteria=2
+        )
+
+        # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
+        some_criteria.delete_optional_fields(args)
+
+        some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+        some_criteria.set_unique_temporary_id_for_eligible_evidences()
+        some_criteria.set_unique_temporary_id_for_criteria()
+        selection_criteria_array = some_criteria.build_criteria_array()
+        return selection_criteria_array
+
+    def prepare_other_criteria(self, *args, language, environment):
+        # Prepare 'selection' criteria for payload.
+
+        some_criteria = CriteriaArray(
+            host_to_service=self.host,
+            country=self.country,
+            language=language,
+            environment=environment,
+            quantity_of_criteria_objects=len(self.standard_criteria[2]),
+            quantity_of_requirement_groups_objects=2,
+            quantity_of_requirements_objects=2,
+            quantity_of_eligible_evidences_objects=2,
+            type_of_standard_criteria=3
         )
 
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
