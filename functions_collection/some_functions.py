@@ -589,3 +589,53 @@ def get_affordable_currency(country_id: str):
         if data['data'][i]['country'] == country_id:
             currency = f"{random.choice(data['data'][i]['currency'])}"
             return currency
+
+
+def generate_conversions_array(quantity_of_conversion_object, conversion_object, requirements_array):
+    copy.deepcopy(conversion_object)
+
+    coefficient_id_list = list()
+    for o in conversion_object['coefficients']:
+        if "id" in o:
+            coefficient_id_list.append(o['id'])
+    quantity_of_coefficient_object = len(coefficient_id_list)
+
+    conversions_array = []
+    for i in range(quantity_of_conversion_object):
+        conversion_json = copy.deepcopy(conversion_object)
+        conversion_json['id'] = str(i)
+        conversion_json['relatedItem'] = requirements_array[i]
+        coefficients_array = []
+        for j in range(quantity_of_coefficient_object):
+            coefficient_json = copy.deepcopy(conversion_json['coefficients'][j])
+            coefficient_json['id'] = str(j)
+            coefficients_array.append(coefficient_json)
+        conversion_json['coefficients'] = coefficients_array
+        conversions_array.append(conversion_json)
+
+    new_array_conversions = []
+    for quantity_of_object in range(quantity_of_conversion_object):
+        val = conversions_array[quantity_of_object]
+        new_array_conversions.append(copy.deepcopy(val))
+    return new_array_conversions
+
+
+def set_conversions_unique_temporary_id(payload_conversions_array):
+    """
+    This function returns
+    conversions[*]..id as temporary id.
+    """
+    quantity_of_id_list = list()
+    for i in payload_conversions_array:
+        if "id" in i:
+            quantity_of_id_list.append(i['id'])
+
+    test = make_unique_numbers(len(quantity_of_id_list))
+    iterator = len(test)
+    if len(quantity_of_id_list) == len(test):
+        for i in payload_conversions_array:
+            if "id" in i:
+                i['id'] = str(iterator)
+                iterator -= 1
+
+    return payload_conversions_array

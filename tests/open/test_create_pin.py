@@ -135,19 +135,31 @@ class TestCreatePIN:
                         "criteria.requirementGroups.requirements.minValue",
                         "criteria.requirementGroups.requirements.maxValue",
                         language=language,
-                        environment=environment
+                        environment=environment,
+                        criteria_relates_to="tenderer"
                     )
 
                     selection_criteria_array = payload.prepare_selection_criteria(
                         "criteria.relatedItem",
                         "criteria.requirementGroups.requirements.expectedValue",
                         language=language,
-                        environment=environment
+                        environment=environment,
+                        criteria_relates_to="tenderer"
+                    )
+
+                    other_criteria_array = payload.prepare_other_criteria(
+                        language=language,
+                        environment=environment,
+                        criteria_relates_to="tenderer"
                     )
 
                     payload.customize_tender_criteria(
-                        exclusion_criteria_array, selection_criteria_array
+                        exclusion_criteria_array, selection_criteria_array, other_criteria_array
                     )
+
+                    selection_conversions_array = payload.prepare_selection_conversions(selection_criteria_array)
+                    other_conversions_array = payload.prepare_other_conversions(other_criteria_array)
+                    payload.customize_tender_conversions(selection_conversions_array, other_conversions_array)
 
                     payload = payload.build_payload()
                 except ValueError:

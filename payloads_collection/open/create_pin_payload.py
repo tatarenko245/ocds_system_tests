@@ -1,6 +1,5 @@
 """Prepare the expected payloads of the prior information notice process, open procedures."""
 import copy
-import json
 import random
 
 from class_collection.document_registration import Document
@@ -13,7 +12,8 @@ from functions_collection.mdm_methods import get_standard_criteria
 
 from functions_collection.prepare_date import pn_period, contact_period, enquiry_period, old_period
 from functions_collection.some_functions import generate_items_array, generate_lots_array, \
-    get_affordable_schemes, set_eligibility_evidences_unique_temporary_id, set_criteria_array_unique_temporary_id
+    get_affordable_schemes, set_eligibility_evidences_unique_temporary_id, set_criteria_array_unique_temporary_id, \
+    generate_conversions_array, set_conversions_unique_temporary_id
 
 
 class PriorInformationNoticePayload:
@@ -35,8 +35,6 @@ class PriorInformationNoticePayload:
 
         # Get all 'standard' criteria from eMDM service.
         self.standard_criteria = get_standard_criteria(environment, self.country, language)
-        print("\nПЕРЕВІРКА СТАНДАРТНИХ КРИТЕРІЇВ")
-        print(json.dumps(self.standard_criteria))
 
     def build_payload(self):
         """Build payload, based on full data model."""
@@ -708,7 +706,7 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['procuringEntity']['persones'] = persones_array
 
-    def prepare_exclusion_criteria(self, *args, language, environment):
+    def prepare_exclusion_criteria(self, *args, language, environment, criteria_relates_to):
         # Prepare 'exclusion' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -724,15 +722,15 @@ class PriorInformationNoticePayload:
         )
 
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
-        some_criteria.delete_optional_fields(args)
+        some_criteria.delete_optional_fields(*args)
 
-        some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+        some_criteria.prepare_criteria_array(criteria_relates_to=criteria_relates_to)
         some_criteria.set_unique_temporary_id_for_eligible_evidences()
         some_criteria.set_unique_temporary_id_for_criteria()
         exclusion_criteria_array = some_criteria.build_criteria_array()
         return exclusion_criteria_array
 
-    def prepare_selection_criteria(self, *args, language, environment):
+    def prepare_selection_criteria(self, *args, language, environment, criteria_relates_to):
         # Prepare 'selection' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -748,23 +746,23 @@ class PriorInformationNoticePayload:
         )
 
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
-        some_criteria.delete_optional_fields(args)
+        some_criteria.delete_optional_fields(*args)
 
-        some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+        some_criteria.prepare_criteria_array(criteria_relates_to=criteria_relates_to)
         some_criteria.set_unique_temporary_id_for_eligible_evidences()
         some_criteria.set_unique_temporary_id_for_criteria()
         selection_criteria_array = some_criteria.build_criteria_array()
         return selection_criteria_array
 
-    def prepare_other_criteria(self, *args, language, environment):
-        # Prepare 'selection' criteria for payload.
+    def prepare_other_criteria(self, *args, language, environment, criteria_relates_to):
+        # Prepare 'other' criteria for payload.
 
         some_criteria = CriteriaArray(
             host_to_service=self.host,
             country=self.country,
             language=language,
             environment=environment,
-            quantity_of_criteria_objects=len(self.standard_criteria[2]),
+            quantity_of_criteria_objects=len(self.standard_criteria[3]),
             quantity_of_requirement_groups_objects=2,
             quantity_of_requirements_objects=2,
             quantity_of_eligible_evidences_objects=2,
@@ -772,23 +770,132 @@ class PriorInformationNoticePayload:
         )
 
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
-        some_criteria.delete_optional_fields(args)
+        some_criteria.delete_optional_fields(*args)
 
-        some_criteria.prepare_criteria_array(criteria_relates_to="tenderer")
+        some_criteria.prepare_criteria_array(criteria_relates_to=criteria_relates_to)
         some_criteria.set_unique_temporary_id_for_eligible_evidences()
         some_criteria.set_unique_temporary_id_for_criteria()
-        selection_criteria_array = some_criteria.build_criteria_array()
-        return selection_criteria_array
+        other_criteria_array = some_criteria.build_criteria_array()
+        return other_criteria_array
 
-    def customize_tender_criteria(self, exclusion_criteria_array, selection_criteria_array):
+    def customize_tender_criteria(self, exclusion_criteria_array, selection_criteria_array, other_criteria_array):
         """Customize tender.criteria array."""
 
         # Prepare new criteria array.
-        new_criteria_array = exclusion_criteria_array + selection_criteria_array
+        new_criteria_array = exclusion_criteria_array + selection_criteria_array + other_criteria_array
         new_criteria_array = set_eligibility_evidences_unique_temporary_id(new_criteria_array)
         new_criteria_array = set_criteria_array_unique_temporary_id(new_criteria_array)
 
         self.payload['tender']['criteria'] = new_criteria_array
+
+    def prepare_selection_conversions(self, selection_criteria_array):
+        """Prepare conversion array"""
+
+        requirements_objects = list()
+        for o in selection_criteria_array:
+            if "id" in o:
+                for o_1 in o['requirementGroups']:
+                    if "id" in o_1:
+                        for o_2 in o_1['requirements']:
+                            if "id" in o_2:
+                                requirements_objects.append(o_2['id'])
+        quantity_of_requirements_objects = len(requirements_objects)
+
+        conversion_object = {}
+        conversion_object.update(copy.deepcopy(self.payload['tender']['conversions'][0]))
+        conversion_object['id'] = "0"
+        conversion_object['relatesTo'] = "requirement"
+        conversion_object['rationale'] = "create pin: tender.conversion.rationale"
+        conversion_object['description'] = "create pin: tender.conversion.description"
+        conversion_object['coefficients'] = [{}, {}]
+
+        conversion_object['coefficients'][0].update(copy.deepcopy(
+            self.payload['tender']['conversions'][0]['coefficients'][0]
+        ))
+
+        conversion_object['coefficients'][1].update(copy.deepcopy(
+            self.payload['tender']['conversions'][0]['coefficients'][0]
+        ))
+
+        conversion_object['coefficients'][0]['id'] = "create cnonpn: tender.conversion.coefficients.id"
+        conversion_object['coefficients'][0]['value'] = 0.99
+        conversion_object['coefficients'][0]['coefficient'] = 1
+        conversion_object['coefficients'][1]['id'] = "create cnonpn: tender.conversion.coefficients.id"
+        conversion_object['coefficients'][1]['value'] = 99.99
+        conversion_object['coefficients'][1]['coefficient'] = 0.99
+
+        # Limited by math -> 0.99 ^ 22 = 0.8
+        if quantity_of_requirements_objects >= 22:
+            quantity = 21
+        else:
+            quantity = quantity_of_requirements_objects
+
+        conversion_array_for_selection_criteria = generate_conversions_array(
+            quantity_of_conversion_object=quantity,
+            conversion_object=conversion_object,
+            requirements_array=requirements_objects
+        )
+        return conversion_array_for_selection_criteria
+
+    def prepare_other_conversions(self, other_criteria_array):
+        """Prepare conversion array"""
+
+        requirements_objects = list()
+        for o in other_criteria_array:
+            if "id" in o:
+                for o_1 in o['requirementGroups']:
+                    if "id" in o_1:
+                        for o_2 in o_1['requirements']:
+                            if "id" in o_2:
+                                requirements_objects.append(o_2['id'])
+        quantity_of_requirements_objects = len(requirements_objects)
+
+        conversion_object = {}
+        conversion_object.update(copy.deepcopy(self.payload['tender']['conversions'][0]))
+        conversion_object['id'] = "0"
+        conversion_object['relatesTo'] = "requirement"
+        conversion_object['rationale'] = "create pin: tender.conversion.rationale"
+        conversion_object['description'] = "create pin: tender.conversion.description"
+        conversion_object['coefficients'] = [{}, {}]
+
+        conversion_object['coefficients'][0].update(copy.deepcopy(
+            self.payload['tender']['conversions'][0]['coefficients'][0]
+        ))
+
+        conversion_object['coefficients'][1].update(copy.deepcopy(
+            self.payload['tender']['conversions'][0]['coefficients'][0]
+        ))
+
+        conversion_object['coefficients'][0]['id'] = "create cnonpn: tender.conversion.coefficients[0].id"
+        conversion_object['coefficients'][0]['value'] = True
+        conversion_object['coefficients'][0]['coefficient'] = 0.99
+        conversion_object['coefficients'][1]['id'] = "create cnonpn: tender.conversion.coefficients[1].id"
+        conversion_object['coefficients'][1]['value'] = False
+        conversion_object['coefficients'][1]['coefficient'] = 1
+
+        if quantity_of_requirements_objects >= 1:
+            quantity = 1
+        else:
+            quantity = quantity_of_requirements_objects
+        conversion_array_for_other_criteria = generate_conversions_array(
+            quantity_of_conversion_object=quantity,
+            conversion_object=conversion_object,
+            requirements_array=requirements_objects
+        )
+        return conversion_array_for_other_criteria
+
+    def customize_tender_conversions(self, selection_conversions_array, other_conversions_array):
+        """Customize tender.conversions array.
+        According to VR.COM-1.60.79, conversion shouldn't relate with CRITERION.EXCLUSION."""
+
+        # Prepare new conversions array.
+        conversions_array = selection_conversions_array + other_conversions_array
+
+        new_conversions_array = set_conversions_unique_temporary_id(conversions_array)
+        self.payload['tender']['conversions'] = new_conversions_array
+
+    # def customize_tender_targets(self):
+
 
     def __del__(self):
         print(f"The instance of PlanPayload class: {__name__} was deleted.")
