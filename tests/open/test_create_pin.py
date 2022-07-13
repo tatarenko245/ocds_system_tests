@@ -6,7 +6,10 @@ import allure
 import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
+from functions_collection.get_message_for_platform import get_message_for_platform
+from functions_collection.requests_collection import create_pin_process
 from payloads_collection.open.create_pin_payload import PriorInformationNoticePayload
+from releases_collection.open.create_pin_release import CreatePriorInformationNoticeRelease
 
 
 @allure.parent_suite("Plan")
@@ -178,18 +181,18 @@ class TestCreatePIN:
                 print("\n PIN payload")
                 print(json.dumps(payload))
 
-            #     synchronous_result = create_pin_process(
-            #         host=bpe_host,
-            #         access_token=access_token,
-            #         x_operation_id=operation_id,
-            #         country=country,
-            #         language=language,
-            #         pmd=pmd,
-            #         payload=payload,
-            #         test_mode=True
-            #     )
-            #     message = get_message_for_platform(operation_id)
-            #     allure.attach(str(message), "Message for platform.")
+                # synchronous_result = create_pin_process(
+                #     host=bpe_host,
+                #     access_token=access_token,
+                #     x_operation_id=operation_id,
+                #     country=country,
+                #     language=language,
+                #     pmd=pmd,
+                #     payload=payload,
+                #     test_mode=True
+                # )
+                # message = get_message_for_platform(operation_id)
+                # allure.attach(str(message), "Message for platform.")
             #
             # step_number += 1
             # with allure.step(f"# {step_number}. See result"):
@@ -236,25 +239,25 @@ class TestCreatePIN:
             #                               f"cpid = '{cpid}' and operation_id = '{operation_id}' "
             #                               f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
             #
-            #     with allure.step(f'# {step_number}.3. Check EI release.'):
+            #     with allure.step(f'# {step_number}.3. Check PIN release.'):
             #         """
-            #         Compare actual EI release and expected EI release.
+            #         Compare actual PIN release and expected PIN release.
             #         """
             #         url = f"{actual_message['data']['url']}/{cpid}"
             #         actual_release = requests.get(url=url).json()
             #
-            #         try:
-            #             """
-            #             Build expected EI release.
-            #             """
-            #             expected_release = copy.deepcopy(ConfirmExpenditureItemRelease(
-            #                 environment, language, tender_classification_id
-            #             ))
-            #             expected_release = expected_release.build_expected_ei_release(
-            #                 actual_message, actual_release, previous_ei_release
-            #             )
-            #         except ValueError:
-            #             ValueError("Impossible to build expected EI release.")
+            #        try:
+            #            """
+            #            Build expected PIN release.
+            #            """
+            #            expected_release = copy.deepcopy(CreatePriorInformationNoticeRelease(
+            #                environment, country, language, tender_classification_id
+            #            ))
+            #            expected_release = expected_release.build_expected_pin_release(
+            #                payload, message_for_platform, actual_pin_release
+            #            )
+            #        except ValueError:
+            #            ValueError("Impossible to build expected PIN release.")
             #
             #         with allure.step("Compare actual and expected releases."):
             #             allure.attach(json.dumps(actual_release), "Actual release.")

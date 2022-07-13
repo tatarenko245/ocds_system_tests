@@ -1,6 +1,9 @@
 """Prepare the expected releases of the planning notice process, open procedures."""
 import copy
+import json
 
+from data_collection.OpenProcedure.for_test_createPN_process.release_full_model import pn_release_model, \
+    ms_release_model
 from functions_collection.some_functions import is_it_uuid, get_value_from_country_csv, get_value_from_region_csv, \
     get_value_from_locality_csv, get_value_from_cpvs_dictionary_csv, get_value_from_cpv_dictionary_xls, \
     get_value_from_classification_unit_dictionary_csv, generate_tender_classification_id, get_sum_of_lot, \
@@ -12,424 +15,73 @@ class PlanningNoticeRelease:
 
     def __init__(self, environment, language, pmd, pn_payload, actual_message):
 
-        self.__environment = environment
-        self.__language = language
-        self.__pmd = pmd
-        self.__pn_payload = pn_payload
-        self.__actual_message = actual_message
-        self.__metadata_document_url = None
+        self.environment = environment
+        self.language = language
+        self.pmd = pmd
+        self.pn_payload = pn_payload
+        self.actual_message = actual_message
+        self.metadata_document_url = None
         try:
             if environment == "dev":
-                self.__metadata_tender_url = "http://dev.public.eprocurement.systems/tenders"
+                self.metadata_tender_url = "http://dev.public.eprocurement.systems/tenders"
 
-                self.__extensions = [
+                self.extensions = [
                     "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
                     "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.js"
                 ]
 
-                self.__publisher_name = "M-Tender"
-                self.__publisher_uri = "https://www.mtender.gov.md"
-                self.__metadata_document_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get"
-                self.__metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
+                self.publisher_name = "M-Tender"
+                self.publisher_uri = "https://www.mtender.gov.md"
+                self.metadata_document_url = "https://dev.bpe.eprocurement.systems/api/v1/storage/get"
+                self.metadata_budget_url = "http://dev.public.eprocurement.systems/budgets"
 
             elif environment == "sandbox":
-                self.__metadata_tender_url = "http://public.eprocurement.systems/tenders"
+                self.metadata_tender_url = "http://public.eprocurement.systems/tenders"
 
-                self.__extensions = [
+                self.extensions = [
                     "https://raw.githubusercontent.com/open-contracting/ocds_bid_extension/v1.1.1/extension.json",
                     "https://raw.githubusercontent.com/open-contracting/ocds_enquiry_extension/v1.1.1/extension.json"
                 ]
 
-                self.__publisher_name = "Viešųjų pirkimų tarnyba"
-                self.__publisher_uri = "https://vpt.lrv.lt"
-                self.__metadata_document_url = "http://storage.eprocurement.systems/get"
-                self.__metadata_budget_url = "http://public.eprocurement.systems/budgets"
+                self.publisher_name = "Viešųjų pirkimų tarnyba"
+                self.publisher_uri = "https://vpt.lrv.lt"
+                self.metadata_document_url = "http://storage.eprocurement.systems/get"
+                self.metadata_budget_url = "http://public.eprocurement.systems/budgets"
         except ValueError:
             ValueError("Check your environment: You must use 'dev' or 'sandbox' environment in pytest command")
 
-        self.__expected_pn_release = {
-            "uri": "",
-            "version": "",
-            "extensions": [
-                "",
-                ""
-            ],
-            "publisher": {
-                "name": "",
-                "uri": ""
-            },
-            "license": "",
-            "publicationPolicy": "",
-            "publishedDate": "",
-            "releases": [
-                {
-                    "ocid": "",
-                    "id": "",
-                    "date": "",
-                    "tag": [
-                        ""
-                    ],
-                    "language": "",
-                    "initiationType": "",
-                    "tender": {
-                        "id": "",
-                        "status": "",
-                        "statusDetails": "",
-                        "items": [
-                            {
-                                "id": "",
-                                "internalId": "",
-                                "description": "",
-                                "classification": {
-                                    "scheme": "",
-                                    "id": "",
-                                    "description": ""
-                                },
-                                "additionalClassifications": [
-                                    {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": ""
-                                    }
-                                ],
-                                "quantity": 0.0,
-                                "unit": {
-                                    "name": "",
-                                    "id": ""
-                                },
-                                "relatedLot": ""
-                            }
-                        ],
-                        "lots": [
-                            {
-                                "id": "",
-                                "internalId": "",
-                                "title": "",
-                                "description": "",
-                                "status": "",
-                                "statusDetails": "",
-                                "value": {
-                                    "amount": 0.0,
-                                    "currency": ""
-                                },
-                                "recurrentProcurement": [
-                                    {
-                                        "isRecurrent": False
-                                    }
-                                ],
-                                "renewals": [
-                                    {
-                                        "hasRenewals": False
-                                    }
-                                ],
-                                "variants": [
-                                    {
-                                        "hasVariants": False
-                                    }
-                                ],
-                                "contractPeriod": {
-                                    "startDate": "",
-                                    "endDate": ""
-                                },
-                                "placeOfPerformance": {
-                                    "address": {
-                                        "streetAddress": "",
-                                        "postalCode": "",
-                                        "addressDetails": {
-                                            "country": {
-                                                "scheme": "",
-                                                "id": "",
-                                                "description": "",
-                                                "uri": ""
-                                            },
-                                            "region": {
-                                                "scheme": "",
-                                                "id": "",
-                                                "description": "",
-                                                "uri": ""
-                                            },
-                                            "locality": {
-                                                "scheme": "",
-                                                "id": "",
-                                                "description": ""
-                                            }
-                                        }
-                                    },
-                                    "description": ""
-                                },
-                                "options": [
-                                    {
-                                        "hasOptions": False
-                                    }
-                                ]
-                            }
-                        ],
-                        "lotGroups": [
-                            {
-                                "optionToCombine": False
-                            }
-                        ],
-                        "tenderPeriod": {
-                            "startDate": ""
-                        },
-                        "hasEnquiries": False,
-                        "documents": [
-                            {
-                                "id": "",
-                                "documentType": "",
-                                "title": "",
-                                "description": "",
-                                "url": "",
-                                "datePublished": "",
-                                "relatedLots": [
-                                    ""
-                                ]
-                            }
-                        ],
-                        "submissionMethod": [
-                            ""
-                        ],
-                        "submissionMethodDetails": "",
-                        "submissionMethodRationale": [
-                            ""
-                        ],
-                        "requiresElectronicCatalogue": False
-                    },
-                    "hasPreviousNotice": False,
-                    "purposeOfNotice": {
-                        "isACallForCompetition": False
-                    },
-                    "relatedProcesses": [
-                        {
-                            "id": "",
-                            "relationship": [
-                                "parent"
-                            ],
-                            "scheme": "",
-                            "identifier": "",
-                            "uri": ""
-                        }
-                    ]
-                }
-            ]
-        }
-
-        self.__expected_ms_release = {
-            "uri": "",
-            "version": "",
-            "extensions": [
-                "",
-                ""
-            ],
-            "publisher": {
-                "name": "",
-                "uri": ""
-            },
-            "license": "",
-            "publicationPolicy": "h",
-            "publishedDate": "",
-            "releases": [
-                {
-                    "ocid": "",
-                    "id": "",
-                    "date": "",
-                    "tag": [
-                        ""
-                    ],
-                    "language": "",
-                    "initiationType": "",
-                    "planning": {
-                        "budget": {
-                            "description": "",
-                            "amount": {
-                                "amount": 0.0,
-                                "currency": ""
-                            },
-                            "isEuropeanUnionFunded": True,
-                            "budgetBreakdown": [
-                                {
-                                    "id": "",
-                                    "description": "",
-                                    "amount": {
-                                        "amount": 0.0,
-                                        "currency": ""
-                                    },
-                                    "period": {
-                                        "startDate": "",
-                                        "endDate": ""
-                                    },
-                                    "sourceParty": {
-                                        "id": "",
-                                        "name": ""
-                                    },
-                                    "europeanUnionFunding": {
-                                        "projectIdentifier": "",
-                                        "projectName": "",
-                                        "uri": ""
-                                    }
-                                }
-                            ]
-                        },
-                        "rationale": ""
-                    },
-                    "tender": {
-                        "id": "",
-                        "title": "",
-                        "description": "",
-                        "status": "",
-                        "statusDetails": "",
-                        "value": {
-                            "amount": 0.0,
-                            "currency": ""
-                        },
-                        "procurementMethod": "",
-                        "procurementMethodDetails": "",
-                        "procurementMethodRationale": "",
-                        "mainProcurementCategory": "",
-                        "hasEnquiries": False,
-                        "eligibilityCriteria": "",
-                        "contractPeriod": {
-                            "startDate": "",
-                            "endDate": ""
-                        },
-                        "procuringEntity": {
-                            "id": "",
-                            "name": ""
-                        },
-                        "acceleratedProcedure": {
-                            "isAcceleratedProcedure": False
-                        },
-                        "classification": {
-                            "scheme": "",
-                            "id": "",
-                            "description": ""
-                        },
-                        "designContest": {
-                            "serviceContractAward": False
-                        },
-                        "electronicWorkflows": {
-                            "useOrdering": False,
-                            "usePayment": False,
-                            "acceptInvoicing": False
-                        },
-                        "jointProcurement": {
-                            "isJointProcurement": False
-                        },
-                        "legalBasis": "",
-                        "procedureOutsourcing": {
-                            "procedureOutsourced": False
-                        },
-                        "procurementMethodAdditionalInfo": "",
-                        "dynamicPurchasingSystem": {
-                            "hasDynamicPurchasingSystem": False
-                        },
-                        "framework": {
-                            "isAFramework": False
-                        }
-                    },
-                    "parties": [
-                        {
-                            "id": "",
-                            "name": "",
-                            "identifier": {
-                                "scheme": "",
-                                "id": "",
-                                "legalName": "",
-                                "uri": ""
-                            },
-                            "address": {
-                                "streetAddress": "",
-                                "postalCode": "",
-                                "addressDetails": {
-                                    "country": {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": "",
-                                        "uri": ""
-                                    },
-                                    "region": {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": "",
-                                        "uri": ""
-                                    },
-                                    "locality": {
-                                        "scheme": "",
-                                        "id": "",
-                                        "description": "",
-                                        "uri": ""
-                                    }
-                                }
-                            },
-                            "additionalIdentifiers": [
-                                {
-                                    "scheme": "",
-                                    "id": "",
-                                    "legalName": "",
-                                    "uri": ""
-                                }
-                            ],
-                            "contactPoint": {
-                                "name": "",
-                                "email": "",
-                                "telephone": "",
-                                "faxNumber": "",
-                                "url": ""
-                            },
-                            "details": {
-                                "typeOfBuyer": "",
-                                "mainGeneralActivity": "",
-                                "mainSectoralActivity": ""
-                            },
-                            "roles": [
-                                ""
-                            ]
-                        }
-                    ],
-                    "relatedProcesses": [
-                        {
-                            "id": "",
-                            "relationship": [
-                                ""
-                            ],
-                            "scheme": "",
-                            "identifier": "",
-                            "uri": ""
-                        }
-                    ]
-                }
-            ]
-        }
+        self.expected_pn_release = copy.deepcopy(pn_release_model)
+        self.expected_ms_release = copy.deepcopy(ms_release_model)
 
     def build_expected_pn_release(self, actual_pn_release):
         """Build PN release."""
 
         """Enrich general attribute for expected PN release"""
-        self.__expected_pn_release['uri'] = \
-            f"{self.__metadata_tender_url}/{self.__actual_message['data']['ocid']}/" \
-            f"{self.__actual_message['data']['outcomes']['pn'][0]['id']}"
+        self.expected_pn_release['uri'] = \
+            f"{self.metadata_tender_url}/{self.actual_message['data']['ocid']}/" \
+            f"{self.actual_message['data']['outcomes']['pn'][0]['id']}"
 
-        self.__expected_pn_release['version'] = "1.1"
-        self.__expected_pn_release['extensions'] = self.__extensions
-        self.__expected_pn_release['publisher']['name'] = self.__publisher_name
-        self.__expected_pn_release['publisher']['uri'] = self.__publisher_uri
-        self.__expected_pn_release['license'] = "http://opendefinition.org/licenses/"
-        self.__expected_pn_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
-        self.__expected_pn_release['publishedDate'] = self.__actual_message['data']['operationDate']
+        self.expected_pn_release['version'] = "1.1"
+        self.expected_pn_release['extensions'] = self.extensions
+        self.expected_pn_release['publisher']['name'] = self.publisher_name
+        self.expected_pn_release['publisher']['uri'] = self.publisher_uri
+        self.expected_pn_release['license'] = "http://opendefinition.org/licenses/"
+        self.expected_pn_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
+        self.expected_pn_release['publishedDate'] = self.actual_message['data']['operationDate']
 
         """Enrich general attribute for expected PN release: releases[0]"""
-        self.__expected_pn_release['releases'][0]['ocid'] = self.__actual_message['data']['outcomes']['pn'][0]['id']
+        self.expected_pn_release['releases'][0]['ocid'] = self.actual_message['data']['outcomes']['pn'][0]['id']
 
-        self.__expected_pn_release['releases'][0]['id'] = \
-            f"{self.__actual_message['data']['outcomes']['pn'][0]['id']}-" \
+        self.expected_pn_release['releases'][0]['id'] = \
+            f"{self.actual_message['data']['outcomes']['pn'][0]['id']}-" \
             f"{actual_pn_release['releases'][0]['id'][46:59]}"
 
-        self.__expected_pn_release['releases'][0]['date'] = self.__actual_message['data']['operationDate']
-        self.__expected_pn_release['releases'][0]['tag'] = ["planning"]
-        self.__expected_pn_release['releases'][0]['language'] = self.__language
-        self.__expected_pn_release['releases'][0]['initiationType'] = "tender"
-        self.__expected_pn_release['releases'][0]['hasPreviousNotice'] = False
-        self.__expected_pn_release['releases'][0]['purposeOfNotice']['isACallForCompetition'] = False
+        self.expected_pn_release['releases'][0]['date'] = self.actual_message['data']['operationDate']
+        self.expected_pn_release['releases'][0]['tag'] = ["planning"]
+        self.expected_pn_release['releases'][0]['language'] = self.language
+        self.expected_pn_release['releases'][0]['initiationType'] = "tender"
+        self.expected_pn_release['releases'][0]['hasPreviousNotice'] = False
+        self.expected_pn_release['releases'][0]['purposeOfNotice']['isACallForCompetition'] = False
 
         """Enrich 'tender' object for expected PN release: releases[0].tender"""
         try:
@@ -437,44 +89,44 @@ class PlanningNoticeRelease:
             is_permanent_id_correct = is_it_uuid(actual_pn_release['releases'][0]['tender']['id'])
             if is_permanent_id_correct is True:
 
-                self.__expected_pn_release['releases'][0]['tender']['id'] = \
+                self.expected_pn_release['releases'][0]['tender']['id'] = \
                     actual_pn_release['releases'][0]['tender']['id']
             else:
                 ValueError(f"The 'releases[0].tender.id' must be uuid.")
         except KeyError:
             KeyError(f"Mismatch key into path 'releases[0].tender.id'.")
 
-        self.__expected_pn_release['releases'][0]['tender']['status'] = "planning"
-        self.__expected_pn_release['releases'][0]['tender']['statusDetails'] = "planning"
+        self.expected_pn_release['releases'][0]['tender']['status'] = "planning"
+        self.expected_pn_release['releases'][0]['tender']['statusDetails'] = "planning"
 
         # Prepare lots array.
-        if "lots" in self.__pn_payload['tender']:
+        if "lots" in self.pn_payload['tender']:
             # BR-3.1.1, BR-3.1.5,
             try:
                 """
                 Build the releases.tender.lots array.
                 """
                 new_lots_array = list()
-                for q_0 in range(len(self.__pn_payload['tender']['lots'])):
-                    new_lots_array.append(copy.deepcopy(self.__expected_pn_release['releases'][0]['tender']['lots'][0]))
+                for q_0 in range(len(self.pn_payload['tender']['lots'])):
+                    new_lots_array.append(copy.deepcopy(self.expected_pn_release['releases'][0]['tender']['lots'][0]))
 
                     # Enrich or delete optional fields:
-                    if "internalId" in self.__pn_payload['tender']['lots'][q_0]:
-                        new_lots_array[q_0]['internalId'] = self.__pn_payload['tender']['lots'][q_0]['internalId']
+                    if "internalId" in self.pn_payload['tender']['lots'][q_0]:
+                        new_lots_array[q_0]['internalId'] = self.pn_payload['tender']['lots'][q_0]['internalId']
                     else:
                         del new_lots_array[q_0]['internalId']
 
-                    if "postalCode" in self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']:
+                    if "postalCode" in self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']:
 
                         new_lots_array[q_0]['placeOfPerformance']['address']['postalCode'] = \
-                            self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']['postalCode']
+                            self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']['postalCode']
                     else:
                         del new_lots_array[q_0]['placeOfPerformance']['address']['postalCode']
 
-                    if "description" in self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']:
+                    if "description" in self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']:
 
                         new_lots_array[q_0]['placeOfPerformance']['description'] = \
-                            self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['description']
+                            self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['description']
                     else:
                         del new_lots_array[q_0]['placeOfPerformance']['description']
 
@@ -487,38 +139,38 @@ class PlanningNoticeRelease:
                     else:
                         ValueError(f"The relases0.tender.lots{q_0}.id must be uuid.")
 
-                    new_lots_array[q_0]['title'] = self.__pn_payload['tender']['lots'][q_0]['title']
-                    new_lots_array[q_0]['description'] = self.__pn_payload['tender']['lots'][q_0]['description']
+                    new_lots_array[q_0]['title'] = self.pn_payload['tender']['lots'][q_0]['title']
+                    new_lots_array[q_0]['description'] = self.pn_payload['tender']['lots'][q_0]['description']
                     new_lots_array[q_0]['status'] = "planning"
                     new_lots_array[q_0]['statusDetails'] = "empty"
-                    new_lots_array[q_0]['value']['amount'] = self.__pn_payload['tender']['lots'][q_0]['value']['amount']
-                    new_lots_array[q_0]['value']['currency'] = self.__pn_payload['tender']['lots'][q_0]['value'][
+                    new_lots_array[q_0]['value']['amount'] = self.pn_payload['tender']['lots'][q_0]['value']['amount']
+                    new_lots_array[q_0]['value']['currency'] = self.pn_payload['tender']['lots'][q_0]['value'][
                         'currency']
 
                     new_lots_array[q_0]['contractPeriod']['startDate'] = \
-                        self.__pn_payload['tender']['lots'][q_0]['contractPeriod']['startDate']
+                        self.pn_payload['tender']['lots'][q_0]['contractPeriod']['startDate']
 
                     new_lots_array[q_0]['contractPeriod']['endDate'] = \
-                        self.__pn_payload['tender']['lots'][q_0]['contractPeriod']['endDate']
+                        self.pn_payload['tender']['lots'][q_0]['contractPeriod']['endDate']
 
                     new_lots_array[q_0]['placeOfPerformance']['address']['streetAddress'] = \
-                        self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']['streetAddress']
+                        self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']['streetAddress']
 
                     try:
                         """
                         Prepare releases.tender.lots.placeOfPerformance.address.addressDetails object.
                         """
                         lot_country_data = get_value_from_country_csv(
-                            country=self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                            country=self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                 'addressDetails']['country']['id'],
 
-                            language=self.__language
+                            language=self.language
                         )
                         expected_lot_country_object = [{
                             "scheme": lot_country_data[2],
 
                             "id":
-                                self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails'][
                                     'country']['id'],
 
@@ -527,19 +179,19 @@ class PlanningNoticeRelease:
                         }]
 
                         lot_region_data = get_value_from_region_csv(
-                            region=self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                            region=self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                 'addressDetails']['region']['id'],
 
-                            country=self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                            country=self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                 'addressDetails']['country']['id'],
 
-                            language=self.__language
+                            language=self.language
                         )
                         expected_lot_region_object = [{
                             "scheme": lot_region_data[2],
 
                             "id":
-                                self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails'][
                                     'region']['id'],
 
@@ -547,26 +199,26 @@ class PlanningNoticeRelease:
                             "uri": lot_region_data[3]
                         }]
 
-                        if self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
-                                'locality']['scheme'] == "CUATM":
+                        if self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                            'locality']['scheme'] != "other":
 
                             lot_locality_data = get_value_from_locality_csv(
 
-                                locality=self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                locality=self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails']['locality']['id'],
 
-                                region=self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                region=self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails']['region']['id'],
 
-                                country=self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                country=self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails']['country']['id'],
 
-                                language=self.__language
+                                language=self.language
                             )
                             expected_lot_locality_object = [{
                                 "scheme": lot_locality_data[2],
 
-                                "id": self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                "id": self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails'][
                                     'locality']['id'],
 
@@ -576,16 +228,16 @@ class PlanningNoticeRelease:
                         else:
                             expected_lot_locality_object = [{
                                 "scheme":
-                                    self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                    self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                         'addressDetails'][
                                         'locality']['scheme'],
 
-                                "id": self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                "id": self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                     'addressDetails'][
                                     'locality']['id'],
 
                                 "description":
-                                    self.__pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                                    self.pn_payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                                         'addressDetails'][
                                         'locality']['description']
                             }]
@@ -600,40 +252,40 @@ class PlanningNoticeRelease:
                         ValueError(
                             "Impossible to prepare the expected releases.tender.lots.placeOfPerformance.address."
                             "addressDetails object.")
-                self.__expected_pn_release['releases'][0]['tender']['lots'] = new_lots_array
+                self.expected_pn_release['releases'][0]['tender']['lots'] = new_lots_array
             except ValueError:
                 ValueError("Impossible to build the expected releases.tender.lots array.")
         else:
-            del self.__expected_pn_release['releases'][0]['tender']['lots']
+            del self.expected_pn_release['releases'][0]['tender']['lots']
 
         # Prepare items array.
-        if "items" in self.__pn_payload['tender']:
+        if "items" in self.pn_payload['tender']:
             try:
                 """
                 Build the releases.tender.items array.
                 """
                 new_items_array = list()
-                for q_0 in range(len(self.__pn_payload['tender']['items'])):
+                for q_0 in range(len(self.pn_payload['tender']['items'])):
 
                     new_items_array.append(copy.deepcopy(
-                        self.__expected_pn_release['releases'][0]['tender']['items'][0]))
+                        self.expected_pn_release['releases'][0]['tender']['items'][0]))
 
                     # Enrich or delete optional fields:
-                    if "internalId" in self.__pn_payload['tender']['items'][q_0]:
-                        new_items_array[q_0]['internalId'] = self.__pn_payload['tender']['items'][q_0]['internalId']
+                    if "internalId" in self.pn_payload['tender']['items'][q_0]:
+                        new_items_array[q_0]['internalId'] = self.pn_payload['tender']['items'][q_0]['internalId']
                     else:
                         del new_items_array[q_0]['internalId']
 
-                    if "additionalClassifications" in self.__pn_payload['tender']['items'][q_0]:
+                    if "additionalClassifications" in self.pn_payload['tender']['items'][q_0]:
                         new_item_additional_classifications_array = list()
-                        for q_1 in range(len(self.__pn_payload['tender']['items'][q_0]['additionalClassifications'])):
+                        for q_1 in range(len(self.pn_payload['tender']['items'][q_0]['additionalClassifications'])):
                             new_item_additional_classifications_array.append(copy.deepcopy(
-                                self.__expected_pn_release['releases'][0]['tender']['items'][0][
+                                self.expected_pn_release['releases'][0]['tender']['items'][0][
                                     'additionalClassifications'][0]))
 
                             expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
-                                cpvs=self.__pn_payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
-                                language=self.__language
+                                cpvs=self.pn_payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
+                                language=self.language
                             )
 
                             new_item_additional_classifications_array[q_1]['scheme'] = "CPVS"
@@ -655,21 +307,21 @@ class PlanningNoticeRelease:
                     else:
                         ValueError(f"The relases[0].tender.items[{q_0}].id must be uuid.")
 
-                    new_items_array[q_0]['description'] = self.__pn_payload['tender']['items'][q_0]['description']
+                    new_items_array[q_0]['description'] = self.pn_payload['tender']['items'][q_0]['description']
 
                     expected_cpv_data = get_value_from_cpv_dictionary_xls(
-                        cpv=self.__pn_payload['tender']['items'][q_0]['classification']['id'],
-                        language=self.__language
+                        cpv=self.pn_payload['tender']['items'][q_0]['classification']['id'],
+                        language=self.language
                     )
 
                     new_items_array[q_0]['classification']['scheme'] = "CPV"
                     new_items_array[q_0]['classification']['id'] = expected_cpv_data[0]
                     new_items_array[q_0]['classification']['description'] = expected_cpv_data[1]
-                    new_items_array[q_0]['quantity'] = float(self.__pn_payload['tender']['items'][q_0]['quantity'])
+                    new_items_array[q_0]['quantity'] = float(self.pn_payload['tender']['items'][q_0]['quantity'])
 
                     expected_unit_data = get_value_from_classification_unit_dictionary_csv(
-                        unit_id=self.__pn_payload['tender']['items'][q_0]['unit']['id'],
-                        language=self.__language
+                        unit_id=self.pn_payload['tender']['items'][q_0]['unit']['id'],
+                        language=self.language
                     )
 
                     new_items_array[q_0]['unit']['id'] = expected_unit_data[0]
@@ -678,32 +330,32 @@ class PlanningNoticeRelease:
                     new_items_array[q_0]['relatedLot'] = \
                         actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']
 
-                self.__expected_pn_release['releases'][0]['tender']['items'] = new_items_array
+                self.expected_pn_release['releases'][0]['tender']['items'] = new_items_array
             except ValueError:
                 ValueError("Impossible to build the expected releases.tender.items array.")
         else:
-            del self.__expected_pn_release['releases'][0]['tender']['items']
+            del self.expected_pn_release['releases'][0]['tender']['items']
 
         # Prepare documents array
-        if "documents" in self.__pn_payload['tender']:
+        if "documents" in self.pn_payload['tender']:
             try:
                 """
                 Build the releases.tender.documents array.
                 """
                 new_documents_array = list()
-                for q_0 in range(len(self.__pn_payload['tender']['documents'])):
+                for q_0 in range(len(self.pn_payload['tender']['documents'])):
 
                     new_documents_array.append(copy.deepcopy(
-                        self.__expected_pn_release['releases'][0]['tender']['documents'][0]))
+                        self.expected_pn_release['releases'][0]['tender']['documents'][0]))
 
                     # Enrich or delete optional fields:
-                    if "description" in self.__pn_payload['tender']['documents'][q_0]:
-                        new_documents_array[q_0]['description'] = self.__pn_payload['tender']['documents'][q_0][
+                    if "description" in self.pn_payload['tender']['documents'][q_0]:
+                        new_documents_array[q_0]['description'] = self.pn_payload['tender']['documents'][q_0][
                             'description']
                     else:
                         del new_documents_array[q_0]['description']
 
-                    if "relatedLots" in self.__pn_payload['tender']['documents'][q_0]:
+                    if "relatedLots" in self.pn_payload['tender']['documents'][q_0]:
 
                         new_documents_array[q_0]['relatedLots'] = \
                             [actual_pn_release['releases'][0]['tender']['lots'][q_0]['id']]
@@ -711,32 +363,32 @@ class PlanningNoticeRelease:
                         del new_documents_array[q_0]['relatedLots']
 
                     # Enrich required fields:
-                    new_documents_array[q_0]['id'] = self.__pn_payload['tender']['documents'][q_0]['id']
-                    new_documents_array[q_0]['documentType'] = self.__pn_payload['tender']['documents'][q_0][
+                    new_documents_array[q_0]['id'] = self.pn_payload['tender']['documents'][q_0]['id']
+                    new_documents_array[q_0]['documentType'] = self.pn_payload['tender']['documents'][q_0][
                         'documentType']
-                    new_documents_array[q_0]['title'] = self.__pn_payload['tender']['documents'][q_0]['title']
+                    new_documents_array[q_0]['title'] = self.pn_payload['tender']['documents'][q_0]['title']
 
                     new_documents_array[q_0]['url'] = \
-                        f"{self.__metadata_document_url}/{self.__pn_payload['tender']['documents'][q_0]['id']}"
+                        f"{self.metadata_document_url}/{self.pn_payload['tender']['documents'][q_0]['id']}"
 
-                    new_documents_array[q_0]['datePublished'] = self.__actual_message['data']['operationDate']
-                self.__expected_pn_release['releases'][0]['tender']['documents'] = new_documents_array
+                    new_documents_array[q_0]['datePublished'] = self.actual_message['data']['operationDate']
+                self.expected_pn_release['releases'][0]['tender']['documents'] = new_documents_array
             except ValueError:
                 ValueError("Impossible to build the expected releases.tender.documents array.")
         else:
-            del self.__expected_pn_release['releases'][0]['tender']['documents']
+            del self.expected_pn_release['releases'][0]['tender']['documents']
 
-        self.__expected_pn_release['releases'][0]['tender']['lotGroups'][0]['optionToCombine'] = False
+        self.expected_pn_release['releases'][0]['tender']['lotGroups'][0]['optionToCombine'] = False
 
-        self.__expected_pn_release['releases'][0]['tender']['tenderPeriod']['startDate'] = \
-            self.__pn_payload['tender']['tenderPeriod']['startDate']
+        self.expected_pn_release['releases'][0]['tender']['tenderPeriod']['startDate'] = \
+            self.pn_payload['tender']['tenderPeriod']['startDate']
 
-        self.__expected_pn_release['releases'][0]['tender']['submissionMethod'][0] = "electronicSubmission"
+        self.expected_pn_release['releases'][0]['tender']['submissionMethod'][0] = "electronicSubmission"
 
-        self.__expected_pn_release['releases'][0]['tender']['submissionMethodDetails'] = \
+        self.expected_pn_release['releases'][0]['tender']['submissionMethodDetails'] = \
             "Lista platformelor: achizitii, ebs, licitatie, yptender"
 
-        self.__expected_pn_release['releases'][0]['tender']['submissionMethodRationale'][0] = \
+        self.expected_pn_release['releases'][0]['tender']['submissionMethodRationale'][0] = \
             "Ofertele vor fi primite prin intermediul unei platforme electronice de achiziții publice"
 
         """Enrich 'relatedProcesses' object for expected PN release: releases[0].relatedProcesses"""
@@ -744,66 +396,89 @@ class PlanningNoticeRelease:
             """Set permanent id."""
             is_permanent_id_correct = is_it_uuid(actual_pn_release['releases'][0]['relatedProcesses'][0]['id'])
             if is_permanent_id_correct is True:
-                self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                self.expected_pn_release['releases'][0]['relatedProcesses'][0]['id'] = \
                     actual_pn_release['releases'][0]['relatedProcesses'][0]['id']
             else:
                 ValueError(f"The 'releases[0].relatedProcesses[0].id' must be uuid.")
         except KeyError:
             KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[0].id'.")
 
-        self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "parent"
-        self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
+        self.expected_pn_release['releases'][0]['relatedProcesses'][0]['relationship'][0] = "parent"
+        self.expected_pn_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
 
-        self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
-            self.__actual_message['data']['ocid']
+        self.expected_pn_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
+            self.actual_message['data']['ocid']
 
-        self.__expected_pn_release['releases'][0]['relatedProcesses'][0]['uri'] = \
-            f"{self.__metadata_tender_url}/{self.__actual_message['data']['ocid']}/" \
-            f"{self.__actual_message['data']['ocid']}"
+        self.expected_pn_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+            f"{self.metadata_tender_url}/{self.actual_message['data']['ocid']}/" \
+            f"{self.actual_message['data']['ocid']}"
 
-        return self.__expected_pn_release
+        return self.expected_pn_release
 
     def build_expected_ms_release(self, ei_payload, ei_message, fs_payloads_list, fs_message_list,
                                   tender_classification_id, actual_ms_release):
         """ Build MS release."""
 
-        # Build the releases.planning object. Enrich or delete optional fields and enrich required fields:
-        if "rationale" in self.__pn_payload['planning']:
-            self.__expected_ms_release['releases'][0]['planning']['rationale'] = self.__pn_payload['planning'][
+        """Enrich general attribute for expected MS release"""
+        self.expected_ms_release['uri'] = \
+            f"{self.metadata_tender_url}/{self.actual_message['data']['ocid']}/{self.actual_message['data']['ocid']}"
+
+        self.expected_ms_release['version'] = "1.1"
+        self.expected_ms_release['extensions'] = self.extensions
+        self.expected_ms_release['publisher']['name'] = self.publisher_name
+        self.expected_ms_release['publisher']['uri'] = self.publisher_uri
+        self.expected_ms_release['license'] = "http://opendefinition.org/licenses/"
+        self.expected_ms_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
+        self.expected_ms_release['publishedDate'] = self.actual_message['data']['operationDate']
+
+        """Enrich general attribute for expected MS release: releases[0]"""
+        self.expected_ms_release['releases'][0]['ocid'] = self.actual_message['data']['ocid']
+
+        self.expected_ms_release['releases'][0]['id'] = \
+            f"{self.actual_message['data']['ocid']}-{actual_ms_release['releases'][0]['id'][29:42]}"
+
+        self.expected_ms_release['releases'][0]['date'] = self.actual_message['data']['operationDate']
+        self.expected_ms_release['releases'][0]['tag'] = ["compiled"]
+        self.expected_ms_release['releases'][0]['language'] = self.language
+        self.expected_ms_release['releases'][0]['initiationType'] = "tender"
+
+        """Enrich 'planning' object for expected MS release: releases[0].planning"""
+        if "rationale" in self.pn_payload['planning']:
+            self.expected_ms_release['releases'][0]['planning']['rationale'] = self.pn_payload['planning'][
                 'rationale']
         else:
-            del self.__expected_ms_release['releases'][0]['planning']['rationale']
+            del self.expected_ms_release['releases'][0]['planning']['rationale']
 
-        if "description" in self.__pn_payload['planning']['budget']:
+        if "description" in self.pn_payload['planning']['budget']:
 
-            self.__expected_ms_release['releases'][0]['planning']['budget']['description'] = \
-                self.__pn_payload['planning']['budget']['description']
+            self.expected_ms_release['releases'][0]['planning']['budget']['description'] = \
+                self.pn_payload['planning']['budget']['description']
         else:
-            del self.__expected_ms_release['releases'][0]['planning']['budget']['description']
+            del self.expected_ms_release['releases'][0]['planning']['budget']['description']
 
-        if "procurementMethodRationale" in self.__pn_payload['tender']:
+        if "procurementMethodRationale" in self.pn_payload['tender']:
 
-            self.__expected_ms_release['releases'][0]['tender']['procurementMethodRationale'] = \
-                self.__pn_payload['tender']['procurementMethodRationale']
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodRationale'] = \
+                self.pn_payload['tender']['procurementMethodRationale']
         else:
-            del self.__expected_ms_release['releases'][0]['tender']['procurementMethodRationale']
+            del self.expected_ms_release['releases'][0]['tender']['procurementMethodRationale']
 
-        if "procurementMethodAdditionalInfo" in self.__pn_payload['tender']:
+        if "procurementMethodAdditionalInfo" in self.pn_payload['tender']:
 
-            self.__expected_ms_release['releases'][0]['tender']['procurementMethodAdditionalInfo'] = \
-                self.__pn_payload['tender']['procurementMethodAdditionalInfo']
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodAdditionalInfo'] = \
+                self.pn_payload['tender']['procurementMethodAdditionalInfo']
         else:
-            del self.__expected_ms_release['releases'][0]['tender']['procurementMethodAdditionalInfo']
+            del self.expected_ms_release['releases'][0]['tender']['procurementMethodAdditionalInfo']
 
         sum_of_budget_breakdown_amount_list = list()
         new_budget_breakdown_array = list()
-        for q_0 in range(len(self.__pn_payload['planning']['budget']['budgetBreakdown'])):
+        for q_0 in range(len(self.pn_payload['planning']['budget']['budgetBreakdown'])):
 
             new_budget_breakdown_array.append(copy.deepcopy(
-                self.__expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'][0]))
+                self.expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'][0]))
 
             new_budget_breakdown_array[q_0]['id'] = \
-                self.__pn_payload['planning']['budget']['budgetBreakdown'][q_0]['id']
+                self.pn_payload['planning']['budget']['budgetBreakdown'][q_0]['id']
 
             if "description" in fs_payloads_list[q_0]['planning']['budget']:
 
@@ -813,7 +488,7 @@ class PlanningNoticeRelease:
                 del new_budget_breakdown_array[q_0]['description']
 
             new_budget_breakdown_array[q_0]['amount']['amount'] = \
-                round(self.__pn_payload['planning']['budget']['budgetBreakdown'][q_0]['amount']['amount'], 2)
+                round(self.pn_payload['planning']['budget']['budgetBreakdown'][q_0]['amount']['amount'], 2)
 
             sum_of_budget_breakdown_amount_list.append(new_budget_breakdown_array[q_0]['amount']['amount'])
 
@@ -856,183 +531,304 @@ class PlanningNoticeRelease:
 
         for i in range(len(fs_payloads_list)):
             if fs_payloads_list[i]['planning']['budget']['isEuropeanUnionFunded'] is True:
-                self.__expected_ms_release['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] = True
+                self.expected_ms_release['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] = True
             else:
-                self.__expected_ms_release['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] = False
+                self.expected_ms_release['releases'][0]['planning']['budget']['isEuropeanUnionFunded'] = False
 
-        self.__expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
+        self.expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
 
-        self.__expected_ms_release['releases'][0]['planning']['budget']['amount']['amount'] = \
+        self.expected_ms_release['releases'][0]['planning']['budget']['amount']['amount'] = \
             round(sum(sum_of_budget_breakdown_amount_list), 2)
 
-        self.__expected_ms_release['releases'][0]['planning']['budget']['amount']['currency'] = \
-            self.__pn_payload['planning']['budget']['budgetBreakdown'][0]['amount']['currency']
+        self.expected_ms_release['releases'][0]['planning']['budget']['amount']['currency'] = \
+            self.pn_payload['planning']['budget']['budgetBreakdown'][0]['amount']['currency']
 
-        # Build the releases.tender object. Enrich or delete optional fields and enrich required fields:
-        is_permanent_tender_id_correct = is_it_uuid(actual_ms_release['releases'][0]['tender']['id'])
+        """Enrich 'tender' object for expected MS release: releases[0].tender"""
+        # Set id.
+        try:
+            is_permanent_id_correct = is_it_uuid(
+                actual_ms_release['releases'][0]['tender']['id']
+            )
+            if is_permanent_id_correct is True:
 
-        if is_permanent_tender_id_correct is True:
-            self.__expected_ms_release['releases'][0]['tender']['id'] = actual_ms_release['releases'][0]['tender']['id']
+                self.expected_ms_release['releases'][0]['tender']['id'] = \
+                    actual_ms_release['releases'][0]['tender']['id']
+            else:
+                self.expected_ms_release['releases'][0]['tender']['id'] = f"The 'releases[0].tender.id' must be uuid."
+        except KeyError:
+            KeyError(f"Mismatch key into path 'releases[0].tender.id'")
+
+        # Set state.
+        self.expected_ms_release['releases'][0]['tender']['status'] = "planning"
+        self.expected_ms_release['releases'][0]['tender']['statusDetails'] = "planning"
+
+        # Set title.
+        self.expected_ms_release['releases'][0]['tender']['title'] = self.pn_payload['tender']['title']
+
+        # Set description.
+        self.expected_ms_release['releases'][0]['tender']['description'] = self.pn_payload['tender']['description']
+
+        # Set procurementMethod.
+        self.expected_ms_release['releases'][0]['tender']['procurementMethod'] = "open"
+
+        # Set procurementMethodDetails.
+        if self.pmd == "TEST_OT":
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "testOpenTender"
+        elif self.pmd == "OT":
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "openTender"
+        elif self.pmd == "TEST_SV":
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "testSmallTender"
+        elif self.pmd == "SV":
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "smallTender"
+        elif self.pmd == "TEST_MV":
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "testMicroTender"
+        elif self.pmd == "MV":
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "microTender"
         else:
-            ValueError(f"The releases[0].tender.id must be uuid.")
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = "Unknown pmd."
 
-        self.__expected_ms_release['releases'][0]['tender']['title'] = self.__pn_payload['tender']['title']
-        self.__expected_ms_release['releases'][0]['tender']['description'] = self.__pn_payload['tender']['description']
+        # Set procuringEntity.
+        self.expected_ms_release['releases'][0]['tender']['procuringEntity']['id'] = \
+            f"{self.pn_payload['tender']['procuringEntity']['identifier']['scheme']}-" \
+            f"{self.pn_payload['tender']['procuringEntity']['identifier']['id']}"
 
-        try:
-            """
-            Enrich releases.tender.classification object, depends on items into pn_payload.
-            """
-            if "items" in self.__pn_payload['tender']:
+        self.expected_ms_release['releases'][0]['tender']['procuringEntity']['name'] = \
+            self.pn_payload['tender']['procuringEntity']['name']
 
-                expected_cpv_data = get_value_from_cpv_dictionary_xls(
-                    cpv=generate_tender_classification_id(self.__pn_payload['tender']['items']),
-                    language=self.__language
-                )
-            else:
-                expected_cpv_data = get_value_from_cpv_dictionary_xls(
-                    cpv=tender_classification_id,
-                    language=self.__language
-                )
+        # Set items array.
+        if "items" in self.pn_payload['tender']:
 
-            self.__expected_ms_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
-            self.__expected_ms_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
-            self.__expected_ms_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
-        except ValueError:
-            ValueError("Impossible to enrich releases.tender.classification object.")
+            expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                cpv=generate_tender_classification_id(self.pn_payload['tender']['items']),
+                language=self.language
+            )
+        else:
+            expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                cpv=tender_classification_id,
+                language=self.language
+            )
 
-        self.__expected_ms_release['releases'][0]['tender']['legalBasis'] = self.__pn_payload['tender']['legalBasis']
+        # Set classification.
+        self.expected_ms_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
+        self.expected_ms_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
+        self.expected_ms_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
 
-        expected_main_procurement_category = None
-        try:
-            """
-           Enrich mainProcurementCategory, depends on tender.classification.id.
-           """
-            if \
-                    tender_classification_id[0:2] == "03" or \
-                    tender_classification_id[0] == "1" or \
-                    tender_classification_id[0] == "2" or \
-                    tender_classification_id[0] == "3" or \
-                    tender_classification_id[0:2] == "44" or \
-                    tender_classification_id[0:2] == "48":
-                expected_main_procurement_category = "goods"
+        # Set legalBasis.
+        self.expected_ms_release['releases'][0]['tender']['legalBasis'] = self.pn_payload['tender']['legalBasis']
 
-            elif \
-                    tender_classification_id[0:2] == "45":
-                expected_main_procurement_category = "works"
+        # Set mainProcurementCategory, depends on tender.classification.id.
+        if \
+                tender_classification_id[0:2] == "03" or \
+                        tender_classification_id[0] == "1" or \
+                        tender_classification_id[0] == "2" or \
+                        tender_classification_id[0] == "3" or \
+                        tender_classification_id[0:2] == "44" or \
+                        tender_classification_id[0:2] == "48":
+            expected_main_procurement_category = "goods"
 
-            elif \
-                    tender_classification_id[0] == "5" or \
-                    tender_classification_id[0] == "6" or \
-                    tender_classification_id[0] == "7" or \
-                    tender_classification_id[0] == "8" or \
-                    tender_classification_id[0:2] == "92" or \
-                    tender_classification_id[0:2] == "98":
-                expected_main_procurement_category = "services"
+        elif \
+                tender_classification_id[0:2] == "45":
+            expected_main_procurement_category = "works"
 
-            else:
-                ValueError("Check your tender.classification.id")
+        elif \
+                tender_classification_id[0] == "5" or \
+                        tender_classification_id[0] == "6" or \
+                        tender_classification_id[0] == "7" or \
+                        tender_classification_id[0] == "8" or \
+                        tender_classification_id[0:2] == "92" or \
+                        tender_classification_id[0:2] == "98":
+            expected_main_procurement_category = "services"
 
-            self.__expected_ms_release['releases'][0]['tender']['mainProcurementCategory'] = \
-                expected_main_procurement_category
+        else:
+            expected_main_procurement_category = "Unknown tender.classification.id"
 
-        except KeyError:
-            KeyError("Could not parse tender.classification.id.")
+        self.expected_ms_release['releases'][0]['tender']['mainProcurementCategory'] = \
+            expected_main_procurement_category
 
-        expected_procurement_method = None
-        expected_procurement_method_details = None
-        try:
-            """
-            Enrich procurementMethod and procurementMethodDetails, depends on pmd.
-            """
-            if self.__pmd == "TEST_DCO":
-                expected_procurement_method = 'selective'
-                expected_procurement_method_details = "testDirectCallOff"
-            elif self.__pmd == "DCO":
-                expected_procurement_method = 'selective'
-                expected_procurement_method_details = "directCallOff"
-            elif self.__pmd == "TEST_RFQ":
-                expected_procurement_method = 'selective'
-                expected_procurement_method_details = "testRequestForQuotations"
-            elif self.__pmd == "RFQ":
-                expected_procurement_method = 'selective'
-                expected_procurement_method_details = "requestForQuotations"
-            elif self.__pmd == "TEST_MC":
-                expected_procurement_method = 'selective'
-                expected_procurement_method_details = "testMiniCompetition"
-            elif self.__pmd == "MC":
-                expected_procurement_method = 'selective'
-                expected_procurement_method_details = "miniCompetition"
-            else:
-                ValueError("Check your pmd: You must use 'TEST_DCO', "
-                           "'TEST_RFQ', 'TEST_MC', 'DCO', 'RFQ', 'MC' in pytest command")
+        # Set eligibilityCriteria.
+        if self.language == "RO":
+            expected_eligibility_criteria = "Regulile generale privind naționalitatea și originea, precum și " \
+                                            "alte criterii de eligibilitate sunt enumerate în " \
+                                            "Ghidul practic privind procedurile de contractare " \
+                                            "a acțiunilor externe ale UE (PRAG)"
+        elif self.language == "EN":
+            expected_eligibility_criteria = "The general rules on nationality and origin, " \
+                                            "as well as other eligibility criteria are listed " \
+                                            "in the Practical Guide to Contract Procedures for EU " \
+                                            "External Actions (PRAG)"
+        else:
+            expected_eligibility_criteria = "Unknown language."
 
-            self.__expected_ms_release['releases'][0]['tender']['procurementMethod'] = expected_procurement_method
-            self.__expected_ms_release['releases'][0]['tender'][
-                'procurementMethodDetails'] = expected_procurement_method_details
-        except KeyError:
-            KeyError("Could not parse a pmd into pytest command.")
+        self.expected_ms_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
 
-        expected_eligibility_criteria = None
-        try:
-            """
-            Enrich eligibilityCriteria, depends on language.
-            """
-            if self.__language == "ro":
-                expected_eligibility_criteria = "Regulile generale privind naționalitatea și originea, precum și " \
-                                                "alte criterii de eligibilitate sunt enumerate în " \
-                                                "Ghidul practic privind procedurile de contractare " \
-                                                "a acțiunilor externe ale UE (PRAG)"
-            elif self.__language == "en":
-                expected_eligibility_criteria = "The general rules on nationality and origin, " \
-                                                "as well as other eligibility criteria are listed " \
-                                                "in the Practical Guide to Contract Procedures for EU " \
-                                                "External Actions (PRAG)"
-            else:
-                ValueError("Check your language: You must use 'ro', "
-                           "'en' in pytest command.")
+        # Set value.
+        if "lots" in self.pn_payload['tender']:
 
-            self.__expected_ms_release['releases'][0]['tender']['eligibilityCriteria'] = expected_eligibility_criteria
-        except KeyError:
-            KeyError("Could not parse a language into pytest command.")
+            self.expected_ms_release['releases'][0]['tender']['value']['amount'] = \
+                round(get_sum_of_lot(lots_array=self.pn_payload['tender']['lots']), 2)
 
-        try:
-            """
-            Enrich releases.tender.value.amount, depends on lots into pn_payload.
-            """
-            if "lots" in self.__pn_payload['tender']:
+            self.expected_ms_release['releases'][0]['tender']['value']['currency'] = \
+                self.pn_payload['tender']['lots'][0]['value']['currency']
 
-                self.__expected_ms_release['releases'][0]['tender']['value']['amount'] = \
-                    round(get_sum_of_lot(lots_array=self.__pn_payload['tender']['lots']), 2)
+            expected_contract_period = get_contract_period_for_ms_release(
+                lots_array=self.pn_payload['tender']['lots'])
 
-                self.__expected_ms_release['releases'][0]['tender']['value']['currency'] = \
-                    self.__pn_payload['tender']['lots'][0]['value']['currency']
+            self.expected_ms_release['releases'][0]['tender']['contractPeriod']['startDate'] = \
+                expected_contract_period[0]
 
-                expected_contract_period = get_contract_period_for_ms_release(
-                    lots_array=self.__pn_payload['tender']['lots'])
+            self.expected_ms_release['releases'][0]['tender']['contractPeriod']['endDate'] = \
+                expected_contract_period[1]
+        else:
+            self.expected_ms_release['releases'][0]['tender']['value']['amount'] = round(
+                sum(sum_of_budget_breakdown_amount_list), 2)
 
-                self.__expected_ms_release['releases'][0]['tender']['contractPeriod']['startDate'] = \
-                    expected_contract_period[0]
+            self.expected_ms_release['releases'][0]['tender']['value']['currency'] = \
+                self.pn_payload['planning']['budget']['budgetBreakdown'][0]['amount']['currency']
 
-                self.__expected_ms_release['releases'][0]['tender']['contractPeriod']['endDate'] = \
-                    expected_contract_period[1]
-            else:
-                self.__expected_ms_release['releases'][0]['tender']['value']['amount'] = round(
-                    sum(sum_of_budget_breakdown_amount_list), 2)
+            del self.expected_ms_release['releases'][0]['tender']['contractPeriod']
 
-                self.__expected_ms_release['releases'][0]['tender']['value']['currency'] = \
-                    self.__pn_payload['planning']['budget']['budgetBreakdown'][0]['amount']['currency']
-
-                del self.__expected_ms_release['releases'][0]['tender']['contractPeriod']
-        except ValueError:
-            ValueError("Impossible to enrich releases.tender.value.amount.")
-
-        # Build the releases.parties array. Enrich or delete optional fields and enrich required fields:
+        """Enrich 'parties' object for expected MS release: releases[0].parties"""
         buyer_role_array = list()
         payer_role_array = list()
         funder_role_array = list()
+        procuringentity_role_array = list()
 
-        buyer_role_array.append(copy.deepcopy(self.__expected_ms_release['releases'][0]['parties'][0]))
+        # Prepare party with procuringEntity role.
+        procuringentity_role_array.append(copy.deepcopy(self.expected_ms_release['releases'][0]['parties'][0]))
+        procuringentity_role_array[0]['id'] = f"{self.pn_payload['tender']['procuringEntity']['identifier']['scheme']}-" \
+                                              f"{self.pn_payload['tender']['procuringEntity']['identifier']['id']}"
+
+        procuringentity_role_array[0]['name'] = self.pn_payload['tender']['procuringEntity']['name']
+        procuringentity_role_array[0]['identifier']['scheme'] = \
+        self.pn_payload['tender']['procuringEntity']['identifier']['scheme']
+        procuringentity_role_array[0]['identifier']['id'] = self.pn_payload['tender']['procuringEntity']['identifier'][
+            'id']
+        procuringentity_role_array[0]['identifier']['legalName'] = \
+        self.pn_payload['tender']['procuringEntity']['identifier']['legalName']
+        procuringentity_role_array[0]['address']['streetAddress'] = \
+        self.pn_payload['tender']['procuringEntity']['address']['streetAddress']
+
+        if "postalCode" in self.pn_payload['tender']['procuringEntity']['address']:
+            procuringentity_role_array[0]['address']['postalCode'] = \
+            self.pn_payload['tender']['procuringEntity']['address']['postalCode']
+        else:
+            del procuringentity_role_array[0]['address']['postalCode']
+
+        # Prepare addressDetails object for party with procuringEntity role.
+        procuringentity_country_data = get_value_from_country_csv(
+            country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
+            language=self.language
+        )
+        expected_procuringentity_country_object = [{
+            "scheme": procuringentity_country_data[2],
+            "id": self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+            "description": procuringentity_country_data[1],
+            "uri": procuringentity_country_data[3]
+        }]
+
+        procuringentity_region_data = get_value_from_region_csv(
+            region=ei_payload['buyer']['address']['addressDetails']['region']['id'],
+            country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
+            language=self.language
+        )
+        expected_procuringentity_region_object = [{
+            "scheme": procuringentity_region_data[2],
+            "id": self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+            "description": procuringentity_region_data[1],
+            "uri": procuringentity_region_data[3]
+        }]
+
+        if self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme'] != "other":
+
+            procuringentity_locality_data = get_value_from_locality_csv(
+                locality=self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+                region=self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+                country=self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+                language=self.language
+            )
+            expected_procuringentity_locality_object = [{
+                "scheme": procuringentity_locality_data[2],
+                "id": self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+                "description": procuringentity_locality_data[1],
+                "uri": procuringentity_locality_data[3]
+            }]
+        else:
+            expected_procuringentity_locality_object = [{
+                "scheme": self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                    'scheme'],
+                "id": self.pn_payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+
+                "description": self.pn_payload['tender']['procuringEntity']['address']['addressDetails'][
+                    'locality']['description']
+            }]
+
+        procuringentity_role_array[0]['address']['addressDetails']['country'] = \
+            expected_procuringentity_country_object[0]
+
+        procuringentity_role_array[0]['address']['addressDetails']['region'] = \
+            expected_procuringentity_region_object[0]
+
+        procuringentity_role_array[0]['address']['addressDetails']['locality'] = \
+            expected_procuringentity_locality_object[0]
+
+        if "uri" in self.pn_payload['tender']['procuringEntity']['identifier']:
+
+            procuringentity_role_array[0]['identifier']['uri'] = self.pn_payload['tender']['procuringEntity'][
+                'identifier']['uri']
+        else:
+            del procuringentity_role_array[0]['identifier']['uri']
+
+        if "additionalIdentifiers" in self.pn_payload['tender']['procuringEntity']:
+            del procuringentity_role_array[0]['additionalIdentifiers'][0]
+            additional_identifiers = list()
+            for q_1 in range(len(self.pn_payload['tender']['procuringEntity']['additionalIdentifiers'])):
+                additional_identifiers.append(copy.deepcopy(
+                    self.expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                ))
+
+                additional_identifiers[q_1]['scheme'] = \
+                    self.pn_payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['scheme']
+
+                additional_identifiers[q_1]['id'] = \
+                    self.pn_payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['id']
+
+                additional_identifiers[q_1]['legalName'] = \
+                    self.pn_payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['legalName']
+
+                additional_identifiers[q_1]['uri'] = \
+                    self.pn_payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['uri']
+
+                procuringentity_role_array[0]['additionalIdentifiers'] = additional_identifiers
+        else:
+            del procuringentity_role_array[0]['additionalIdentifiers']
+
+        if "faxNumber" in self.pn_payload['tender']['procuringEntity']['contactPoint']:
+
+            procuringentity_role_array[0]['contactPoint']['faxNumber'] = \
+                self.pn_payload['tender']['procuringEntity']['contactPoint']['faxNumber']
+        else:
+            del procuringentity_role_array[0]['contactPoint']['faxNumber']
+
+        if "url" in self.pn_payload['tender']['procuringEntity']['contactPoint']:
+
+            procuringentity_role_array[0]['contactPoint']['url'] = \
+                self.pn_payload['tender']['procuringEntity']['contactPoint']['url']
+        else:
+            del procuringentity_role_array[0]['contactPoint']['url']
+
+        procuringentity_role_array[0]['contactPoint']['name'] = \
+            self.pn_payload['tender']['procuringEntity']['contactPoint']['name']
+
+        procuringentity_role_array[0]['contactPoint']['email'] = \
+            self.pn_payload['tender']['procuringEntity']['contactPoint']['email']
+
+        procuringentity_role_array[0]['contactPoint']['telephone'] = \
+            self.pn_payload['tender']['procuringEntity']['contactPoint']['telephone']
+
+        procuringentity_role_array[0]['roles'] = ["procuringEntity"]
+
+        # Prepare party with buyer role.
+        buyer_role_array.append(copy.deepcopy(self.expected_ms_release['releases'][0]['parties'][0]))
 
         buyer_role_array[0]['id'] = f"{ei_payload['buyer']['identifier']['scheme']}-" \
                                     f"{ei_payload['buyer']['identifier']['id']}"
@@ -1048,60 +844,54 @@ class PlanningNoticeRelease:
         else:
             del buyer_role_array[0]['address']['postalCode']
 
-        try:
-            """
-            Prepare addressDetails object for party with buyer role.
-            """
-            buyer_country_data = get_value_from_country_csv(
-                country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                language=self.__language
-            )
-            expected_buyer_country_object = [{
-                "scheme": buyer_country_data[2],
-                "id": ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                "description": buyer_country_data[1],
-                "uri": buyer_country_data[3]
-            }]
+        # Prepare addressDetails object for party with buyer role.
+        buyer_country_data = get_value_from_country_csv(
+            country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
+            language=self.language
+        )
+        expected_buyer_country_object = [{
+            "scheme": buyer_country_data[2],
+            "id": ei_payload['buyer']['address']['addressDetails']['country']['id'],
+            "description": buyer_country_data[1],
+            "uri": buyer_country_data[3]
+        }]
 
-            buyer_region_data = get_value_from_region_csv(
+        buyer_region_data = get_value_from_region_csv(
+            region=ei_payload['buyer']['address']['addressDetails']['region']['id'],
+            country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
+            language=self.language
+        )
+        expected_buyer_region_object = [{
+            "scheme": buyer_region_data[2],
+            "id": ei_payload['buyer']['address']['addressDetails']['region']['id'],
+            "description": buyer_region_data[1],
+            "uri": buyer_region_data[3]
+        }]
+
+        if ei_payload['buyer']['address']['addressDetails']['locality']['scheme'] != "other":
+
+            buyer_locality_data = get_value_from_locality_csv(
+                locality=ei_payload['buyer']['address']['addressDetails']['locality']['id'],
                 region=ei_payload['buyer']['address']['addressDetails']['region']['id'],
                 country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                language=self.__language
+                language=self.language
             )
-            expected_buyer_region_object = [{
-                "scheme": buyer_region_data[2],
-                "id": ei_payload['buyer']['address']['addressDetails']['region']['id'],
-                "description": buyer_region_data[1],
-                "uri": buyer_region_data[3]
+            expected_buyer_locality_object = [{
+                "scheme": buyer_locality_data[2],
+                "id": ei_payload['buyer']['address']['addressDetails']['locality']['id'],
+                "description": buyer_locality_data[1],
+                "uri": buyer_locality_data[3]
+            }]
+        else:
+            expected_buyer_locality_object = [{
+                "scheme": ei_payload['buyer']['address']['addressDetails']['locality']['scheme'],
+                "id": ei_payload['buyer']['address']['addressDetails']['locality']['id'],
+                "description": ei_payload['buyer']['address']['addressDetails']['locality']['description']
             }]
 
-            if ei_payload['buyer']['address']['addressDetails']['locality']['scheme'] == "CUATM":
-
-                buyer_locality_data = get_value_from_locality_csv(
-                    locality=ei_payload['buyer']['address']['addressDetails']['locality']['id'],
-                    region=ei_payload['buyer']['address']['addressDetails']['region']['id'],
-                    country=ei_payload['buyer']['address']['addressDetails']['country']['id'],
-                    language=self.__language
-                )
-                expected_buyer_locality_object = [{
-                    "scheme": buyer_locality_data[2],
-                    "id": ei_payload['buyer']['address']['addressDetails']['locality']['id'],
-                    "description": buyer_locality_data[1],
-                    "uri": buyer_locality_data[3]
-                }]
-            else:
-                expected_buyer_locality_object = [{
-                    "scheme": ei_payload['buyer']['address']['addressDetails']['locality']['scheme'],
-                    "id": ei_payload['buyer']['address']['addressDetails']['locality']['id'],
-                    "description": ei_payload['buyer']['address']['addressDetails']['locality']['description']
-                }]
-
-            buyer_role_array[0]['address']['addressDetails']['country'] = expected_buyer_country_object[0]
-            buyer_role_array[0]['address']['addressDetails']['region'] = expected_buyer_region_object[0]
-            buyer_role_array[0]['address']['addressDetails']['locality'] = expected_buyer_locality_object[0]
-        except ValueError:
-            ValueError(
-                "Impossible to prepare addressDetails object for party with buyer role.")
+        buyer_role_array[0]['address']['addressDetails']['country'] = expected_buyer_country_object[0]
+        buyer_role_array[0]['address']['addressDetails']['region'] = expected_buyer_region_object[0]
+        buyer_role_array[0]['address']['addressDetails']['locality'] = expected_buyer_locality_object[0]
 
         if "uri" in ei_payload['buyer']['identifier']:
             buyer_role_array[0]['identifier']['uri'] = ei_payload['buyer']['identifier']['uri']
@@ -1113,7 +903,7 @@ class PlanningNoticeRelease:
             additional_identifiers = list()
             for q_1 in range(len(ei_payload['buyer']['additionalIdentifiers'])):
                 additional_identifiers.append(copy.deepcopy(
-                    self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                    self.expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
                 ))
 
                 additional_identifiers[q_1]['scheme'] = \
@@ -1170,9 +960,10 @@ class PlanningNoticeRelease:
 
         buyer_role_array[0]['roles'] = ["buyer"]
 
+        # Prepare party with funder role.
         for q_2 in range(len(fs_payloads_list)):
             if "buyer" in fs_payloads_list[q_2]:
-                funder_role_array.append(copy.deepcopy(self.__expected_ms_release['releases'][0]['parties'][0]))
+                funder_role_array.append(copy.deepcopy(self.expected_ms_release['releases'][0]['parties'][0]))
 
                 funder_role_array[q_2]['id'] = f"{fs_payloads_list[q_2]['buyer']['identifier']['scheme']}-" \
                                                f"{fs_payloads_list[q_2]['buyer']['identifier']['id']}"
@@ -1194,62 +985,56 @@ class PlanningNoticeRelease:
                 else:
                     del funder_role_array[q_2]['address']['postalCode']
 
-                try:
-                    """
-                    Prepare addressDetails object for party with funder role.
-                    """
-                    funder_country_data = get_value_from_country_csv(
-                        country=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
-                        language=self.__language
-                    )
-                    expected_funder_country_object = [{
-                        "scheme": funder_country_data[2],
-                        "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
-                        "description": funder_country_data[1],
-                        "uri": funder_country_data[3]
-                    }]
+                # Prepare addressDetails object for party with funder role.
+                funder_country_data = get_value_from_country_csv(
+                    country=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
+                    language=self.language
+                )
+                expected_funder_country_object = [{
+                    "scheme": funder_country_data[2],
+                    "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
+                    "description": funder_country_data[1],
+                    "uri": funder_country_data[3]
+                }]
 
-                    funder_region_data = get_value_from_region_csv(
+                funder_region_data = get_value_from_region_csv(
+                    region=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['region']['id'],
+                    country=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
+                    language=self.language
+                )
+                expected_funder_region_object = [{
+                    "scheme": funder_region_data[2],
+                    "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['region']['id'],
+                    "description": funder_region_data[1],
+                    "uri": funder_region_data[3]
+                }]
+
+                if fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['scheme'] != "other":
+
+                    funder_locality_data = get_value_from_locality_csv(
+                        locality=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['id'],
                         region=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['region']['id'],
                         country=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
-                        language=self.__language
+                        language=self.language
                     )
-                    expected_funder_region_object = [{
-                        "scheme": funder_region_data[2],
-                        "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['region']['id'],
-                        "description": funder_region_data[1],
-                        "uri": funder_region_data[3]
+                    expected_funder_locality_object = [{
+                        "scheme": funder_locality_data[2],
+                        "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['id'],
+                        "description": funder_locality_data[1],
+                        "uri": funder_locality_data[3]
+                    }]
+                else:
+                    expected_funder_locality_object = [{
+                        "scheme": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['scheme'],
+                        "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['id'],
+
+                        "description":
+                            fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['description']
                     }]
 
-                    if fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['scheme'] == "CUATM":
-
-                        funder_locality_data = get_value_from_locality_csv(
-                            locality=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['id'],
-                            region=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['region']['id'],
-                            country=fs_payloads_list[q_2]['buyer']['address']['addressDetails']['country']['id'],
-                            language=self.__language
-                        )
-                        expected_funder_locality_object = [{
-                            "scheme": funder_locality_data[2],
-                            "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['id'],
-                            "description": funder_locality_data[1],
-                            "uri": funder_locality_data[3]
-                        }]
-                    else:
-                        expected_funder_locality_object = [{
-                            "scheme": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['scheme'],
-                            "id": fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['id'],
-
-                            "description":
-                                fs_payloads_list[q_2]['buyer']['address']['addressDetails']['locality']['description']
-                        }]
-
-                    funder_role_array[q_2]['address']['addressDetails']['country'] = expected_funder_country_object[0]
-                    funder_role_array[q_2]['address']['addressDetails']['region'] = expected_funder_region_object[0]
-                    funder_role_array[q_2]['address']['addressDetails']['locality'] = expected_funder_locality_object[0]
-                except ValueError:
-                    ValueError(
-                        "Impossible to prepare addressDetails object for party with funder role.")
+                funder_role_array[q_2]['address']['addressDetails']['country'] = expected_funder_country_object[0]
+                funder_role_array[q_2]['address']['addressDetails']['region'] = expected_funder_region_object[0]
+                funder_role_array[q_2]['address']['addressDetails']['locality'] = expected_funder_locality_object[0]
 
                 if "uri" in fs_payloads_list[q_2]['buyer']['identifier']:
                     funder_role_array[q_2]['identifier']['uri'] = fs_payloads_list[q_2]['buyer']['identifier']['uri']
@@ -1261,7 +1046,7 @@ class PlanningNoticeRelease:
                     additional_identifiers = list()
                     for q_3 in range(len(fs_payloads_list[q_2]['buyer']['additionalIdentifiers'])):
                         additional_identifiers.append(copy.deepcopy(
-                            self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                            self.expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
                         ))
 
                         additional_identifiers[q_3]['scheme'] = \
@@ -1305,8 +1090,9 @@ class PlanningNoticeRelease:
                 del funder_role_array[q_2]['details']
                 funder_role_array[q_2]['roles'] = ["funder"]
 
+        # Prepare party with payer role.
         for q_3 in range(len(fs_payloads_list)):
-            payer_role_array.append(copy.deepcopy(self.__expected_ms_release['releases'][0]['parties'][0]))
+            payer_role_array.append(copy.deepcopy(self.expected_ms_release['releases'][0]['parties'][0]))
 
             payer_role_array[q_3]['id'] = \
                 f"{fs_payloads_list[q_3]['tender']['procuringEntity']['identifier']['scheme']}-" \
@@ -1333,86 +1119,80 @@ class PlanningNoticeRelease:
             else:
                 del payer_role_array[q_3]['address']['postalCode']
 
-            try:
-                """
-                Prepare addressDetails object for party with payer role.
-                """
-                payer_country_data = get_value_from_country_csv(
-                    country=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                        'country']['id'],
+            # Prepare addressDetails object for party with payer role.
+            payer_country_data = get_value_from_country_csv(
+                country=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                    'country']['id'],
 
-                    language=self.__language
-                )
-                expected_payer_country_object = [{
-                    "scheme": payer_country_data[2],
+                language=self.language
+            )
+            expected_payer_country_object = [{
+                "scheme": payer_country_data[2],
 
-                    "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                        'country']['id'],
+                "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                    'country']['id'],
 
-                    "description": payer_country_data[1],
-                    "uri": payer_country_data[3]
-                }]
+                "description": payer_country_data[1],
+                "uri": payer_country_data[3]
+            }]
 
-                payer_region_data = get_value_from_region_csv(
+            payer_region_data = get_value_from_region_csv(
+                region=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                    'region']['id'],
+
+                country=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                    'country']['id'],
+
+                language=self.language
+            )
+            expected_payer_region_object = [{
+                "scheme": payer_region_data[2],
+
+                "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                    'region']['id'],
+
+                "description": payer_region_data[1],
+                "uri": payer_region_data[3]
+            }]
+
+            if fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                'locality']['scheme'] != "other":
+
+                payer_locality_data = get_value_from_locality_csv(
+                    locality=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['id'],
+
                     region=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
                         'region']['id'],
 
                     country=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
                         'country']['id'],
 
-                    language=self.__language
+                    language=self.language
                 )
-                expected_payer_region_object = [{
-                    "scheme": payer_region_data[2],
+                expected_payer_locality_object = [{
+                    "scheme": payer_locality_data[2],
+                    "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['id'],
+
+                    "description": payer_locality_data[1],
+                    "uri": payer_locality_data[3]
+                }]
+            else:
+                expected_payer_locality_object = [{
+                    "scheme": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['scheme'],
 
                     "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                        'region']['id'],
+                        'locality']['id'],
 
-                    "description": payer_region_data[1],
-                    "uri": payer_region_data[3]
+                    "description": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
+                        'locality']['description']
                 }]
 
-                if fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                        'locality']['scheme'] == "CUATM":
-
-                    payer_locality_data = get_value_from_locality_csv(
-                        locality=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['id'],
-
-                        region=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'region']['id'],
-
-                        country=fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'country']['id'],
-
-                        language=self.__language
-                    )
-                    expected_payer_locality_object = [{
-                        "scheme": payer_locality_data[2],
-                        "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['id'],
-
-                        "description": payer_locality_data[1],
-                        "uri": payer_locality_data[3]
-                    }]
-                else:
-                    expected_payer_locality_object = [{
-                        "scheme": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['scheme'],
-
-                        "id": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['id'],
-
-                        "description": fs_payloads_list[q_3]['tender']['procuringEntity']['address']['addressDetails'][
-                            'locality']['description']
-                    }]
-
-                payer_role_array[q_3]['address']['addressDetails']['country'] = expected_payer_country_object[0]
-                payer_role_array[q_3]['address']['addressDetails']['region'] = expected_payer_region_object[0]
-                payer_role_array[q_3]['address']['addressDetails']['locality'] = expected_payer_locality_object[0]
-            except ValueError:
-                ValueError(
-                    "Impossible to prepare addressDetails object for party with funder role.")
+            payer_role_array[q_3]['address']['addressDetails']['country'] = expected_payer_country_object[0]
+            payer_role_array[q_3]['address']['addressDetails']['region'] = expected_payer_region_object[0]
+            payer_role_array[q_3]['address']['addressDetails']['locality'] = expected_payer_locality_object[0]
 
             if "uri" in fs_payloads_list[q_3]['tender']['procuringEntity']['identifier']:
 
@@ -1426,7 +1206,7 @@ class PlanningNoticeRelease:
                 additional_identifiers = list()
                 for q_4 in range(len(fs_payloads_list[q_3]['tender']['procuringEntity']['additionalIdentifiers'])):
                     additional_identifiers.append(copy.deepcopy(
-                        self.__expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                        self.expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
                     ))
 
                     additional_identifiers[q_4]['scheme'] = \
@@ -1471,36 +1251,80 @@ class PlanningNoticeRelease:
             del payer_role_array[q_3]['details']
             payer_role_array[q_3]['roles'] = ["payer"]
 
+        # Get unique 'parties' array for buyer role.
         unique_buyer_role_array = get_unique_party_from_list_by_id(buyer_role_array)
-        unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
-        unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
-
         unique_buyer_id_array = list()
         for buyer in range(len(unique_buyer_role_array)):
             unique_buyer_id_array.append(unique_buyer_role_array[buyer]['id'])
 
+        # Get unique 'parties' array for payer role.
+        unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
         unique_payer_id_array = list()
         for payer in range(len(unique_payer_role_array)):
             unique_payer_id_array.append(unique_payer_role_array[payer]['id'])
 
+        # Get unique 'parties' array for funder role.
+        unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
         unique_funder_id_array = list()
         for funder in range(len(unique_funder_role_array)):
             unique_funder_id_array.append(unique_funder_role_array[funder]['id'])
 
+        # Get unique 'parties' array for procuringEntity role.
+        unique_procuringentity_role_array = get_unique_party_from_list_by_id(procuringentity_role_array)
+        unique_procuringentity_id_array = list()
+        for procuringentity in range(len(unique_procuringentity_role_array)):
+            unique_procuringentity_id_array.append(unique_procuringentity_role_array[procuringentity]['id'])
+
+        # Prepare temporary 'parties' array for specific role.
         temp_parties_with_buyer_role_array = list()
         temp_parties_with_payer_role_array = list()
         temp_parties_with_funder_role_array = list()
+        temp_parties_with_procuringentity_role_array = list()
 
-        same_id_into_payer_and_funder = list(set(unique_payer_id_array) & set(unique_funder_id_array))
+        # Compare organizations with 'funder' and 'procuringEntity' role.
+        same_id_into_procuringentity_and_funder = list(
+            set(unique_procuringentity_id_array) & set(unique_funder_id_array)
+        )
+
+        if len(same_id_into_procuringentity_and_funder) > 0:
+            for funder in range(len(unique_funder_role_array)):
+                for i_1 in range(len(same_id_into_procuringentity_and_funder)):
+                    for procuringentity in range(len(unique_procuringentity_role_array)):
+                        if unique_funder_role_array[funder]['id'] == same_id_into_procuringentity_and_funder[i_1] == \
+                                unique_procuringentity_role_array[procuringentity]['id']:
+                            unique_funder_role_array[funder]['roles'] = \
+                                unique_funder_role_array[funder]['roles'] + \
+                                unique_procuringentity_role_array[procuringentity]['roles']
+
+                            temp_parties_with_funder_role_array.append(unique_funder_role_array[funder])
+
+                    for procuringentity in range(len(unique_procuringentity_role_array)):
+                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
+                            temp_parties_with_procuringentity_role_array.append(
+                                unique_procuringentity_role_array[procuringentity]
+                            )
+
+                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
+                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
+        else:
+            temp_parties_with_procuringentity_role_array = unique_procuringentity_role_array
+            temp_parties_with_funder_role_array = unique_funder_role_array
+
+        unique_parties_id_array = list()
+        for funder in range(len(temp_parties_with_funder_role_array)):
+            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
+
+        # Compare organizations with 'payer' and 'funder' role.
+        same_id_into_payer_and_funder = list(set(unique_payer_id_array) & set(unique_parties_id_array))
 
         if len(same_id_into_payer_and_funder) > 0:
             for payer in range(len(unique_payer_role_array)):
                 for i_1 in range(len(same_id_into_payer_and_funder)):
-                    for funder in range(len(unique_funder_role_array)):
+                    for funder in range(len(unique_parties_id_array)):
                         if unique_payer_role_array[payer]['id'] == same_id_into_payer_and_funder[i_1] == \
-                                unique_funder_role_array[funder]['id']:
+                                unique_parties_id_array[funder]['id']:
                             unique_payer_role_array[payer]['roles'] = \
-                                unique_payer_role_array[payer]['roles'] + unique_funder_role_array[funder]['roles']
+                                unique_payer_role_array[payer]['roles'] + unique_parties_id_array[funder]['roles']
 
                             temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
 
@@ -1508,16 +1332,51 @@ class PlanningNoticeRelease:
                         if unique_payer_role_array[payer]['id'] != same_id_into_payer_and_funder[i_1]:
                             temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
 
-                        if unique_funder_role_array[funder]['id'] != same_id_into_payer_and_funder[i_1]:
-                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
+                        if unique_parties_id_array[funder]['id'] != same_id_into_payer_and_funder[i_1]:
+                            temp_parties_with_funder_role_array.append(unique_parties_id_array[funder])
         else:
             temp_parties_with_payer_role_array = unique_payer_role_array
-            temp_parties_with_funder_role_array = unique_funder_role_array
+            temp_parties_with_funder_role_array = temp_parties_with_funder_role_array
 
         unique_parties_id_array = list()
         for payer in range(len(temp_parties_with_payer_role_array)):
             unique_parties_id_array.append(temp_parties_with_payer_role_array[payer]['id'])
 
+        # --
+        # Compare organizations with 'payer' and 'procuringEntity' role.
+        same_id_into_procuringentity_and_funder = list(
+            set(unique_procuringentity_id_array) & set(unique_funder_id_array)
+        )
+
+        if len(same_id_into_procuringentity_and_funder) > 0:
+            for funder in range(len(unique_funder_role_array)):
+                for i_1 in range(len(same_id_into_procuringentity_and_funder)):
+                    for procuringentity in range(len(unique_procuringentity_role_array)):
+                        if unique_funder_role_array[funder]['id'] == same_id_into_procuringentity_and_funder[i_1] == \
+                                unique_procuringentity_role_array[procuringentity]['id']:
+                            unique_funder_role_array[funder]['roles'] = \
+                                unique_funder_role_array[funder]['roles'] + \
+                                unique_procuringentity_role_array[procuringentity]['roles']
+
+                            temp_parties_with_funder_role_array.append(unique_funder_role_array[funder])
+
+                    for procuringentity in range(len(unique_procuringentity_role_array)):
+                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
+                            temp_parties_with_procuringentity_role_array.append(
+                                unique_procuringentity_role_array[procuringentity]
+                            )
+
+                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
+                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
+        else:
+            temp_parties_with_procuringentity_role_array = unique_procuringentity_role_array
+            temp_parties_with_funder_role_array = unique_funder_role_array
+
+        unique_parties_id_array = list()
+        for funder in range(len(temp_parties_with_funder_role_array)):
+            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
+        # =====
+        # Compare organizations with 'buyer' and 'payer' role.
         same_id_into_buyer_and_payer = \
             list(set(unique_buyer_id_array) & set(unique_parties_id_array))
 
@@ -1553,6 +1412,7 @@ class PlanningNoticeRelease:
         for buyer in range(len(temp_parties_with_buyer_role_array)):
             unique_buyer_id_array.append(temp_parties_with_buyer_role_array[buyer]['id'])
 
+        # Compare organizations with 'buyer' and 'funder' role.
         same_id_into_buyer_and_funder = \
             list(set(unique_buyer_id_array) & set(unique_parties_id_array))
 
@@ -1590,35 +1450,35 @@ class PlanningNoticeRelease:
             ValueError("Quantity of objects into actual ms release doesn't equal "
                        "quantity of objects into prepared parties array")
 
-        self.__expected_ms_release['releases'][0]['parties'] = expected_parties_array
+        self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
 
-        # Build the releases.relatedProcesses array. Enrich required fields:
+        """Enrich 'relatedProcesses' object for expected MS release: releases[0].relatedProcesses"""
         new_related_processes_array = list()
         for q_0 in range(2):
             new_related_processes_array.append(
-                copy.deepcopy(self.__expected_ms_release['releases'][0]['relatedProcesses'][0])
+                copy.deepcopy(self.expected_ms_release['releases'][0]['relatedProcesses'][0])
             )
 
         new_related_processes_array[0]['relationship'] = ["planning"]
         new_related_processes_array[0]['scheme'] = "ocid"
-        new_related_processes_array[0]['identifier'] = self.__actual_message['data']['outcomes']['pn'][0]['id']
+        new_related_processes_array[0]['identifier'] = self.actual_message['data']['outcomes']['pn'][0]['id']
 
         new_related_processes_array[0]['uri'] = \
-            f"{self.__metadata_tender_url}/{self.__actual_message['data']['ocid']}/" \
-            f"{self.__actual_message['data']['outcomes']['pn'][0]['id']}"
+            f"{self.metadata_tender_url}/{self.actual_message['data']['ocid']}/" \
+            f"{self.actual_message['data']['outcomes']['pn'][0]['id']}"
 
         new_related_processes_array[1]['relationship'] = ["x_expenditureItem"]
         new_related_processes_array[1]['scheme'] = "ocid"
         new_related_processes_array[1]['identifier'] = ei_message['data']['outcomes']['ei'][0]['id']
 
         new_related_processes_array[1]['uri'] = \
-            f"{self.__metadata_budget_url}/{ei_message['data']['outcomes']['ei'][0]['id']}/" \
+            f"{self.metadata_budget_url}/{ei_message['data']['outcomes']['ei'][0]['id']}/" \
             f"{ei_message['data']['outcomes']['ei'][0]['id']}"
 
         fs_related_processes_array = list()
         for q_0 in range(len(fs_message_list)):
             fs_related_processes_array.append(
-                copy.deepcopy(self.__expected_ms_release['releases'][0]['relatedProcesses'][0])
+                copy.deepcopy(self.expected_ms_release['releases'][0]['relatedProcesses'][0])
             )
 
             fs_related_processes_array[q_0]['relationship'] = ["x_fundingSource"]
@@ -1628,7 +1488,7 @@ class PlanningNoticeRelease:
                 fs_message_list[q_0]['data']['outcomes']['fs'][0]['id']
 
             fs_related_processes_array[q_0]['uri'] = \
-                f"{self.__metadata_budget_url}/{ei_message['data']['outcomes']['ei'][0]['id']}/" \
+                f"{self.metadata_budget_url}/{ei_message['data']['outcomes']['ei'][0]['id']}/" \
                 f"{fs_message_list[q_0]['data']['outcomes']['fs'][0]['id']}"
 
         expected_related_processes_array = new_related_processes_array + fs_related_processes_array
@@ -1651,5 +1511,5 @@ class PlanningNoticeRelease:
             ValueError("The quantity of actual relatedProcesses array != "
                        "quantity of expected relatedProcess array")
 
-        self.__expected_ms_release['releases'][0]['relatedProcesses'] = expected_related_processes_array
-        return self.__expected_ms_release
+        self.expected_ms_release['releases'][0]['relatedProcesses'] = expected_related_processes_array
+        return self.expected_ms_release

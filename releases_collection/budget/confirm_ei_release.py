@@ -1,7 +1,7 @@
 """Prepare the expected release of the confirm expenditure item process, budget."""
 import copy
 
-from data_collection.Budget.for_test_confirmEI_process.ei_release_full_model import release_model
+from data_collection.Budget.for_test_confirmEI_process.release_full_model import release_model
 
 
 class ConfirmExpenditureItemRelease:

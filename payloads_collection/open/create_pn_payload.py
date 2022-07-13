@@ -17,7 +17,7 @@ from functions_collection.some_functions import generate_items_array, generate_l
 class PlanningNoticePayload:
     """This class creates instance of payload."""
 
-    def __init__(self, fs_id, amount, currency, tender_classification_id, host_to_service):
+    def __init__(self, fs_id, amount, currency, tender_classification_id, host_to_service, procuringentity_id: str):
 
         __pn_period = pn_period()
         __contact_period = contact_period()
@@ -27,7 +27,7 @@ class PlanningNoticePayload:
 
         self.__amount = amount
         self.__currency = currency
-        self.__tender_classification_id = tender_classification_id
+        self.tender_classification_id = tender_classification_id
         self.__host = host_to_service
         item_classification_id = None
         try:
@@ -62,7 +62,7 @@ class PlanningNoticePayload:
 
         region_id = f"{random.choice(region_id_tuple)}"
         locality_id = get_locality_id_according_with_region_id(region_id)
-        self.__payload = {
+        self.payload = {
             "planning": {
                 "rationale": "create pn: planning.rationale",
                 "budget": {
@@ -91,7 +91,7 @@ class PlanningNoticePayload:
                 "procuringEntity": {
                     "name": "create pn: tender.procuringEntity.name",
                     "identifier": {
-                        "id": "create pn: tender.procuringEntity.identifier.id",
+                        "id": "2",
                         "scheme": "MD-IDNO",
                         "legalName": "create pn: tender.procuringEntity.identifier.legalName",
                         "uri": "create pn: tender.procuringEntity.identifier.uri",
@@ -197,7 +197,7 @@ class PlanningNoticePayload:
 
     def build_payload(self):
         """Build payload."""
-        return self.__payload
+        return self.payload
 
     def delete_optional_fields(
             self, *args, lot_position=0, item_position=0, additional_classification_position=0, document_position=0,
@@ -206,50 +206,50 @@ class PlanningNoticePayload:
 
         for a in args:
             if a == "planning.rationale":
-                del self.__payload['planning']['rationale']
+                del self.payload['planning']['rationale']
             elif a == "planning.budget.description":
-                del self.__payload['planning']['budget']['description']
+                del self.payload['planning']['budget']['description']
 
             elif a == "tender.procurementMethodRationale":
-                del self.__payload['tender']['procurementMethodRationale']
+                del self.payload['tender']['procurementMethodRationale']
             elif a == "tender.procurementMethodAdditionalInfo":
-                del self.__payload['tender']['procurementMethodAdditionalInfo']
+                del self.payload['tender']['procurementMethodAdditionalInfo']
 
             elif a == "tender.procuringEntity.identifier.uri":
-                del self.__payload['tender']['procuringEntity']['identifier']['uri']
+                del self.payload['tender']['procuringEntity']['identifier']['uri']
             elif a == "tender.procuringEntity.additionalIdentifiers":
-                del self.__payload['tender']['procuringEntity']['additionalIdentifiers']
+                del self.payload['tender']['procuringEntity']['additionalIdentifiers']
             elif a == "tender.procuringEntity.additionalIdentifiers.uri":
-                del self.__payload['tender']['procuringEntity']['additionalIdentifiers'][
+                del self.payload['tender']['procuringEntity']['additionalIdentifiers'][
                     pe_additional_identifiers_position]['uri']
             elif a == "tender.procuringEntity.address.postalCode":
-                del self.__payload['tender']['procuringEntity']['address']['postalCode']
+                del self.payload['tender']['procuringEntity']['address']['postalCode']
 
             elif a == "tender.lots":
-                del self.__payload['tender']['lots']
+                del self.payload['tender']['lots']
             elif a == "tender.lots.internalId":
-                del self.__payload['tender']['lots'][lot_position]['internalId']
+                del self.payload['tender']['lots'][lot_position]['internalId']
             elif a == "tender.lots.placeOfPerformance.address.postalCode":
-                del self.__payload['tender']['lots'][lot_position]['placeOfPerformance']['address']['postalCode']
+                del self.payload['tender']['lots'][lot_position]['placeOfPerformance']['address']['postalCode']
             elif a == "tender.lots.placeOfPerformance.description":
-                del self.__payload['tender']['lots'][lot_position]['placeOfPerformance']['description']
+                del self.payload['tender']['lots'][lot_position]['placeOfPerformance']['description']
 
             elif a == "tender.items":
-                del self.__payload['tender']['items']
+                del self.payload['tender']['items']
             elif a == "tender.items.internalId":
-                del self.__payload['tender']['items'][item_position]['internalId']
+                del self.payload['tender']['items'][item_position]['internalId']
             elif a == "tender.items.additionalClassifications":
-                del self.__payload['tender']['items'][item_position]['additionalClassifications']
+                del self.payload['tender']['items'][item_position]['additionalClassifications']
             elif a == f"tender.items.additionalClassifications[{additional_classification_position}]":
 
-                del self.__payload['tender']['items'][item_position][
+                del self.payload['tender']['items'][item_position][
                     'additionalClassifications'][additional_classification_position]
             elif a == "tender.documents":
-                del self.__payload['tender']['documents']
+                del self.payload['tender']['documents']
             elif a == "tender.documents.description":
-                del self.__payload['tender']['documents'][document_position]['description']
+                del self.payload['tender']['documents'][document_position]['description']
             elif a == "tender.documents.relatedLots":
-                del self.__payload['tender']['documents'][document_position]["relatedLots"]
+                del self.payload['tender']['documents'][document_position]["relatedLots"]
             else:
                 KeyError(f"Impossible to delete attribute by path {a}.")
 
@@ -257,8 +257,8 @@ class PlanningNoticePayload:
         """Get lots.id from payload."""
 
         lot_id_list = list()
-        for q in range(len(self.__payload['tender']['lots'])):
-            lot_id_list.append(self.__payload['tender']['lots'][q]['id'])
+        for q in range(len(self.payload['tender']['lots'])):
+            lot_id_list.append(self.payload['tender']['lots'][q]['id'])
         return lot_id_list
 
     def customize_planning_budget_budget_breakdown(self, list_of_fs_id):
@@ -266,14 +266,14 @@ class PlanningNoticePayload:
 
         new_budget_breakdown_array = list()
         for q in range(len(list_of_fs_id)):
-            new_budget_breakdown_array.append(copy.deepcopy(self.__payload['planning']['budget']['budgetBreakdown'][0]))
+            new_budget_breakdown_array.append(copy.deepcopy(self.payload['planning']['budget']['budgetBreakdown'][0]))
             new_budget_breakdown_array[q]['id'] = list_of_fs_id[q]
 
             new_budget_breakdown_array[q]['amount']['amount'] = round(self.__amount / len(list_of_fs_id), 2)
 
             new_budget_breakdown_array[q]['amount']['currency'] = self.__currency
 
-        self.__payload['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
+        self.payload['planning']['budget']['budgetBreakdown'] = new_budget_breakdown_array
 
     def customize_tender_items(self, lot_id_list, quantity_of_items, quantity_of_items_additional_classifications):
         """
@@ -282,8 +282,8 @@ class PlanningNoticePayload:
         """
         new_items_array = generate_items_array(
             quantity_of_object=quantity_of_items,
-            item_object=copy.deepcopy(self.__payload['tender']['items'][0]),
-            tender_classification_id=self.__tender_classification_id
+            item_object=copy.deepcopy(self.payload['tender']['items'][0]),
+            tender_classification_id=self.tender_classification_id
         )
 
         for q_0 in range(quantity_of_items):
@@ -292,10 +292,12 @@ class PlanningNoticePayload:
             new_items_array[q_0]['description'] = f"create pn: tender.items{q_0}.description"
             new_items_array[q_0]['unit']['id'] = f"{random.choice(unit_id_tuple)}"
 
+            del new_items_array[q_0]['additionalClassifications'][0]
+
             list_of_additional_classification_id = list()
             for q_1 in range(quantity_of_items_additional_classifications):
                 new_items_array[q_0]['additionalClassifications'].append(
-                    copy.deepcopy(self.__payload['tender']['items'][0]['additionalClassifications'][0]))
+                    copy.deepcopy(self.payload['tender']['items'][0]['additionalClassifications'][0]))
 
                 while len(list_of_additional_classification_id) < quantity_of_items_additional_classifications:
                     additional_classification_id = f"{random.choice(cpvs_tuple)}"
@@ -308,14 +310,14 @@ class PlanningNoticePayload:
 
             new_items_array[q_0]['relatedLot'] = lot_id_list[q_0]
 
-        self.__payload['tender']['items'] = new_items_array
+        self.payload['tender']['items'] = new_items_array
 
     def customize_tender_lots(self, quantity_of_lots):
         """Customize tender.lots array."""
 
         new_lots_array = generate_lots_array(
             quantity_of_object=quantity_of_lots,
-            lot_object=copy.deepcopy(self.__payload['tender']['lots'][0])
+            lot_object=copy.deepcopy(self.payload['tender']['lots'][0])
         )
         for q_0 in range(quantity_of_lots):
             new_lots_array[q_0]['internalId'] = f"create pn: tender.lots{q_0}.internalId"
@@ -353,7 +355,7 @@ class PlanningNoticePayload:
             new_lots_array[q_0]['placeOfPerformance']['description'] = \
                 f"create pn: tender.lots{q_0}.placeOfPerformance.description"
 
-        self.__payload['tender']['lots'] = new_lots_array
+        self.payload['tender']['lots'] = new_lots_array
 
     def customize_tender_documents(self, lot_id_list, quantity_of_documents):
         """
@@ -361,7 +363,7 @@ class PlanningNoticePayload:
         """
         new_documents_array = list()
         for q_0 in range(quantity_of_documents):
-            new_documents_array.append(copy.deepcopy(self.__payload['tender']['documents'][0]))
+            new_documents_array.append(copy.deepcopy(self.payload['tender']['documents'][0]))
 
             document_two = Document(host=self.__host)
             document_two_was_uploaded = document_two.uploading_document()
@@ -373,7 +375,7 @@ class PlanningNoticePayload:
 
             new_documents_array[q_0]['relatedLots'] = [lot_id_list[q_0]]
 
-        self.__payload['tender']['documents'] = new_documents_array
+        self.payload['tender']['documents'] = new_documents_array
 
     def customize_tender_procuring_entity_additional_identifiers(
             self, quantity_of_tender_procuring_entity_additional_identifiers):
@@ -382,22 +384,22 @@ class PlanningNoticePayload:
         new_additional_identifiers_array = list()
         for q in range(quantity_of_tender_procuring_entity_additional_identifiers):
             new_additional_identifiers_array.append(
-                copy.deepcopy(self.__payload['tender']['procuringEntity']['additionalIdentifiers'][0])
+                copy.deepcopy(self.payload['tender']['procuringEntity']['additionalIdentifiers'][0])
             )
 
             new_additional_identifiers_array[q]['id'] = \
-                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.id"
+                f"create pn: tender.procuringEntity.additionalIdentifiers{q}.id"
 
             new_additional_identifiers_array[q]['scheme'] = \
-                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.scheme"
+                f"create pn: tender.procuringEntity.additionalIdentifiers{q}.scheme"
 
             new_additional_identifiers_array[q]['legalName'] = \
-                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.legalName"
+                f"create pn: tender.procuringEntity.additionalIdentifiers{q}.legalName"
 
             new_additional_identifiers_array[q]['uri'] = \
-                f"create fs: tender.procuringEntity.additionalIdentifiers{q}.uri"
+                f"create pn: tender.procuringEntity.additionalIdentifiers{q}.uri"
 
-        self.__payload['tender']['procuringEntity']['additionalIdentifiers'] = new_additional_identifiers_array
+        self.payload['tender']['procuringEntity']['additionalIdentifiers'] = new_additional_identifiers_array
 
     def __del__(self):
         print(f"The instance of PlanPayload class: {__name__} was deleted.")

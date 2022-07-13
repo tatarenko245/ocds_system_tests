@@ -1,7 +1,7 @@
 """Prepare the expected release of the create expenditure item process, budget."""
 import copy
 
-from data_collection.Budget.for_test_createEI_process.ei_release_full_model import release_model
+from data_collection.Budget.for_test_createEI_process.release_full_model import release_model
 from data_collection.data_constant import affordable_shemes
 from functions_collection.some_functions import get_value_from_cpvs_dictionary_csv, is_it_uuid, \
     get_value_from_classification_unit_dictionary_csv, \

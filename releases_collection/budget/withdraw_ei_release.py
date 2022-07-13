@@ -1,7 +1,7 @@
 """Prepare the expected release of the withdraw expenditure item process, budget."""
 import copy
 
-from data_collection.Budget.for_test_withdrawEI_process.ei_release_full_model import release_model
+from data_collection.Budget.for_test_withdrawEI_process.release_full_model import release_model
 
 
 class WithdrawExpenditureItemRelease:
