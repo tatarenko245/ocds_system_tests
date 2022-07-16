@@ -118,7 +118,7 @@ class CriteriaArray:
                     'requirements'][requirements_position]['eligibleEvidences'][eligible_evidences_position][
                     'relatedDocument']
 
-    def prepare_criteria_array(self, criteria_relates_to):
+    def prepare_criteria_array(self, criteria_relates_to: str, criteria_related_item: str = None):
         """Prepare criteria array."""
 
         new_criteria_array = list()
@@ -132,6 +132,9 @@ class CriteriaArray:
 
             if "description" in new_criteria_object:
                 new_criteria_object['description'] = f"criteria[{q_0}.description"
+
+            if "relatedItem" in new_criteria_object:
+                new_criteria_object['relatedItem'] = criteria_related_item
 
             new_criteria_object['relatesTo'] = criteria_relates_to
 

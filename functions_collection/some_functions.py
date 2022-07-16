@@ -592,6 +592,7 @@ def get_affordable_currency(country_id: str):
 
 
 def generate_conversions_array(quantity_of_conversion_object, conversion_object, requirements_array):
+
     copy.deepcopy(conversion_object)
 
     coefficient_id_list = list()
@@ -626,16 +627,28 @@ def set_conversions_unique_temporary_id(payload_conversions_array):
     conversions[*]..id as temporary id.
     """
     quantity_of_id_list = list()
+    coefficients_objects = list()
     for i in payload_conversions_array:
         if "id" in i:
             quantity_of_id_list.append(i['id'])
 
-    test = make_unique_numbers(len(quantity_of_id_list))
-    iterator = len(test)
-    if len(quantity_of_id_list) == len(test):
+        for j in i['coefficients']:
+            coefficients_objects.append(j['id'])
+
+    test_1 = make_unique_numbers(len(quantity_of_id_list))
+    test_2 = make_unique_numbers(len(coefficients_objects))
+
+    iterator_1 = len(test_1)
+    iterator_2 = len(test_2)
+
+    if len(quantity_of_id_list) == len(test_1):
         for i in payload_conversions_array:
             if "id" in i:
-                i['id'] = str(iterator)
-                iterator -= 1
+                i['id'] = str(iterator_1)
+                iterator_1 -= 1
+
+            for j in i['coefficients']:
+                j['id'] = str(iterator_2)
+                iterator_2 -= 1
 
     return payload_conversions_array

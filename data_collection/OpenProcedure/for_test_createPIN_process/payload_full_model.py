@@ -23,14 +23,6 @@ payload_model = {
     "tender": {
         "title": "",
         "description": "create pin: tender.description",
-        "secondStage": {
-            "minimumCandidates": 0.00,
-            "maximumCandidates": 0.00
-        },
-        "otherCriteria": {
-            "reductionCriteria": "",
-            "qualificationSystemMethods": [""]
-        },
         "classification": {
             "id": "",
             "scheme": ""

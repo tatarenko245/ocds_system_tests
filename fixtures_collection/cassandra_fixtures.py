@@ -41,6 +41,7 @@ def connect_to_keyspace(log_in_database):
     qualification_keyspace = log_in_database.connect('qualification')
     submission_keyspace = log_in_database.connect('submission')
     contracting_keyspace = log_in_database.connect('contracting')
+    auctions_keyspace = log_in_database.connect('auctions')
 
     yield \
         ocds_keyspace,\
@@ -50,7 +51,8 @@ def connect_to_keyspace(log_in_database):
         dossier_keyspace,\
         qualification_keyspace, \
         submission_keyspace, \
-        contracting_keyspace
+        contracting_keyspace, \
+        auctions_keyspace
 
     ocds_keyspace.shutdown()
     print(f"The connection to {ocds_keyspace} has been disconnected.")
@@ -75,3 +77,6 @@ def connect_to_keyspace(log_in_database):
 
     contracting_keyspace.shutdown()
     print(f"The connection to {contracting_keyspace} has been disconnected.")
+
+    auctions_keyspace.shutdown()
+    print(f"The connection to {auctions_keyspace} has been disconnected.")

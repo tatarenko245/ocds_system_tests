@@ -302,6 +302,17 @@ def get_value_from_ocds_budgetrules(connect_to_ocds, key, parameter):
         return value.value
 
 
+def get_value_from_auctions_auctionrules(connect_to_auctions, key, parameter):
+    """ Get some 'value' from auctions.auction_rules"""
+
+    value = connect_to_auctions.execute(
+        f"""SELECT "value" FROM auction_rules WHERE key = '{key}' AND parameter = '{parameter}';""").one()
+    if value is None:
+        return value
+    else:
+        return value.value
+
+
 def get_cpid_from_orchestrator_steps(connect_to_orchestrator, operation_id):
     value = connect_to_orchestrator.execute(f"SELECT * FROM orchestrator.steps WHERE operation_id='{operation_id}' "
                                             f"ALLOW FILTERING;").one()

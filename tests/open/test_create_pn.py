@@ -68,12 +68,11 @@ class TestCreatePN:
                 Build payload for Create PN process.
                 """
                 payload = copy.deepcopy(PlanningNoticePayload(
-                    fs_id=ocid,
+                    country=country,
                     amount=910.00,
                     currency=currency,
-                    tender_classification_id=tender_classification_id,
-                    host_to_service=service_host)
-                )
+                    procuringentity_id="2"
+                ))
 
                 payload.customize_planning_budget_budget_breakdown(fs_ocid_list)
 
@@ -88,12 +87,14 @@ class TestCreatePN:
                 lot_id_list = payload.get_lots_id_from_payload()
 
                 payload.customize_tender_items(
+                    tender_classification_id=tender_classification_id,
                     lot_id_list=lot_id_list,
                     quantity_of_items=5,
                     quantity_of_items_additional_classifications=3
                  )
 
                 payload.customize_tender_documents(
+                    host=service_host,
                     lot_id_list=lot_id_list,
                     quantity_of_documents=5
                 )

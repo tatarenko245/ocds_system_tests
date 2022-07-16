@@ -1,6 +1,6 @@
 """This is full release data model for PIN release."""
 
-release_model = {
+pi_release_model = {
     "uri": "",
     "version": "",
     "extensions": [
@@ -27,38 +27,69 @@ release_model = {
             "tender": {
                 "id": "",
                 "status": "",
-                "statusDetails": "",
-                "secondStage": {
-                    "minimumCandidates": 0.00,
-                    "maximumCandidates": 0.00
-                },
-                "otherCriteria": {
-                    "reductionCriteria": "",
-                    "qualificationSystemMethods": [""]
-                },
-                "classification": {
-                    "scheme": "",
-                    "id": "",
-                    "description": ""
-                },
-                "awardCriteria": "",
-                "awardCriteriaDetails": "",
-                "electronicAuctions": {
-                    "details": [
-                        {
+                "criteria": [
+                    {
+                        "id": "",
+                        "title": "",
+                        "classification": {
                             "id": "",
-                            "relatedLot": "",
-                            "electronicAuctionModalities": [
-                                {
-                                    "eligibleMinimumDifference": {
-                                        "amount": 0.00,
-                                        "currency": ""
+                            "scheme": ""
+                        },
+                        "description": "",
+                        "relatesTo": "",
+                        "relatedItem": "",
+                        "requirementGroups": [
+                            {
+                                "id": "",
+                                "description": "",
+                                "requirements": [
+                                    {
+                                        "id": "",
+                                        "title": "",
+                                        "status": "",
+                                        "datePublished": "",
+                                        "dataType": "",
+                                        "description": "",
+                                        "period": {
+                                            "startDate": "",
+                                            "endDate": ""
+                                        },
+                                        "expectedValue": "",
+                                        "minValue": 0.00,
+                                        "maxValue": 0.00,
+                                        "eligibleEvidences": [
+                                            {
+                                                "id": "",
+                                                "title": "",
+                                                "description": "",
+                                                "type": "",
+                                                "relatedDocument": {
+                                                    "id": ""
+                                                }
+                                            }
+                                        ]
                                     }
-                                }
-                            ]
-                        }
-                    ]
-                },
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "conversions": [
+                    {
+                        "id": "",
+                        "relatedItem": "",
+                        "relatesTo": "",
+                        "description": "",
+                        "rationale": "",
+                        "coefficients": [
+                            {
+                                "value": "",
+                                "id": "",
+                                "coefficient": 1.0
+                            }
+                        ]
+                    }
+                ],
                 "items": [
                     {
                         "id": "",
@@ -91,7 +122,6 @@ release_model = {
                         "title": "",
                         "description": "",
                         "status": "",
-                        "statusDetails": "",
                         "value": {
                             "amount": 0.0,
                             "currency": ""
@@ -161,79 +191,52 @@ release_model = {
                         }
                     }
                 ],
-                "lotGroups": [
-                    {
-                        "optionToCombine": False
-                    }
-                ],
                 "tenderPeriod": {
                     "startDate": ""
                 },
-                "procurementMethodModalities": [""],
-                "hasEnquiries": False,
-                "criteria": [
+                "enquiryPeriod": {
+                    "startDate": "",
+                    "endDate": ""
+                },
+                "documents": [
                     {
                         "id": "",
+                        "documentType": "",
                         "title": "",
-                        "classification": {
+                        "description": "",
+                        "url": "",
+                        "datePublished": "",
+                        "relatedLots": [
+                            ""
+                        ]
+                    }
+                ],
+                "awardCriteria": "",
+                "awardCriteriaDetails": "",
+                "submissionMethod": [
+                    ""
+                ],
+                "submissionMethodDetails": "",
+                "submissionMethodRationale": [
+                    ""
+                ],
+                "procurementMethodModalities": [""],
+                "electronicAuctions": {
+                    "details": [
+                        {
                             "id": "",
-                            "scheme": ""
-                        },
-                        "description": "",
-                        "relatesTo": "",
-                        "relatedItem": "",
-                        "requirementGroups": [
-                            {
-                                "id": "",
-                                "description": "",
-                                "requirements": [
-                                    {
-                                        "id": "",
-                                        "title": "",
-                                        "status": "",
-                                        "datePublished": "",
-                                        "dataType": "",
-                                        "description": "",
-                                        "period": {
-                                            "startDate": "",
-                                            "endDate": ""
-                                        },
-                                        "expectedValue": "",
-                                        "minValue": 0.00,
-                                        "maxValue": 0.00,
-                                        "eligibleEvidences": [
-                                            {
-                                                "id": "",
-                                                "title": "",
-                                                "description": "",
-                                                "type": "",
-                                                "relatedDocument": {
-                                                    "id": ""
-                                                }
-                                            }
-                                        ]
+                            "relatedLot": "",
+                            "electronicAuctionModalities": [
+                                {
+                                    "eligibleMinimumDifference": {
+                                        "amount": 0.00,
+                                        "currency": ""
                                     }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                "conversions": [
-                    {
-                        "id": "",
-                        "relatedItem": "",
-                        "relatesTo": "",
-                        "description": "",
-                        "rationale": "",
-                        "coefficients": [
-                            {
-                                "value": "",
-                                "id": "",
-                                "coefficient": 1.0
-                            }
-                        ]
-                    }
-                ],
+                                }
+                            ]
+                        }
+                    ]
+                },
                 "targets": [
                     {
                         "id": "",
@@ -259,32 +262,7 @@ release_model = {
                             }
                         ]
                     }
-                ],
-                "documents": [
-                    {
-                        "id": "",
-                        "documentType": "",
-                        "title": "",
-                        "description": "",
-                        "url": "",
-                        "datePublished": "",
-                        "relatedLots": [
-                            ""
-                        ]
-                    }
-                ],
-                "submissionMethod": [
-                    ""
-                ],
-                "submissionMethodDetails": "",
-                "submissionMethodRationale": [
-                    ""
-                ],
-                "requiresElectronicCatalogue": False
-            },
-            "hasPreviousNotice": False,
-            "purposeOfNotice": {
-                "isACallForCompetition": False
+                ]
             },
             "relatedProcesses": [
                 {
@@ -297,6 +275,7 @@ release_model = {
                     "uri": ""
                 }
             ]
+
         }
     ]
 }

@@ -1,13 +1,15 @@
 """Prepare the expected payloads of the prior information notice process, open procedures."""
 import copy
+import json
 import random
+import uuid
 
 from class_collection.document_registration import Document
 from class_collection.prepare_criteria_array import CriteriaArray
 from data_collection.OpenProcedure.for_test_createPIN_process.payload_full_model import payload_model
-from data_collection.data_constant import documentType_tuple, unit_id_tuple, cpvs_tuple, reductionCriteria_tuple, \
-    qualificationSystemMethod_tuple, legal_basis_tuple, awardCriteria_tuple, awardCriteriaDetails_tuple, \
-    person_title_tuple, business_function_type_2_tuple
+from data_collection.data_constant import documentType_tuple, unit_id_tuple, cpvs_tuple, legal_basis_tuple,\
+    awardCriteria_tuple, awardCriteriaDetails_tuple, person_title_tuple, business_function_type_2_tuple
+from functions_collection.cassandra_methods import get_value_from_ocds_budgetrules, get_value_from_auctions_auctionrules
 from functions_collection.mdm_methods import get_standard_criteria
 
 from functions_collection.prepare_date import pn_period, contact_period, enquiry_period, old_period
@@ -22,8 +24,6 @@ class PriorInformationNoticePayload:
     def __init__(self, environment: str, language: str, host_to_service: str, country: str, amount: float or int,
                  currency: str, tender_classification_id: str):
 
-        self.payload = copy.deepcopy(payload_model)
-
         self.host = host_to_service
         self.country = country
         self.affordable_schemes = get_affordable_schemes(country)
@@ -37,8 +37,7 @@ class PriorInformationNoticePayload:
         # Get all 'standard' criteria from eMDM service.
         self.standard_criteria = get_standard_criteria(environment, self.country, language)
 
-    def build_payload(self):
-        """Build payload, based on full data model."""
+        self.payload = copy.deepcopy(payload_model)
 
         # Set regular value for some attribute
         self.payload['planning']['rationale'] = "create pin: planning.rationale"
@@ -47,10 +46,6 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['title'] = "create pin: tender.title"
         self.payload['tender']['description'] = "create pin: tender.description"
-        self.payload['tender']['secondStage']['minimumCandidates'] = 1.00
-        self.payload['tender']['secondStage']['maximumCandidates'] = 5.00
-        self.payload['tender']['otherCriteria'] = f"{random.choice(reductionCriteria_tuple)}"
-        self.payload['tender']['qualificationSystemMethods'] = [f"{random.choice(qualificationSystemMethod_tuple)}"]
         self.payload['tender']['classification']['id'] = self.tender_classification_id
         self.payload['tender']['classification']['scheme'] = "CPV"
         self.payload['tender']['legalBasis'] = f"{random.choice(legal_basis_tuple)}"
@@ -66,8 +61,7 @@ class PriorInformationNoticePayload:
         self.payload['tender']['procuringEntity']['identifier']['legalName'] = \
             "create pin: procuringEntity.identifier.legalName"
 
-        self.payload['tender']['procuringEntity']['identifier']['scheme'] = \
-            "create pin: procuringEntity.identifier.scheme"
+        self.payload['tender']['procuringEntity']['identifier']['scheme'] = self.affordable_schemes[0]
 
         self.payload['tender']['procuringEntity']['identifier']['uri'] = "create pin: procuringEntity.identifier.uri"
 
@@ -85,10 +79,10 @@ class PriorInformationNoticePayload:
         self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['description'] = \
             "create pin: tender.procuringEntity.address.addressDetails.country.description"
 
-        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'] = \
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['scheme'] = \
             self.affordable_schemes[2]
 
-        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['scheme'] = \
+        self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'] = \
             self.affordable_schemes[3]
 
         self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['description'] = \
@@ -118,6 +112,19 @@ class PriorInformationNoticePayload:
         self.payload['tender']['procuringEntity']['contactPoint']['url'] = \
             "create pin: procuringEntity.contactPoint.url"
 
+    def build_payload(self):
+        """Build payload, based on full data model."""
+
+        # According with 'VR.COM-1.60.35' rule, at least one clasification.id of 'items' array,
+        # should be equal by 4 first digits of tender.classification.id
+        self.payload['tender']['items'][0]['classification']['id'] = self.tender_classification_id
+
+        if self.payload['tender']['awardCriteria'] == "priceOnly":
+            # VR.COM-1.60.36: Set awardCriteriaDetails.
+            self.payload['tender']['awardCriteriaDetails'] = "automated"
+
+            # VR.COM-1.60.58: del conversion.
+            del self.payload['tender']['conversions']
         return self.payload
 
     def delete_optional_fields(
@@ -135,18 +142,6 @@ class PriorInformationNoticePayload:
 
             elif a == "planning.budget.description":
                 del self.payload['planning']['budget']['description']
-
-            elif a == "tender.secondStage":
-                del self.payload['tender']['secondStage']
-
-            elif a == "tender.secondStage.minimumCandidates":
-                del self.payload['tender']['secondStage']['minimumCandidates']
-
-            elif a == "tender.secondStage.maximumCandidates":
-                del self.payload['tender']['secondStage']['maximumCandidates']
-
-            elif a == "tender.otherCriteria":
-                del self.payload['tender']['otherCriteria']
 
             elif a == "tender.procurementMethodRationale":
                 del self.payload['tender']['procurementMethodRationale']
@@ -375,25 +370,22 @@ class PriorInformationNoticePayload:
             lot_id_list.append(self.payload['tender']['lots'][q]['id'])
         return lot_id_list
 
-    def customize_planning_budget_budgetbreakdown(self, list_of_classifications: list):
+    def customize_planning_budget_budgetbreakdown(self, connect_to_ocds: str, list_of_classifications: list):
         """Customize planning.budget.budgetBreakdown array."""
 
         # Since we work with two country Moldova and Litua, we should to correct some attribute.
         # It depends on country value and according to payload data model from documentation.
-        # presence_fs = json.loads(
-        #     get_value_from_ocds_budgetrules(connect_to_ocds, f"{country}-createEI", "presenceClassificationFS")
-        # )
-
-        # Тимчасове рішення - видалити рядок, що нижче
-        presence_fs = True
+        presence_fs = json.loads(
+            get_value_from_ocds_budgetrules(connect_to_ocds, f"{self.country}-createPin", "presenceClassificationFS")
+        )
 
         new_budget_breakdown_array = list()
         for q_0 in range(len(list_of_classifications)):
             new_budget_breakdown_array.append(copy.deepcopy(self.payload['planning']['budget']['budgetBreakdown'][0]))
 
-            new_budget_breakdown_array[q_0]['id'] = f"{q_0}"
-            new_budget_breakdown_array[q_0]['amount'] = round(self.amount / len(list_of_classifications), 2)
-            new_budget_breakdown_array[q_0]['currency'] = self.currency
+            new_budget_breakdown_array[q_0]['id'] = str(uuid.uuid4())
+            new_budget_breakdown_array[q_0]['amount']['amount'] = round(self.amount / len(list_of_classifications), 2)
+            new_budget_breakdown_array[q_0]['amount']['currency'] = self.currency
 
             new_budget_breakdown_array[q_0]['classifications']['ei'] = list_of_classifications[q_0]['ei']
 
@@ -425,6 +417,7 @@ class PriorInformationNoticePayload:
             new_items_array[q_0]['classification']['scheme'] = "CPV"
             new_items_array[q_0]['internalId'] = f"create pin: tender.items{q_0}.internalId"
             new_items_array[q_0]['description'] = f"create pin: tender.items{q_0}.description"
+            new_items_array[q_0]['quantity'] = 5+q_0
             new_items_array[q_0]['unit']['id'] = f"{random.choice(unit_id_tuple)}"
 
             list_of_additional_classification_id = list()
@@ -481,10 +474,10 @@ class PriorInformationNoticePayload:
             new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['country']['description'] = \
                 f"create pin: tender.lots[{q_0}].placeOfPerformance.address.addressDetails.country.description"
 
-            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['id'] = \
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['scheme'] = \
                 self.affordable_schemes[2]
 
-            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['scheme'] = \
+            new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['id'] = \
                 self.affordable_schemes[3]
 
             new_lots_array[q_0]['placeOfPerformance']['address']['addressDetails']['region']['description'] = \
@@ -557,7 +550,9 @@ class PriorInformationNoticePayload:
                     new_lots_array[q_0]['contractPeriod']['startDate']
 
                 new_lots_array[q_0]['renewal']['period']['endDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
-                new_lots_array[q_0]['renewal']['period']['maxExtentDate'] = '15'
+
+                new_lots_array[q_0]['renewal']['period']['maxExtentDate'] = \
+                    new_lots_array[q_0]['contractPeriod']['endDate']
 
             else:
                 new_lots_array[q_0]['hasRenewal'] = False
@@ -565,8 +560,14 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['lots'] = new_lots_array
 
-    def customize_tender_electronicauctions_object(self):
+    def customize_tender_electronicauctions_object(self, connect_to_auctions, pmd):
         """Call this method after customize 'tender.lots' array"""
+
+        # Since we work with two country Moldova and Litua, we should to correct some attribute.
+        # It depends on country value and according to VR.COM-18.1.15.
+
+        max_allowable_bid_change_for_auction = json.loads(get_value_from_auctions_auctionrules(
+            connect_to_auctions, f"{self.country}-{pmd}-createPin", "maxAllowableBidChangeForAuction"))['percent']/100
 
         self.payload['tender']['procurementMethodModalities'] = ['electronicAuction']
         electronic_auctions_object = copy.deepcopy(self.payload['tender']['electronicAuctions'])
@@ -582,7 +583,8 @@ class PriorInformationNoticePayload:
 
             # 'electronicAuctionModalities' array must contain only one object
             electronic_auctions_object['details'][q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference'][
-                'amount'] = round(self.payload['tender']['lots'][q_0]['value']['amount'] * 0.1, 2)
+                'amount'] = round(self.payload['tender']['lots'][q_0]['value']['amount'] *
+                                  max_allowable_bid_change_for_auction, 2)
 
             electronic_auctions_object['details'][q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference'][
                 'currency'] = self.currency
@@ -610,7 +612,43 @@ class PriorInformationNoticePayload:
 
             new_documents_array[q_0]['relatedLots'] = [lot_id_list[q_0]]
 
-        self.payload['tender']['documents'] = new_documents_array
+        ee_documents_array = list()
+        if "criteria" in self.payload['tender']:
+            for e_0 in range(len(self.payload['tender']['criteria'])):
+                for e_1 in range(len(self.payload['tender']['criteria'][e_0]['requirementGroups'])):
+
+                    for e_2 in range(len(self.payload['tender']['criteria'][e_0]['requirementGroups'][e_1][
+                                             'requirements'])):
+
+                        if "eligibleEvidences" in self.payload['tender']['criteria'][e_0][
+                                'requirementGroups'][e_1]['requirements'][e_2]:
+
+                            for e_3 in range(len(self.payload['tender']['criteria'][e_0][
+                                                     'requirementGroups'][e_1]['requirements'][e_2][
+                                                     'eligibleEvidences'])):
+
+                                if "relatedDocument" in self.payload['tender']['criteria'][e_0][
+                                        'requirementGroups'][e_1]['requirements'][e_2]['eligibleEvidences'][e_3]:
+                                    ee_document_object = copy.deepcopy(
+                                        self.payload['tender']['documents'][0])
+
+                                    ee_document_object['id'] = \
+                                        self.payload['tender']['criteria'][e_0]['requirementGroups'][e_1][
+                                            'requirements'][e_2]['eligibleEvidences'][e_3]['relatedDocument']['id']
+
+                                    ee_document_object['documentType'] = f"{random.choice(documentType_tuple)}"
+
+                                    ee_document_object['title'] = \
+                                        f"create fe: tender.documents{len(ee_documents_array)}.title"
+
+                                    ee_document_object['description'] = \
+                                        f"create fe: tender.documents{len(ee_documents_array)}." \
+                                        f"description"
+
+                                    del ee_document_object['relatedLots']
+                                    ee_documents_array.append(ee_document_object)
+
+        self.payload['tender']['documents'] = new_documents_array + ee_documents_array
 
     def customize_tender_procuringentity_additionalidentifiers(
             self, quantity_of_tender_procuring_entity_additional_identifiers: int):
@@ -707,7 +745,8 @@ class PriorInformationNoticePayload:
 
         self.payload['tender']['procuringEntity']['persones'] = persones_array
 
-    def prepare_exclusion_criteria(self, *args: tuple, language: str, environment: str, criteria_relates_to: str):
+    def prepare_exclusion_criteria(self, *args, language: str, environment: str, criteria_relates_to: str,
+                                   criteria_related_item: str = None):
         # Prepare 'exclusion' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -725,13 +764,14 @@ class PriorInformationNoticePayload:
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
         some_criteria.delete_optional_fields(*args)
 
-        some_criteria.prepare_criteria_array(criteria_relates_to=criteria_relates_to)
+        some_criteria.prepare_criteria_array(criteria_relates_to, criteria_related_item)
         some_criteria.set_unique_temporary_id_for_eligible_evidences()
         some_criteria.set_unique_temporary_id_for_criteria()
         exclusion_criteria_array = some_criteria.build_criteria_array()
         return exclusion_criteria_array
 
-    def prepare_selection_criteria(self, *args: tuple, language: str, environment: str, criteria_relates_to: str):
+    def prepare_selection_criteria(self, *args, language: str, environment: str, criteria_relates_to: str,
+                                   criteria_related_item: str = None):
         # Prepare 'selection' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -749,13 +789,14 @@ class PriorInformationNoticePayload:
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
         some_criteria.delete_optional_fields(*args)
 
-        some_criteria.prepare_criteria_array(criteria_relates_to=criteria_relates_to)
+        some_criteria.prepare_criteria_array(criteria_relates_to, criteria_related_item)
         some_criteria.set_unique_temporary_id_for_eligible_evidences()
         some_criteria.set_unique_temporary_id_for_criteria()
         selection_criteria_array = some_criteria.build_criteria_array()
         return selection_criteria_array
 
-    def prepare_other_criteria(self, *args: tuple, language: str, environment: str, criteria_relates_to: str):
+    def prepare_other_criteria(self, *args, language: str, environment: str, criteria_relates_to: str,
+                               criteria_related_item: str = None):
         # Prepare 'other' criteria for payload.
 
         some_criteria = CriteriaArray(
@@ -773,7 +814,9 @@ class PriorInformationNoticePayload:
         # Delete redundant attributes: 'minValue', 'maxValue', because attribute ' expectedValue' will be used.
         some_criteria.delete_optional_fields(*args)
 
-        some_criteria.prepare_criteria_array(criteria_relates_to=criteria_relates_to)
+        some_criteria.prepare_criteria_array(
+            criteria_relates_to, criteria_related_item
+        )
         some_criteria.set_unique_temporary_id_for_eligible_evidences()
         some_criteria.set_unique_temporary_id_for_criteria()
         other_criteria_array = some_criteria.build_criteria_array()
@@ -837,6 +880,7 @@ class PriorInformationNoticePayload:
             conversion_object=conversion_object,
             requirements_array=requirements_objects
         )
+
         return conversion_array_for_selection_criteria
 
     def prepare_other_conversions(self, other_criteria_array: list):
@@ -931,7 +975,7 @@ class PriorInformationNoticePayload:
                 observations_list[q_1]['notes'] = f"create pin: tender.targets[{q_0}].observations[{q_1}].notes"
 
                 observations_list[q_1]['relatedRequirementId'] = \
-                    f"create pin: tender.targets[{q_0}].observations[{q_1}].relatedRequirementId"
+                    self.payload['tender']['criteria'][q_1]['requirementGroups'][0]['requirements'][0]['id']
 
             targets_list[q_0]['observations'] = observations_list
         self.payload['tender']['targets'] = targets_list

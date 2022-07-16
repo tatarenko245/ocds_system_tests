@@ -695,22 +695,23 @@ class PlanningNoticeRelease:
 
         # Prepare party with procuringEntity role.
         procuringentity_role_array.append(copy.deepcopy(self.expected_ms_release['releases'][0]['parties'][0]))
-        procuringentity_role_array[0]['id'] = f"{self.pn_payload['tender']['procuringEntity']['identifier']['scheme']}-" \
-                                              f"{self.pn_payload['tender']['procuringEntity']['identifier']['id']}"
+        procuringentity_role_array[0]['id'] = \
+            f"{self.pn_payload['tender']['procuringEntity']['identifier']['scheme']}-" \
+            f"{self.pn_payload['tender']['procuringEntity']['identifier']['id']}"
 
         procuringentity_role_array[0]['name'] = self.pn_payload['tender']['procuringEntity']['name']
         procuringentity_role_array[0]['identifier']['scheme'] = \
-        self.pn_payload['tender']['procuringEntity']['identifier']['scheme']
+            self.pn_payload['tender']['procuringEntity']['identifier']['scheme']
         procuringentity_role_array[0]['identifier']['id'] = self.pn_payload['tender']['procuringEntity']['identifier'][
             'id']
         procuringentity_role_array[0]['identifier']['legalName'] = \
-        self.pn_payload['tender']['procuringEntity']['identifier']['legalName']
+            self.pn_payload['tender']['procuringEntity']['identifier']['legalName']
         procuringentity_role_array[0]['address']['streetAddress'] = \
-        self.pn_payload['tender']['procuringEntity']['address']['streetAddress']
+            self.pn_payload['tender']['procuringEntity']['address']['streetAddress']
 
         if "postalCode" in self.pn_payload['tender']['procuringEntity']['address']:
             procuringentity_role_array[0]['address']['postalCode'] = \
-            self.pn_payload['tender']['procuringEntity']['address']['postalCode']
+                self.pn_payload['tender']['procuringEntity']['address']['postalCode']
         else:
             del procuringentity_role_array[0]['address']['postalCode']
 
@@ -940,7 +941,7 @@ class PlanningNoticeRelease:
             if "typeOfBuyer" in ei_payload['buyer']['details']:
                 buyer_role_array[0]['details']['typeOfBuyer'] = ei_payload['buyer']['details']['typeOfBuyer']
             else:
-                del buyer_role_array['buyer']['details']['typeOfBuyer']
+                del buyer_role_array[0]['buyer']['details']['typeOfBuyer']
 
             if "mainGeneralActivity" in ei_payload['buyer']['details']:
 
@@ -1251,206 +1252,23 @@ class PlanningNoticeRelease:
             del payer_role_array[q_3]['details']
             payer_role_array[q_3]['roles'] = ["payer"]
 
-        # Get unique 'parties' array for buyer role.
-        unique_buyer_role_array = get_unique_party_from_list_by_id(buyer_role_array)
-        unique_buyer_id_array = list()
-        for buyer in range(len(unique_buyer_role_array)):
-            unique_buyer_id_array.append(unique_buyer_role_array[buyer]['id'])
 
-        # Get unique 'parties' array for payer role.
-        unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
-        unique_payer_id_array = list()
-        for payer in range(len(unique_payer_role_array)):
-            unique_payer_id_array.append(unique_payer_role_array[payer]['id'])
 
-        # Get unique 'parties' array for funder role.
-        unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
-        unique_funder_id_array = list()
-        for funder in range(len(unique_funder_role_array)):
-            unique_funder_id_array.append(unique_funder_role_array[funder]['id'])
+        # parties_array = \
+        #     permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
+        #     permanent_parties_with_funder_role_array
 
-        # Get unique 'parties' array for procuringEntity role.
-        unique_procuringentity_role_array = get_unique_party_from_list_by_id(procuringentity_role_array)
-        unique_procuringentity_id_array = list()
-        for procuringentity in range(len(unique_procuringentity_role_array)):
-            unique_procuringentity_id_array.append(unique_procuringentity_role_array[procuringentity]['id'])
-
-        # Prepare temporary 'parties' array for specific role.
-        temp_parties_with_buyer_role_array = list()
-        temp_parties_with_payer_role_array = list()
-        temp_parties_with_funder_role_array = list()
-        temp_parties_with_procuringentity_role_array = list()
-
-        # Compare organizations with 'funder' and 'procuringEntity' role.
-        same_id_into_procuringentity_and_funder = list(
-            set(unique_procuringentity_id_array) & set(unique_funder_id_array)
-        )
-
-        if len(same_id_into_procuringentity_and_funder) > 0:
-            for funder in range(len(unique_funder_role_array)):
-                for i_1 in range(len(same_id_into_procuringentity_and_funder)):
-                    for procuringentity in range(len(unique_procuringentity_role_array)):
-                        if unique_funder_role_array[funder]['id'] == same_id_into_procuringentity_and_funder[i_1] == \
-                                unique_procuringentity_role_array[procuringentity]['id']:
-                            unique_funder_role_array[funder]['roles'] = \
-                                unique_funder_role_array[funder]['roles'] + \
-                                unique_procuringentity_role_array[procuringentity]['roles']
-
-                            temp_parties_with_funder_role_array.append(unique_funder_role_array[funder])
-
-                    for procuringentity in range(len(unique_procuringentity_role_array)):
-                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
-                            temp_parties_with_procuringentity_role_array.append(
-                                unique_procuringentity_role_array[procuringentity]
-                            )
-
-                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
-                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
-        else:
-            temp_parties_with_procuringentity_role_array = unique_procuringentity_role_array
-            temp_parties_with_funder_role_array = unique_funder_role_array
-
-        unique_parties_id_array = list()
-        for funder in range(len(temp_parties_with_funder_role_array)):
-            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
-
-        # Compare organizations with 'payer' and 'funder' role.
-        same_id_into_payer_and_funder = list(set(unique_payer_id_array) & set(unique_parties_id_array))
-
-        if len(same_id_into_payer_and_funder) > 0:
-            for payer in range(len(unique_payer_role_array)):
-                for i_1 in range(len(same_id_into_payer_and_funder)):
-                    for funder in range(len(unique_parties_id_array)):
-                        if unique_payer_role_array[payer]['id'] == same_id_into_payer_and_funder[i_1] == \
-                                unique_parties_id_array[funder]['id']:
-                            unique_payer_role_array[payer]['roles'] = \
-                                unique_payer_role_array[payer]['roles'] + unique_parties_id_array[funder]['roles']
-
-                            temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
-
-                    for funder in range(len(unique_funder_role_array)):
-                        if unique_payer_role_array[payer]['id'] != same_id_into_payer_and_funder[i_1]:
-                            temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
-
-                        if unique_parties_id_array[funder]['id'] != same_id_into_payer_and_funder[i_1]:
-                            temp_parties_with_funder_role_array.append(unique_parties_id_array[funder])
-        else:
-            temp_parties_with_payer_role_array = unique_payer_role_array
-            temp_parties_with_funder_role_array = temp_parties_with_funder_role_array
-
-        unique_parties_id_array = list()
-        for payer in range(len(temp_parties_with_payer_role_array)):
-            unique_parties_id_array.append(temp_parties_with_payer_role_array[payer]['id'])
-
-        # --
-        # Compare organizations with 'payer' and 'procuringEntity' role.
-        same_id_into_procuringentity_and_funder = list(
-            set(unique_procuringentity_id_array) & set(unique_funder_id_array)
-        )
-
-        if len(same_id_into_procuringentity_and_funder) > 0:
-            for funder in range(len(unique_funder_role_array)):
-                for i_1 in range(len(same_id_into_procuringentity_and_funder)):
-                    for procuringentity in range(len(unique_procuringentity_role_array)):
-                        if unique_funder_role_array[funder]['id'] == same_id_into_procuringentity_and_funder[i_1] == \
-                                unique_procuringentity_role_array[procuringentity]['id']:
-                            unique_funder_role_array[funder]['roles'] = \
-                                unique_funder_role_array[funder]['roles'] + \
-                                unique_procuringentity_role_array[procuringentity]['roles']
-
-                            temp_parties_with_funder_role_array.append(unique_funder_role_array[funder])
-
-                    for procuringentity in range(len(unique_procuringentity_role_array)):
-                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
-                            temp_parties_with_procuringentity_role_array.append(
-                                unique_procuringentity_role_array[procuringentity]
-                            )
-
-                        if unique_funder_role_array[funder]['id'] != same_id_into_procuringentity_and_funder[i_1]:
-                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
-        else:
-            temp_parties_with_procuringentity_role_array = unique_procuringentity_role_array
-            temp_parties_with_funder_role_array = unique_funder_role_array
-
-        unique_parties_id_array = list()
-        for funder in range(len(temp_parties_with_funder_role_array)):
-            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
-        # =====
-        # Compare organizations with 'buyer' and 'payer' role.
-        same_id_into_buyer_and_payer = \
-            list(set(unique_buyer_id_array) & set(unique_parties_id_array))
-
-        permanent_parties_with_buyer_role_array = list()
-        permanent_parties_with_payer_role_array = list()
-        permanent_parties_with_funder_role_array = list()
-
-        if len(same_id_into_buyer_and_payer) > 0:
-            for buyer in range(len(unique_buyer_role_array)):
-                for i_1 in range(len(same_id_into_buyer_and_payer)):
-                    for payer in range(len(temp_parties_with_payer_role_array)):
-
-                        if unique_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_payer[i_1] == \
-                                temp_parties_with_payer_role_array[payer]['id']:
-                            unique_buyer_role_array[buyer]['roles'] = \
-                                unique_buyer_role_array[buyer]['roles'] + temp_parties_with_payer_role_array[payer][
-                                    'roles']
-
-                            temp_parties_with_buyer_role_array.append(unique_buyer_role_array[buyer])
-
-                    for payer in range(len(temp_parties_with_payer_role_array)):
-                        if temp_parties_with_payer_role_array[payer]['id'] != same_id_into_buyer_and_payer[i_1]:
-                            permanent_parties_with_payer_role_array.append(temp_parties_with_payer_role_array[payer])
-        else:
-            temp_parties_with_buyer_role_array = unique_buyer_role_array
-            permanent_parties_with_payer_role_array = temp_parties_with_payer_role_array
-
-        unique_parties_id_array = list()
-        for funder in range(len(temp_parties_with_funder_role_array)):
-            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
-
-        unique_buyer_id_array = list()
-        for buyer in range(len(temp_parties_with_buyer_role_array)):
-            unique_buyer_id_array.append(temp_parties_with_buyer_role_array[buyer]['id'])
-
-        # Compare organizations with 'buyer' and 'funder' role.
-        same_id_into_buyer_and_funder = \
-            list(set(unique_buyer_id_array) & set(unique_parties_id_array))
-
-        if len(same_id_into_buyer_and_funder) > 0:
-            for buyer in range(len(temp_parties_with_buyer_role_array)):
-                for i_1 in range(len(same_id_into_buyer_and_funder)):
-                    for funder in range(len(temp_parties_with_funder_role_array)):
-
-                        if temp_parties_with_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_funder[i_1] == \
-                                temp_parties_with_funder_role_array[funder]['id']:
-                            temp_parties_with_buyer_role_array[buyer]['roles'] = \
-                                temp_parties_with_buyer_role_array[buyer]['roles'] + \
-                                temp_parties_with_funder_role_array[funder]['roles']
-
-                            permanent_parties_with_buyer_role_array.append(temp_parties_with_buyer_role_array[buyer])
-
-                    for funder in range(len(temp_parties_with_funder_role_array)):
-                        if temp_parties_with_funder_role_array[funder]['id'] != same_id_into_buyer_and_funder[i_1]:
-                            permanent_parties_with_funder_role_array.append(temp_parties_with_funder_role_array[funder])
-        else:
-            permanent_parties_with_buyer_role_array = temp_parties_with_buyer_role_array
-            permanent_parties_with_funder_role_array = temp_parties_with_funder_role_array
-
-        parties_array = \
-            permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
-            permanent_parties_with_funder_role_array
-
-        expected_parties_array = list()
-        if len(actual_ms_release['releases'][0]['parties']) == len(parties_array):
-            for act in range(len(actual_ms_release['releases'][0]['parties'])):
-                for exp in range(len(parties_array)):
-                    if parties_array[exp]['id'] == actual_ms_release['releases'][0]['parties'][act]['id']:
-                        expected_parties_array.append(parties_array[exp])
-        else:
-            ValueError("Quantity of objects into actual ms release doesn't equal "
-                       "quantity of objects into prepared parties array")
-
-        self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
+        # expected_parties_array = list()
+        # if len(actual_ms_release['releases'][0]['parties']) == len(parties_array):
+        #     for act in range(len(actual_ms_release['releases'][0]['parties'])):
+        #         for exp in range(len(parties_array)):
+        #             if parties_array[exp]['id'] == actual_ms_release['releases'][0]['parties'][act]['id']:
+        #                 expected_parties_array.append(parties_array[exp])
+        # else:
+        #     ValueError("Quantity of objects into actual ms release doesn't equal "
+        #                "quantity of objects into prepared parties array")
+        #
+        # self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
 
         """Enrich 'relatedProcesses' object for expected MS release: releases[0].relatedProcesses"""
         new_related_processes_array = list()

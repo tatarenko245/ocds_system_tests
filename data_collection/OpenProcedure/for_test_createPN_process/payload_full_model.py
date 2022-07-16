@@ -1,51 +1,58 @@
+"""This is payload full data model for Create PN process."""
+
 payload_model = {
     "planning": {
-        "rationale": "create pn: planning.rationale",
+        "rationale": "",
         "budget": {
-            "description": "create pn: planning.description.description",
+            "description": "",
             "budgetBreakdown": [
                 {
-                    "id": fs_id,
+                    "id": "",
                     "amount": {
-                        "amount": amount,
-                        "currency": currency
+                        "amount": "",
+                        "currency": ""
                     }
                 }
             ]
         }
     },
     "tender": {
-        "title": "create pn: tender.title",
-        "description": "create pn: tender.description",
-        "legalBasis": f"{random.choice(legal_basis_tuple)}",
-        "procurementMethodRationale": "create pn: tender.procurementMethodRationale",
-        "procurementMethodAdditionalInfo": "create pn: tender.procurementMethodAdditionalInfo",
+        "title": "",
+        "description": "",
+        "legalBasis": "",
+        "procurementMethodRationale": "",
+        "procurementMethodAdditionalInfo": "",
         "tenderPeriod":
             {
-                "startDate": __pn_period
+                "startDate": ""
             },
         "procuringEntity": {
-            "name": "create pn: tender.procuringEntity.name",
+            "name": "",
             "identifier": {
-                "id": "create pn: tender.procuringEntity.identifier.id",
-                "scheme": "MD-IDNO",
-                "legalName": "create pn: tender.procuringEntity.identifier.legalName",
-                "uri": "create pn: tender.procuringEntity.identifier.uri",
+                "id": "",
+                "scheme": "",
+                "legalName": "",
+                "uri": "",
             },
             "address": {
-                "streetAddress": "create pn: tender.procuringEntity.address.streetAddress",
-                "postalCode": "create pn: tender.procuringEntity.address.postalCode",
+                "streetAddress": "",
+                "postalCode": "",
                 "addressDetails": {
                     "country": {
-                        "id": "MD"
+                        "scheme": "",
+                        "id": "",
+                        "description": ""
                     },
                     "region": {
-                        "id": region_id,
+                        "scheme": "",
+                        "id": "",
+                        "description": ""
                     },
                     "locality": {
-                        "scheme": f"{random.choice(locality_scheme_tuple)}",
-                        "id": locality_id,
-                        "description": "create pn: tender.procuringEntity.address.addressDetails.description"
+                        "scheme": "",
+                        "id": "",
+                        "description": "",
+                        "uri": ""
                     }
                 }
             },
@@ -58,75 +65,80 @@ payload_model = {
                 }
             ],
             "contactPoint": {
-                "name": "create pn: tender.procuringEntity.contactPoint.name",
-                "email": "create pn: tender.procuringEntity.contactPoint.email",
-                "telephone": "create pn: tender.procuringEntity.contactPoint.telephone",
-                "faxNumber": "create pn: tender.procuringEntity.contactPoint.faxNumber",
-                "url": "create pn: tender.procuringEntity.contactPoint.url",
+                "name": "",
+                "email": "",
+                "telephone": "",
+                "faxNumber": "",
+                "url": "",
             }},
         "lots": [
             {
-                "id": "0",
-                "internalId": "create pn: tender.lots0.internalId",
-                "title": "create pn: tender.lots0.title",
-                "description": "create pn: tender.lots0.description",
+                "id": "",
+                "internalId": "",
+                "title": "",
+                "description": "",
                 "value": {
-                    "amount": amount,
-                    "currency": currency
+                    "amount": 0.00,
+                    "currency": ""
                 },
                 "contractPeriod": {
-                    "startDate": __contact_period[0],
-                    "endDate": __contact_period[1]
+                    "startDate": "",
+                    "endDate": ""
                 },
                 "placeOfPerformance": {
                     "address": {
-                        "streetAddress": "create pn: tender.lots0.deliveryAddress.streetAddress",
-                        "postalCode": "create ei: tender.lots0.deliveryAddress.postalCode",
+                        "streetAddress": "",
+                        "postalCode": "",
                         "addressDetails": {
                             "country": {
-                                "id": "MD"
+                                "scheme": "",
+                                "id": "",
+                                "description": ""
                             },
                             "region": {
-                                "id": "3400000"
+                                "scheme": "",
+                                "id": "",
+                                "description": ""
                             },
                             "locality": {
-                                "id": "3401000",
-                                "description":
-                                    "create ei: tender.lots0.deliveryAddress.addressDetails.locality.uri",
-                                "scheme": f"{random.choice(locality_scheme_tuple)}",
-                                "uri": "create ei: tender.lots0.deliveryAddress.addressDetails.locality.uri"
+                                "scheme": "",
+                                "id": "",
+                                "description": "",
+                                "uri": ""
                             }
                         }
                     },
-                    "description": "create pn: tender.lots0.placeOfPerformance.description"
+                    "description": ""
                 }
             }],
         "items": [
             {
-                "id": "0",
-                "internalId": "create pn: tender.items0.internalId",
+                "id": "",
+                "internalId": "",
                 "classification": {
-                    "id": item_classification_id
+                    "id": "",
+                    "scheme": ""
                 },
                 "additionalClassifications": [
                     {
-                        "id": "AA12-4"
+                        "id": "",
+                        "scheme": ""
                     }
                 ],
-                "quantity": "10.989",
+                "quantity": "",
                 "unit": {
-                    "id": "10"
+                    "id": ""
                 },
-                "description": "create ei: tender.items0.description",
-                "relatedLot": "0"
+                "description": "",
+                "relatedLot": ""
             }],
         "documents": [
             {
-                "documentType": f"{random.choice(documentType_tuple)}",
-                "id": self.__document_one_was_uploaded[0]["data"]["id"],
-                "title": "create pn: tender.documents.title",
-                "description": "create pn: tender.documents.description",
-                "relatedLots": ["0"]
+                "documentType": "",
+                "id": "",
+                "title": "",
+                "description": "",
+                "relatedLots": [""]
             }]
     }
 }
