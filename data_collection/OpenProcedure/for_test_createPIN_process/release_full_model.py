@@ -279,3 +279,217 @@ pi_release_model = {
         }
     ]
 }
+
+ms_release_model = {
+    "uri": "",
+    "version": "",
+    "extensions": [
+        "",
+        ""
+    ],
+    "publisher": {
+        "name": "",
+        "uri": ""
+    },
+    "license": "",
+    "publicationPolicy": "",
+    "publishedDate": "",
+    "releases": [
+        {
+            "ocid": "",
+            "id": "",
+            "date": "",
+            "tag": [
+                ""
+            ],
+            "initiationType": "",
+            "language": "",
+            "planning": {
+                "budget": {
+                    "description": "",
+                    "budgetBreakdown": [
+                        {
+                            "id": "",
+                            "description": "",
+                            "classifications": {
+                                "ei": "",
+                                "fs": ""
+                            },
+                            "amount": {
+                                "amount": 0.00,
+                                "currency": ""
+                            },
+                            "period": {
+                                "startDate": "",
+                                "endDate": ""
+                            },
+                            "sourceParty": {
+                                "id": "",
+                                "name": ""
+                            },
+                            "europeanUnionFunding": {
+                                "projectIdentifier": "",
+                                "projectName": "",
+                                "uri": ""
+                            }
+                        }
+                    ]
+                },
+                "rationale": ""
+            },
+            "parties": [
+                {
+                    "id": "",
+                    "name": "",
+                    "identifier": {
+                        "scheme": "",
+                        "id": "",
+                        "legalName": "",
+                        "uri": ""
+                    },
+                    "address": {
+                        "streetAddress": "",
+                        "postalCode": "",
+                        "addressDetails": {
+                            "country": {
+                                "scheme": "",
+                                "id": "",
+                                "description": "",
+                                "uri": ""
+                            },
+                            "region": {
+                                "scheme": "",
+                                "id": "",
+                                "description": "",
+                                "uri": ""
+                            },
+                            "locality": {
+                                "scheme": "",
+                                "id": "",
+                                "description": ""
+                            }
+                        }
+                    },
+                    "additionalIdentifiers": [
+                        {
+                            "scheme": "",
+                            "id": "",
+                            "legalName": "",
+                            "uri": ""
+                        }
+                    ],
+                    "contactPoint": {
+                        "name": "",
+                        "email": "",
+                        "telephone": "",
+                        "faxNumber": "",
+                        "url": ""
+                    },
+                    "details": {
+                        "typeOfBuyer": "",
+                        "mainGeneralActivity": "",
+                        "mainSectoralActivity": ""
+                    },
+                    "persones": [
+                        {
+                            "id": "",
+                            "title": "",
+                            "name": "",
+                            "identifier": {
+                                "scheme": "",
+                                "id": "",
+                                "uri": ""
+                            },
+                            "businessFunctions": [
+                                {
+                                    "id": "",
+                                    "type": "",
+                                    "jobTitle": "",
+                                    "period": {
+                                        "startDate": ""
+                                    },
+                                    "documents": [
+                                        {
+                                            "id": "",
+                                            "documentType": "",
+                                            "title": "",
+                                            "description": "",
+                                            "url": "",
+                                            "datePublished": ""
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "roles": [
+                        ""
+                    ]
+                }
+            ],
+            "tender": {
+                "id": "",
+                "title": "",
+                "description": "",
+                "status": "",
+                "value": {
+                    "amount": 0.00,
+                    "currency": ""
+                },
+                "procurementMethod": "",
+                "procurementMethodDetails": "",
+                "procurementMethodRationale": "",
+                "mainProcurementCategory": "",
+                "eligibilityCriteria": "",
+                "contractPeriod": {
+                    "startDate": "",
+                    "endDate": ""
+                },
+                "procuringEntity": {
+                    "id": "",
+                    "name": ""
+                },
+                "acceleratedProcedure": {
+                    "isAcceleratedProcedure": False
+                },
+                "classification": {
+                    "scheme": "",
+                    "id": "",
+                    "description": ""
+                },
+                "designContest": {
+                    "serviceContractAward": False
+                },
+                "electronicWorkflows": {
+                    "useOrdering": False,
+                    "usePayment": False,
+                    "acceptInvoicing": False
+                },
+                "jointProcurement": {
+                    "isJointProcurement": False
+                },
+                "legalBasis": "",
+                "procedureOutsourcing": {
+                    "procedureOutsourced": False
+                },
+                "dynamicPurchasingSystem": {
+                    "hasDynamicPurchasingSystem": False
+                },
+                "framework": {
+                    "isAFramework": False
+                }
+            },
+            "relatedProcesses": [
+                {
+                    "id": "",
+                    "relationship": [
+                        ""
+                    ],
+                    "scheme": "",
+                    "identifier": "",
+                    "uri": ""
+                }
+            ]
+        }
+    ]
+}

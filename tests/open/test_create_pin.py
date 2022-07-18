@@ -179,9 +179,6 @@ class TestCreatePIN:
                 except ValueError:
                     raise ValueError("Impossible to build payload for Create PIN process.")
 
-                print("\n Payload")
-                print(json.dumps(payload))
-
                 synchronous_result = create_pin_process(
                     host=bpe_host,
                     access_token=access_token,
@@ -193,7 +190,7 @@ class TestCreatePIN:
                     test_mode=True
                 )
                 message = get_message_for_platform(operation_id)
-                cpid = message['data']['ocid']
+                cpid = message['data']['ocid'][:28]
                 ocid = message['data']['outcomes']['pin'][0]['id']
                 allure.attach(str(message), "Message for platform.")
 
@@ -233,14 +230,14 @@ class TestCreatePIN:
                     except ValueError:
                         ValueError("Impossible to build expected message for platform.")
 
-                    # with allure.step('Compare actual and expected message for platform.'):
-                    #     allure.attach(json.dumps(actual_message), "Actual message.")
-                    #     allure.attach(json.dumps(expected_message), "Expected message.")
-                    #
-                    #     assert actual_message == expected_message, \
-                    #         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                    #                       f"operation_id = '{operation_id}' "
-                    #                       f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                    with allure.step('Compare actual and expected message for platform.'):
+                        allure.attach(json.dumps(actual_message), "Actual message.")
+                        allure.attach(json.dumps(expected_message), "Expected message.")
+
+                        assert actual_message == expected_message, \
+                            allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                          f"operation_id = '{operation_id}' "
+                                          f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
                 with allure.step(f'# {step_number}.3. Check PI release.'):
                     """
@@ -249,9 +246,6 @@ class TestCreatePIN:
                     url = f"{actual_message['data']['url']}/{ocid}"
                     actual_release = requests.get(url=url).json()
 
-                    print("\nActual PI release")
-                    print(json.dumps(actual_release))
-
                     try:
                         """
                         Build expected PI release.
@@ -259,14 +253,11 @@ class TestCreatePIN:
                         expected_release = copy.deepcopy(CreatePriorInformationNoticeRelease(
                             environment, country, language, tender_classification_id
                         ))
-                        expected_release = expected_release.build_expected_pin_release(
+                        expected_release = expected_release.build_expected_pi_release(
                             payload, actual_message, actual_release
                         )
                     except ValueError:
                         ValueError("Impossible to build expected PI release.")
-
-                    print("Expected PI release")
-                    print(json.dumps(expected_release))
 
                     with allure.step("Compare actual and expected releases."):
                         allure.attach(json.dumps(actual_release), "Actual release.")

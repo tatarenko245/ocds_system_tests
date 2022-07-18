@@ -1,6 +1,6 @@
 """ Prepare expected message for platform, the create prior information notice process of budget."""
 import copy
-import fnmatch
+import re
 
 from functions_collection.some_functions import is_it_uuid
 
@@ -16,9 +16,9 @@ class CreatePriorInformationNoticeMessage:
         self.expected_quantity_of_outcomes_pin = expected_quantity_of_outcomes_pin
 
         if environment == "dev":
-            self.budget_url = "http://dev.public.eprocurement.systems/budgets"
+            self.tender_url = "http://dev.public.eprocurement.systems/tenders"
         elif environment == "sandbox":
-            self.budget_url = "http://public.eprocurement.systems/budgets"
+            self.tender_url = "http://public.eprocurement.systems/tenders"
 
         self.success_message = {
             "X-OPERATION-ID": "",
@@ -81,29 +81,37 @@ class CreatePriorInformationNoticeMessage:
 
         if "ocid" in self.actual_message['data']:
             if self.test_mode is False:
-                is_ocid_correct = fnmatch.fnmatch(self.actual_message["data"]["ocid"], f"ocds-t1s2t3-{self.country}-*")
+                pattern = f"ocds-t1s2t3-{self.country}-.............-PI-............."
             else:
-                is_ocid_correct = fnmatch.fnmatch(self.actual_message["data"]["ocid"], f"test-t1s2t3-{self.country}-*")
+                pattern = f"test-t1s2t3-{self.country}-.............-PI-............."
 
-            if is_ocid_correct is True:
+            is_ocid_correct = re.fullmatch(
+                pattern, self.actual_message["data"]["ocid"]
+            )
+
+            if is_ocid_correct:
                 self.success_message['data']['ocid'] = self.actual_message['data']['ocid']
             else:
-                ValueError("The message is not correct: 'data.ocid'.")
+                self.success_message['data']['ocid'] = f"The ocid is not correct: 'data.ocid."
         else:
             KeyError("The message is not correct: mismatch key 'data.ocid'.")
 
         if "url" in self.actual_message['data']:
-            self.success_message['data']['url'] = f"{self.budget_url}/{self.success_message['data']['ocid']}"
+            self.success_message['data']['url'] = f"{self.tender_url}/{self.success_message['data']['ocid'][:28]}"
         else:
             KeyError("The message is not correct: mismatch key 'data.url'.")
 
         if "operationDate" in self.actual_message['data']:
-            is_date_correct = fnmatch.fnmatch(self.actual_message["data"]["operationDate"], "202*-*-*T*:*:*Z")
-
-            if is_date_correct is True:
+            pattern = "202.-..-..T..:..:..Z"
+            is_date_correct = re.fullmatch(
+                pattern, self.actual_message["data"]["operationDate"]
+            )
+            if is_date_correct:
                 self.success_message['data']['operationDate'] = self.actual_message['data']['operationDate']
+
             else:
-                ValueError("The message is not correct: 'data.operationDate'.")
+                self.success_message['data']['operationDate'] = f"The operationDate is not correct: " \
+                                                                f"'data.operationDate."
         else:
             KeyError("The message is not correct: mismatch key 'data.operationDate'.")
 
@@ -112,15 +120,15 @@ class CreatePriorInformationNoticeMessage:
             outcomes_pin_array.append(copy.deepcopy(self.success_message['data']['outcomes']['pin'][0]))
 
             if self.test_mode is False:
-                is_pin_id_correct = fnmatch.fnmatch(
-                    self.actual_message["data"]["outcomes"]["pin"][obj]["id"], f"ocds-t1s2t3-{self.country}-*-PI-*"
-                )
+                pattern = f"ocds-t1s2t3-{self.country}-.............-PI-............."
             else:
-                is_pin_id_correct = fnmatch.fnmatch(
-                    self.actual_message["data"]["outcomes"]["pin"][obj]["id"], f"test-t1s2t3-{self.country}-*-PI-*"
-                )
+                pattern = f"test-t1s2t3-{self.country}-.............-PI-............."
 
-            if is_pin_id_correct is True:
+            is_pin_id_correct = re.fullmatch(
+                pattern, self.actual_message["data"]["outcomes"]["pin"][obj]["id"]
+            )
+
+            if is_pin_id_correct:
                 outcomes_pin_array[obj]['id'] = self.actual_message["data"]["outcomes"]["pin"][obj]["id"]
             else:
                 outcomes_pin_array[obj]['id'] = f"The message is not correct: 'data.outcomes.pin[{obj}].id'."

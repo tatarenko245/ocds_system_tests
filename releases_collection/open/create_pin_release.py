@@ -1,11 +1,12 @@
 """"Prepare the expected release of the create pin process, open procedure."""
 import copy
 
-from data_collection.OpenProcedure.for_test_createPIN_process.release_full_model import pi_release_model
+from data_collection.OpenProcedure.for_test_createPIN_process.release_full_model import pi_release_model, \
+    ms_release_model
 from data_collection.data_constant import affordable_shemes
 from functions_collection.some_functions import is_it_uuid, get_value_from_cpv_dictionary_csv, \
     get_value_from_classification_unit_dictionary_csv, get_value_from_cpvs_dictionary_csv, get_value_from_country_csv, \
-    get_value_from_region_csv, get_value_from_locality_csv
+    get_value_from_region_csv, get_value_from_locality_csv, get_value_from_code_translation_csv
 
 
 class CreatePriorInformationNoticeRelease:
@@ -14,9 +15,11 @@ class CreatePriorInformationNoticeRelease:
     def __init__(self, environment, country, language, tender_classification_id):
 
         self.environment = environment
+        self.country = country
         self.language = language
         self.tender_classification_id = tender_classification_id
         self.expected_pi_release = copy.deepcopy(pi_release_model)
+        self.expected_ms_release = copy.deepcopy(ms_release_model)
 
         for c in range(len(affordable_shemes['data'])):
             if affordable_shemes['data'][c]['country'] == country:
@@ -55,11 +58,11 @@ class CreatePriorInformationNoticeRelease:
         except ValueError:
             raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
-    def build_expected_pin_release(self, payload, message_for_platform, actual_pin_release):
-        """Build EI release."""
+    def build_expected_pi_release(self, payload, message_for_platform, actual_pi_release):
+        """Build PI release."""
 
-        """Enrich general attribute for expected PIN release"""
-        self.expected_pi_release['uri'] = f"{self.metadata_tender_url}/{message_for_platform['data']['ocid']}/" \
+        """Enrich general attribute for expected PI release"""
+        self.expected_pi_release['uri'] = f"{self.metadata_tender_url}/{message_for_platform['data']['ocid'][:28]}/" \
                                           f"{message_for_platform['data']['outcomes']['pin'][0]['id']}"
 
         self.expected_pi_release['version'] = "1.1"
@@ -79,7 +82,7 @@ class CreatePriorInformationNoticeRelease:
         # FR.COM-3.4.4: Set id.
         self.expected_pi_release['releases'][0]['id'] = \
             f"{message_for_platform['data']['outcomes']['pin'][0]['id']}-" \
-            f"{actual_pin_release['releases'][0]['id'][46:59]}"
+            f"{actual_pi_release['releases'][0]['id'][46:59]}"
 
         # FR.COM-1.62.6: Set date.
         self.expected_pi_release['releases'][0]['date'] = message_for_platform['data']['operationDate']
@@ -97,12 +100,12 @@ class CreatePriorInformationNoticeRelease:
         # FR.COM-1.62.4: Set id.
         try:
             is_permanent_id_correct = is_it_uuid(
-                actual_pin_release['releases'][0]['tender']['id']
+                actual_pi_release['releases'][0]['tender']['id']
             )
             if is_permanent_id_correct is True:
 
                 self.expected_pi_release['releases'][0]['tender']['id'] = \
-                    actual_pin_release['releases'][0]['tender']['id']
+                    actual_pi_release['releases'][0]['tender']['id']
             else:
                 self.expected_pi_release['releases'][0]['tender']['id'] = \
                     f"FR.COM-1.62.4: the 'releases[0].tender.id' must be uuid."
@@ -123,12 +126,12 @@ class CreatePriorInformationNoticeRelease:
                 # FR.COM-1.62.50: Set id.
                 try:
                     is_permanent_id_correct = is_it_uuid(
-                        actual_pin_release['releases'][0]['tender']['criteria'][q_0]['id']
+                        actual_pi_release['releases'][0]['tender']['criteria'][q_0]['id']
                     )
                     if is_permanent_id_correct is True:
 
                         expected_criteria_array[q_0]['id'] = \
-                            actual_pin_release['releases'][0]['tender']['criteria'][q_0]['id']
+                            actual_pi_release['releases'][0]['tender']['criteria'][q_0]['id']
                     else:
                         expected_criteria_array[q_0]['id'] = \
                             f"FR.COM-1.62.50: the 'releases[0].tender.criteria[{q_0}].id' must be uuid."
@@ -154,12 +157,12 @@ class CreatePriorInformationNoticeRelease:
                 if "relatedItem" in payload['tender']['criteria'][q_0]:
                     try:
                         is_permanent_id_correct = is_it_uuid(
-                            actual_pin_release['releases'][0]['tender']['criteria'][q_0]['relatedItem']
+                            actual_pi_release['releases'][0]['tender']['criteria'][q_0]['relatedItem']
                         )
                         if is_permanent_id_correct is True:
 
                             expected_criteria_array[q_0]['relatedItem'] = \
-                                actual_pin_release['releases'][0]['tender']['criteria'][q_0]['relatedItem']
+                                actual_pi_release['releases'][0]['tender']['criteria'][q_0]['relatedItem']
                         else:
                             expected_criteria_array[q_0]['id'] = \
                                 f"FR.COM-1.62.59: the 'releases[0].tender.criteria[{q_0}].relatedItem' must be uuid."
@@ -188,12 +191,12 @@ class CreatePriorInformationNoticeRelease:
                     # FR.COM-1.62.53: Set id.
                     try:
                         is_permanent_id_correct = is_it_uuid(
-                            actual_pin_release['releases'][0]['tender']['criteria'][q_0]['requirementGroups'][q_1]['id']
+                            actual_pi_release['releases'][0]['tender']['criteria'][q_0]['requirementGroups'][q_1]['id']
                         )
                         if is_permanent_id_correct is True:
 
                             expected_requirementgroups_array[q_1]['id'] = \
-                                actual_pin_release['releases'][0]['tender']['criteria'][q_0][
+                                actual_pi_release['releases'][0]['tender']['criteria'][q_0][
                                     'requirementGroups'][q_1]['id']
                         else:
                             expected_requirementgroups_array[q_1]['id'] = \
@@ -221,13 +224,13 @@ class CreatePriorInformationNoticeRelease:
                         # FR.COM-1.62.54: Set id.
                         try:
                             is_permanent_id_correct = is_it_uuid(
-                                actual_pin_release['releases'][0]['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                actual_pi_release['releases'][0]['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['id']
                             )
                             if is_permanent_id_correct is True:
 
                                 expected_requirements_array[q_2]['id'] = \
-                                    actual_pin_release['releases'][0]['tender']['criteria'][q_0]['requirementGroups'][
+                                    actual_pi_release['releases'][0]['tender']['criteria'][q_0]['requirementGroups'][
                                         q_1]['requirements'][q_2]['id']
                             else:
                                 expected_requirements_array[q_2]['id'] = \
@@ -332,14 +335,14 @@ class CreatePriorInformationNoticeRelease:
                                 # FR.COM-1.62.58: Set id.
                                 try:
                                     is_permanent_id_correct = is_it_uuid(
-                                        actual_pin_release['releases'][0]['tender']['criteria'][q_0][
+                                        actual_pi_release['releases'][0]['tender']['criteria'][q_0][
                                             'requirementGroups'][q_1]['requirements'][q_2][
                                             'eligibleEvidences'][q_3]['id']
                                     )
                                     if is_permanent_id_correct is True:
 
                                         expected_eligibleevidences_array[q_3]['id'] = \
-                                            actual_pin_release['releases'][0]['tender']['criteria'][q_0][
+                                            actual_pi_release['releases'][0]['tender']['criteria'][q_0][
                                                 'requirementGroups'][q_1]['requirements'][q_2][
                                                 'eligibleEvidences'][q_3]['id']
                                     else:
@@ -403,12 +406,12 @@ class CreatePriorInformationNoticeRelease:
                 # FR.COM-1.62.66: Set id.
                 try:
                     is_permanent_id_correct = is_it_uuid(
-                        actual_pin_release['releases'][0]['tender']['conversions'][q_0]['id']
+                        actual_pi_release['releases'][0]['tender']['conversions'][q_0]['id']
                     )
                     if is_permanent_id_correct is True:
 
                         expected_conversion_array[q_0]['id'] = \
-                            actual_pin_release['releases'][0]['tender']['conversions'][q_0]['id']
+                            actual_pi_release['releases'][0]['tender']['conversions'][q_0]['id']
                     else:
                         expected_conversion_array[q_0]['id'] = \
                             f"FR.COM-1.62.66: the 'releases[0].tender.conversions[{q_0}].id' must be uuid."
@@ -425,7 +428,7 @@ class CreatePriorInformationNoticeRelease:
                             if payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
                                     'requirements'][p_2]['id'] == payload['tender']['conversions'][q_0]['relatedItem']:
                                 # Get the requirement from actual release.
-                                actual_requirement = actual_pin_release['releases'][0]['tender']['criteria'][p_0][
+                                actual_requirement = actual_pi_release['releases'][0]['tender']['criteria'][p_0][
                                     'requirementGroups'][p_1]['requirements'][p_2]
 
                 # Set relatedItem.
@@ -454,12 +457,12 @@ class CreatePriorInformationNoticeRelease:
                     # FR.COM-1.62.67: Set id.
                     try:
                         is_permanent_id_correct = is_it_uuid(
-                            actual_pin_release['releases'][0]['tender']['conversions'][q_0]['coefficients'][q_1]['id']
+                            actual_pi_release['releases'][0]['tender']['conversions'][q_0]['coefficients'][q_1]['id']
                         )
                         if is_permanent_id_correct is True:
 
                             expected_coefficients_array[q_1]['id'] = \
-                                actual_pin_release['releases'][0]['tender']['conversions'][q_0][
+                                actual_pi_release['releases'][0]['tender']['conversions'][q_0][
                                     'coefficients'][q_1]['id']
                         else:
                             expected_coefficients_array[q_1]['id'] = \
@@ -490,10 +493,10 @@ class CreatePriorInformationNoticeRelease:
             # FR.COM-1.62.40: Set id.
             try:
                 is_permanent_id_correct = is_it_uuid(
-                    actual_pin_release['releases'][0]['tender']['lots'][q_0]['id']
+                    actual_pi_release['releases'][0]['tender']['lots'][q_0]['id']
                 )
                 if is_permanent_id_correct is True:
-                    expected_lots_array[q_0]['id'] = actual_pin_release['releases'][0]['tender']['lots'][q_0]['id']
+                    expected_lots_array[q_0]['id'] = actual_pi_release['releases'][0]['tender']['lots'][q_0]['id']
                 else:
                     expected_lots_array[q_0]['id'] = \
                         f"FR.COM-1.62.40: the 'releases[0].tender.lots[{q_0}].id' must be uuid."
@@ -776,10 +779,10 @@ class CreatePriorInformationNoticeRelease:
             # FR.COM-1.62.46: Set id.
             try:
                 is_permanent_id_correct = is_it_uuid(
-                    actual_pin_release['releases'][0]['tender']['items'][q_0]['id']
+                    actual_pi_release['releases'][0]['tender']['items'][q_0]['id']
                 )
                 if is_permanent_id_correct is True:
-                    expected_items_array[q_0]['id'] = actual_pin_release['releases'][0]['tender']['items'][q_0]['id']
+                    expected_items_array[q_0]['id'] = actual_pi_release['releases'][0]['tender']['items'][q_0]['id']
                 else:
                     expected_items_array[q_0]['id'] = \
                         f"FR.COM-1.62.46: the 'releases[0].tender.items[{q_0}].id' must be uuid."
@@ -894,12 +897,12 @@ class CreatePriorInformationNoticeRelease:
                 # FR.COM-1.62.61: Set id.
                 try:
                     is_permanent_id_correct = is_it_uuid(
-                        actual_pin_release['releases'][0]['tender']['targets'][q_0]['id']
+                        actual_pi_release['releases'][0]['tender']['targets'][q_0]['id']
                     )
                     if is_permanent_id_correct is True:
 
                         expected_targets_array[q_0]['id'] = \
-                            actual_pin_release['releases'][0]['tender']['targets'][q_0]['id']
+                            actual_pi_release['releases'][0]['tender']['targets'][q_0]['id']
                     else:
                         expected_targets_array[q_0]['id'] = \
                             f"FR.COM-1.62.61: the 'releases[0].tender.targets[{q_0}].id' must be uuid."
@@ -937,12 +940,12 @@ class CreatePriorInformationNoticeRelease:
                     # FR.COM-1.62.62: Set id.
                     try:
                         is_permanent_id_correct = is_it_uuid(
-                            actual_pin_release['releases'][0]['tender']['targets'][q_0]['observations'][q_1]['id']
+                            actual_pi_release['releases'][0]['tender']['targets'][q_0]['observations'][q_1]['id']
                         )
                         if is_permanent_id_correct is True:
 
                             expected_observations_array[q_1]['id'] = \
-                                actual_pin_release['releases'][0]['tender']['targets'][q_0]['observations'][q_1]['id']
+                                actual_pi_release['releases'][0]['tender']['targets'][q_0]['observations'][q_1]['id']
                         else:
                             expected_observations_array[q_1]['id'] = \
                                 f"FR.COM-1.62.61: the 'releases[0].tender.targets[{q_0}].observations[{q_1}].id' " \
@@ -1006,7 +1009,7 @@ class CreatePriorInformationNoticeRelease:
                                             'observations'][q_1]['relatedRequirementId']:
                                         # Get the requirement from actual release.
                                         actual_requirement = \
-                                            actual_pin_release['releases'][0]['tender']['criteria'][p_0][
+                                            actual_pi_release['releases'][0]['tender']['criteria'][p_0][
                                                 'requirementGroups'][p_1]['requirements'][p_2]
 
                                         expected_observations_array[q_1]['relatedRequirementId'] = \
@@ -1030,12 +1033,12 @@ class CreatePriorInformationNoticeRelease:
                 # Set id, according to 'bpeCreateIdsDelegate'.
                 try:
                     is_permanent_id_correct = is_it_uuid(
-                        actual_pin_release['releases'][0]['tender']['electronicAuctions']['details'][q_0]['id']
+                        actual_pi_release['releases'][0]['tender']['electronicAuctions']['details'][q_0]['id']
                     )
                     if is_permanent_id_correct is True:
 
                         expected_details_array[q_0]['id'] = \
-                            actual_pin_release['releases'][0]['tender']['electronicAuctions']['details'][q_0]['id']
+                            actual_pi_release['releases'][0]['tender']['electronicAuctions']['details'][q_0]['id']
                     else:
                         expected_details_array[q_0]['id'] = \
                             f"'bpeCreateIdsDelegate': the 'releases[0].tender.electronicAuctions.details[{q_0}].id' " \
@@ -1050,7 +1053,7 @@ class CreatePriorInformationNoticeRelease:
                             payload['tender']['electronicAuctions']['details'][q_0]['relatedLot']:
 
                         expected_details_array[q_0]['relatedLot'] = \
-                            actual_pin_release['releases'][0]['tender']['lots'][p_0]['id']
+                            actual_pi_release['releases'][0]['tender']['lots'][p_0]['id']
 
                 # Set eligibleMinimumDifference.
                 expected_details_array[q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference']['amount'] \
@@ -1096,4 +1099,88 @@ class CreatePriorInformationNoticeRelease:
         else:
             del self.expected_pi_release['releases'][0]['tender']['enquiryPeriod']
 
+        # FR.COM-1.62.37: Set submissionMethod.
+        self.expected_pi_release['releases'][0]['tender']['submissionMethod'] = ["electronicSubmission"]
+
+        # Set submissionMethodDetails.
+        submission_method_details = get_value_from_code_translation_csv(
+            parameter="submissionMethodDetails",
+            country=self.country,
+            language=self.language
+        )
+        self.expected_pi_release['releases'][0]['tender']['submissionMethodDetails'] = submission_method_details
+
+        # Set tender.submissionMethodRationale.
+        submission_method_rationale = get_value_from_code_translation_csv(
+            parameter="submissionMethodRationale",
+            country=self.country,
+            language=self.language
+        )
+        self.expected_pi_release['releases'][0]['tender']['submissionMethodRationale'] = submission_method_rationale
+
+        # Set relatedProcesses.
+        # FR.COM-1.62.76: Set id.
+        try:
+            is_permanent_id_correct = is_it_uuid(
+                actual_pi_release['releases'][0]['relatedProcesses'][0]['id']
+            )
+            if is_permanent_id_correct is True:
+
+                self.expected_pi_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                    actual_pi_release['releases'][0]['relatedProcesses'][0]['id']
+            else:
+                self.expected_pi_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                    f"FR.COM-1.62.76: the 'releases[0].relatedProcesses[{0}].id' must be uuid."
+        except KeyError:
+            KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
+
+        # Set ocid.
+        self.expected_pi_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
+
+        # Set identifier.
+        self.expected_pi_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
+            message_for_platform['data']['ocid'][:28]
+
+        # Set uri.
+        self.expected_pi_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+            f"{self.metadata_tender_url}/{message_for_platform['data']['ocid'][:28]}/" \
+            f"{message_for_platform['data']['ocid'][:28]}"
         return self.expected_pi_release
+
+    def build_expected_ms_release(self, payload, message_for_platform, actual_ms_release):
+        """Build MS release."""
+
+        """Enrich general attribute for expected MS release"""
+        self.expected_pi_release['uri'] = f"{self.metadata_tender_url}/{message_for_platform['data']['ocid'][:28]}/" \
+                                          f"{message_for_platform['data']['ocid'][:28]}"
+
+        self.expected_pi_release['version'] = "1.1"
+        self.expected_pi_release['extensions'] = self.extensions
+        self.expected_pi_release['publisher']['name'] = self.publisher_name
+        self.expected_pi_release['publisher']['uri'] = self.publisher_uri
+        self.expected_pi_release['license'] = "http://opendefinition.org/licenses/"
+        self.expected_pi_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
+
+        # FR.COM-3.4.6 Set created date for release.
+        self.expected_pi_release['publishedDate'] = message_for_platform['data']['operationDate']
+
+        """Enrich general attribute for expected PIN release: releases[0]"""
+        # FR.COM-3.4.2: Set ocid.
+        self.expected_pi_release['releases'][0]['ocid'] = message_for_platform['data']['ocid'][:28]
+
+        # FR.COM-3.4.4: Set id.
+        self.expected_pi_release['releases'][0]['id'] = \
+            f"{message_for_platform['data']['outcomes']['pin'][0]['id']}-" \
+            f"{actual_ms_release['releases'][0]['id'][46:59]}"
+
+        # FR.COM-1.62.6: Set date.
+        self.expected_pi_release['releases'][0]['date'] = message_for_platform['data']['operationDate']
+
+        # FR.COM-3.4.7: Set tag.
+        self.expected_pi_release['releases'][0]['tag'] = ["planning"]
+
+        # FR.COM-3.4.8: Set initiationType.
+        self.expected_pi_release['releases'][0]['initiationType'] = "tender"
+
+        # FR.COM-3.4.11: Set language.
+        self.expected_pi_release['releases'][0]['language'] = self.language

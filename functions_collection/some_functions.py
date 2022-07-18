@@ -151,6 +151,16 @@ def get_value_from_cpv_dictionary_csv(cpv, language):
                 return cur_arr[0].replace("'", ""), cur_arr[3].replace('"', '').replace("'", "").replace('  ', ' ')
 
 
+def get_value_from_code_translation_csv(parameter: str, country: str, language: str):
+    path = get_project_root()
+    with open(f'{path}/data_collection/code_translation.csv') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            cur_arr = row[0].split(';')
+            if cur_arr[0] == parameter and cur_arr[2] == f'{country}' and cur_arr[3] == f'{language}':
+                return cur_arr[1]
+
+
 def get_value_from_cpv_dictionary_xls(cpv, language):
     path = get_project_root()
     # Open current xlsx file.
