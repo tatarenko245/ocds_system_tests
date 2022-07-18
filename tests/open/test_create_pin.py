@@ -178,7 +178,8 @@ class TestCreatePIN:
                     payload = payload.build_payload()
                 except ValueError:
                     raise ValueError("Impossible to build payload for Create PIN process.")
-
+                print("\n Payload")
+                print(json.dumps(payload))
                 synchronous_result = create_pin_process(
                     host=bpe_host,
                     access_token=access_token,
@@ -244,29 +245,54 @@ class TestCreatePIN:
                     Compare actual PI release and expected PI release.
                     """
                     url = f"{actual_message['data']['url']}/{ocid}"
-                    actual_release = requests.get(url=url).json()
+                    actual_pi_release = requests.get(url=url).json()
 
                     try:
                         """
                         Build expected PI release.
                         """
                         expected_release = copy.deepcopy(CreatePriorInformationNoticeRelease(
-                            environment, country, language, tender_classification_id
+                            environment, country, language, tender_classification_id, payload, actual_message
                         ))
-                        expected_release = expected_release.build_expected_pi_release(
-                            payload, actual_message, actual_release
-                        )
+                        expected_pi_release = expected_release.build_expected_pi_release(actual_pi_release)
                     except ValueError:
                         ValueError("Impossible to build expected PI release.")
 
                     with allure.step("Compare actual and expected releases."):
-                        allure.attach(json.dumps(actual_release), "Actual release.")
-                        allure.attach(json.dumps(expected_release), "Expected release.")
+                        allure.attach(json.dumps(actual_pi_release), "Actual release.")
+                        allure.attach(json.dumps(expected_pi_release), "Expected release.")
 
-                        assert actual_release == expected_release, \
-                            allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                                          f"operation_id = '{operation_id}' "
-                                          f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                        # assert actual_release == expected_release, \
+                        #     allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                        #                   f"operation_id = '{operation_id}' "
+                        #                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
+                with allure.step(f'# {step_number}.3. Check MS release.'):
+                    """
+                    Compare actual PI release and expected MS release.
+                    """
+                    url = f"{actual_message['data']['url']}/{cpid}"
+                    actual_ms_release = requests.get(url=url).json()
+                    print("\n Actual MS release")
+                    print(json.dumps(actual_ms_release['releases'][0]['parties']))
+                    try:
+                        """
+                        Build expected MS release.
+                        """
+                        expected_ms_release = expected_release.build_expected_ms_release(actual_ms_release)
+                    except ValueError:
+                        ValueError("Impossible to build expected PI release.")
+                    print("\n Expected MS release")
+                    print(json.dumps(expected_ms_release['releases'][0]['parties']))
+                    with allure.step("Compare actual and expected releases."):
+                        allure.attach(json.dumps(actual_ms_release), "Actual release.")
+                        allure.attach(json.dumps(expected_ms_release), "Expected release.")
+
+                        # assert actual_release == expected_release, \
+                        #     allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                        #                   f"operation_id = '{operation_id}' "
+                        #                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+
             # if clean_up_database is True:
             #     try:
             #         """

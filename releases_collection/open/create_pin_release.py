@@ -1,5 +1,8 @@
 """"Prepare the expected release of the create pin process, open procedure."""
 import copy
+import json
+
+import requests
 
 from data_collection.OpenProcedure.for_test_createPIN_process.release_full_model import pi_release_model, \
     ms_release_model
@@ -12,12 +15,14 @@ from functions_collection.some_functions import is_it_uuid, get_value_from_cpv_d
 class CreatePriorInformationNoticeRelease:
     """This class creates instance of release."""
 
-    def __init__(self, environment, country, language, tender_classification_id):
+    def __init__(self, environment, country, language, tender_classification_id, payload, message_for_platform):
 
         self.environment = environment
         self.country = country
         self.language = language
         self.tender_classification_id = tender_classification_id
+        self.payload = payload
+        self.message_for_platform = message_for_platform
         self.expected_pi_release = copy.deepcopy(pi_release_model)
         self.expected_ms_release = copy.deepcopy(ms_release_model)
 
@@ -58,12 +63,13 @@ class CreatePriorInformationNoticeRelease:
         except ValueError:
             raise ValueError("Check your environment: You must use 'dev' or 'sandbox' environment.")
 
-    def build_expected_pi_release(self, payload, message_for_platform, actual_pi_release):
+    def build_expected_pi_release(self, actual_pi_release):
         """Build PI release."""
 
         """Enrich general attribute for expected PI release"""
-        self.expected_pi_release['uri'] = f"{self.metadata_tender_url}/{message_for_platform['data']['ocid'][:28]}/" \
-                                          f"{message_for_platform['data']['outcomes']['pin'][0]['id']}"
+        self.expected_pi_release['uri'] = \
+            f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
+            f"{self.message_for_platform['data']['outcomes']['pin'][0]['id']}"
 
         self.expected_pi_release['version'] = "1.1"
         self.expected_pi_release['extensions'] = self.extensions
@@ -73,19 +79,19 @@ class CreatePriorInformationNoticeRelease:
         self.expected_pi_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
 
         # FR.COM-3.4.6 Set created date for release.
-        self.expected_pi_release['publishedDate'] = message_for_platform['data']['operationDate']
+        self.expected_pi_release['publishedDate'] = self.message_for_platform['data']['operationDate']
 
-        """Enrich general attribute for expected PIN release: releases[0]"""
+        """Enrich general attribute for expected PI release: releases[0]"""
         # FR.COM-3.4.2: Set ocid.
-        self.expected_pi_release['releases'][0]['ocid'] = message_for_platform['data']['outcomes']['pin'][0]['id']
+        self.expected_pi_release['releases'][0]['ocid'] = self.message_for_platform['data']['outcomes']['pin'][0]['id']
 
         # FR.COM-3.4.4: Set id.
         self.expected_pi_release['releases'][0]['id'] = \
-            f"{message_for_platform['data']['outcomes']['pin'][0]['id']}-" \
+            f"{self.message_for_platform['data']['outcomes']['pin'][0]['id']}-" \
             f"{actual_pi_release['releases'][0]['id'][46:59]}"
 
         # FR.COM-1.62.6: Set date.
-        self.expected_pi_release['releases'][0]['date'] = message_for_platform['data']['operationDate']
+        self.expected_pi_release['releases'][0]['date'] = self.message_for_platform['data']['operationDate']
 
         # FR.COM-3.4.7: Set tag.
         self.expected_pi_release['releases'][0]['tag'] = ["planning"]
@@ -96,7 +102,7 @@ class CreatePriorInformationNoticeRelease:
         # FR.COM-3.4.11: Set language.
         self.expected_pi_release['releases'][0]['language'] = self.language
 
-        """Enrich attribute for expected PIN release: releases[0].tender"""
+        """Enrich attribute for expected PI release: releases[0].tender"""
         # FR.COM-1.62.4: Set id.
         try:
             is_permanent_id_correct = is_it_uuid(
@@ -116,9 +122,9 @@ class CreatePriorInformationNoticeRelease:
         self.expected_pi_release['releases'][0]['tender']['status'] = "planning"
 
         # FR.COM-1.62.49: Set criteria.
-        if "criteria" in payload['tender']:
+        if "criteria" in self.payload['tender']:
             expected_criteria_array = list()
-            for q_0 in range(len(payload['tender']['criteria'])):
+            for q_0 in range(len(self.payload['tender']['criteria'])):
                 expected_criteria_array.append(copy.deepcopy(
                     self.expected_pi_release['releases'][0]['tender']['criteria'][0]
                 ))
@@ -139,22 +145,22 @@ class CreatePriorInformationNoticeRelease:
                     KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}].id'")
 
                 # Set title.
-                expected_criteria_array[q_0]['title'] = payload['tender']['criteria'][q_0]['title']
+                expected_criteria_array[q_0]['title'] = self.payload['tender']['criteria'][q_0]['title']
 
                 # Set source.
                 expected_criteria_array[q_0]['source'] = "tenderer"
 
                 # Set description.
-                if "description" in payload['tender']['criteria'][q_0]:
-                    expected_criteria_array[q_0]['description'] = payload['tender']['criteria'][q_0]['description']
+                if "description" in self.payload['tender']['criteria'][q_0]:
+                    expected_criteria_array[q_0]['description'] = self.payload['tender']['criteria'][q_0]['description']
                 else:
                     del expected_criteria_array[q_0]['description']
 
                 # Set relatesTo.
-                expected_criteria_array[q_0]['relatesTo'] = payload['tender']['criteria'][q_0]['relatesTo']
+                expected_criteria_array[q_0]['relatesTo'] = self.payload['tender']['criteria'][q_0]['relatesTo']
 
                 # FR.COM-1.62.59: Set relatedItem.
-                if "relatedItem" in payload['tender']['criteria'][q_0]:
+                if "relatedItem" in self.payload['tender']['criteria'][q_0]:
                     try:
                         is_permanent_id_correct = is_it_uuid(
                             actual_pi_release['releases'][0]['tender']['criteria'][q_0]['relatedItem']
@@ -172,18 +178,18 @@ class CreatePriorInformationNoticeRelease:
                     del expected_criteria_array[q_0]['relatedItem']
 
                 # FR.COM-1.62.51: Set classification.
-                if "classification" in payload['tender']['criteria'][q_0]:
+                if "classification" in self.payload['tender']['criteria'][q_0]:
                     expected_criteria_array[q_0]['classification']['scheme'] = \
-                        payload['tender']['criteria'][q_0]['classification']['scheme']
+                        self.payload['tender']['criteria'][q_0]['classification']['scheme']
 
                     expected_criteria_array[q_0]['classification']['id'] = \
-                        payload['tender']['criteria'][q_0]['classification']['id']
+                        self.payload['tender']['criteria'][q_0]['classification']['id']
                 else:
                     del expected_criteria_array[q_0]['classification']
 
                 # Set requirementGroups.
                 expected_requirementgroups_array = list()
-                for q_1 in range(len(payload['tender']['criteria'][q_0]['requirementGroups'])):
+                for q_1 in range(len(self.payload['tender']['criteria'][q_0]['requirementGroups'])):
                     expected_requirementgroups_array.append(copy.deepcopy(
                         self.expected_pi_release['releases'][0]['tender']['criteria'][0]['requirementGroups'][0]
                     ))
@@ -207,15 +213,17 @@ class CreatePriorInformationNoticeRelease:
                                  f"requirementGroups[{q_1}].id'")
 
                     # Set description.
-                    if "description" in payload['tender']['criteria'][q_0]['requirementGroups'][q_1]:
+                    if "description" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]:
                         expected_requirementgroups_array[q_1]['description'] = \
-                            payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['description']
+                            self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['description']
                     else:
                         del expected_requirementgroups_array[q_1]['description']
 
                     # Set requirements.
                     expected_requirements_array = list()
-                    for q_2 in range(len(payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'])):
+                    for q_2 in range(len(
+                            self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements']
+                    )):
                         expected_requirements_array.append(copy.deepcopy(
                             self.expected_pi_release['releases'][0]['tender']['criteria'][0]['requirementGroups'][0][
                                 'requirements'][0]
@@ -242,73 +250,74 @@ class CreatePriorInformationNoticeRelease:
 
                         # Set title.
                         expected_requirements_array[q_2]['title'] = \
-                            payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2]['title']
+                            self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
+                                'title']
 
                         # Set dataType.
                         expected_requirements_array[q_2]['dataType'] = \
-                            payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
+                            self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
                                 'dataType']
 
                         # Set description.
-                        if "description" in payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                'requirements'][q_2]:
+                        if "description" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                            'requirements'][q_2]:
                             expected_requirements_array[q_2]['description'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
                                     'description']
                         else:
                             del expected_requirements_array[q_2]['description']
 
                         # Set period.
-                        if "period" in payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                'requirements'][q_2]:
+                        if "period" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                            'requirements'][q_2]:
                             expected_requirements_array[q_2]['period']['startDate'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
                                     'period']['startDate']
 
                             expected_requirements_array[q_2]['period']['endDate'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
                                     'period']['endDate']
                         else:
                             del expected_requirements_array[q_2]['period']
 
                         # Set expectedValue, minValue, maxValue and dataType.
-                        if "expectedValue" not in payload['tender']['criteria'][q_0][
-                                'requirementGroups'][q_1]['requirements'][q_2]:
+                        if "expectedValue" not in self.payload['tender']['criteria'][q_0][
+                            'requirementGroups'][q_1]['requirements'][q_2]:
 
                             del expected_requirements_array[q_2]['expectedValue']
                         else:
                             expected_requirements_array[q_2]['expectedValue'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['expectedValue']
 
                             expected_requirements_array[q_2]['dataType'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['dataType']
 
-                        if "minValue" not in payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                'requirements'][q_2]:
+                        if "minValue" not in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                            'requirements'][q_2]:
 
                             del expected_requirements_array[q_2]['minValue']
                         else:
                             expected_requirements_array[q_2]['minValue'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['minValue']
 
                             expected_requirements_array[q_2]['dataType'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['dataType']
 
-                        if "maxValue" not in payload['tender']['criteria'][q_0][
-                                'requirementGroups'][q_1]['requirements'][q_2]:
+                        if "maxValue" not in self.payload['tender']['criteria'][q_0][
+                            'requirementGroups'][q_1]['requirements'][q_2]:
 
                             del expected_requirements_array[q_2]['maxValue']
                         else:
                             expected_requirements_array[q_2]['maxValue'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['maxValue']
 
                             expected_requirements_array[q_2]['dataType'] = \
-                                payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                     'requirements'][q_2]['dataType']
 
                         # FR.COM-1.62.55: Set status.
@@ -316,16 +325,16 @@ class CreatePriorInformationNoticeRelease:
 
                         # FR.COM-1.62.56: Set datePublished.
                         expected_requirements_array[q_2]['datePublished'] = \
-                            message_for_platform['data']['operationDate']
+                            self.message_for_platform['data']['operationDate']
 
                         # FR.COM-1.62.57: Set eligibleEvidences.
-                        if "eligibleEvidences" in payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                'requirements'][q_2]:
+                        if "eligibleEvidences" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                            'requirements'][q_2]:
 
                             expected_eligibleevidences_array = list()
                             for q_3 in range(len(
-                                    payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
-                                        'eligibleEvidences']
+                                    self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                        'requirements'][q_2]['eligibleEvidences']
                             )):
                                 expected_eligibleevidences_array.append(copy.deepcopy(
                                     self.expected_pi_release['releases'][0]['tender']['criteria'][0][
@@ -357,30 +366,30 @@ class CreatePriorInformationNoticeRelease:
 
                                 # Set title.
                                 expected_eligibleevidences_array[q_3]['title'] = \
-                                    payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                    self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                         'requirements'][q_2]['eligibleEvidences'][q_3]['title']
 
                                 # Set description.
-                                if "description" in payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                        'requirements'][q_2]['eligibleEvidences'][q_3]:
+                                if "description" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                    'requirements'][q_2]['eligibleEvidences'][q_3]:
 
                                     expected_eligibleevidences_array[q_3]['description'] = \
-                                        payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                        self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                             'requirements'][q_2]['eligibleEvidences'][q_3]['description']
                                 else:
                                     del expected_eligibleevidences_array[q_3]['description']
 
                                 # Set type.
                                 expected_eligibleevidences_array[q_3]['type'] = \
-                                    payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                    self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                         'requirements'][q_2]['eligibleEvidences'][q_3]['type']
 
                                 # Set relatedDocument.
-                                if "relatedDocument" in payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                        'requirements'][q_2]['eligibleEvidences'][q_3]:
+                                if "relatedDocument" in self.payload['tender']['criteria'][q_0][
+                                    'requirementGroups'][q_1]['requirements'][q_2]['eligibleEvidences'][q_3]:
 
                                     expected_eligibleevidences_array[q_3]['relatedDocument']['id'] = \
-                                        payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
+                                        self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
                                             'requirements'][q_2]['eligibleEvidences'][q_3]['relatedDocument']['id']
                                 else:
                                     del expected_eligibleevidences_array[q_3]['relatedDocument']
@@ -396,9 +405,9 @@ class CreatePriorInformationNoticeRelease:
             del self.expected_pi_release['releases'][0]['tender']['criteria']
 
         # FR.COM-1.62.65: Set conversions.
-        if "conversions" in payload['tender']:
+        if "conversions" in self.payload['tender']:
             expected_conversion_array = list()
-            for q_0 in range(len(payload['tender']['conversions'])):
+            for q_0 in range(len(self.payload['tender']['conversions'])):
                 expected_conversion_array.append(copy.deepcopy(
                     self.expected_pi_release['releases'][0]['tender']['conversions'][0]
                 ))
@@ -420,13 +429,14 @@ class CreatePriorInformationNoticeRelease:
 
                 # What a requirement we need?
                 actual_requirement = None
-                for p_0 in range(len(payload['tender']['criteria'])):
-                    for p_1 in range(len(payload['tender']['criteria'][p_0]['requirementGroups'])):
+                for p_0 in range(len(self.payload['tender']['criteria'])):
+                    for p_1 in range(len(self.payload['tender']['criteria'][p_0]['requirementGroups'])):
                         for p_2 in range(len(
-                                payload['tender']['criteria'][p_0]['requirementGroups'][p_1]['requirements']
+                                self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1]['requirements']
                         )):
-                            if payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
-                                    'requirements'][p_2]['id'] == payload['tender']['conversions'][q_0]['relatedItem']:
+                            if self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
+                                'requirements'][p_2]['id'] == self.payload['tender']['conversions'][q_0][
+                                'relatedItem']:
                                 # Get the requirement from actual release.
                                 actual_requirement = actual_pi_release['releases'][0]['tender']['criteria'][p_0][
                                     'requirementGroups'][p_1]['requirements'][p_2]
@@ -438,18 +448,18 @@ class CreatePriorInformationNoticeRelease:
                 expected_conversion_array[q_0]['relatesTo'] = "requirement"
 
                 # Set description.
-                if "description" in payload['tender']['conversions'][q_0]:
+                if "description" in self.payload['tender']['conversions'][q_0]:
                     expected_conversion_array[q_0]['description'] = \
-                        payload['tender']['conversions'][q_0]['description']
+                        self.payload['tender']['conversions'][q_0]['description']
                 else:
                     del self.expected_pi_release['releases'][0]['tender']['conversions']
 
                 # Set rationale.
-                expected_conversion_array[q_0]['rationale'] = payload['tender']['conversions'][q_0]['rationale']
+                expected_conversion_array[q_0]['rationale'] = self.payload['tender']['conversions'][q_0]['rationale']
 
                 # Set coefficients.
                 expected_coefficients_array = list()
-                for q_1 in range(len(payload['tender']['conversions'][q_0]['coefficients'])):
+                for q_1 in range(len(self.payload['tender']['conversions'][q_0]['coefficients'])):
                     expected_coefficients_array.append(copy.deepcopy(
                         self.expected_pi_release['releases'][0]['tender']['conversions'][0]['coefficients'][0]
                     ))
@@ -474,11 +484,11 @@ class CreatePriorInformationNoticeRelease:
 
                     # Set value.
                     expected_coefficients_array[q_1]['value'] = \
-                        payload['tender']['conversions'][q_0]['coefficients'][q_1]['value']
+                        self.payload['tender']['conversions'][q_0]['coefficients'][q_1]['value']
 
                     # Set coefficient.
                     expected_coefficients_array[q_1]['coefficient'] = \
-                        payload['tender']['conversions'][q_0]['coefficients'][q_1]['coefficient']
+                        self.payload['tender']['conversions'][q_0]['coefficients'][q_1]['coefficient']
 
                 expected_conversion_array[q_0]['coefficients'] = expected_coefficients_array
             self.expected_pi_release['releases'][0]['tender']['conversions'] = expected_conversion_array
@@ -487,7 +497,7 @@ class CreatePriorInformationNoticeRelease:
 
         # FR.COM-1.62.39: Set lots.
         expected_lots_array = list()
-        for q_0 in range(len(payload['tender']['lots'])):
+        for q_0 in range(len(self.payload['tender']['lots'])):
             expected_lots_array.append(copy.deepcopy(self.expected_pi_release['releases'][0]['tender']['lots'][0]))
 
             # FR.COM-1.62.40: Set id.
@@ -504,42 +514,42 @@ class CreatePriorInformationNoticeRelease:
                 KeyError(f"Mismatch key into path 'releases[0].tender.lots[{q_0}].id'")
 
             # Set internalId.
-            if "internalId" in payload['tender']['lots'][q_0]:
-                expected_lots_array[q_0]['internalId'] = payload['tender']['lots'][q_0]['internalId']
+            if "internalId" in self.payload['tender']['lots'][q_0]:
+                expected_lots_array[q_0]['internalId'] = self.payload['tender']['lots'][q_0]['internalId']
             else:
                 del expected_lots_array[q_0]['internalId']
 
             # Set title.
-            expected_lots_array[q_0]['title'] = payload['tender']['lots'][q_0]['title']
+            expected_lots_array[q_0]['title'] = self.payload['tender']['lots'][q_0]['title']
 
             # Set description
-            expected_lots_array[q_0]['description'] = payload['tender']['lots'][q_0]['description']
+            expected_lots_array[q_0]['description'] = self.payload['tender']['lots'][q_0]['description']
 
             # FR.COM-1.62.41: Set status.
             expected_lots_array[q_0]['status'] = "planning"
 
             # Set value.
-            expected_lots_array[q_0]['value']['amount'] = payload['tender']['lots'][q_0]['value']['amount']
-            expected_lots_array[q_0]['value']['currency'] = payload['tender']['lots'][q_0]['value']['currency']
+            expected_lots_array[q_0]['value']['amount'] = self.payload['tender']['lots'][q_0]['value']['amount']
+            expected_lots_array[q_0]['value']['currency'] = self.payload['tender']['lots'][q_0]['value']['currency']
 
             # Set contactPeriod.
             expected_lots_array[q_0]['contractPeriod']['startDate'] = \
-                payload['tender']['lots'][q_0]['contractPeriod']['startDate']
+                self.payload['tender']['lots'][q_0]['contractPeriod']['startDate']
 
             expected_lots_array[q_0]['contractPeriod']['endDate'] = \
-                payload['tender']['lots'][q_0]['contractPeriod']['endDate']
+                self.payload['tender']['lots'][q_0]['contractPeriod']['endDate']
 
             # Set placeOfPerformance.
 
             # Set streetAddress.
             expected_lots_array[q_0]['placeOfPerformance']['address']['streetAddress'] = \
-                payload['tender']['lots'][q_0]['placeOfPerformance']['address']['streetAddress']
+                self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['streetAddress']
 
             # Set postalCode.
-            if "postalCode" in payload['tender']['lots'][q_0]['placeOfPerformance']['address']:
+            if "postalCode" in self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']:
 
                 expected_lots_array[q_0]['placeOfPerformance']['address']['postalCode'] = \
-                    payload['tender']['lots'][q_0]['placeOfPerformance']['address']['postalCode']
+                    self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['postalCode']
             else:
                 del expected_lots_array[q_0]['placeOfPerformance']['address']['postalCode']
 
@@ -547,13 +557,13 @@ class CreatePriorInformationNoticeRelease:
             try:
                 lot_country_data = get_value_from_country_csv(
 
-                    country=payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                    country=self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                         'country']['id'],
                     language=self.language
                 )
                 expected_lot_country_object = [{
                     "scheme": lot_country_data[2],
-                    "id": payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                    "id": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                         'country']['id'],
                     "description": lot_country_data[1],
                     "uri": lot_country_data[3]
@@ -561,37 +571,37 @@ class CreatePriorInformationNoticeRelease:
 
                 lot_region_data = get_value_from_region_csv(
 
-                    region=payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                    region=self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                         'region']['id'],
-                    country=payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                    country=self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                         'country']['id'],
                     language=self.language
                 )
                 expected_lot_region_object = [{
                     "scheme": lot_region_data[2],
-                    "id": payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                    "id": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                         'region']['id'],
                     "description": lot_region_data[1],
                     "uri": lot_region_data[3]
                 }]
 
-                if payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
-                        'locality']['scheme'] != "other":
+                if self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                    'locality']['scheme'] != "other":
 
                     lot_locality_data = get_value_from_locality_csv(
 
-                        locality=payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                        locality=self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                             'locality']['id'],
-                        region=payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                        region=self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                             'region']['id'],
-                        country=payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                        country=self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                             'country']['id'],
                         language=self.language
                     )
                     expected_lot_locality_object = [{
                         "scheme": lot_locality_data[2],
 
-                        "id": payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                        "id": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                             'locality']['id'],
                         "description": lot_locality_data[1],
                         "uri": lot_locality_data[3]
@@ -599,13 +609,13 @@ class CreatePriorInformationNoticeRelease:
                 else:
                     expected_lot_locality_object = [{
 
-                        "scheme": payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
-                            'locality']['scheme'],
+                        "scheme": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                            'addressDetails']['locality']['scheme'],
 
-                        "id": payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
+                        "id": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                             'locality']['id'],
 
-                        "description": payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
+                        "description": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address'][
                             'addressDetails']['locality']['description']
                     }]
 
@@ -622,54 +632,54 @@ class CreatePriorInformationNoticeRelease:
 
             # Set description.
             expected_lots_array[q_0]['placeOfPerformance']['description'] = \
-                payload['tender']['lots'][q_0]['placeOfPerformance']['description']
+                self.payload['tender']['lots'][q_0]['placeOfPerformance']['description']
 
             # Set hasOptions
-            if "hasOptions" in payload['tender']['lots'][q_0]:
-                expected_lots_array[q_0]['hasOptions'] = payload['tender']['lots'][q_0]['hasOptions']
+            if "hasOptions" in self.payload['tender']['lots'][q_0]:
+                expected_lots_array[q_0]['hasOptions'] = self.payload['tender']['lots'][q_0]['hasOptions']
             else:
                 del expected_lots_array[q_0]['hasOptions']
 
             # Set options.
-            if "options" in payload['tender']['lots'][q_0]:
+            if "options" in self.payload['tender']['lots'][q_0]:
                 expected_options_array = list()
-                for q_1 in range(len(payload['tender']['lots'][q_0]['options'])):
+                for q_1 in range(len(self.payload['tender']['lots'][q_0]['options'])):
                     expected_options_array.append(copy.deepcopy(
                         self.expected_pi_release['releases'][0]['tender']['lots'][0]['options'][0]
                     ))
 
-                    if "description" in payload['tender']['lots'][q_0]['options'][q_1]:
+                    if "description" in self.payload['tender']['lots'][q_0]['options'][q_1]:
                         expected_options_array[q_1]['description'] = \
-                            payload['tender']['lots'][q_0]['options'][q_1]['description']
+                            self.payload['tender']['lots'][q_0]['options'][q_1]['description']
                     else:
                         del expected_options_array[q_1]['description']
 
-                    if "period" in payload['tender']['lots'][q_0]['options'][q_1]:
-                        if "durationInDays" in payload['tender']['lots'][q_0]['options'][q_1]['period']:
+                    if "period" in self.payload['tender']['lots'][q_0]['options'][q_1]:
+                        if "durationInDays" in self.payload['tender']['lots'][q_0]['options'][q_1]['period']:
 
                             expected_options_array[q_1]['period']['durationInDays'] = \
-                                int(payload['tender']['lots'][q_0]['options'][q_1]['period']['durationInDays'])
+                                int(self.payload['tender']['lots'][q_0]['options'][q_1]['period']['durationInDays'])
                         else:
                             del expected_options_array[q_1]['period']['durationInDays']
 
-                        if "startDate" in payload['tender']['lots'][q_0]['options'][q_1]['period']:
+                        if "startDate" in self.payload['tender']['lots'][q_0]['options'][q_1]['period']:
 
                             expected_options_array[q_1]['period']['startDate'] = \
-                                payload['tender']['lots'][q_0]['options'][q_1]['period']['startDate']
+                                self.payload['tender']['lots'][q_0]['options'][q_1]['period']['startDate']
                         else:
                             del expected_options_array[q_1]['period']['startDate']
 
-                        if "endDate" in payload['tender']['lots'][q_0]['options'][q_1]['period']:
+                        if "endDate" in self.payload['tender']['lots'][q_0]['options'][q_1]['period']:
 
                             expected_options_array[q_1]['period']['endDate'] = \
-                                payload['tender']['lots'][q_0]['options'][q_1]['period']['endDate']
+                                self.payload['tender']['lots'][q_0]['options'][q_1]['period']['endDate']
                         else:
                             del expected_options_array[q_1]['endDate']
 
-                        if "maxExtentDate" in payload['tender']['lots'][q_0]['options'][q_1]['period']:
+                        if "maxExtentDate" in self.payload['tender']['lots'][q_0]['options'][q_1]['period']:
 
                             expected_options_array[q_1]['period']['maxExtentDate'] = \
-                                payload['tender']['lots'][q_0]['options'][q_1]['period']['maxExtentDate']
+                                self.payload['tender']['lots'][q_0]['options'][q_1]['period']['maxExtentDate']
                         else:
                             del expected_options_array[q_1]['period']['maxExtentDate']
                     else:
@@ -680,87 +690,87 @@ class CreatePriorInformationNoticeRelease:
                 del expected_lots_array[q_0]['options']
 
             # Set hasRecurrence
-            if "hasRecurrence" in payload['tender']['lots'][q_0]:
-                expected_lots_array[q_0]['hasRecurrence'] = payload['tender']['lots'][q_0]['hasRecurrence']
+            if "hasRecurrence" in self.payload['tender']['lots'][q_0]:
+                expected_lots_array[q_0]['hasRecurrence'] = self.payload['tender']['lots'][q_0]['hasRecurrence']
             else:
                 del expected_lots_array[q_0]['hasRecurrence']
 
             # Set recurrence.
-            if "recurrence" in payload['tender']['lots'][q_0]:
-                if "dates" in payload['tender']['lots'][q_0]['recurrence']:
+            if "recurrence" in self.payload['tender']['lots'][q_0]:
+                if "dates" in self.payload['tender']['lots'][q_0]['recurrence']:
                     expected_dates_array = list()
-                    for q_1 in range(len(payload['tender']['lots'][q_0]['recurrence']['dates'])):
+                    for q_1 in range(len(self.payload['tender']['lots'][q_0]['recurrence']['dates'])):
                         expected_dates_array.append(copy.deepcopy(
                             self.expected_pi_release['releases'][0]['tender']['lots'][0]['recurrence']['dates'][0]
                         ))
 
                         expected_dates_array[q_1]['startDate'] = \
-                            payload['tender']['lots'][q_0]['recurrence']['dates'][q_1]['startDate']
+                            self.payload['tender']['lots'][q_0]['recurrence']['dates'][q_1]['startDate']
 
                     expected_lots_array[q_0]['recurrence']['dates'] = expected_dates_array
                 else:
                     del expected_lots_array[q_0]['recurrence']['dates']
 
-                if "description" in payload['tender']['lots'][q_0]['recurrence']:
+                if "description" in self.payload['tender']['lots'][q_0]['recurrence']:
                     expected_lots_array[q_0]['recurrence']['description'] = \
-                        payload['tender']['lots'][q_0]['recurrence']['description']
+                        self.payload['tender']['lots'][q_0]['recurrence']['description']
                 else:
                     del expected_lots_array[q_0]['recurrence']['description']
             else:
                 del expected_lots_array[q_0]['recurrence']
 
             # Set hasRenewal.
-            if "hasRenewal" in payload['tender']['lots'][q_0]:
-                expected_lots_array[q_0]['hasRenewal'] = payload['tender']['lots'][q_0]['hasRenewal']
+            if "hasRenewal" in self.payload['tender']['lots'][q_0]:
+                expected_lots_array[q_0]['hasRenewal'] = self.payload['tender']['lots'][q_0]['hasRenewal']
             else:
                 del expected_lots_array[q_0]['hasRenewal']
 
             # Set renewal.
-            if "renewal" in payload['tender']['lots'][q_0]:
-                if "description" in payload['tender']['lots'][q_0]['renewal']:
+            if "renewal" in self.payload['tender']['lots'][q_0]:
+                if "description" in self.payload['tender']['lots'][q_0]['renewal']:
                     expected_lots_array[q_0]['renewal']['description'] = \
-                        payload['tender']['lots'][q_0]['renewal']['description']
+                        self.payload['tender']['lots'][q_0]['renewal']['description']
                 else:
                     del expected_lots_array[q_0]['renewal']['description']
 
-                if "minimumRenewals" in payload['tender']['lots'][q_0]['renewal']:
+                if "minimumRenewals" in self.payload['tender']['lots'][q_0]['renewal']:
                     expected_lots_array[q_0]['renewal']['minimumRenewals'] = \
-                        int(payload['tender']['lots'][q_0]['renewal']['minimumRenewals'])
+                        int(self.payload['tender']['lots'][q_0]['renewal']['minimumRenewals'])
                 else:
                     del expected_lots_array[q_0]['renewal']['minimumRenewals']
 
-                if "maximumRenewals" in payload['tender']['lots'][q_0]['renewal']:
+                if "maximumRenewals" in self.payload['tender']['lots'][q_0]['renewal']:
                     expected_lots_array[q_0]['renewal']['maximumRenewals'] = \
-                        int(payload['tender']['lots'][q_0]['renewal']['maximumRenewals'])
+                        int(self.payload['tender']['lots'][q_0]['renewal']['maximumRenewals'])
                 else:
                     del expected_lots_array[q_0]['renewal']['maximumRenewals']
 
-                if "period" in payload['tender']['lots'][q_0]['renewal']:
-                    if "durationInDays" in payload['tender']['lots'][q_0]['renewal']['period']:
+                if "period" in self.payload['tender']['lots'][q_0]['renewal']:
+                    if "durationInDays" in self.payload['tender']['lots'][q_0]['renewal']['period']:
 
                         expected_lots_array[q_0]['renewal']['period']['durationInDays'] = \
-                            int(payload['tender']['lots'][q_0]['renewal']['period']['durationInDays'])
+                            int(self.payload['tender']['lots'][q_0]['renewal']['period']['durationInDays'])
                     else:
                         del expected_lots_array[q_0]['renewal']['period']['durationInDays']
 
-                    if "startDate" in payload['tender']['lots'][q_0]['renewal']['period']:
+                    if "startDate" in self.payload['tender']['lots'][q_0]['renewal']['period']:
 
                         expected_lots_array[q_0]['renewal']['period']['startDate'] = \
-                            payload['tender']['lots'][q_0]['renewal']['period']['startDate']
+                            self.payload['tender']['lots'][q_0]['renewal']['period']['startDate']
                     else:
                         del expected_lots_array[q_0]['renewal']['period']['startDate']
 
-                    if "endDate" in payload['tender']['lots'][q_0]['renewal']['period']:
+                    if "endDate" in self.payload['tender']['lots'][q_0]['renewal']['period']:
 
                         expected_lots_array[q_0]['renewal']['period']['endDate'] = \
-                            payload['tender']['lots'][q_0]['renewal']['period']['endDate']
+                            self.payload['tender']['lots'][q_0]['renewal']['period']['endDate']
                     else:
                         del expected_lots_array[q_0]['renewal']['period']['endDate']
 
-                    if "maxExtentDate" in payload['tender']['lots'][q_0]['renewal']['period']:
+                    if "maxExtentDate" in self.payload['tender']['lots'][q_0]['renewal']['period']:
 
                         expected_lots_array[q_0]['renewal']['period']['maxExtentDate'] = \
-                            payload['tender']['lots'][q_0]['renewal']['period']['maxExtentDate']
+                            self.payload['tender']['lots'][q_0]['renewal']['period']['maxExtentDate']
                     else:
                         del expected_lots_array[q_0]['renewal']['period']['maxExtentDate']
                 else:
@@ -773,7 +783,7 @@ class CreatePriorInformationNoticeRelease:
         # FR.COM-1.62.45: Set items.
         expected_items_array = list()
 
-        for q_0 in range(len(payload['tender']['items'])):
+        for q_0 in range(len(self.payload['tender']['items'])):
             expected_items_array.append(copy.deepcopy(self.expected_pi_release['releases'][0]['tender']['items'][0]))
 
             # FR.COM-1.62.46: Set id.
@@ -790,14 +800,14 @@ class CreatePriorInformationNoticeRelease:
                 KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
             # Set internalId.
-            if "internalId" in payload['tender']['items'][q_0]:
-                expected_items_array[q_0]['internalId'] = payload['tender']['items'][q_0]['internalId']
+            if "internalId" in self.payload['tender']['items'][q_0]:
+                expected_items_array[q_0]['internalId'] = self.payload['tender']['items'][q_0]['internalId']
             else:
                 del self.expected_pi_release['releases'][0]['tender']['items'][q_0]['internalId']
 
             # Set classification.
             expected_cpv_data = get_value_from_cpv_dictionary_csv(
-                cpv=payload['tender']['items'][q_0]['classification']['id'],
+                cpv=self.payload['tender']['items'][q_0]['classification']['id'],
                 language=self.language
             )
             expected_items_array[q_0]['classification']['scheme'] = "CPV"
@@ -805,15 +815,15 @@ class CreatePriorInformationNoticeRelease:
             expected_items_array[q_0]['classification']['description'] = expected_cpv_data[1]
 
             # Set additionalClassifications.
-            if "additionalClassifications" in payload['tender']['items'][q_0]:
+            if "additionalClassifications" in self.payload['tender']['items'][q_0]:
                 additional_classifications = list()
-                for q_1 in range(len(payload['tender']['items'][q_0]['additionalClassifications'])):
+                for q_1 in range(len(self.payload['tender']['items'][q_0]['additionalClassifications'])):
                     additional_classifications.append(copy.deepcopy(
                         self.expected_pi_release['releases'][0]['tender']['items'][0]['additionalClassifications'][0]
                     ))
 
                     expected_cpvs_data = get_value_from_cpvs_dictionary_csv(
-                        cpvs=payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
+                        cpvs=self.payload['tender']['items'][q_0]['additionalClassifications'][q_1]['id'],
                         language=self.language
                     )
 
@@ -826,18 +836,18 @@ class CreatePriorInformationNoticeRelease:
                 del expected_items_array[q_0]['additionalClassifications']
 
             # Set quantity.
-            expected_items_array[q_0]['quantity'] = int(float(payload['tender']['items'][q_0]['quantity']))
+            expected_items_array[q_0]['quantity'] = int(float(self.payload['tender']['items'][q_0]['quantity']))
 
             # Set unit.
             expected_unit_data = get_value_from_classification_unit_dictionary_csv(
-                unit_id=payload['tender']['items'][q_0]['unit']['id'],
+                unit_id=self.payload['tender']['items'][q_0]['unit']['id'],
                 language=self.language
             )
             expected_items_array[q_0]['unit']['id'] = expected_unit_data[0]
             expected_items_array[q_0]['unit']['name'] = expected_unit_data[1]
 
             # Set description.
-            expected_items_array[q_0]['description'] = payload['tender']['items'][q_0]['description']
+            expected_items_array[q_0]['description'] = self.payload['tender']['items'][q_0]['description']
 
             # Set relatedLot.
             expected_items_array[q_0]['relatedLot'] = \
@@ -846,25 +856,26 @@ class CreatePriorInformationNoticeRelease:
         self.expected_pi_release['releases'][0]['tender']['items'] = expected_items_array
 
         # FR.COM-1.62.69: Set documents.
-        if "documents" in payload['tender']:
+        if "documents" in self.payload['tender']:
             expected_documents_array = list()
-            for q_0 in range(len(payload['tender']['documents'])):
+            for q_0 in range(len(self.payload['tender']['documents'])):
                 expected_documents_array.append(copy.deepcopy(
                     self.expected_pi_release['releases'][0]['tender']['documents'][0]
                 ))
 
                 # Set id.
-                expected_documents_array[q_0]['id'] = payload['tender']['documents'][q_0]['id']
+                expected_documents_array[q_0]['id'] = self.payload['tender']['documents'][q_0]['id']
 
                 # Set title.
-                expected_documents_array[q_0]['title'] = payload['tender']['documents'][q_0]['title']
+                expected_documents_array[q_0]['title'] = self.payload['tender']['documents'][q_0]['title']
 
                 # Set documentType.
-                expected_documents_array[q_0]['documentType'] = payload['tender']['documents'][q_0]['documentType']
+                expected_documents_array[q_0]['documentType'] = self.payload['tender']['documents'][q_0]['documentType']
 
                 # Set description
-                if "description" in payload['tender']['documents'][q_0]:
-                    expected_documents_array[q_0]['description'] = payload['tender']['documents'][q_0]['description']
+                if "description" in self.payload['tender']['documents'][q_0]:
+                    expected_documents_array[q_0]['description'] = \
+                        self.payload['tender']['documents'][q_0]['description']
                 else:
                     del expected_documents_array[q_0]['description']
 
@@ -873,10 +884,10 @@ class CreatePriorInformationNoticeRelease:
                     f"{self.metadata_document_url}/{expected_documents_array[q_0]['id']}"
 
                 # Set datePublished.
-                expected_documents_array[q_0]['datePublished'] = message_for_platform['data']['operationDate']
+                expected_documents_array[q_0]['datePublished'] = self.message_for_platform['data']['operationDate']
 
                 # FR.COM-1.62.70: Set relatedLots.
-                if "relatedLots" in payload['tender']['documents'][q_0]:
+                if "relatedLots" in self.payload['tender']['documents'][q_0]:
                     expected_documents_array[q_0]['relatedLots'] = \
                         self.expected_pi_release['releases'][0]['tender']['lots'][0]['id']
                 else:
@@ -887,9 +898,9 @@ class CreatePriorInformationNoticeRelease:
             del self.expected_pi_release['releases'][0]['tender']['documents']
 
         # FR.COM-1.62.60: Set targets.
-        if "targets" in payload['tender']:
+        if "targets" in self.payload['tender']:
             expected_targets_array = list()
-            for q_0 in range(len(payload['tender']['targets'])):
+            for q_0 in range(len(self.payload['tender']['targets'])):
                 expected_targets_array.append(copy.deepcopy(
                     self.expected_pi_release['releases'][0]['tender']['targets'][0]
                 ))
@@ -910,13 +921,13 @@ class CreatePriorInformationNoticeRelease:
                     KeyError(f"Mismatch key into path 'releases[0].tender.targets[{q_0}].id'")
 
                 # Set title.
-                expected_targets_array[q_0]['title'] = payload['tender']['targets'][q_0]['title']
+                expected_targets_array[q_0]['title'] = self.payload['tender']['targets'][q_0]['title']
 
                 # Set relatesTo.
-                expected_targets_array[q_0]['relatesTo'] = payload['tender']['targets'][q_0]['relatesTo']
+                expected_targets_array[q_0]['relatesTo'] = self.payload['tender']['targets'][q_0]['relatesTo']
 
                 # FR.COM-1.62.63: Set relatedItem.
-                if "relatedItem" in payload['tender']['targets'][q_0]:
+                if "relatedItem" in self.payload['tender']['targets'][q_0]:
                     if expected_targets_array[q_0]['relatesTo'] == "lot":
                         expected_targets_array[q_0]['relatedItem'] = \
                             self.expected_pi_release['releases'][0]['tender']['lots'][0]['id']
@@ -932,7 +943,7 @@ class CreatePriorInformationNoticeRelease:
 
                 # Set observations.
                 expected_observations_array = list()
-                for q_1 in range(len(payload['tender']['targets'][q_0]['observations'])):
+                for q_1 in range(len(self.payload['tender']['targets'][q_0]['observations'])):
                     expected_observations_array.append(copy.deepcopy(
                         self.expected_pi_release['releases'][0]['tender']['targets'][0]['observations'][0]
                     ))
@@ -954,19 +965,19 @@ class CreatePriorInformationNoticeRelease:
                         KeyError(f"Mismatch key into path 'releases[0].tender.targets[{q_0}].observations[{q_1}].id'")
 
                     # Set period.
-                    if "period" in payload['tender']['targets'][q_0]['observations'][q_1]:
+                    if "period" in self.payload['tender']['targets'][q_0]['observations'][q_1]:
 
                         # Set startDate.
-                        if "startDate" in payload['tender']['targets'][q_0]['observations'][q_1]['period']:
+                        if "startDate" in self.payload['tender']['targets'][q_0]['observations'][q_1]['period']:
                             expected_observations_array[q_1]['period']['startDate'] = \
-                                payload['tender']['targets'][q_0]['observations'][q_1]['period']['startDate']
+                                self.payload['tender']['targets'][q_0]['observations'][q_1]['period']['startDate']
                         else:
                             del expected_observations_array[q_1]['period']['startDate']
 
                         # Set endDate.
-                        if "startDate" in payload['tender']['targets'][q_0]['observations'][q_1]['period']:
+                        if "startDate" in self.payload['tender']['targets'][q_0]['observations'][q_1]['period']:
                             expected_observations_array[q_1]['period']['endDate'] = \
-                                payload['tender']['targets'][q_0]['observations'][q_1]['period']['endDate']
+                                self.payload['tender']['targets'][q_0]['observations'][q_1]['period']['endDate']
                         else:
                             del expected_observations_array[q_1]['period']['endDate']
                     else:
@@ -974,39 +985,40 @@ class CreatePriorInformationNoticeRelease:
 
                     # Set measure.
                     expected_observations_array[q_1]['measure'] = \
-                        payload['tender']['targets'][q_0]['observations'][q_1]['measure']
+                        self.payload['tender']['targets'][q_0]['observations'][q_1]['measure']
 
                     # Set unit.
                     expected_unit_data = get_value_from_classification_unit_dictionary_csv(
-                        unit_id=payload['tender']['targets'][q_0]['observations'][q_1]['unit']['id'],
+                        unit_id=self.payload['tender']['targets'][q_0]['observations'][q_1]['unit']['id'],
                         language=self.language
                     )
                     expected_observations_array[q_1]['unit']['id'] = expected_unit_data[0]
                     expected_observations_array[q_1]['unit']['name'] = expected_unit_data[1]
 
                     # Set dimensions.
-                    if "dimensions" in payload['tender']['targets'][q_0]['observations'][q_1]:
+                    if "dimensions" in self.payload['tender']['targets'][q_0]['observations'][q_1]:
                         expected_observations_array[q_1]['dimensions'] = \
-                            payload['tender']['targets'][q_0]['observations'][q_1]['dimensions']
+                            self.payload['tender']['targets'][q_0]['observations'][q_1]['dimensions']
                     else:
                         del expected_observations_array[q_1]['dimensions']
 
                     # Set notes.
                     expected_observations_array[q_1]['notes'] = \
-                        payload['tender']['targets'][q_0]['observations'][q_1]['notes']
+                        self.payload['tender']['targets'][q_0]['observations'][q_1]['notes']
 
                     # FR.COM-1.62.64: Set relatedRequirementId.
-                    if "relatedRequirementId" in payload['tender']['targets'][q_0]['observations'][q_1]:
+                    if "relatedRequirementId" in self.payload['tender']['targets'][q_0]['observations'][q_1]:
 
                         # What a requirement we need?
-                        for p_0 in range(len(payload['tender']['criteria'])):
-                            for p_1 in range(len(payload['tender']['criteria'][p_0]['requirementGroups'])):
+                        for p_0 in range(len(self.payload['tender']['criteria'])):
+                            for p_1 in range(len(self.payload['tender']['criteria'][p_0]['requirementGroups'])):
                                 for p_2 in range(len(
-                                        payload['tender']['criteria'][p_0]['requirementGroups'][p_1]['requirements']
+                                        self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
+                                            'requirements']
                                 )):
-                                    if payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
-                                            'requirements'][p_2]['id'] == payload['tender']['targets'][q_0][
-                                            'observations'][q_1]['relatedRequirementId']:
+                                    if self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
+                                        'requirements'][p_2]['id'] == self.payload['tender']['targets'][q_0][
+                                        'observations'][q_1]['relatedRequirementId']:
                                         # Get the requirement from actual release.
                                         actual_requirement = \
                                             actual_pi_release['releases'][0]['tender']['criteria'][p_0][
@@ -1023,9 +1035,9 @@ class CreatePriorInformationNoticeRelease:
             del self.expected_pi_release['releases'][0]['tender']['targets']
 
         # Set electronicAuctions.
-        if "electronicAuctions" in payload['tender']:
+        if "electronicAuctions" in self.payload['tender']:
             expected_details_array = list()
-            for q_0 in range(len(payload['tender']['electronicAuctions']['details'])):
+            for q_0 in range(len(self.payload['tender']['electronicAuctions']['details'])):
                 expected_details_array.append(copy.deepcopy(
                     self.expected_pi_release['releases'][0]['tender']['electronicAuctions']['details'][0]
                 ))
@@ -1048,22 +1060,21 @@ class CreatePriorInformationNoticeRelease:
 
                 # Set relatedLot.
                 # What kind of lot we need?
-                for p_0 in range(len(payload['tender']['lots'])):
-                    if payload['tender']['lots'][p_0]['id'] == \
-                            payload['tender']['electronicAuctions']['details'][q_0]['relatedLot']:
-
+                for p_0 in range(len(self.payload['tender']['lots'])):
+                    if self.payload['tender']['lots'][p_0]['id'] == \
+                            self.payload['tender']['electronicAuctions']['details'][q_0]['relatedLot']:
                         expected_details_array[q_0]['relatedLot'] = \
                             actual_pi_release['releases'][0]['tender']['lots'][p_0]['id']
 
                 # Set eligibleMinimumDifference.
                 expected_details_array[q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference']['amount'] \
                     = \
-                    payload['tender']['electronicAuctions']['details'][q_0]['electronicAuctionModalities'][0][
+                    self.payload['tender']['electronicAuctions']['details'][q_0]['electronicAuctionModalities'][0][
                         'eligibleMinimumDifference']['amount']
 
                 expected_details_array[q_0]['electronicAuctionModalities'][0]['eligibleMinimumDifference']['currency'] \
                     = \
-                    payload['tender']['electronicAuctions']['details'][q_0]['electronicAuctionModalities'][0][
+                    self.payload['tender']['electronicAuctions']['details'][q_0]['electronicAuctionModalities'][0][
                         'eligibleMinimumDifference']['currency']
 
             self.expected_pi_release['releases'][0]['tender']['electronicAuctions']['details'] = expected_details_array
@@ -1071,31 +1082,31 @@ class CreatePriorInformationNoticeRelease:
             del self.expected_pi_release['releases'][0]['tender']['electronicAuctions']
 
         # FR.COM-1.62.14: Set awardCriteria.
-        self.expected_pi_release['releases'][0]['tender']['awardCriteria'] = payload['tender']['awardCriteria']
+        self.expected_pi_release['releases'][0]['tender']['awardCriteria'] = self.payload['tender']['awardCriteria']
 
         # FR.COM-1.62.15: Set awardCriteriaDetails.
         self.expected_pi_release['releases'][0]['tender']['awardCriteriaDetails'] = \
-            payload['tender']['awardCriteriaDetails']
+            self.payload['tender']['awardCriteriaDetails']
 
         # FR.COM-1.62.16: Set tenderPeriod.
         self.expected_pi_release['releases'][0]['tender']['tenderPeriod']['startDate'] = \
-            payload['tender']['tenderPeriod']['startDate']
+            self.payload['tender']['tenderPeriod']['startDate']
 
         # FR.COM-1.62.19: Set procurementMethodModalities.
-        if "procurementMethodModalities" in payload['tender']:
+        if "procurementMethodModalities" in self.payload['tender']:
             self.expected_pi_release['releases'][0]['tender']['procurementMethodModalities'] = \
-                payload['tender']['procurementMethodModalities']
+                self.payload['tender']['procurementMethodModalities']
         else:
             del self.expected_pi_release['releases'][0]['tender']['procurementMethodModalities']
 
         # FR.COM-3.4.3: Set some value.
         # Set enquiryPeriod.
-        if "enquiryPeriod" in payload['tender']:
+        if "enquiryPeriod" in self.payload['tender']:
             self.expected_pi_release['releases'][0]['tender']['enquiryPeriod']['startDate'] = \
-                message_for_platform['data']['operationDate']
+                self.message_for_platform['data']['operationDate']
 
             self.expected_pi_release['releases'][0]['tender']['enquiryPeriod']['endDate'] = \
-                payload['tender']['enquiryPeriod']['endDate']
+                self.payload['tender']['enquiryPeriod']['endDate']
         else:
             del self.expected_pi_release['releases'][0]['tender']['enquiryPeriod']
 
@@ -1139,48 +1150,372 @@ class CreatePriorInformationNoticeRelease:
 
         # Set identifier.
         self.expected_pi_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
-            message_for_platform['data']['ocid'][:28]
+            self.message_for_platform['data']['ocid'][:28]
 
         # Set uri.
         self.expected_pi_release['releases'][0]['relatedProcesses'][0]['uri'] = \
-            f"{self.metadata_tender_url}/{message_for_platform['data']['ocid'][:28]}/" \
-            f"{message_for_platform['data']['ocid'][:28]}"
+            f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
+            f"{self.message_for_platform['data']['ocid'][:28]}"
         return self.expected_pi_release
 
-    def build_expected_ms_release(self, payload, message_for_platform, actual_ms_release):
+    def build_expected_ms_release(self, actual_ms_release):
         """Build MS release."""
 
         """Enrich general attribute for expected MS release"""
-        self.expected_pi_release['uri'] = f"{self.metadata_tender_url}/{message_for_platform['data']['ocid'][:28]}/" \
-                                          f"{message_for_platform['data']['ocid'][:28]}"
+        self.expected_ms_release['uri'] = \
+            f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
+            f"{self.message_for_platform['data']['ocid'][:28]}"
 
-        self.expected_pi_release['version'] = "1.1"
-        self.expected_pi_release['extensions'] = self.extensions
-        self.expected_pi_release['publisher']['name'] = self.publisher_name
-        self.expected_pi_release['publisher']['uri'] = self.publisher_uri
-        self.expected_pi_release['license'] = "http://opendefinition.org/licenses/"
-        self.expected_pi_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
+        self.expected_ms_release['version'] = "1.1"
+        self.expected_ms_release['extensions'] = self.extensions
+        self.expected_ms_release['publisher']['name'] = self.publisher_name
+        self.expected_ms_release['publisher']['uri'] = self.publisher_uri
+        self.expected_ms_release['license'] = "http://opendefinition.org/licenses/"
+        self.expected_ms_release['publicationPolicy'] = "http://opendefinition.org/licenses/"
 
         # FR.COM-3.4.6 Set created date for release.
-        self.expected_pi_release['publishedDate'] = message_for_platform['data']['operationDate']
+        self.expected_ms_release['publishedDate'] = self.message_for_platform['data']['operationDate']
 
-        """Enrich general attribute for expected PIN release: releases[0]"""
+        """Enrich general attribute for expected MS release: releases[0]"""
         # FR.COM-3.4.2: Set ocid.
-        self.expected_pi_release['releases'][0]['ocid'] = message_for_platform['data']['ocid'][:28]
+        self.expected_ms_release['releases'][0]['ocid'] = self.message_for_platform['data']['ocid'][:28]
 
         # FR.COM-3.4.4: Set id.
-        self.expected_pi_release['releases'][0]['id'] = \
-            f"{message_for_platform['data']['outcomes']['pin'][0]['id']}-" \
-            f"{actual_ms_release['releases'][0]['id'][46:59]}"
+        self.expected_ms_release['releases'][0]['id'] = \
+            f"{self.message_for_platform['data']['ocid'][:28]}-{actual_ms_release['releases'][0]['id'][29:42]}"
 
         # FR.COM-1.62.6: Set date.
-        self.expected_pi_release['releases'][0]['date'] = message_for_platform['data']['operationDate']
+        self.expected_ms_release['releases'][0]['date'] = self.message_for_platform['data']['operationDate']
 
         # FR.COM-3.4.7: Set tag.
-        self.expected_pi_release['releases'][0]['tag'] = ["planning"]
+        self.expected_ms_release['releases'][0]['tag'] = ["compiled"]
 
         # FR.COM-3.4.8: Set initiationType.
-        self.expected_pi_release['releases'][0]['initiationType'] = "tender"
+        self.expected_ms_release['releases'][0]['initiationType'] = "tender"
 
         # FR.COM-3.4.11: Set language.
-        self.expected_pi_release['releases'][0]['language'] = self.language
+        self.expected_ms_release['releases'][0]['language'] = self.language
+
+        """Enrich attribute for expected MS release: releases[0].planning"""
+        # Set rationale.
+        if "rationale" in self.payload['planning']:
+            self.expected_ms_release['releases'][0]['planning']['rationale'] = self.payload['planning']['rationale']
+        else:
+            del self.expected_ms_release['releases'][0]['planning']['rationale']
+
+        # Set budget.description.
+        if "description" in self.payload['planning']['budget']:
+            self.expected_ms_release['releases'][0]['planning']['budget']['description'] = \
+                self.payload['planning']['budget']['description']
+        else:
+            del self.expected_ms_release['releases'][0]['planning']['budget']['description']
+
+        # Set budget.budgetBreakdown
+        expected_budget_breakdown_array = list()
+        for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
+            expected_budget_breakdown_array.append(copy.deepcopy(
+                self.expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'][0]
+            ))
+
+            # Set id.
+            try:
+                is_permanent_id_correct = is_it_uuid(
+                    actual_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'][q_0]['id']
+                )
+                if is_permanent_id_correct is True:
+
+                    expected_budget_breakdown_array[q_0]['id'] = \
+                        actual_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'][q_0]['id']
+                else:
+                    expected_budget_breakdown_array[q_0]['id'] = \
+                        f"The 'releases[0].planning.budget.budgetBreakdown[{q_0}].id' must be uuid."
+            except KeyError:
+                KeyError(f"Mismatch key into path 'releases[0].planning.budget.budgetBreakdown[{q_0}].id'")
+
+            # Set amount.
+            expected_budget_breakdown_array[q_0]['amount']['amount'] = \
+                self.payload['planning']['budget']['budgetBreakdown'][q_0]['amount']['amount']
+
+            expected_budget_breakdown_array[q_0]['amount']['currency'] = \
+                self.payload['planning']['budget']['budgetBreakdown'][q_0]['amount']['currency']
+
+            # Set classifications.
+            expected_budget_breakdown_array[q_0]['classifications']['ei'] = \
+                self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']
+
+            if "fs" in self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']:
+                expected_budget_breakdown_array[q_0]['classifications']['fs'] = \
+                    self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['fs']
+
+                fs_url = \
+                    f"{self.metadata_budget_url}/" \
+                    f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']}/" \
+                    f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['fs']}"
+
+                actual_fs_release = requests.get(fs_url).json()
+
+                # FR.COM-14.5.8: Set description.
+                if "description" in actual_fs_release['releases'][0]['planning']['budget']:
+                    expected_budget_breakdown_array[q_0]['description'] = \
+                        actual_fs_release['releases'][0]['planning']['budget']['description']
+                else:
+                    del expected_budget_breakdown_array[q_0]['description']
+
+                # FR.COM-14.5.7: Set period.
+                expected_budget_breakdown_array[q_0]['period']['startDate'] = \
+                    actual_fs_release['releases'][0]['planning']['budget']['period']['startDate']
+
+                expected_budget_breakdown_array[q_0]['period']['endDate'] = \
+                    actual_fs_release['releases'][0]['planning']['budget']['period']['endDate']
+
+                # FR.COM-14.5.9: Set europeanUnionFunding.
+                if "europeanUnionFunding" in actual_fs_release['releases'][0]['planning']['budget']:
+
+                    expected_budget_breakdown_array[q_0]['europeanUnionFunding']['projectIdentifier'] = \
+                        actual_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding'][
+                            'projectIdentifier']
+
+                    expected_budget_breakdown_array[q_0]['europeanUnionFunding']['projectName'] \
+                        = actual_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']['projectName']
+
+                    if "uri" in actual_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']:
+
+                        expected_budget_breakdown_array[q_0]['europeanUnionFunding']['uri'] = \
+                            actual_fs_release['releases'][0]['planning']['budget']['europeanUnionFunding']['uri']
+
+                    else:
+                        del expected_budget_breakdown_array[q_0]['europeanUnionFunding']['uri']
+                else:
+                    del expected_budget_breakdown_array[q_0]['europeanUnionFunding']
+
+                # FR.COM-14.5.6: Set sourceParty.
+                expected_budget_breakdown_array[q_0]['sourceParty']['id'] = \
+                    actual_fs_release['releases'][0]['planning']['budget']['sourceEntity']['id']
+
+                expected_budget_breakdown_array[q_0]['sourceParty']['name'] = \
+                    actual_fs_release['releases'][0]['planning']['budget']['sourceEntity']['name']
+            else:
+                del expected_budget_breakdown_array[q_0]['classifications']['fs']
+
+        self.expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'] = \
+            expected_budget_breakdown_array
+
+        """Enrich 'parties' object for expected MS release: releases[0].parties"""
+        # Prepare party with 'procuringEntity' role.
+        procuringentity_role_array = list()
+
+        procuringentity_role_array.append(copy.deepcopy(self.expected_ms_release['releases'][0]['parties'][0]))
+        del procuringentity_role_array[0]['details']
+
+        # Set id.
+        procuringentity_role_array[0]['id'] = \
+            f"{self.payload['tender']['procuringEntity']['identifier']['scheme']}-" \
+            f"{self.payload['tender']['procuringEntity']['identifier']['id']}"
+
+        # Set name.
+        procuringentity_role_array[0]['name'] = self.payload['tender']['procuringEntity']['name']
+
+        # Set identifier.
+        procuringentity_role_array[0]['identifier']['scheme'] = \
+            self.payload['tender']['procuringEntity']['identifier']['scheme']
+
+        procuringentity_role_array[0]['identifier']['id'] = \
+            self.payload['tender']['procuringEntity']['identifier']['id']
+
+        procuringentity_role_array[0]['identifier']['legalName'] = \
+            self.payload['tender']['procuringEntity']['identifier']['legalName']
+
+        if "uri" in self.payload['tender']['procuringEntity']['identifier']:
+            procuringentity_role_array[0]['identifier']['uri'] = \
+                self.payload['tender']['procuringEntity']['identifier']['uri']
+        else:
+            del procuringentity_role_array[0]['identifier']['uri']
+
+        # Set address.streetAddress.
+        procuringentity_role_array[0]['address']['streetAddress'] = \
+            self.payload['tender']['procuringEntity']['address']['streetAddress']
+
+        # Set address.postalCode.
+        if "postalCode" in self.payload['tender']['procuringEntity']['address']:
+            procuringentity_role_array[0]['address']['postalCode'] = \
+                self.payload['tender']['procuringEntity']['address']['postalCode']
+        else:
+            del procuringentity_role_array[0]['address']['postalCode']
+
+        # Set address.addressDetails,
+        procuringentity_country_data = get_value_from_country_csv(
+            country=self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+            language=self.language
+        )
+        expected_procuringentity_country_object = [{
+            "scheme": procuringentity_country_data[2],
+            "id": self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+            "description": procuringentity_country_data[1],
+            "uri": procuringentity_country_data[3]
+        }]
+
+        procuringentity_region_data = get_value_from_region_csv(
+            region=self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+            country=self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+            language=self.language
+        )
+        expected_procuringentity_region_object = [{
+            "scheme": procuringentity_region_data[2],
+            "id": self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+            "description": procuringentity_region_data[1],
+            "uri": procuringentity_region_data[3]
+        }]
+
+        if self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['scheme'] != "other":
+
+            procuringentity_locality_data = get_value_from_locality_csv(
+                locality=self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+                region=self.payload['tender']['procuringEntity']['address']['addressDetails']['region']['id'],
+                country=self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
+                language=self.language
+            )
+            expected_procuringentity_locality_object = [{
+                "scheme": procuringentity_locality_data[2],
+                "id": self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+                "description": procuringentity_locality_data[1],
+                "uri": procuringentity_locality_data[3]
+            }]
+        else:
+            expected_procuringentity_locality_object = [{
+                "scheme": self.payload['tender']['procuringEntity']['address']['addressDetails']['locality'][
+                    'scheme'],
+                "id": self.payload['tender']['procuringEntity']['address']['addressDetails']['locality']['id'],
+
+                "description": self.payload['tender']['procuringEntity']['address']['addressDetails'][
+                    'locality']['description']
+            }]
+
+        procuringentity_role_array[0]['address']['addressDetails']['country'] = \
+            expected_procuringentity_country_object[0]
+
+        procuringentity_role_array[0]['address']['addressDetails']['region'] = \
+            expected_procuringentity_region_object[0]
+
+        procuringentity_role_array[0]['address']['addressDetails']['locality'] = \
+            expected_procuringentity_locality_object[0]
+
+        # Set additionalIdentifiers.
+        if "additionalIdentifiers" in self.payload['tender']['procuringEntity']:
+            del procuringentity_role_array[0]['additionalIdentifiers'][0]
+            additional_identifiers = list()
+            for q_1 in range(len(self.payload['tender']['procuringEntity']['additionalIdentifiers'])):
+                additional_identifiers.append(copy.deepcopy(
+                    self.expected_ms_release['releases'][0]['parties'][0]['additionalIdentifiers'][0]
+                ))
+
+                additional_identifiers[q_1]['scheme'] = \
+                    self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['scheme']
+
+                additional_identifiers[q_1]['id'] = \
+                    self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['id']
+
+                additional_identifiers[q_1]['legalName'] = \
+                    self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['legalName']
+
+                additional_identifiers[q_1]['uri'] = \
+                    self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['uri']
+
+                procuringentity_role_array[0]['additionalIdentifiers'] = additional_identifiers
+        else:
+            del procuringentity_role_array[0]['additionalIdentifiers']
+
+        # Set contactPoint.
+        if "faxNumber" in self.payload['tender']['procuringEntity']['contactPoint']:
+
+            procuringentity_role_array[0]['contactPoint']['faxNumber'] = \
+                self.payload['tender']['procuringEntity']['contactPoint']['faxNumber']
+        else:
+            del procuringentity_role_array[0]['contactPoint']['faxNumber']
+
+        if "url" in self.payload['tender']['procuringEntity']['contactPoint']:
+
+            procuringentity_role_array[0]['contactPoint']['url'] = \
+                self.payload['tender']['procuringEntity']['contactPoint']['url']
+        else:
+            del procuringentity_role_array[0]['contactPoint']['url']
+
+        procuringentity_role_array[0]['contactPoint']['name'] = \
+            self.payload['tender']['procuringEntity']['contactPoint']['name']
+
+        procuringentity_role_array[0]['contactPoint']['email'] = \
+            self.payload['tender']['procuringEntity']['contactPoint']['email']
+
+        procuringentity_role_array[0]['contactPoint']['telephone'] = \
+            self.payload['tender']['procuringEntity']['contactPoint']['telephone']
+
+        # Set role.
+        procuringentity_role_array[0]['roles'] = ["procuringEntity"]
+
+        # Prepare party with 'buyer' role.
+        buyer_role_array = list()
+        for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
+
+            ei_url = \
+                f"{self.metadata_budget_url}/" \
+                f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']}/" \
+                f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']}"
+
+            actual_ei_release = requests.get(ei_url).json()
+            for a_0 in range(len(
+                    actual_ei_release['releases'][0]['parties']
+            )):
+                if actual_ei_release['releases'][0]['parties'][a_0]['roles'] == ["buyer"]:
+
+                    buyer_role_array.append(copy.deepcopy(
+                        actual_ei_release['releases'][0]['parties'][a_0]
+                    ))
+
+        # Prepare party with 'payer' role and 'funder' role.
+        funder_role_array = list()
+        payer_role_array = list()
+
+        for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
+
+            fs_url = \
+                f"{self.metadata_budget_url}/" \
+                f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']}/" \
+                f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['fs']}"
+
+            actual_fs_release = requests.get(fs_url).json()
+            for a_0 in range(len(
+                    actual_fs_release['releases'][0]['parties']
+            )):
+
+                # Prepare party with 'funder' role.
+                if actual_fs_release['releases'][0]['parties'][a_0]['roles'] == ["funder"]:
+                    funder_role_array.append(copy.deepcopy(
+                        actual_fs_release['releases'][0]['parties'][a_0]
+                    ))
+
+                # Prepare party with 'payer' role.
+                if "payer" in actual_fs_release['releases'][0]['parties'][a_0]['roles'][0]:
+                    payer_role_array.append(copy.deepcopy(
+                        actual_fs_release['releases'][0]['parties'][a_0]
+                    ))
+
+        parties_array = payer_role_array + funder_role_array + buyer_role_array + procuringentity_role_array
+
+        print("\nparties_array")
+        print(json.dumps(parties_array))
+
+        # parties_array = \
+        #     permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
+        #     permanent_parties_with_funder_role_array
+
+        # expected_parties_array = list()
+        # if len(actual_ms_release['releases'][0]['parties']) == len(parties_array):
+        #     for act in range(len(actual_ms_release['releases'][0]['parties'])):
+        #         for exp in range(len(parties_array)):
+        #             if parties_array[exp]['id'] == actual_ms_release['releases'][0]['parties'][act]['id']:
+        #                 expected_parties_array.append(parties_array[exp])
+        # else:
+        #     ValueError("Quantity of objects into actual ms release doesn't equal "
+        #                "quantity of objects into prepared parties array")
+        #
+        # self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
+        return self.expected_ms_release
