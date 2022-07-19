@@ -9,7 +9,8 @@ from data_collection.data_constant import affordable_shemes
 from functions_collection.some_functions import is_it_uuid, get_value_from_cpv_dictionary_csv, \
     get_value_from_classification_unit_dictionary_csv, get_value_from_cpvs_dictionary_csv, get_value_from_country_csv, \
     get_value_from_region_csv, get_value_from_locality_csv, get_value_from_code_translation_csv, \
-    get_unique_party_from_list_by_id
+    get_unique_party_from_list_by_id, get_sum_of_lot, get_contract_period_for_ms_release, \
+    get_value_from_cpv_dictionary_xls, generate_tender_classification_id
 
 
 class CreatePriorInformationNoticeRelease:
@@ -1158,7 +1159,7 @@ class CreatePriorInformationNoticeRelease:
             f"{self.message_for_platform['data']['ocid'][:28]}"
         return self.expected_pi_release
 
-    def build_expected_ms_release(self, actual_ms_release):
+    def build_expected_ms_release(self, actual_ms_release, pmd):
         """Build MS release."""
 
         """Enrich general attribute for expected MS release"""
@@ -1868,5 +1869,159 @@ class CreatePriorInformationNoticeRelease:
         self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
 
         """"Enrich 'tender' object for expected MS release: releases[0].tender"""
+        # FR.COM-1.62.4: Set id.
+        try:
+            is_permanent_id_correct = is_it_uuid(
+                actual_ms_release['releases'][0]['tender']['id']
+            )
+            if is_permanent_id_correct is True:
+
+                self.expected_ms_release['releases'][0]['tender']['id'] = \
+                    actual_ms_release['releases'][0]['tender']['id']
+            else:
+                self.expected_ms_release['releases'][0]['tender']['id'] = \
+                    f"FR.COM-1.62.4: the 'releases[0].tender.id' must be uuid."
+        except KeyError:
+            KeyError(f"Mismatch key into path 'releases[0].tender.id'")
+
+        # FR.COM-1.62.7: Set title.
+        self.expected_ms_release['releases'][0]['tender']['title'] = \
+            self.payload['tedner']['title']
+
+        # FR.COM-1.62.8: Set description.
+        self.expected_ms_release['releases'][0]['tender']['description'] = \
+            self.payload['tedner']['description']
+
+        # FR.COM-1.62.5: Set status.
+        self.expected_ms_release['releases'][0]['tender']['status'] = "planning"
+
+        # FR.COM-1.62.25: Set value.
+        self.expected_ms_release['releases'][0]['tender']['value']['amount'] = \
+            round(get_sum_of_lot(lots_array=self.payload['tender']['lots']), 2)
+
+        self.expected_ms_release['releases'][0]['tender']['value']['currency'] = \
+            self.payload['tender']['lots'][0]['value']['currency']
+
+        # FR.COM-1.62.24: Set procurementMethod.
+        self.expected_ms_release['releases'][0]['tender']['procurementMethod'] = "open"
+
+        # FR.COM-1.62.20: Set procurementMethodDetails.
+        expected_procurement_method_details = None
+        try:
+            """
+            Enrich procurementMethodDetails, depends on pmd.
+            """
+            if pmd == "TEST_OT":
+                expected_procurement_method_details = "test_openTender"
+            elif pmd == "OT":
+                expected_procurement_method_details = "openTender"
+            elif pmd == "TEST_SV":
+                expected_procurement_method_details = "test_smallTender"
+            elif pmd == "SV":
+                expected_procurement_method_details = "smallTender"
+            elif pmd == "TEST_MV":
+                expected_procurement_method_details = "test_microValue"
+            elif pmd == "MV":
+                expected_procurement_method_details = "microValue"
+            else:
+                ValueError("Check your pmd: You must use "
+                           "'TEST_OT', 'OT', 'TEST_SV', 'SV', 'TEST_MV', 'MV' in pytest command")
+
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = \
+                expected_procurement_method_details
+        except KeyError:
+            KeyError("Could not parse a pmd into pytest command.")
+
+        # FR.COM-1.62.13: Set procurementMethodRationale.
+        if "procurementMethodRationale" in self.payload['tender']:
+            self.expected_ms_release['releases'][0]['tender']['procurementMethodRationale'] = \
+                self.payload['tender']['procurementMethodRationale']
+        else:
+            del self.expected_ms_release['releases'][0]['tender']['procurementMethodRationale']
+
+        # FR.COM-1.62.17: Set mainProcurementCategory.
+        expected_main_procurement_category = None
+        try:
+            """
+           Enrich mainProcurementCategory, depends on tender.classification.id.
+           """
+            if \
+                    self.tender_classification_id[0:2] == "03" or \
+                    self.tender_classification_id[0] == "1" or \
+                    self.tender_classification_id[0] == "2" or \
+                    self.tender_classification_id[0] == "3" or \
+                    self.tender_classification_id[0:2] == "44" or \
+                    self.tender_classification_id[0:2] == "48":
+                expected_main_procurement_category = "goods"
+
+            elif \
+                    self.tender_classification_id[0:2] == "45":
+                expected_main_procurement_category = "works"
+
+            elif \
+                    self.tender_classification_id[0] == "5" or \
+                    self.tender_classification_id[0] == "6" or \
+                    self.tender_classification_id[0] == "7" or \
+                    self.tender_classification_id[0] == "8" or \
+                    self.tender_classification_id[0:2] == "92" or \
+                    self.tender_classification_id[0:2] == "98":
+                expected_main_procurement_category = "services"
+
+            else:
+                ValueError("Check your tender.classification.id")
+
+            self.expected_ms_release['releases'][0]['tender']['mainProcurementCategory'] = \
+                expected_main_procurement_category
+
+        except KeyError:
+            KeyError("Could not parse tender.classification.id.")
+
+        # FR.COM-1.62.23: Set eligibilityCriteria.
+        eligibility_criteria = get_value_from_code_translation_csv(
+            parameter="eligibilityCriteria",
+            country=self.country,
+            language=self.language
+        )
+        self.expected_ms_release['releases'][0]['tender']['eligibilityCriteria'] = eligibility_criteria
+
+        # FR.COM-1.62.26: Set contractPeriod.
+        expected_contract_period = get_contract_period_for_ms_release(lots_array=self.payload['tender']['lots'])
+        self.expected_ms_release['releases'][0]['tender']['contractPeriod']['startDate'] = expected_contract_period[0]
+        self.expected_ms_release['releases'][0]['tender']['contractPeriod']['endDate'] = expected_contract_period[1]
+
+        # FR.COM-1.62.27:  Set procuringEntity.
+        self.expected_ms_release['releases'][0]['tender']['procuringEntity']['id'] = \
+            f"{self.payload['tender']['procuringEntity']['identifier']['scheme']}-" \
+            f"{self.payload['tender']['procuringEntity']['identifier']['id']}"
+
+        self.expected_ms_release['releases'][0]['tender']['procuringEntity']['name'] = \
+            self.payload['tender']['procuringEntity']['name']
+
+        # FR.COM-1.62.36: Set acceleratedProcedure.
+        self.expected_ms_release['releases'][0]['tender']['acceleratedProcedure']['isAcceleratedProcedure'] = False
+
+        # FR.COM-1.62.11: Set classification.
+        try:
+            """
+            Enrich releases.tender.classification object, depends on items into pn_payload.
+            """
+            if "items" in self.payload['tender']:
+
+                expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                    cpv=generate_tender_classification_id(self.payload['tender']['items']),
+                    language=self.language
+                )
+            else:
+                expected_cpv_data = get_value_from_cpv_dictionary_xls(
+                    cpv=self.tender_classification_id,
+                    language=self.language
+                )
+
+            self.expected_ms_release['releases'][0]['tender']['classification']['id'] = expected_cpv_data[0]
+            self.expected_ms_release['releases'][0]['tender']['classification']['description'] = expected_cpv_data[1]
+            self.expected_ms_release['releases'][0]['tender']['classification']['scheme'] = "CPV"
+        except ValueError:
+            ValueError("Impossible to enrich releases.tender.classification object.")
+
 
         return self.expected_ms_release
