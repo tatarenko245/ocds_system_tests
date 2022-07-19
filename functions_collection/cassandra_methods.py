@@ -75,6 +75,25 @@ def cleanup_table_of_services_for_outsourcing_planning_notice(connect_to_ocds, c
     connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")
 
 
+def cleanup_table_of_services_for_prior_information_notice(
+        connect_to_ocds, connect_to_auctions, connect_to_clarification, connect_to_access, cpid):
+
+    connect_to_ocds.execute(f"DELETE FROM budget_ei WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM budget_fs WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_budget_release WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_budget_offset WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_budget_compiled_release WHERE cp_id='{cpid}';")
+
+    connect_to_auctions.execute(f"DELETE FROM auctions WHERE cpid='{cpid}';")
+    connect_to_clarification.execute(f"DELETE FROM periods WHERE cpid='{cpid}';")
+
+    connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()
+    connect_to_ocds.execute(f"DELETE FROM notice_release WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_offset WHERE cp_id='{cpid}';")
+    connect_to_ocds.execute(f"DELETE FROM notice_compiled_release WHERE cp_id='{cpid}';")
+
+
 def cleanup_table_of_services_for_relation_aggregated_plan(connect_to_ocds, connect_to_access, cpid):
     connect_to_access.execute(f"DELETE FROM tenders WHERE cpid='{cpid}';")
     connect_to_ocds.execute(f"DELETE FROM orchestrator_context WHERE cp_id='{cpid}';").one()

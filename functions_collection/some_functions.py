@@ -153,11 +153,12 @@ def get_value_from_cpv_dictionary_csv(cpv, language):
 
 def get_value_from_code_translation_csv(parameter: str, country: str, language: str):
     path = get_project_root()
-    with open(f'{path}/data_collection/code_translation.csv') as f:
+    with open(f'{path}/data_collection/release_specific_value.csv') as f:
         reader = csv.reader(f)
         for row in reader:
-            cur_arr = row[0].split(';')
-            if cur_arr[0] == parameter and cur_arr[2] == f'{country}' and cur_arr[3] == f'{language}':
+            cur_arr = str(row).replace("['", "").replace("']", "").replace("'", "").replace("  ", " ")
+            cur_arr = cur_arr.split(';')
+            if cur_arr[0] == parameter and cur_arr[2] == country and cur_arr[3] == language:
                 return cur_arr[1]
 
 

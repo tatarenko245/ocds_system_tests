@@ -6,6 +6,8 @@ import allure
 import requests
 
 from class_collection.platform_authorization import PlatformAuthorization
+from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by_cpid, \
+    cleanup_table_of_services_for_prior_information_notice
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_pin_process
 from messages_collection.open.create_pin_message import CreatePriorInformationNoticeMessage
@@ -36,6 +38,8 @@ class TestCreatePIN:
 
             connect_to_ocds = connect_to_keyspace[0]
             connect_to_orchestrator = connect_to_keyspace[1]
+            connect_to_access = connect_to_keyspace[2]
+            connect_to_clarification = connect_to_keyspace[3]
             connect_to_auctions = connect_to_keyspace[8]
 
             currency = create_fs_tc_1_new[0]
@@ -182,8 +186,7 @@ class TestCreatePIN:
                     payload = payload.build_payload()
                 except ValueError:
                     raise ValueError("Impossible to build payload for Create PIN process.")
-                print("\n Payload")
-                print(json.dumps(payload))
+
                 synchronous_result = create_pin_process(
                     host=bpe_host,
                     access_token=access_token,
@@ -266,10 +269,10 @@ class TestCreatePIN:
                         allure.attach(json.dumps(actual_pi_release), "Actual release.")
                         allure.attach(json.dumps(expected_pi_release), "Expected release.")
 
-                        # assert actual_release == expected_release, \
-                        #     allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                        #                   f"operation_id = '{operation_id}' "
-                        #                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                        assert actual_pi_release == expected_pi_release, \
+                            allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                          f"operation_id = '{operation_id}' "
+                                          f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
                 with allure.step(f'# {step_number}.3. Check MS release.'):
                     """
@@ -277,38 +280,38 @@ class TestCreatePIN:
                     """
                     url = f"{actual_message['data']['url']}/{cpid}"
                     actual_ms_release = requests.get(url=url).json()
-                    print("\n Actual MS release")
-                    print(json.dumps(actual_ms_release['releases'][0]['parties']))
+
                     try:
                         """
                         Build expected MS release.
                         """
-                        expected_ms_release = expected_release.build_expected_ms_release(actual_ms_release)
+                        expected_ms_release = expected_release.build_expected_ms_release(actual_ms_release, pmd)
                     except ValueError:
                         ValueError("Impossible to build expected PI release.")
-                    print("\n Expected MS release")
-                    print(json.dumps(expected_ms_release['releases'][0]['parties']))
+
                     with allure.step("Compare actual and expected releases."):
                         allure.attach(json.dumps(actual_ms_release), "Actual release.")
                         allure.attach(json.dumps(expected_ms_release), "Expected release.")
 
-                        # assert actual_release == expected_release, \
-                        #     allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-                        #                   f"operation_id = '{operation_id}' "
-                        #                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+                        assert actual_ms_release == expected_ms_release, \
+                            allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                          f"operation_id = '{operation_id}' "
+                                          f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
 
-            # if clean_up_database is True:
-            #     try:
-            #         """
-            #         CLean up the database.
-            #         """
-            #         # Clean after Update EI process:
-            #         cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
-            #         cleanup_table_of_services_for_expenditure_item(connect_to_ocds, cpid)
-            #     except ValueError:
-            #         ValueError("Impossible to cLean up the database.")
-            # else:
-            #     with allure.step("The steps of process."):
-            #         allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
-            #                       f"cpid = '{cpid}' and operation_id = '{operation_id}' "
-            #                       f"ALLOW FILTERING;",    "Cassandra DataBase: steps of process.")
+            if clean_up_database is True:
+                try:
+                    """
+                    CLean up the database.
+                    """
+                    # Clean after Create PIN process:
+                    cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
+                    cleanup_table_of_services_for_prior_information_notice(
+                        connect_to_ocds, connect_to_auctions, connect_to_clarification, connect_to_access, cpid
+                    )
+                except ValueError:
+                    ValueError("Impossible to cLean up the database.")
+            else:
+                with allure.step("The steps of process."):
+                    allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+                                  f"operation_id = '{operation_id}' ALLOW FILTERING;",
+                                  "Cassandra DataBase: steps of process.")

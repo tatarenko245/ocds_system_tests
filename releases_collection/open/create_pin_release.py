@@ -563,7 +563,7 @@ class CreatePriorInformationNoticeRelease:
                     language=self.language
                 )
                 expected_lot_country_object = [{
-                    "scheme": lot_country_data[2],
+                    "scheme": lot_country_data[2].upper(),
                     "id": self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
                         'country']['id'],
                     "description": lot_country_data[1],
@@ -837,7 +837,7 @@ class CreatePriorInformationNoticeRelease:
                 del expected_items_array[q_0]['additionalClassifications']
 
             # Set quantity.
-            expected_items_array[q_0]['quantity'] = int(float(self.payload['tender']['items'][q_0]['quantity']))
+            expected_items_array[q_0]['quantity'] = round(float(self.payload['tender']['items'][q_0]['quantity']), 2)
 
             # Set unit.
             expected_unit_data = get_value_from_classification_unit_dictionary_csv(
@@ -890,7 +890,7 @@ class CreatePriorInformationNoticeRelease:
                 # FR.COM-1.62.70: Set relatedLots.
                 if "relatedLots" in self.payload['tender']['documents'][q_0]:
                     expected_documents_array[q_0]['relatedLots'] = \
-                        self.expected_pi_release['releases'][0]['tender']['lots'][0]['id']
+                        [self.expected_pi_release['releases'][0]['tender']['lots'][0]['id']]
                 else:
                     del expected_documents_array[q_0]['relatedLots']
 
@@ -1128,9 +1128,9 @@ class CreatePriorInformationNoticeRelease:
             country=self.country,
             language=self.language
         )
-        self.expected_pi_release['releases'][0]['tender']['submissionMethodRationale'] = submission_method_rationale
+        self.expected_pi_release['releases'][0]['tender']['submissionMethodRationale'] = [submission_method_rationale]
 
-        # Set relatedProcesses.
+        """"Enrich 'relatedProcesses' object for expected PI release: releases[0].relatedProcesses"""
         # FR.COM-1.62.76: Set id.
         try:
             is_permanent_id_correct = is_it_uuid(
@@ -1146,14 +1146,17 @@ class CreatePriorInformationNoticeRelease:
         except KeyError:
             KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
 
-        # Set ocid.
+        # FR.COM-1.62.77: Set relationship.
+        self.expected_pi_release['releases'][0]['relatedProcesses'][0]['relationship'] = ["parent"]
+
+        # FR.COM-1.62.78: Set ocid.
         self.expected_pi_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
 
-        # Set identifier.
+        # FR.COM-1.62.79: Set identifier.
         self.expected_pi_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
             self.message_for_platform['data']['ocid'][:28]
 
-        # Set uri.
+        # FR.COM-1.62.80: Set uri.
         self.expected_pi_release['releases'][0]['relatedProcesses'][0]['uri'] = \
             f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
             f"{self.message_for_platform['data']['ocid'][:28]}"
@@ -1349,7 +1352,7 @@ class CreatePriorInformationNoticeRelease:
             language=self.language
         )
         expected_procuringentity_country_object = [{
-            "scheme": procuringentity_country_data[2],
+            "scheme": procuringentity_country_data[2].upper(),
             "id": self.payload['tender']['procuringEntity']['address']['addressDetails']['country']['id'],
             "description": procuringentity_country_data[1],
             "uri": procuringentity_country_data[3]
@@ -1886,11 +1889,11 @@ class CreatePriorInformationNoticeRelease:
 
         # FR.COM-1.62.7: Set title.
         self.expected_ms_release['releases'][0]['tender']['title'] = \
-            self.payload['tedner']['title']
+            self.payload['tender']['title']
 
         # FR.COM-1.62.8: Set description.
         self.expected_ms_release['releases'][0]['tender']['description'] = \
-            self.payload['tedner']['description']
+            self.payload['tender']['description']
 
         # FR.COM-1.62.5: Set status.
         self.expected_ms_release['releases'][0]['tender']['status'] = "planning"
@@ -2023,5 +2026,62 @@ class CreatePriorInformationNoticeRelease:
         except ValueError:
             ValueError("Impossible to enrich releases.tender.classification object.")
 
+        # FR.COM-1.62.28: Set designContest.
+        self.expected_ms_release['releases'][0]['tender']['designContest']['serviceContractAward'] = False
 
+        # FR.COM-1.62.29: Set electronicWorkflows.useOrdering.
+        self.expected_ms_release['releases'][0]['tender']['electronicWorkflows']['useOrdering'] = False
+
+        # FR.COM-1.62.29: Set electronicWorkflows.usePayment.
+        self.expected_ms_release['releases'][0]['tender']['electronicWorkflows']['usePayment'] = False
+
+        # FR.COM-1.62.31: Set electronicWorkflows.acceptInvoicing.
+        self.expected_ms_release['releases'][0]['tender']['electronicWorkflows']['acceptInvoicing'] = False
+
+        # FR.COM-1.62.32: Set jointProcurement.isJointProcurement.
+        self.expected_ms_release['releases'][0]['tender']['jointProcurement']['isJointProcurement'] = False
+
+        # FR.COM-1.62.33: Set procedureOutsourcing.procedureOutsourced.
+        self.expected_ms_release['releases'][0]['tender']['procedureOutsourcing']['procedureOutsourced'] = False
+
+        # FR.COM-1.62.34: Set framework.isAFramework.
+        self.expected_ms_release['releases'][0]['tender']['framework']['isAFramework'] = False
+
+        # FR.COM-1.62.35: Set dynamicPurchasingSystem.hasDynamicPurchasingSystem.
+        self.expected_ms_release['releases'][0]['tender']['dynamicPurchasingSystem']['hasDynamicPurchasingSystem'] = \
+            False
+
+        # FR.COM-1.62.12: Set legalBasis.
+        self.expected_ms_release['releases'][0]['tender']['legalBasis'] = self.payload['tender']['legalBasis']
+
+        """"Enrich 'relatedProcesses' object for expected MS release: releases[0].relatedProcesses"""
+        # FR.COM-1.62.76: Set id.
+        try:
+            is_permanent_id_correct = is_it_uuid(
+                actual_ms_release['releases'][0]['relatedProcesses'][0]['id']
+            )
+            if is_permanent_id_correct is True:
+
+                self.expected_ms_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                    actual_ms_release['releases'][0]['relatedProcesses'][0]['id']
+            else:
+                self.expected_ms_release['releases'][0]['relatedProcesses'][0]['id'] = \
+                    f"FR.COM-1.62.76: the 'releases[0].relatedProcesses[{0}].id' must be uuid."
+        except KeyError:
+            KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
+
+        # FR.COM-1.62.77: Set relationship.
+        self.expected_ms_release['releases'][0]['relatedProcesses'][0]['relationship'] = ['prior']
+
+        # FR.COM-1.62.78: Set ocid.
+        self.expected_ms_release['releases'][0]['relatedProcesses'][0]['scheme'] = "ocid"
+
+        # FR.COM-1.62.79: Set identifier.
+        self.expected_ms_release['releases'][0]['relatedProcesses'][0]['identifier'] = \
+            self.message_for_platform['data']['outcomes']['pin'][0]['id']
+
+        # FR.COM-1.62.80: Set uri.
+        self.expected_ms_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+            f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
+            f"{self.message_for_platform['data']['outcomes']['pin'][0]['id']}"
         return self.expected_ms_release
