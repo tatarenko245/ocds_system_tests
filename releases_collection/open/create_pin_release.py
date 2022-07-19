@@ -1196,7 +1196,7 @@ class CreatePriorInformationNoticeRelease:
         # FR.COM-3.4.11: Set language.
         self.expected_ms_release['releases'][0]['language'] = self.language
 
-        """Enrich attribute for expected MS release: releases[0].planning"""
+        """Enrich 'planning' object for expected MS release: releases[0].planning"""
         # Set rationale.
         if "rationale" in self.payload['planning']:
             self.expected_ms_release['releases'][0]['planning']['rationale'] = self.payload['planning']['rationale']
@@ -1866,4 +1866,7 @@ class CreatePriorInformationNoticeRelease:
                              "quantity of objects into prepared parties array")
 
         self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
+
+        """"Enrich 'tender' object for expected MS release: releases[0].tender"""
+
         return self.expected_ms_release
