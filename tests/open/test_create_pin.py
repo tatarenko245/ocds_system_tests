@@ -43,6 +43,8 @@ class TestCreatePIN:
             ei_url = create_fs_tc_1_new[4]
             fs_ocid = create_fs_tc_1_new[7]
             fs_url = create_fs_tc_1_new[9]
+            buyer_id = create_fs_tc_1_new[11]
+            buyer_scheme = create_fs_tc_1_new[12]
 
             previous_ei_release = requests.get(ei_url).json()
             previous_fs_release = requests.get(fs_url).json()
@@ -93,6 +95,8 @@ class TestCreatePIN:
                         amount=5000.00,
                         currency=currency,
                         tender_classification_id=tender_classification_id,
+                        procurinentity_id=buyer_id,
+                        procurinentity_scheme=buyer_scheme
                     ))
 
                     list_of_classifications = [

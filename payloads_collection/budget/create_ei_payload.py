@@ -11,7 +11,8 @@ from functions_collection.some_functions import generate_items_array, get_afford
 
 
 class CreateExpenditureItemPayload:
-    def __init__(self, connect_to_ocds, country, buyer_id, tender_classification_id, amount, currency):
+    def __init__(self, connect_to_ocds, country, buyer_id, tender_classification_id, amount, currency,
+                 buyer_scheme: str = None):
 
         affordable_schemes = get_affordable_schemes(country)
         __ei_period = ei_period()
@@ -52,7 +53,11 @@ class CreateExpenditureItemPayload:
         self.__payload['planning']['budget']['period']['endDate'] = __ei_period[1]
 
         self.__payload['buyer']['identifier']['id'] = f"{buyer_id}"
-        self.__payload['buyer']['identifier']['scheme'] = affordable_schemes[0]
+
+        if buyer_scheme is None:
+            buyer_scheme = affordable_schemes[0]
+
+        self.__payload['buyer']['identifier']['scheme'] = buyer_scheme
         self.__payload['buyer']['address']['addressDetails']['country']['scheme'] = affordable_schemes[1]
         self.__payload['buyer']['address']['addressDetails']['country']['id'] = country
         self.__payload['buyer']['address']['addressDetails']['region']['scheme'] = affordable_schemes[2]

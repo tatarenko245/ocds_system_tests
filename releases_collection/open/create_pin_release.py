@@ -1,6 +1,5 @@
 """"Prepare the expected release of the create pin process, open procedure."""
 import copy
-import json
 
 import requests
 
@@ -9,7 +8,8 @@ from data_collection.OpenProcedure.for_test_createPIN_process.release_full_model
 from data_collection.data_constant import affordable_shemes
 from functions_collection.some_functions import is_it_uuid, get_value_from_cpv_dictionary_csv, \
     get_value_from_classification_unit_dictionary_csv, get_value_from_cpvs_dictionary_csv, get_value_from_country_csv, \
-    get_value_from_region_csv, get_value_from_locality_csv, get_value_from_code_translation_csv
+    get_value_from_region_csv, get_value_from_locality_csv, get_value_from_code_translation_csv, \
+    get_unique_party_from_list_by_id
 
 
 class CreatePriorInformationNoticeRelease:
@@ -260,7 +260,7 @@ class CreatePriorInformationNoticeRelease:
 
                         # Set description.
                         if "description" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                            'requirements'][q_2]:
+                                'requirements'][q_2]:
                             expected_requirements_array[q_2]['description'] = \
                                 self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
                                     'description']
@@ -269,7 +269,7 @@ class CreatePriorInformationNoticeRelease:
 
                         # Set period.
                         if "period" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                            'requirements'][q_2]:
+                                'requirements'][q_2]:
                             expected_requirements_array[q_2]['period']['startDate'] = \
                                 self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]['requirements'][q_2][
                                     'period']['startDate']
@@ -282,7 +282,7 @@ class CreatePriorInformationNoticeRelease:
 
                         # Set expectedValue, minValue, maxValue and dataType.
                         if "expectedValue" not in self.payload['tender']['criteria'][q_0][
-                            'requirementGroups'][q_1]['requirements'][q_2]:
+                                'requirementGroups'][q_1]['requirements'][q_2]:
 
                             del expected_requirements_array[q_2]['expectedValue']
                         else:
@@ -295,7 +295,7 @@ class CreatePriorInformationNoticeRelease:
                                     'requirements'][q_2]['dataType']
 
                         if "minValue" not in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                            'requirements'][q_2]:
+                                'requirements'][q_2]:
 
                             del expected_requirements_array[q_2]['minValue']
                         else:
@@ -308,7 +308,7 @@ class CreatePriorInformationNoticeRelease:
                                     'requirements'][q_2]['dataType']
 
                         if "maxValue" not in self.payload['tender']['criteria'][q_0][
-                            'requirementGroups'][q_1]['requirements'][q_2]:
+                                'requirementGroups'][q_1]['requirements'][q_2]:
 
                             del expected_requirements_array[q_2]['maxValue']
                         else:
@@ -329,7 +329,7 @@ class CreatePriorInformationNoticeRelease:
 
                         # FR.COM-1.62.57: Set eligibleEvidences.
                         if "eligibleEvidences" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                            'requirements'][q_2]:
+                                'requirements'][q_2]:
 
                             expected_eligibleevidences_array = list()
                             for q_3 in range(len(
@@ -371,7 +371,7 @@ class CreatePriorInformationNoticeRelease:
 
                                 # Set description.
                                 if "description" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
-                                    'requirements'][q_2]['eligibleEvidences'][q_3]:
+                                        'requirements'][q_2]['eligibleEvidences'][q_3]:
 
                                     expected_eligibleevidences_array[q_3]['description'] = \
                                         self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
@@ -386,7 +386,7 @@ class CreatePriorInformationNoticeRelease:
 
                                 # Set relatedDocument.
                                 if "relatedDocument" in self.payload['tender']['criteria'][q_0][
-                                    'requirementGroups'][q_1]['requirements'][q_2]['eligibleEvidences'][q_3]:
+                                        'requirementGroups'][q_1]['requirements'][q_2]['eligibleEvidences'][q_3]:
 
                                     expected_eligibleevidences_array[q_3]['relatedDocument']['id'] = \
                                         self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1][
@@ -436,7 +436,7 @@ class CreatePriorInformationNoticeRelease:
                         )):
                             if self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
                                 'requirements'][p_2]['id'] == self.payload['tender']['conversions'][q_0][
-                                'relatedItem']:
+                                    'relatedItem']:
                                 # Get the requirement from actual release.
                                 actual_requirement = actual_pi_release['releases'][0]['tender']['criteria'][p_0][
                                     'requirementGroups'][p_1]['requirements'][p_2]
@@ -586,7 +586,7 @@ class CreatePriorInformationNoticeRelease:
                 }]
 
                 if self.payload['tender']['lots'][q_0]['placeOfPerformance']['address']['addressDetails'][
-                    'locality']['scheme'] != "other":
+                        'locality']['scheme'] != "other":
 
                     lot_locality_data = get_value_from_locality_csv(
 
@@ -1018,7 +1018,7 @@ class CreatePriorInformationNoticeRelease:
                                 )):
                                     if self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
                                         'requirements'][p_2]['id'] == self.payload['tender']['targets'][q_0][
-                                        'observations'][q_1]['relatedRequirementId']:
+                                            'observations'][q_1]['relatedRequirementId']:
                                         # Get the requirement from actual release.
                                         actual_requirement = \
                                             actual_pi_release['releases'][0]['tender']['criteria'][p_0][
@@ -1448,9 +1448,153 @@ class CreatePriorInformationNoticeRelease:
         procuringentity_role_array[0]['contactPoint']['telephone'] = \
             self.payload['tender']['procuringEntity']['contactPoint']['telephone']
 
+        # FR.COM-1.62.72: Set persones.
+        if "persones" in self.payload['tender']['procuringEntity']:
+            expected_persones = list()
+            for q_1 in range(len(self.payload['tender']['procuringEntity']['persones'])):
+                expected_persones.append(copy.deepcopy(
+                    self.expected_ms_release['releases'][0]['parties'][0]['persones'][0]
+                ))
+
+                # Set id.
+                expected_persones[q_1]['id'] = \
+                    f"{self.payload['tender']['procuringEntity']['persones'][q_1]['identifier']['scheme']}-" \
+                    f"{self.payload['tender']['procuringEntity']['persones'][q_1]['identifier']['id']}"
+
+                # Set title.
+                expected_persones[q_1]['title'] = self.payload['tender']['procuringEntity']['persones'][q_1]['title']
+
+                # Set name.
+                expected_persones[q_1]['name'] = self.payload['tender']['procuringEntity']['persones'][q_1]['name']
+
+                # Set identifier.
+                expected_persones[q_1]['identifier']['scheme'] = \
+                    self.payload['tender']['procuringEntity']['persones'][q_1]['identifier']['scheme']
+
+                expected_persones[q_1]['identifier']['id'] = \
+                    self.payload['tender']['procuringEntity']['persones'][q_1]['identifier']['id']
+
+                if "uri" in self.payload['tender']['procuringEntity']['persones'][q_1]['identifier']:
+                    expected_persones[q_1]['identifier']['uri'] = \
+                        self.payload['tender']['procuringEntity']['persones'][q_1]['identifier']['uri']
+                else:
+                    del expected_persones[q_1]['identifier']['uri']
+
+                # Set businessFunctions.
+                # Get actual businessFunctions array.
+                actual_bf_array = list()
+                for a_0 in range(len(actual_ms_release['releases'][0]['parties'])):
+
+                    if "procuringEntity" in actual_ms_release['releases'][0]['parties'][a_0]['roles']:
+
+                        for a_1 in range(len(actual_ms_release['releases'][0]['parties'][a_0]['persones'])):
+                            if actual_ms_release['releases'][0]['parties'][a_0]['persones'][a_1]['id'] == \
+                                    expected_persones[q_1]['id']:
+
+                                for a_2 in range(len(
+                                        actual_ms_release['releases'][0]['parties'][a_0]['persones'][a_1][
+                                            'businessFunctions']
+                                )):
+                                    actual_bf_array.append(
+                                        actual_ms_release['releases'][0]['parties'][a_0][
+                                            'persones'][a_1]['businessFunctions'][a_2]
+                                    )
+
+                expected_bf_array = list()
+                for q_2 in range(len(self.payload['tender']['procuringEntity']['persones'][q_1]['businessFunctions'])):
+
+                    expected_bf_array.append(copy.deepcopy(
+                        self.expected_ms_release['releases'][0]['parties'][0]['persones'][0]['businessFunctions'][0]
+                    ))
+
+                    # FR.COM-1.62.38: Set id.
+                    try:
+                        is_permanent_id_correct = is_it_uuid(actual_bf_array[q_2]['id'])
+                        if is_permanent_id_correct is True:
+
+                            expected_bf_array[q_2]['id'] = actual_bf_array[q_2]['id']
+                        else:
+                            expected_bf_array[q_2]['id'] = \
+                                f"FR.COM-1.62.38: the 'releases[0].parties[*].persones[{q_1}]." \
+                                f"businessFunctions[{q_2}].id' must be uuid."
+                    except KeyError:
+                        KeyError(f"Mismatch key into path 'releases[0].parties[*].persones[{q_1}]."
+                                 f"businessFunctions[{q_2}].id'")
+
+                    # Set type.
+                    expected_bf_array[q_2]['type'] = \
+                        self.payload['tender']['procuringEntity']['persones'][q_1]['businessFunctions'][q_2]['type']
+
+                    # Set jobTitle.
+                    expected_bf_array[q_2]['jobTitle'] = \
+                        self.payload['tender']['procuringEntity']['persones'][q_1]['businessFunctions'][q_2][
+                            'jobTitle']
+
+                    # Set period.
+                    expected_bf_array[q_2]['period']['startDate'] = \
+                        self.payload['tender']['procuringEntity']['persones'][q_1]['businessFunctions'][q_2][
+                            'period']['startDate']
+
+                    # Set documents.
+                    if "documents" in self.payload['tender']['procuringEntity']['persones'][q_1][
+                            'businessFunctions'][q_2]:
+
+                        expected_bf_documents_array = list()
+                        for q_3 in range(len(
+                                self.payload['tender']['procuringEntity']['persones'][q_1][
+                                    'businessFunctions'][q_2]['documents']
+                        )):
+                            expected_bf_documents_array.append(copy.deepcopy(
+                                self.expected_ms_release['releases'][0]['parties'][0]['persones'][0][
+                                    'businessFunctions'][0]['documents'][0]
+                            ))
+
+                            # Set id.
+                            expected_bf_documents_array[q_3]['id'] = \
+                                self.payload['tender']['procuringEntity']['persones'][q_1][
+                                    'businessFunctions'][q_2]['documents'][q_3]['id']
+
+                            # Set title.
+                            expected_bf_documents_array[q_3]['title'] = \
+                                self.payload['tender']['procuringEntity']['persones'][q_1][
+                                    'businessFunctions'][q_2]['documents'][q_3]['title']
+
+                            # Set documentType.
+                            expected_bf_documents_array[q_3]['documentType'] = \
+                                self.payload['tender']['procuringEntity']['persones'][q_1][
+                                    'businessFunctions'][q_2]['documents'][q_3]['documentType']
+
+                            # Set description.
+                            if "description" in self.payload['tender']['procuringEntity']['persones'][q_1][
+                                    'businessFunctions'][q_2]['documents'][q_3]:
+
+                                expected_bf_documents_array[q_3]['description'] = \
+                                    self.payload['tender']['procuringEntity']['persones'][q_1][
+                                        'businessFunctions'][q_2]['documents'][q_3]['description']
+                            else:
+                                del expected_bf_documents_array[q_3]['description']
+
+                            # Set url.
+                            expected_bf_documents_array[q_3]['url'] = \
+                                f"{self.metadata_document_url}/{expected_bf_documents_array[q_3]['id']}"
+
+                            # Set datePublished.
+                            expected_bf_documents_array[q_3]['datePublished'] = \
+                                self.message_for_platform['data']['operationDate']
+
+                        expected_bf_array[q_2]['documents'] = expected_bf_documents_array
+                    else:
+                        del expected_bf_array[q_2]['documents']
+
+                expected_persones[q_1]['businessFunctions'] = expected_bf_array
+            procuringentity_role_array[0]['persones'] = expected_persones
+        else:
+            del procuringentity_role_array[0]['persones']
+
         # Set role.
         procuringentity_role_array[0]['roles'] = ["procuringEntity"]
 
+        # ------------------------------------------
         # Prepare party with 'buyer' role.
         buyer_role_array = list()
         for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
@@ -1470,7 +1614,7 @@ class CreatePriorInformationNoticeRelease:
                         actual_ei_release['releases'][0]['parties'][a_0]
                     ))
 
-        # Prepare party with 'payer' role and 'funder' role.
+        # Prepare party with 'payer' role and party with 'funder' role.
         funder_role_array = list()
         payer_role_array = list()
 
@@ -1493,29 +1637,233 @@ class CreatePriorInformationNoticeRelease:
                     ))
 
                 # Prepare party with 'payer' role.
-                if "payer" in actual_fs_release['releases'][0]['parties'][a_0]['roles'][0]:
+                if "payer" in actual_fs_release['releases'][0]['parties'][a_0]['roles']:
                     payer_role_array.append(copy.deepcopy(
                         actual_fs_release['releases'][0]['parties'][a_0]
                     ))
 
-        parties_array = payer_role_array + funder_role_array + buyer_role_array + procuringentity_role_array
+        # Prepare unique party with procuringEntity role.
+        unique_pe_role_array = get_unique_party_from_list_by_id(procuringentity_role_array)
 
-        print("\nparties_array")
-        print(json.dumps(parties_array))
+        # Prepare unique party with buyer role.
+        unique_buyer_role_array = get_unique_party_from_list_by_id(buyer_role_array)
 
-        # parties_array = \
-        #     permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
-        #     permanent_parties_with_funder_role_array
+        # Prepare unique party with payer role.
+        unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
 
-        # expected_parties_array = list()
-        # if len(actual_ms_release['releases'][0]['parties']) == len(parties_array):
-        #     for act in range(len(actual_ms_release['releases'][0]['parties'])):
-        #         for exp in range(len(parties_array)):
-        #             if parties_array[exp]['id'] == actual_ms_release['releases'][0]['parties'][act]['id']:
-        #                 expected_parties_array.append(parties_array[exp])
-        # else:
-        #     ValueError("Quantity of objects into actual ms release doesn't equal "
-        #                "quantity of objects into prepared parties array")
-        #
-        # self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
+        # Prepare unique party with funder role.
+        unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
+
+        # Get id from unique party with buyer role.
+        unique_buyer_id_array = list()
+        for buyer in range(len(unique_buyer_role_array)):
+            unique_buyer_id_array.append(unique_buyer_role_array[buyer]['id'])
+
+        # Get id from unique party with payer role.
+        unique_payer_id_array = list()
+        for payer in range(len(unique_payer_role_array)):
+            unique_payer_id_array.append(unique_payer_role_array[payer]['id'])
+
+        # Get id from unique party with funder role.
+        unique_funder_id_array = list()
+        for funder in range(len(unique_funder_role_array)):
+            unique_funder_id_array.append(unique_funder_role_array[funder]['id'])
+
+        # Check the same id into party with payer role and party with funder role.
+        same_id_into_payer_and_funder = list(set(unique_payer_id_array) & set(unique_funder_id_array))
+
+        # Prepare temporary array with payer and funder roles or prepare temporary array with payer role.
+        # Prepare temporary array with funder role.
+        temp_parties_with_payer_role_array = list()
+        temp_parties_with_funder_role_array = list()
+        if len(same_id_into_payer_and_funder) > 0:
+            for payer in range(len(unique_payer_role_array)):
+                for i_1 in range(len(same_id_into_payer_and_funder)):
+                    for funder in range(len(unique_funder_role_array)):
+                        if unique_payer_role_array[payer]['id'] == same_id_into_payer_and_funder[i_1] == \
+                                unique_funder_role_array[funder]['id']:
+                            unique_payer_role_array[payer]['roles'] = \
+                                unique_payer_role_array[payer]['roles'] + unique_funder_role_array[funder]['roles']
+
+                            temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
+
+                    for funder in range(len(unique_funder_role_array)):
+                        if unique_payer_role_array[payer]['id'] != same_id_into_payer_and_funder[i_1]:
+                            temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
+
+                        if unique_funder_role_array[funder]['id'] != same_id_into_payer_and_funder[i_1]:
+                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
+        else:
+            temp_parties_with_payer_role_array = unique_payer_role_array
+            temp_parties_with_funder_role_array = unique_funder_role_array
+
+        # Get id from temporary parties array with payer role.
+        unique_parties_id_array = list()
+        for payer in range(len(temp_parties_with_payer_role_array)):
+            unique_parties_id_array.append(temp_parties_with_payer_role_array[payer]['id'])
+
+        # Check the same id into party with buyer role and party with payer role.
+        same_id_into_buyer_and_payer = list(set(unique_buyer_id_array) & set(unique_parties_id_array))
+
+        # Prepare temporary array with buyer and payer roles or prepare temporary array with buyer role.
+        # Prepare permanent array with payer role.
+        temp_parties_with_buyer_role_array = list()
+        permanent_parties_with_payer_role_array = list()
+        if len(same_id_into_buyer_and_payer) > 0:
+            for buyer in range(len(unique_buyer_role_array)):
+                for i_1 in range(len(same_id_into_buyer_and_payer)):
+                    for payer in range(len(temp_parties_with_payer_role_array)):
+
+                        if unique_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_payer[i_1] == \
+                                temp_parties_with_payer_role_array[payer]['id']:
+                            unique_buyer_role_array[buyer]['roles'] = \
+                                unique_buyer_role_array[buyer]['roles'] + temp_parties_with_payer_role_array[payer][
+                                    'roles']
+
+                            temp_parties_with_buyer_role_array.append(unique_buyer_role_array[buyer])
+
+                    for payer in range(len(temp_parties_with_payer_role_array)):
+                        if temp_parties_with_payer_role_array[payer]['id'] != same_id_into_buyer_and_payer[i_1]:
+                            permanent_parties_with_payer_role_array.append(temp_parties_with_payer_role_array[payer])
+        else:
+            temp_parties_with_buyer_role_array = unique_buyer_role_array
+            permanent_parties_with_payer_role_array = temp_parties_with_payer_role_array
+
+        # Get id from temporary parties array with funder role.
+        unique_parties_id_array = list()
+        for funder in range(len(temp_parties_with_funder_role_array)):
+            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
+
+        # Get id from temporary parties array with buyer role.
+        unique_buyer_id_array = list()
+        for buyer in range(len(temp_parties_with_buyer_role_array)):
+            unique_buyer_id_array.append(temp_parties_with_buyer_role_array[buyer]['id'])
+
+        # Check the same id into party with buyer role and party with funder role.
+        same_id_into_buyer_and_funder = list(set(unique_buyer_id_array) & set(unique_parties_id_array))
+
+        # Prepare temporary array with buyer and funder roles or prepare permanent array with buyer role.
+        # Prepare permanent array with funder role.
+        permanent_parties_with_buyer_role_array = list()
+        permanent_parties_with_funder_role_array = list()
+        if len(same_id_into_buyer_and_funder) > 0:
+            for buyer in range(len(temp_parties_with_buyer_role_array)):
+                for i_1 in range(len(same_id_into_buyer_and_funder)):
+                    for funder in range(len(temp_parties_with_funder_role_array)):
+
+                        if temp_parties_with_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_funder[i_1] == \
+                                temp_parties_with_funder_role_array[funder]['id']:
+                            temp_parties_with_buyer_role_array[buyer]['roles'] = \
+                                temp_parties_with_buyer_role_array[buyer]['roles'] + \
+                                temp_parties_with_funder_role_array[funder]['roles']
+
+                            permanent_parties_with_buyer_role_array.append(temp_parties_with_buyer_role_array[buyer])
+
+                    for funder in range(len(temp_parties_with_funder_role_array)):
+                        if temp_parties_with_funder_role_array[funder]['id'] != same_id_into_buyer_and_funder[i_1]:
+                            permanent_parties_with_funder_role_array.append(temp_parties_with_funder_role_array[funder])
+        else:
+            permanent_parties_with_buyer_role_array = temp_parties_with_buyer_role_array
+            permanent_parties_with_funder_role_array = temp_parties_with_funder_role_array
+
+        # Get id from unique party with procuringEntity role.
+        unique_pe_id_array = list()
+        for pe in range(len(unique_funder_role_array)):
+            unique_pe_id_array.append(unique_pe_role_array[pe]['id'])
+
+        # Get id from permanent parties array with funder role.
+        unique_funder_id_array = list()
+        for funder in range(len(permanent_parties_with_funder_role_array)):
+            unique_funder_id_array.append(permanent_parties_with_funder_role_array[funder]['id'])
+
+        # Check the same id into party with funder role and party with procuringEntity role.
+        same_id_into_funder_and_pe = list(set(unique_funder_id_array) & set(unique_pe_id_array))
+
+        # Get id from permanent parties array with payer role.
+        unique_payer_id_array = list()
+        for payer in range(len(permanent_parties_with_payer_role_array)):
+            unique_payer_id_array.append(permanent_parties_with_payer_role_array[payer]['id'])
+
+        # Check the same id into party with payer role and party with procuringEntity role.
+        same_id_into_payer_and_pe = list(set(unique_payer_id_array) & set(unique_pe_id_array))
+
+        # Get id from permanent parties array with buyer role.
+        unique_buyer_id_array = list()
+        for buyer in range(len(permanent_parties_with_buyer_role_array)):
+            unique_buyer_id_array.append(permanent_parties_with_buyer_role_array[buyer]['id'])
+
+        # Check the same id into party with buyer role and party with procuringEntity role.
+        same_id_into_buyer_and_pe = list(set(unique_buyer_id_array) & set(unique_pe_id_array))
+
+        # Add procuringEntity role to permanent parties with funder role array or
+        # add procuringEntity role to permanent parties with payer role array or
+        # add procuringEntity role to permanent parties with buyer role array or
+        # prepare permanent parties with procuringEntity role array.
+        permanent_parties_with_pe_role_array = list()
+        if len(same_id_into_funder_and_pe) > 0:
+            for funder in range(len(permanent_parties_with_funder_role_array)):
+                for i_1 in range(len(same_id_into_funder_and_pe)):
+                    for pe in range(len(unique_pe_role_array)):
+                        if permanent_parties_with_funder_role_array[funder]['id'] == same_id_into_funder_and_pe[i_1] \
+                                == unique_pe_role_array[pe]['id']:
+
+                            if "persones" in unique_pe_role_array[pe]:
+                                # The party with funder role never has businessFunctions array.
+                                permanent_parties_with_funder_role_array[funder]['persones'] = \
+                                    unique_pe_role_array[pe]['persones']
+
+                            permanent_parties_with_funder_role_array[funder]['roles'] = \
+                                permanent_parties_with_funder_role_array[funder]['roles'] + \
+                                unique_pe_role_array[pe]['roles']
+
+        elif len(same_id_into_payer_and_pe) > 0:
+            for payer in range(len(permanent_parties_with_payer_role_array)):
+                for i_1 in range(len(same_id_into_payer_and_pe)):
+                    for pe in range(len(unique_pe_role_array)):
+                        if permanent_parties_with_payer_role_array[payer]['id'] == same_id_into_payer_and_pe[i_1] \
+                                == unique_pe_role_array[pe]['id']:
+
+                            if "persones" in unique_pe_role_array[pe]:
+                                # The party with payer role never has businessFunctions array.
+                                permanent_parties_with_payer_role_array[payer]['persones'] = \
+                                    unique_pe_role_array[pe]['persones']
+
+                            permanent_parties_with_payer_role_array[payer]['roles'] = \
+                                permanent_parties_with_payer_role_array[payer]['roles'] + \
+                                unique_pe_role_array[pe]['roles']
+
+        elif len(same_id_into_buyer_and_pe) > 0:
+            for buyer in range(len(permanent_parties_with_buyer_role_array)):
+                for i_1 in range(len(same_id_into_buyer_and_pe)):
+                    for pe in range(len(unique_pe_role_array)):
+                        if permanent_parties_with_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_pe[i_1] \
+                                == unique_pe_role_array[pe]['id']:
+
+                            if "persones" in unique_pe_role_array[pe]:
+                                # The party with buyer role never has businessFunctions array.
+                                permanent_parties_with_buyer_role_array[buyer]['persones'] = \
+                                    unique_pe_role_array[pe]['persones']
+
+                            permanent_parties_with_buyer_role_array[buyer]['roles'] = \
+                                permanent_parties_with_buyer_role_array[buyer]['roles'] + \
+                                unique_pe_role_array[pe]['roles']
+        else:
+            permanent_parties_with_pe_role_array = unique_pe_role_array
+
+        parties_array = \
+            permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
+            permanent_parties_with_funder_role_array + permanent_parties_with_pe_role_array
+
+        # Sort parties array.
+        expected_parties_array = list()
+        if len(actual_ms_release['releases'][0]['parties']) == len(parties_array):
+            for act in range(len(actual_ms_release['releases'][0]['parties'])):
+                for exp in range(len(parties_array)):
+                    if parties_array[exp]['id'] == actual_ms_release['releases'][0]['parties'][act]['id']:
+                        expected_parties_array.append(parties_array[exp])
+        else:
+            raise ValueError("Quantity of objects into actual ms release doesn't equal "
+                             "quantity of objects into prepared parties array")
+
+        self.expected_ms_release['releases'][0]['parties'] = expected_parties_array
         return self.expected_ms_release

@@ -12,6 +12,7 @@ from functions_collection.cassandra_methods import cleanup_ocds_orchestrator_ope
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_fs_process, create_pn_process, \
     create_ap_process
+from functions_collection.some_functions import get_affordable_schemes
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 from payloads_collection.framework_agreement.create_ap_payload import AggregatedPlan
 from payloads_collection.framework_agreement.create_pn_payload import PlanningNoticePayload
@@ -21,6 +22,7 @@ from payloads_collection.framework_agreement.create_pn_payload import PlanningNo
 # Create EI: full data model, create FS: full data model.
 def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_1):
     bpe_host = get_parameters[2]
+    country = get_parameters[4]
     connect_to_ocds = connect_to_keyspace[0]
     ei_payload = create_ei_tc_1[0]
     cpid = create_ei_tc_1[1]
@@ -46,12 +48,21 @@ def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create
             """
             Build payload for Create FS process.
             """
+            affordable_schemes = get_affordable_schemes(country)
+            payer_id = 1
+            payer_scheme = affordable_schemes[0]
+            funder_id = 2
+            funder_scheme = affordable_schemes[0]
+
             payload = copy.deepcopy(FinancialSourcePayload(
+                country=country,
                 ei_payload=ei_payload,
                 amount=89999.89,
                 currency=currency,
-                payer_id=1,
-                funder_id=2
+                payer_id=payer_id,
+                payer_scheme=payer_scheme,
+                funder_id=funder_id,
+                funder_scheme=funder_scheme
             ))
 
             payload.customize_buyer_additional_identifiers(
@@ -92,6 +103,7 @@ def create_fs_tc_1(get_parameters, connect_to_keyspace, prepare_currency, create
 # Create EI: required data model, create FS: required data model.
 def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2):
     bpe_host = get_parameters[2]
+    country = get_parameters[4]
     connect_to_ocds = connect_to_keyspace[0]
     ei_payload = create_ei_tc_2[0]
     cpid = create_ei_tc_2[1]
@@ -117,11 +129,17 @@ def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create
             """
             Build payload for Create FS process.
             """
+            affordable_schemes = get_affordable_schemes(country)
+            payer_id = 1
+            payer_scheme = affordable_schemes[0]
+
             payload = copy.deepcopy(FinancialSourcePayload(
+                country=country,
                 ei_payload=ei_payload,
                 amount=89999.89,
                 currency=currency,
-                payer_id=1
+                payer_id=payer_id,
+                payer_scheme=payer_scheme
             ))
             payload.delete_optional_fields(
                 "tender.procuringEntity.identifier.uri",
@@ -168,12 +186,16 @@ def create_fs_tc_2(get_parameters, connect_to_keyspace, prepare_currency, create
 
 @pytest.fixture(scope="function")
 # Create EI: required data model, create FS: required data model.
-def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2, ):
+def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create_ei_tc_2):
+
     bpe_host = get_parameters[2]
+    country = get_parameters[4]
     connect_to_ocds = connect_to_keyspace[0]
     ei_payload = create_ei_tc_2[0]
     cpid = create_ei_tc_2[1]
     ei_message = create_ei_tc_2[2]
+    buyer_id = create_ei_tc_2[5]
+    buyer_scheme = create_ei_tc_2[6]
     currency = prepare_currency
 
     step_number = 1
@@ -196,10 +218,12 @@ def create_fs_tc_3(get_parameters, connect_to_keyspace, prepare_currency, create
             Build payload for Create FS process.
             """
             payload = copy.deepcopy(FinancialSourcePayload(
+                country=country,
                 ei_payload=ei_payload,
                 amount=89999.89,
                 currency=currency,
-                payer_id=0
+                payer_id=buyer_id,
+                payer_scheme=buyer_scheme
             ))
             payload.delete_optional_fields(
                 "tender.procuringEntity.identifier.uri",

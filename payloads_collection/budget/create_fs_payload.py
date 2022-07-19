@@ -2,13 +2,23 @@ import copy
 import random
 
 from data_collection.data_constant import locality_scheme_tuple
+from functions_collection.some_functions import get_affordable_schemes
 
 
 class FinancialSourcePayload:
-    def __init__(self, ei_payload, amount, currency, payer_id, funder_id=None):
+    def __init__(self, country, ei_payload, amount, currency, payer_id, funder_id=None, payer_scheme: str = None,
+                 funder_scheme: str = None):
+
+        affordable_schemes = get_affordable_schemes(country)
         self.__ei_payload = ei_payload
         self.__amount = amount
         self.__currency = currency
+
+        if payer_scheme is None:
+            payer_scheme = affordable_schemes[0]
+
+        if funder_scheme is None:
+            funder_scheme = affordable_schemes[0]
 
         self.__payload = {
             "tender": {
@@ -16,7 +26,7 @@ class FinancialSourcePayload:
                     "name": "create fs: procuringEntity.name",
                     "identifier": {
                         "id": f"{payer_id}",
-                        "scheme": "MD-IDNO",
+                        "scheme": payer_scheme,
                         "legalName": "create fs: procuringEntity.identifier.legalName",
                         "uri": "create fs: procuringEntity.identifier.uri"
                     },
@@ -81,7 +91,7 @@ class FinancialSourcePayload:
                 "name": "create fs: buyer.name",
                 "identifier": {
                     "id": f"{funder_id}",
-                    "scheme": "MD-IDNO",
+                    "scheme": funder_scheme,
                     "legalName": "create fs: buyer.identifier.legalName",
                     "uri": "create fs: buyer.identifier.uri"
                 },

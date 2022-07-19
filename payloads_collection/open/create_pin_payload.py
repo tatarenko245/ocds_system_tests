@@ -22,7 +22,8 @@ class PriorInformationNoticePayload:
     """This class creates instance of payload."""
 
     def __init__(self, environment: str, language: str, host_to_service: str, country: str, amount: float or int,
-                 currency: str, tender_classification_id: str):
+                 currency: str, tender_classification_id: str, procurinentity_id: str = "55",
+                 procurinentity_scheme: str = None):
 
         self.host = host_to_service
         self.country = country
@@ -56,12 +57,15 @@ class PriorInformationNoticePayload:
         self.payload['tender']['enquiryPeriod']['endDate'] = self.enquiryperiod_enddate
 
         self.payload['tender']['procuringEntity']['name'] = "create pin: procuringEntity.name"
-        self.payload['tender']['procuringEntity']['identifier']['id'] = "create pin: procuringEntity.identifier.id"
+        self.payload['tender']['procuringEntity']['identifier']['id'] = procurinentity_id
 
         self.payload['tender']['procuringEntity']['identifier']['legalName'] = \
             "create pin: procuringEntity.identifier.legalName"
 
-        self.payload['tender']['procuringEntity']['identifier']['scheme'] = self.affordable_schemes[0]
+        if procurinentity_scheme is None:
+            procurinentity_scheme = self.affordable_schemes[0]
+
+        self.payload['tender']['procuringEntity']['identifier']['scheme'] = procurinentity_scheme
 
         self.payload['tender']['procuringEntity']['identifier']['uri'] = "create pin: procuringEntity.identifier.uri"
 

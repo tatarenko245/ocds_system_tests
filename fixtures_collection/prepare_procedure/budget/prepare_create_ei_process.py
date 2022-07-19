@@ -10,6 +10,7 @@ from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by
     cleanup_table_of_services_for_expenditure_item
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_ei_process
+from functions_collection.some_functions import get_affordable_schemes
 from payloads_collection.budget.create_ei_payload import CreateExpenditureItemPayload
 
 
@@ -47,13 +48,18 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
+            affordable_schemes = get_affordable_schemes(country)
+            buyer_id = 0
+            buyer_scheme = affordable_schemes[0]
+
             payload = copy.deepcopy(CreateExpenditureItemPayload(
                 connect_to_ocds=connect_to_ocds,
                 country=country,
-                buyer_id=0,
+                buyer_id=buyer_id,
                 tender_classification_id=tender_classification_id,
                 amount=100000.00,
-                currency=currency)
+                currency=currency,
+                buyer_scheme=buyer_scheme)
             )
 
             payload.customize_tender_items(
@@ -79,7 +85,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
         ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message, ei_url, token, currency
+        yield payload, cpid, message, ei_url, token, currency, buyer_id, buyer_scheme
 
         if clean_up_database is True:
             try:
@@ -133,6 +139,10 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
+            affordable_schemes = get_affordable_schemes(country)
+            buyer_id = 0
+            buyer_scheme = affordable_schemes[0]
+
             payload = copy.deepcopy(CreateExpenditureItemPayload(
                 connect_to_ocds=connect_to_ocds,
                 country=country,
@@ -173,7 +183,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
         ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message, ei_url, token
+        yield payload, cpid, message, ei_url, token, buyer_id, buyer_scheme
 
         if clean_up_database is True:
             try:
@@ -227,6 +237,10 @@ def create_ei_tc_3(get_parameters, connect_to_keyspace):
             """
             Build payload for Create EI process.
             """
+            affordable_schemes = get_affordable_schemes(country)
+            buyer_id = 0
+            buyer_scheme = affordable_schemes[0]
+
             payload = copy.deepcopy(CreateExpenditureItemPayload(
                 connect_to_ocds=connect_to_ocds,
                 country=country,
@@ -275,7 +289,7 @@ def create_ei_tc_3(get_parameters, connect_to_keyspace):
         ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message, ei_url, token
+        yield payload, cpid, message, ei_url, token, buyer_id, buyer_scheme
 
         if clean_up_database is True:
             try:

@@ -15,6 +15,7 @@ from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 # Create EI: full data model, create FS: full data model.
 def create_fs_tc_1_new(get_parameters, connect_to_keyspace, create_ei_tc_1):
     bpe_host = get_parameters[2]
+    country = get_parameters[4]
     connect_to_ocds = connect_to_keyspace[0]
 
     ei_payload = create_ei_tc_1[0]
@@ -23,6 +24,8 @@ def create_fs_tc_1_new(get_parameters, connect_to_keyspace, create_ei_tc_1):
     ei_url = create_ei_tc_1[3]
     ei_token = create_ei_tc_1[4]
     currency = create_ei_tc_1[5]
+    buyer_id = create_ei_tc_1[6]
+    buyer_scheme = create_ei_tc_1[7]
 
     step_number = 1
     with allure.step(f"# {step_number}. Authorization platform one: Create FS process."):
@@ -43,12 +46,20 @@ def create_fs_tc_1_new(get_parameters, connect_to_keyspace, create_ei_tc_1):
             """
             Build payload for Create FS process.
             """
+            payer_id = 1
+            payer_scheme = "MD-IDNO"
+            funder_id = 2
+            funder_scheme = "MD-IDNO"
+
             fs_payload = copy.deepcopy(FinancialSourcePayload(
+                country=country,
                 ei_payload=ei_payload,
                 amount=89999.89,
                 currency=currency,
-                payer_id=1,
-                funder_id=2
+                payer_id=payer_id,
+                payer_scheme=payer_scheme,
+                funder_id=funder_id,
+                funder_scheme=funder_scheme
             ))
 
             fs_payload.customize_buyer_additional_identifiers(
@@ -76,7 +87,7 @@ def create_fs_tc_1_new(get_parameters, connect_to_keyspace, create_ei_tc_1):
         fs_url = f"{fs_message['data']['url']}/{fs_ocid}"
         allure.attach(str(fs_message), "Message for platform.")
         yield currency, ei_payload, ei_cpid, ei_token, ei_url, ei_message, fs_payload, fs_ocid, fs_token, fs_url, \
-            fs_message
+            fs_message, buyer_id, buyer_scheme, payer_id, payer_scheme, funder_id, funder_scheme
 
         try:
             """
