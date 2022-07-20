@@ -5,7 +5,7 @@ import pytest
 
 from class_collection.platform_authorization import PlatformAuthorization
 from functions_collection.cassandra_methods import cleanup_ocds_orchestrator_operation_step_by_operation_id, \
-    cleanup_table_of_services_for_financial_source
+    cleanup_table_of_services_for_financial_source, get_process_id_by_operation_id
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_fs_process
 from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
@@ -16,6 +16,8 @@ from payloads_collection.budget.create_fs_payload import FinancialSourcePayload
 def create_fs_tc_1_new(get_parameters, connect_to_keyspace, create_ei_tc_1):
     bpe_host = get_parameters[2]
     country = get_parameters[4]
+    clean_up_database = get_parameters[10]
+
     connect_to_ocds = connect_to_keyspace[0]
 
     ei_payload = create_ei_tc_1[0]
@@ -89,12 +91,20 @@ def create_fs_tc_1_new(get_parameters, connect_to_keyspace, create_ei_tc_1):
         yield currency, ei_payload, ei_cpid, ei_token, ei_url, ei_message, fs_payload, fs_ocid, fs_token, fs_url, \
             fs_message, buyer_id, buyer_scheme, payer_id, payer_scheme, funder_id, funder_scheme
 
-        try:
-            """
-            CLean up the database.
-            """
-            # Clean after Crate FS process:
-            cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
-            cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_cpid)
-        except ValueError:
-            ValueError("Impossible to cLean up the database.")
+        if clean_up_database is True:
+            try:
+                """
+                CLean up the database.
+                """
+                # Clean after Crate FS process:
+                cleanup_ocds_orchestrator_operation_step_by_operation_id(connect_to_ocds, operation_id)
+                cleanup_table_of_services_for_financial_source(connect_to_ocds, ei_cpid)
+            except ValueError:
+                ValueError("Impossible to cLean up the database.")
+
+        else:
+            process_id = get_process_id_by_operation_id(connect_to_ocds, operation_id)
+            with allure.step("The steps of process."):
+                allure.attach(f"SELECT * FROM ocds.orchestrator_operation_step WHERE "
+                              f"process_id = '{process_id}' ALLOW FILTERING;",
+                              "Cassandra DataBase: steps of process.")

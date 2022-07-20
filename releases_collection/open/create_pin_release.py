@@ -9,7 +9,7 @@ from data_collection.data_constant import affordable_shemes
 from functions_collection.some_functions import is_it_uuid, get_value_from_cpv_dictionary_csv, \
     get_value_from_classification_unit_dictionary_csv, get_value_from_cpvs_dictionary_csv, get_value_from_country_csv, \
     get_value_from_region_csv, get_value_from_locality_csv, get_value_from_code_translation_csv, \
-    get_unique_party_from_list_by_id, get_sum_of_lot, get_contract_period_for_ms_release, \
+    get_unique_party_from_list_by_id, get_contract_period_for_ms_release, \
     get_value_from_cpv_dictionary_xls, generate_tender_classification_id
 
 
@@ -117,7 +117,7 @@ class CreatePriorInformationNoticeRelease:
                 self.expected_pi_release['releases'][0]['tender']['id'] = \
                     f"FR.COM-1.62.4: the 'releases[0].tender.id' must be uuid."
         except KeyError:
-            KeyError(f"Mismatch key into path 'releases[0].tender.id'")
+            raise KeyError(f"Mismatch key into path 'releases[0].tender.id'")
 
         # FR.COM-1.62.5: Set status.
         self.expected_pi_release['releases'][0]['tender']['status'] = "planning"
@@ -143,7 +143,7 @@ class CreatePriorInformationNoticeRelease:
                         expected_criteria_array[q_0]['id'] = \
                             f"FR.COM-1.62.50: the 'releases[0].tender.criteria[{q_0}].id' must be uuid."
                 except KeyError:
-                    KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}].id'")
+                    raise KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}].id'")
 
                 # Set title.
                 expected_criteria_array[q_0]['title'] = self.payload['tender']['criteria'][q_0]['title']
@@ -174,7 +174,7 @@ class CreatePriorInformationNoticeRelease:
                             expected_criteria_array[q_0]['id'] = \
                                 f"FR.COM-1.62.59: the 'releases[0].tender.criteria[{q_0}].relatedItem' must be uuid."
                     except KeyError:
-                        KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}].relatedItem'")
+                        raise KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}].relatedItem'")
                 else:
                     del expected_criteria_array[q_0]['relatedItem']
 
@@ -210,8 +210,8 @@ class CreatePriorInformationNoticeRelease:
                                 f"FR.COM-1.62.53: the 'releases[0].tender.criteria[{q_0}]." \
                                 f"requirementGroups[{q_1}].id' must be uuid."
                     except KeyError:
-                        KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
-                                 f"requirementGroups[{q_1}].id'")
+                        raise KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
+                                       f"requirementGroups[{q_1}].id'")
 
                     # Set description.
                     if "description" in self.payload['tender']['criteria'][q_0]['requirementGroups'][q_1]:
@@ -246,8 +246,8 @@ class CreatePriorInformationNoticeRelease:
                                     f"FR.COM-1.62.54: the 'releases[0].tender.criteria[{q_0}]." \
                                     f"requirementGroups[{q_1}].requirements[{q_2}].id' must be uuid."
                         except KeyError:
-                            KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
-                                     f"requirementGroups[{q_1}].requirements[{q_2}].id'")
+                            raise KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
+                                           f"requirementGroups[{q_1}].requirements[{q_2}].id'")
 
                         # Set title.
                         expected_requirements_array[q_2]['title'] = \
@@ -361,9 +361,10 @@ class CreatePriorInformationNoticeRelease:
                                             f"requirementGroups[{q_1}].requirements[{q_2}].eligibleEvidences[{q_3}]." \
                                             f"id' must be uuid."
                                 except KeyError:
-                                    KeyError(f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
-                                             f"requirementGroups[{q_1}].requirements[{q_2}].eligibleEvidences[{q_3}]."
-                                             f"id'")
+                                    raise KeyError(
+                                        f"Mismatch key into path 'releases[0].tender.criteria[{q_0}]."
+                                        f"requirementGroups[{q_1}].requirements[{q_2}].eligibleEvidences[{q_3}]."
+                                        f"id'")
 
                                 # Set title.
                                 expected_eligibleevidences_array[q_3]['title'] = \
@@ -426,7 +427,7 @@ class CreatePriorInformationNoticeRelease:
                         expected_conversion_array[q_0]['id'] = \
                             f"FR.COM-1.62.66: the 'releases[0].tender.conversions[{q_0}].id' must be uuid."
                 except KeyError:
-                    KeyError(f"Mismatch key into path 'releases[0].tender.conversions[{q_0}].id'")
+                    raise KeyError(f"Mismatch key into path 'releases[0].tender.conversions[{q_0}].id'")
 
                 # What a requirement we need?
                 actual_requirement = None
@@ -480,8 +481,8 @@ class CreatePriorInformationNoticeRelease:
                                 f"FR.COM-1.62.67: the 'releases[0].tender.conversions[{q_0}].coefficients[{q_1}].id'" \
                                 f"must be uuid."
                     except KeyError:
-                        KeyError(f"Mismatch key into path 'releases[0].tender.conversions[{q_0}]."
-                                 f"coefficients[{q_1}].id'")
+                        raise KeyError(f"Mismatch key into path 'releases[0].tender.conversions[{q_0}]."
+                                       f"coefficients[{q_1}].id'")
 
                     # Set value.
                     expected_coefficients_array[q_1]['value'] = \
@@ -512,7 +513,7 @@ class CreatePriorInformationNoticeRelease:
                     expected_lots_array[q_0]['id'] = \
                         f"FR.COM-1.62.40: the 'releases[0].tender.lots[{q_0}].id' must be uuid."
             except KeyError:
-                KeyError(f"Mismatch key into path 'releases[0].tender.lots[{q_0}].id'")
+                raise KeyError(f"Mismatch key into path 'releases[0].tender.lots[{q_0}].id'")
 
             # Set internalId.
             if "internalId" in self.payload['tender']['lots'][q_0]:
@@ -798,7 +799,7 @@ class CreatePriorInformationNoticeRelease:
                     expected_items_array[q_0]['id'] = \
                         f"FR.COM-1.62.46: the 'releases[0].tender.items[{q_0}].id' must be uuid."
             except KeyError:
-                KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
+                raise KeyError(f"Mismatch key into path 'releases[0].tender.items[{q_0}].id'")
 
             # Set internalId.
             if "internalId" in self.payload['tender']['items'][q_0]:
@@ -919,7 +920,7 @@ class CreatePriorInformationNoticeRelease:
                         expected_targets_array[q_0]['id'] = \
                             f"FR.COM-1.62.61: the 'releases[0].tender.targets[{q_0}].id' must be uuid."
                 except KeyError:
-                    KeyError(f"Mismatch key into path 'releases[0].tender.targets[{q_0}].id'")
+                    raise KeyError(f"Mismatch key into path 'releases[0].tender.targets[{q_0}].id'")
 
                 # Set title.
                 expected_targets_array[q_0]['title'] = self.payload['tender']['targets'][q_0]['title']
@@ -963,7 +964,8 @@ class CreatePriorInformationNoticeRelease:
                                 f"FR.COM-1.62.61: the 'releases[0].tender.targets[{q_0}].observations[{q_1}].id' " \
                                 f"must be uuid."
                     except KeyError:
-                        KeyError(f"Mismatch key into path 'releases[0].tender.targets[{q_0}].observations[{q_1}].id'")
+                        raise KeyError(
+                            f"Mismatch key into path 'releases[0].tender.targets[{q_0}].observations[{q_1}].id'")
 
                     # Set period.
                     if "period" in self.payload['tender']['targets'][q_0]['observations'][q_1]:
@@ -1018,7 +1020,7 @@ class CreatePriorInformationNoticeRelease:
                                             'requirements']
                                 )):
                                     if self.payload['tender']['criteria'][p_0]['requirementGroups'][p_1][
-                                        'requirements'][p_2]['id'] == self.payload['tender']['targets'][q_0][
+                                            'requirements'][p_2]['id'] == self.payload['tender']['targets'][q_0][
                                             'observations'][q_1]['relatedRequirementId']:
                                         # Get the requirement from actual release.
                                         actual_requirement = \
@@ -1057,7 +1059,7 @@ class CreatePriorInformationNoticeRelease:
                             f"'bpeCreateIdsDelegate': the 'releases[0].tender.electronicAuctions.details[{q_0}].id' " \
                             f"must be uuid."
                 except KeyError:
-                    KeyError(f"Mismatch key into path 'releases[0].tender.electronicAuctions.details[{q_0}].id'")
+                    raise KeyError(f"Mismatch key into path 'releases[0].tender.electronicAuctions.details[{q_0}].id'")
 
                 # Set relatedLot.
                 # What kind of lot we need?
@@ -1144,7 +1146,7 @@ class CreatePriorInformationNoticeRelease:
                 self.expected_pi_release['releases'][0]['relatedProcesses'][0]['id'] = \
                     f"FR.COM-1.62.76: the 'releases[0].relatedProcesses[{0}].id' must be uuid."
         except KeyError:
-            KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
+            raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
 
         # FR.COM-1.62.77: Set relationship.
         self.expected_pi_release['releases'][0]['relatedProcesses'][0]['relationship'] = ["parent"]
@@ -1162,7 +1164,7 @@ class CreatePriorInformationNoticeRelease:
             f"{self.message_for_platform['data']['ocid'][:28]}"
         return self.expected_pi_release
 
-    def build_expected_ms_release(self, actual_ms_release, pmd):
+    def build_expected_ms_release(self, actual_ms_release, pmd, need_fs: bool):
         """Build MS release."""
 
         """Enrich general attribute for expected MS release"""
@@ -1234,7 +1236,7 @@ class CreatePriorInformationNoticeRelease:
                     expected_budget_breakdown_array[q_0]['id'] = \
                         f"The 'releases[0].planning.budget.budgetBreakdown[{q_0}].id' must be uuid."
             except KeyError:
-                KeyError(f"Mismatch key into path 'releases[0].planning.budget.budgetBreakdown[{q_0}].id'")
+                raise KeyError(f"Mismatch key into path 'releases[0].planning.budget.budgetBreakdown[{q_0}].id'")
 
             # Set amount.
             expected_budget_breakdown_array[q_0]['amount']['amount'] = \
@@ -1522,8 +1524,8 @@ class CreatePriorInformationNoticeRelease:
                                 f"FR.COM-1.62.38: the 'releases[0].parties[*].persones[{q_1}]." \
                                 f"businessFunctions[{q_2}].id' must be uuid."
                     except KeyError:
-                        KeyError(f"Mismatch key into path 'releases[0].parties[*].persones[{q_1}]."
-                                 f"businessFunctions[{q_2}].id'")
+                        raise KeyError(f"Mismatch key into path 'releases[0].parties[*].persones[{q_1}]."
+                                       f"businessFunctions[{q_2}].id'")
 
                     # Set type.
                     expected_bf_array[q_2]['type'] = \
@@ -1613,7 +1615,6 @@ class CreatePriorInformationNoticeRelease:
                     actual_ei_release['releases'][0]['parties']
             )):
                 if actual_ei_release['releases'][0]['parties'][a_0]['roles'] == ["buyer"]:
-
                     buyer_role_array.append(copy.deepcopy(
                         actual_ei_release['releases'][0]['parties'][a_0]
                     ))
@@ -1621,30 +1622,30 @@ class CreatePriorInformationNoticeRelease:
         # Prepare party with 'payer' role and party with 'funder' role.
         funder_role_array = list()
         payer_role_array = list()
+        if need_fs is True:
+            for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
 
-        for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
+                fs_url = \
+                    f"{self.metadata_budget_url}/" \
+                    f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']}/" \
+                    f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['fs']}"
 
-            fs_url = \
-                f"{self.metadata_budget_url}/" \
-                f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['ei']}/" \
-                f"{self.payload['planning']['budget']['budgetBreakdown'][q_0]['classifications']['fs']}"
+                actual_fs_release = requests.get(fs_url).json()
+                for a_0 in range(len(
+                        actual_fs_release['releases'][0]['parties']
+                )):
 
-            actual_fs_release = requests.get(fs_url).json()
-            for a_0 in range(len(
-                    actual_fs_release['releases'][0]['parties']
-            )):
+                    # Prepare party with 'funder' role.
+                    if actual_fs_release['releases'][0]['parties'][a_0]['roles'] == ["funder"]:
+                        funder_role_array.append(copy.deepcopy(
+                            actual_fs_release['releases'][0]['parties'][a_0]
+                        ))
 
-                # Prepare party with 'funder' role.
-                if actual_fs_release['releases'][0]['parties'][a_0]['roles'] == ["funder"]:
-                    funder_role_array.append(copy.deepcopy(
-                        actual_fs_release['releases'][0]['parties'][a_0]
-                    ))
-
-                # Prepare party with 'payer' role.
-                if "payer" in actual_fs_release['releases'][0]['parties'][a_0]['roles']:
-                    payer_role_array.append(copy.deepcopy(
-                        actual_fs_release['releases'][0]['parties'][a_0]
-                    ))
+                    # Prepare party with 'payer' role.
+                    if "payer" in actual_fs_release['releases'][0]['parties'][a_0]['roles']:
+                        payer_role_array.append(copy.deepcopy(
+                            actual_fs_release['releases'][0]['parties'][a_0]
+                        ))
 
         # Prepare unique party with procuringEntity role.
         unique_pe_role_array = get_unique_party_from_list_by_id(procuringentity_role_array)
@@ -1885,7 +1886,7 @@ class CreatePriorInformationNoticeRelease:
                 self.expected_ms_release['releases'][0]['tender']['id'] = \
                     f"FR.COM-1.62.4: the 'releases[0].tender.id' must be uuid."
         except KeyError:
-            KeyError(f"Mismatch key into path 'releases[0].tender.id'")
+            raise KeyError(f"Mismatch key into path 'releases[0].tender.id'")
 
         # FR.COM-1.62.7: Set title.
         self.expected_ms_release['releases'][0]['tender']['title'] = \
@@ -1899,8 +1900,14 @@ class CreatePriorInformationNoticeRelease:
         self.expected_ms_release['releases'][0]['tender']['status'] = "planning"
 
         # FR.COM-1.62.25: Set value.
+        budget_breakdown_amount_list = list()
+        for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
+            budget_breakdown_amount_list.append(
+                self.payload['planning']['budget']['budgetBreakdown'][q_0]['amount']['amount']
+            )
+
         self.expected_ms_release['releases'][0]['tender']['value']['amount'] = \
-            round(get_sum_of_lot(lots_array=self.payload['tender']['lots']), 2)
+            round(sum(budget_breakdown_amount_list), 2)
 
         self.expected_ms_release['releases'][0]['tender']['value']['currency'] = \
             self.payload['tender']['lots'][0]['value']['currency']
@@ -1933,7 +1940,7 @@ class CreatePriorInformationNoticeRelease:
             self.expected_ms_release['releases'][0]['tender']['procurementMethodDetails'] = \
                 expected_procurement_method_details
         except KeyError:
-            KeyError("Could not parse a pmd into pytest command.")
+            raise KeyError("Could not parse a pmd into pytest command.")
 
         # FR.COM-1.62.13: Set procurementMethodRationale.
         if "procurementMethodRationale" in self.payload['tender']:
@@ -1977,7 +1984,7 @@ class CreatePriorInformationNoticeRelease:
                 expected_main_procurement_category
 
         except KeyError:
-            KeyError("Could not parse tender.classification.id.")
+            raise KeyError("Could not parse tender.classification.id.")
 
         # FR.COM-1.62.23: Set eligibilityCriteria.
         eligibility_criteria = get_value_from_code_translation_csv(
@@ -2068,7 +2075,7 @@ class CreatePriorInformationNoticeRelease:
                 self.expected_ms_release['releases'][0]['relatedProcesses'][0]['id'] = \
                     f"FR.COM-1.62.76: the 'releases[0].relatedProcesses[{0}].id' must be uuid."
         except KeyError:
-            KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
+            raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[{0}].id'")
 
         # FR.COM-1.62.77: Set relationship.
         self.expected_ms_release['releases'][0]['relatedProcesses'][0]['relationship'] = ['prior']
@@ -2085,3 +2092,90 @@ class CreatePriorInformationNoticeRelease:
             f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
             f"{self.message_for_platform['data']['outcomes']['pin'][0]['id']}"
         return self.expected_ms_release
+
+    def build_expected_fs_release(self, actual_fs_release):
+        """Build MS release."""
+
+        expected_fs_release = copy.deepcopy(actual_fs_release)
+
+        """"Enrich 'relatedProcesses' object for expected MS release: releases[0].relatedProcesses"""
+        expected_related_processes_object = copy.deepcopy(
+            self.expected_pi_release['releases'][0]['relatedProcesses'][0]
+        )
+
+        # Get actual object of relatedProcesses.
+        actual_related_processes_object = dict()
+        for q_0 in range(len(actual_fs_release['releases'][0]['relatedProcesses'])):
+            if actual_fs_release['releases'][0]['relatedProcesses'][q_0]['relationship'] == ['prior']:
+                actual_related_processes_object.update(actual_fs_release['releases'][0]['relatedProcesses'][q_0])
+
+        # Set id.
+        try:
+            is_permanent_id_correct = is_it_uuid(actual_related_processes_object['id'])
+            if is_permanent_id_correct is True:
+                expected_related_processes_object['id'] = actual_related_processes_object['id']
+            else:
+                expected_related_processes_object['id'] = f"The 'releases[0].relatedProcesses[*].id' must be uuid."
+        except KeyError:
+            raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[*].id'")
+
+        # Set relationship.
+        expected_related_processes_object['relationship'] = ['prior']
+
+        # Set ocid.
+        expected_related_processes_object['scheme'] = "ocid"
+
+        # Set identifier.
+        expected_related_processes_object['identifier'] = self.message_for_platform['data']['outcomes']['pin'][0]['id']
+
+        # Set uri.
+        self.expected_ms_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+            f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
+            f"{self.message_for_platform['data']['outcomes']['pin'][0]['id']}"
+
+        expected_fs_release['releases'][0]['relatedProcesses'].append(expected_related_processes_object)
+        return expected_fs_release
+
+    def build_expected_ei_release(self, actual_ei_release):
+        """Build MS release."""
+
+        expected_ei_release = copy.deepcopy(actual_ei_release)
+
+        """"Enrich 'relatedProcesses' object for expected MS release: releases[0].relatedProcesses"""
+        expected_related_processes_object = copy.deepcopy(
+            self.expected_pi_release['releases'][0]['relatedProcesses'][0]
+        )
+
+        # Get actual object of relatedProcesses.
+        actual_related_processes_object = dict()
+        for q_0 in range(len(actual_ei_release['releases'][0]['relatedProcesses'])):
+            if actual_ei_release['releases'][0]['relatedProcesses'][q_0]['relationship'] == ['prior']:
+                actual_related_processes_object.update(actual_ei_release['releases'][0]['relatedProcesses'][q_0])
+
+        # Set id.
+        try:
+            is_permanent_id_correct = is_it_uuid(actual_related_processes_object['id'])
+            if is_permanent_id_correct is True:
+
+                expected_related_processes_object['id'] = actual_related_processes_object['id']
+            else:
+                expected_related_processes_object['id'] = f"The 'releases[0].relatedProcesses[*].id' must be uuid."
+        except KeyError:
+            raise KeyError(f"Mismatch key into path 'releases[0].relatedProcesses[*].id'")
+
+        # Set relationship.
+        expected_related_processes_object['relationship'] = ['prior']
+
+        # Set ocid.
+        expected_related_processes_object['scheme'] = "ocid"
+
+        # Set identifier.
+        expected_related_processes_object['identifier'] = self.message_for_platform['data']['outcomes']['pin'][0]['id']
+
+        # Set uri.
+        self.expected_ms_release['releases'][0]['relatedProcesses'][0]['uri'] = \
+            f"{self.metadata_tender_url}/{self.message_for_platform['data']['ocid'][:28]}/" \
+            f"{self.message_for_platform['data']['outcomes']['pin'][0]['id']}"
+
+        expected_ei_release['releases'][0]['relatedProcesses'].append(expected_related_processes_object)
+        return expected_ei_release

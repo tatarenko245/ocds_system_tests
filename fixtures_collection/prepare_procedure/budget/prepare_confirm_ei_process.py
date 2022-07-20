@@ -22,6 +22,9 @@ def confirm_ei_tc_1(get_parameters, connect_to_keyspace, create_ei_tc_1):
     ei_cpid = create_ei_tc_1[1]
     ei_url = create_ei_tc_1[3]
     ei_token = create_ei_tc_1[4]
+    currency = create_ei_tc_1[5]
+    buyer_id = create_ei_tc_1[6]
+    buyer_scheme = create_ei_tc_1[7]
 
     previous_ei_release = requests.get(ei_url).json()
 
@@ -62,7 +65,7 @@ def confirm_ei_tc_1(get_parameters, connect_to_keyspace, create_ei_tc_1):
         message = get_message_for_platform(operation_id)
         allure.attach(str(message), "Message for platform.")
 
-        yield ei_cpid, ei_token, message, ei_url
+        yield ei_cpid, ei_token, message, ei_url, currency, buyer_id, buyer_scheme
 
         if clean_up_database is True:
             try:
