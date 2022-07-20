@@ -1302,6 +1302,10 @@ class CreatePriorInformationNoticeRelease:
                     actual_fs_release['releases'][0]['planning']['budget']['sourceEntity']['name']
             else:
                 del expected_budget_breakdown_array[q_0]['classifications']['fs']
+                del expected_budget_breakdown_array[q_0]['description']
+                del expected_budget_breakdown_array[q_0]['europeanUnionFunding']
+                del expected_budget_breakdown_array[q_0]['sourceParty']
+                del expected_budget_breakdown_array[q_0]['period']
 
         self.expected_ms_release['releases'][0]['planning']['budget']['budgetBreakdown'] = \
             expected_budget_breakdown_array
@@ -1600,6 +1604,14 @@ class CreatePriorInformationNoticeRelease:
         # Set role.
         procuringentity_role_array[0]['roles'] = ["procuringEntity"]
 
+        # Prepare unique party with procuringEntity role.
+        unique_pe_role_array = get_unique_party_from_list_by_id(procuringentity_role_array)
+
+        # Get id from unique party with procuringEntity role.
+        unique_pe_id_array = list()
+        for pe in range(len(unique_pe_role_array)):
+            unique_pe_id_array.append(unique_pe_role_array[pe]['id'])
+
         # ------------------------------------------
         # Prepare party with 'buyer' role.
         buyer_role_array = list()
@@ -1619,9 +1631,19 @@ class CreatePriorInformationNoticeRelease:
                         actual_ei_release['releases'][0]['parties'][a_0]
                     ))
 
+        # Prepare unique party with buyer role.
+        unique_buyer_role_array = get_unique_party_from_list_by_id(buyer_role_array)
+
+        # Get id from unique party with buyer role.
+        unique_buyer_id_array = list()
+        for buyer in range(len(unique_buyer_role_array)):
+            unique_buyer_id_array.append(unique_buyer_role_array[buyer]['id'])
+
         # Prepare party with 'payer' role and party with 'funder' role.
         funder_role_array = list()
         payer_role_array = list()
+
+        parties_array = list()
         if need_fs is True:
             for q_0 in range(len(self.payload['planning']['budget']['budgetBreakdown'])):
 
@@ -1647,217 +1669,249 @@ class CreatePriorInformationNoticeRelease:
                             actual_fs_release['releases'][0]['parties'][a_0]
                         ))
 
-        # Prepare unique party with procuringEntity role.
-        unique_pe_role_array = get_unique_party_from_list_by_id(procuringentity_role_array)
+            # Prepare unique party with payer role.
+            unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
 
-        # Prepare unique party with buyer role.
-        unique_buyer_role_array = get_unique_party_from_list_by_id(buyer_role_array)
+            # Prepare unique party with funder role.
+            unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
 
-        # Prepare unique party with payer role.
-        unique_payer_role_array = get_unique_party_from_list_by_id(payer_role_array)
-
-        # Prepare unique party with funder role.
-        unique_funder_role_array = get_unique_party_from_list_by_id(funder_role_array)
-
-        # Get id from unique party with buyer role.
-        unique_buyer_id_array = list()
-        for buyer in range(len(unique_buyer_role_array)):
-            unique_buyer_id_array.append(unique_buyer_role_array[buyer]['id'])
-
-        # Get id from unique party with payer role.
-        unique_payer_id_array = list()
-        for payer in range(len(unique_payer_role_array)):
-            unique_payer_id_array.append(unique_payer_role_array[payer]['id'])
-
-        # Get id from unique party with funder role.
-        unique_funder_id_array = list()
-        for funder in range(len(unique_funder_role_array)):
-            unique_funder_id_array.append(unique_funder_role_array[funder]['id'])
-
-        # Check the same id into party with payer role and party with funder role.
-        same_id_into_payer_and_funder = list(set(unique_payer_id_array) & set(unique_funder_id_array))
-
-        # Prepare temporary array with payer and funder roles or prepare temporary array with payer role.
-        # Prepare temporary array with funder role.
-        temp_parties_with_payer_role_array = list()
-        temp_parties_with_funder_role_array = list()
-        if len(same_id_into_payer_and_funder) > 0:
+            # Get id from unique party with payer role.
+            unique_payer_id_array = list()
             for payer in range(len(unique_payer_role_array)):
-                for i_1 in range(len(same_id_into_payer_and_funder)):
-                    for funder in range(len(unique_funder_role_array)):
-                        if unique_payer_role_array[payer]['id'] == same_id_into_payer_and_funder[i_1] == \
-                                unique_funder_role_array[funder]['id']:
-                            unique_payer_role_array[payer]['roles'] = \
-                                unique_payer_role_array[payer]['roles'] + unique_funder_role_array[funder]['roles']
+                unique_payer_id_array.append(unique_payer_role_array[payer]['id'])
 
-                            temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
+            # Get id from unique party with funder role.
+            unique_funder_id_array = list()
+            for funder in range(len(unique_funder_role_array)):
+                unique_funder_id_array.append(unique_funder_role_array[funder]['id'])
 
-                    for funder in range(len(unique_funder_role_array)):
-                        if unique_payer_role_array[payer]['id'] != same_id_into_payer_and_funder[i_1]:
-                            temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
+            # Check the same id into party with payer role and party with funder role.
+            same_id_into_payer_and_funder = list(set(unique_payer_id_array) & set(unique_funder_id_array))
 
-                        if unique_funder_role_array[funder]['id'] != same_id_into_payer_and_funder[i_1]:
-                            temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
-        else:
-            temp_parties_with_payer_role_array = unique_payer_role_array
-            temp_parties_with_funder_role_array = unique_funder_role_array
+            # Prepare temporary array with payer and funder roles or prepare temporary array with payer role.
+            # Prepare temporary array with funder role.
+            temp_parties_with_payer_role_array = list()
+            temp_parties_with_funder_role_array = list()
+            if len(same_id_into_payer_and_funder) > 0:
+                for payer in range(len(unique_payer_role_array)):
+                    for i_1 in range(len(same_id_into_payer_and_funder)):
+                        for funder in range(len(unique_funder_role_array)):
+                            if unique_payer_role_array[payer]['id'] == same_id_into_payer_and_funder[i_1] == \
+                                    unique_funder_role_array[funder]['id']:
+                                unique_payer_role_array[payer]['roles'] = \
+                                    unique_payer_role_array[payer]['roles'] + unique_funder_role_array[funder][
+                                        'roles']
 
-        # Get id from temporary parties array with payer role.
-        unique_parties_id_array = list()
-        for payer in range(len(temp_parties_with_payer_role_array)):
-            unique_parties_id_array.append(temp_parties_with_payer_role_array[payer]['id'])
+                                temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
 
-        # Check the same id into party with buyer role and party with payer role.
-        same_id_into_buyer_and_payer = list(set(unique_buyer_id_array) & set(unique_parties_id_array))
+                        for funder in range(len(unique_funder_role_array)):
+                            if unique_payer_role_array[payer]['id'] != same_id_into_payer_and_funder[i_1]:
+                                temp_parties_with_payer_role_array.append(unique_payer_role_array[payer])
 
-        # Prepare temporary array with buyer and payer roles or prepare temporary array with buyer role.
-        # Prepare permanent array with payer role.
-        temp_parties_with_buyer_role_array = list()
-        permanent_parties_with_payer_role_array = list()
-        if len(same_id_into_buyer_and_payer) > 0:
-            for buyer in range(len(unique_buyer_role_array)):
-                for i_1 in range(len(same_id_into_buyer_and_payer)):
-                    for payer in range(len(temp_parties_with_payer_role_array)):
+                            if unique_funder_role_array[funder]['id'] != same_id_into_payer_and_funder[i_1]:
+                                temp_parties_with_funder_role_array.append(unique_payer_role_array[funder])
+            else:
+                temp_parties_with_payer_role_array = unique_payer_role_array
+                temp_parties_with_funder_role_array = unique_funder_role_array
 
-                        if unique_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_payer[i_1] == \
-                                temp_parties_with_payer_role_array[payer]['id']:
-                            unique_buyer_role_array[buyer]['roles'] = \
-                                unique_buyer_role_array[buyer]['roles'] + temp_parties_with_payer_role_array[payer][
-                                    'roles']
+            # Get id from temporary parties array with payer role.
+            unique_parties_id_array = list()
+            for payer in range(len(temp_parties_with_payer_role_array)):
+                unique_parties_id_array.append(temp_parties_with_payer_role_array[payer]['id'])
 
-                            temp_parties_with_buyer_role_array.append(unique_buyer_role_array[buyer])
+            # Check the same id into party with buyer role and party with payer role.
+            same_id_into_buyer_and_payer = list(set(unique_buyer_id_array) & set(unique_parties_id_array))
 
-                    for payer in range(len(temp_parties_with_payer_role_array)):
-                        if temp_parties_with_payer_role_array[payer]['id'] != same_id_into_buyer_and_payer[i_1]:
-                            permanent_parties_with_payer_role_array.append(temp_parties_with_payer_role_array[payer])
-        else:
-            temp_parties_with_buyer_role_array = unique_buyer_role_array
-            permanent_parties_with_payer_role_array = temp_parties_with_payer_role_array
+            # Prepare temporary array with buyer and payer roles or prepare temporary array with buyer role.
+            # Prepare permanent array with payer role.
+            temp_parties_with_buyer_role_array = list()
+            permanent_parties_with_payer_role_array = list()
+            if len(same_id_into_buyer_and_payer) > 0:
+                for buyer in range(len(unique_buyer_role_array)):
+                    for i_1 in range(len(same_id_into_buyer_and_payer)):
+                        for payer in range(len(temp_parties_with_payer_role_array)):
 
-        # Get id from temporary parties array with funder role.
-        unique_parties_id_array = list()
-        for funder in range(len(temp_parties_with_funder_role_array)):
-            unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
+                            if unique_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_payer[i_1] == \
+                                    temp_parties_with_payer_role_array[payer]['id']:
+                                unique_buyer_role_array[buyer]['roles'] = \
+                                    unique_buyer_role_array[buyer]['roles'] + temp_parties_with_payer_role_array[payer][
+                                        'roles']
 
-        # Get id from temporary parties array with buyer role.
-        unique_buyer_id_array = list()
-        for buyer in range(len(temp_parties_with_buyer_role_array)):
-            unique_buyer_id_array.append(temp_parties_with_buyer_role_array[buyer]['id'])
+                                temp_parties_with_buyer_role_array.append(unique_buyer_role_array[buyer])
 
-        # Check the same id into party with buyer role and party with funder role.
-        same_id_into_buyer_and_funder = list(set(unique_buyer_id_array) & set(unique_parties_id_array))
+                        for payer in range(len(temp_parties_with_payer_role_array)):
+                            if temp_parties_with_payer_role_array[payer]['id'] != same_id_into_buyer_and_payer[i_1]:
 
-        # Prepare temporary array with buyer and funder roles or prepare permanent array with buyer role.
-        # Prepare permanent array with funder role.
-        permanent_parties_with_buyer_role_array = list()
-        permanent_parties_with_funder_role_array = list()
-        if len(same_id_into_buyer_and_funder) > 0:
+                                permanent_parties_with_payer_role_array.append(
+                                    temp_parties_with_payer_role_array[payer]
+                                )
+            else:
+                temp_parties_with_buyer_role_array = unique_buyer_role_array
+                permanent_parties_with_payer_role_array = temp_parties_with_payer_role_array
+
+            # Get id from temporary parties array with funder role.
+            unique_parties_id_array = list()
+            for funder in range(len(temp_parties_with_funder_role_array)):
+                unique_parties_id_array.append(temp_parties_with_funder_role_array[funder]['id'])
+
+            # Get id from temporary parties array with buyer role.
+            unique_buyer_id_array = list()
             for buyer in range(len(temp_parties_with_buyer_role_array)):
-                for i_1 in range(len(same_id_into_buyer_and_funder)):
-                    for funder in range(len(temp_parties_with_funder_role_array)):
+                unique_buyer_id_array.append(temp_parties_with_buyer_role_array[buyer]['id'])
 
-                        if temp_parties_with_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_funder[i_1] == \
-                                temp_parties_with_funder_role_array[funder]['id']:
-                            temp_parties_with_buyer_role_array[buyer]['roles'] = \
-                                temp_parties_with_buyer_role_array[buyer]['roles'] + \
-                                temp_parties_with_funder_role_array[funder]['roles']
+            # Check the same id into party with buyer role and party with funder role.
+            same_id_into_buyer_and_funder = list(set(unique_buyer_id_array) & set(unique_parties_id_array))
 
-                            permanent_parties_with_buyer_role_array.append(temp_parties_with_buyer_role_array[buyer])
+            # Prepare temporary array with buyer and funder roles or prepare permanent array with buyer role.
+            # Prepare permanent array with funder role.
+            permanent_parties_with_buyer_role_array = list()
+            permanent_parties_with_funder_role_array = list()
+            if len(same_id_into_buyer_and_funder) > 0:
+                for buyer in range(len(temp_parties_with_buyer_role_array)):
+                    for i_1 in range(len(same_id_into_buyer_and_funder)):
+                        for funder in range(len(temp_parties_with_funder_role_array)):
 
-                    for funder in range(len(temp_parties_with_funder_role_array)):
-                        if temp_parties_with_funder_role_array[funder]['id'] != same_id_into_buyer_and_funder[i_1]:
-                            permanent_parties_with_funder_role_array.append(temp_parties_with_funder_role_array[funder])
-        else:
-            permanent_parties_with_buyer_role_array = temp_parties_with_buyer_role_array
-            permanent_parties_with_funder_role_array = temp_parties_with_funder_role_array
+                            if temp_parties_with_buyer_role_array[buyer]['id'] == \
+                                    same_id_into_buyer_and_funder[i_1] == \
+                                    temp_parties_with_funder_role_array[funder]['id']:
 
-        # Get id from unique party with procuringEntity role.
-        unique_pe_id_array = list()
-        for pe in range(len(unique_funder_role_array)):
-            unique_pe_id_array.append(unique_pe_role_array[pe]['id'])
+                                temp_parties_with_buyer_role_array[buyer]['roles'] = \
+                                    temp_parties_with_buyer_role_array[buyer]['roles'] + \
+                                    temp_parties_with_funder_role_array[funder]['roles']
 
-        # Get id from permanent parties array with funder role.
-        unique_funder_id_array = list()
-        for funder in range(len(permanent_parties_with_funder_role_array)):
-            unique_funder_id_array.append(permanent_parties_with_funder_role_array[funder]['id'])
+                                permanent_parties_with_buyer_role_array.append(
+                                    temp_parties_with_buyer_role_array[buyer]
+                                )
 
-        # Check the same id into party with funder role and party with procuringEntity role.
-        same_id_into_funder_and_pe = list(set(unique_funder_id_array) & set(unique_pe_id_array))
+                        for funder in range(len(temp_parties_with_funder_role_array)):
+                            if temp_parties_with_funder_role_array[funder]['id'] != same_id_into_buyer_and_funder[i_1]:
+                                permanent_parties_with_funder_role_array.append(
+                                    temp_parties_with_funder_role_array[funder]
+                                )
+            else:
+                permanent_parties_with_buyer_role_array = temp_parties_with_buyer_role_array
+                permanent_parties_with_funder_role_array = temp_parties_with_funder_role_array
 
-        # Get id from permanent parties array with payer role.
-        unique_payer_id_array = list()
-        for payer in range(len(permanent_parties_with_payer_role_array)):
-            unique_payer_id_array.append(permanent_parties_with_payer_role_array[payer]['id'])
-
-        # Check the same id into party with payer role and party with procuringEntity role.
-        same_id_into_payer_and_pe = list(set(unique_payer_id_array) & set(unique_pe_id_array))
-
-        # Get id from permanent parties array with buyer role.
-        unique_buyer_id_array = list()
-        for buyer in range(len(permanent_parties_with_buyer_role_array)):
-            unique_buyer_id_array.append(permanent_parties_with_buyer_role_array[buyer]['id'])
-
-        # Check the same id into party with buyer role and party with procuringEntity role.
-        same_id_into_buyer_and_pe = list(set(unique_buyer_id_array) & set(unique_pe_id_array))
-
-        # Add procuringEntity role to permanent parties with funder role array or
-        # add procuringEntity role to permanent parties with payer role array or
-        # add procuringEntity role to permanent parties with buyer role array or
-        # prepare permanent parties with procuringEntity role array.
-        permanent_parties_with_pe_role_array = list()
-        if len(same_id_into_funder_and_pe) > 0:
+            # Get id from permanent parties array with funder role.
+            unique_funder_id_array = list()
             for funder in range(len(permanent_parties_with_funder_role_array)):
-                for i_1 in range(len(same_id_into_funder_and_pe)):
-                    for pe in range(len(unique_pe_role_array)):
-                        if permanent_parties_with_funder_role_array[funder]['id'] == same_id_into_funder_and_pe[i_1] \
-                                == unique_pe_role_array[pe]['id']:
+                unique_funder_id_array.append(permanent_parties_with_funder_role_array[funder]['id'])
 
-                            if "persones" in unique_pe_role_array[pe]:
-                                # The party with funder role never has businessFunctions array.
-                                permanent_parties_with_funder_role_array[funder]['persones'] = \
-                                    unique_pe_role_array[pe]['persones']
+            # Check the same id into party with funder role and party with procuringEntity role.
+            same_id_into_funder_and_pe = list(set(unique_funder_id_array) & set(unique_pe_id_array))
 
-                            permanent_parties_with_funder_role_array[funder]['roles'] = \
-                                permanent_parties_with_funder_role_array[funder]['roles'] + \
-                                unique_pe_role_array[pe]['roles']
-
-        elif len(same_id_into_payer_and_pe) > 0:
+            # Get id from permanent parties array with payer role.
+            unique_payer_id_array = list()
             for payer in range(len(permanent_parties_with_payer_role_array)):
-                for i_1 in range(len(same_id_into_payer_and_pe)):
-                    for pe in range(len(unique_pe_role_array)):
-                        if permanent_parties_with_payer_role_array[payer]['id'] == same_id_into_payer_and_pe[i_1] \
-                                == unique_pe_role_array[pe]['id']:
+                unique_payer_id_array.append(permanent_parties_with_payer_role_array[payer]['id'])
 
-                            if "persones" in unique_pe_role_array[pe]:
-                                # The party with payer role never has businessFunctions array.
-                                permanent_parties_with_payer_role_array[payer]['persones'] = \
-                                    unique_pe_role_array[pe]['persones']
+            # Check the same id into party with payer role and party with procuringEntity role.
+            same_id_into_payer_and_pe = list(set(unique_payer_id_array) & set(unique_pe_id_array))
 
-                            permanent_parties_with_payer_role_array[payer]['roles'] = \
-                                permanent_parties_with_payer_role_array[payer]['roles'] + \
-                                unique_pe_role_array[pe]['roles']
-
-        elif len(same_id_into_buyer_and_pe) > 0:
+            # Get id from permanent parties array with buyer role.
+            unique_buyer_id_array = list()
             for buyer in range(len(permanent_parties_with_buyer_role_array)):
-                for i_1 in range(len(same_id_into_buyer_and_pe)):
-                    for pe in range(len(unique_pe_role_array)):
-                        if permanent_parties_with_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_pe[i_1] \
-                                == unique_pe_role_array[pe]['id']:
+                unique_buyer_id_array.append(permanent_parties_with_buyer_role_array[buyer]['id'])
 
-                            if "persones" in unique_pe_role_array[pe]:
-                                # The party with buyer role never has businessFunctions array.
-                                permanent_parties_with_buyer_role_array[buyer]['persones'] = \
-                                    unique_pe_role_array[pe]['persones']
+            # Check the same id into party with buyer role and party with procuringEntity role.
+            same_id_into_buyer_and_pe = list(set(unique_buyer_id_array) & set(unique_pe_id_array))
 
-                            permanent_parties_with_buyer_role_array[buyer]['roles'] = \
-                                permanent_parties_with_buyer_role_array[buyer]['roles'] + \
-                                unique_pe_role_array[pe]['roles']
-        else:
-            permanent_parties_with_pe_role_array = unique_pe_role_array
+            # Add procuringEntity role to permanent parties with funder role array or
+            # add procuringEntity role to permanent parties with payer role array or
+            # add procuringEntity role to permanent parties with buyer role array or
+            # prepare permanent parties with procuringEntity role array.
+            permanent_parties_with_pe_role_array = list()
+            if len(same_id_into_funder_and_pe) > 0:
+                for funder in range(len(permanent_parties_with_funder_role_array)):
+                    for i_1 in range(len(same_id_into_funder_and_pe)):
+                        for pe in range(len(unique_pe_role_array)):
+                            if permanent_parties_with_funder_role_array[funder]['id'] == \
+                                    same_id_into_funder_and_pe[i_1] == unique_pe_role_array[pe]['id']:
 
-        parties_array = \
-            permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
-            permanent_parties_with_funder_role_array + permanent_parties_with_pe_role_array
+                                if "persones" in unique_pe_role_array[pe]:
+                                    # The party with funder role never has businessFunctions array.
+                                    permanent_parties_with_funder_role_array[funder]['persones'] = \
+                                        unique_pe_role_array[pe]['persones']
+
+                                permanent_parties_with_funder_role_array[funder]['roles'] = \
+                                    permanent_parties_with_funder_role_array[funder]['roles'] + \
+                                    unique_pe_role_array[pe]['roles']
+
+            elif len(same_id_into_payer_and_pe) > 0:
+                for payer in range(len(permanent_parties_with_payer_role_array)):
+                    for i_1 in range(len(same_id_into_payer_and_pe)):
+                        for pe in range(len(unique_pe_role_array)):
+                            if permanent_parties_with_payer_role_array[payer]['id'] == same_id_into_payer_and_pe[i_1] \
+                                    == unique_pe_role_array[pe]['id']:
+
+                                if "persones" in unique_pe_role_array[pe]:
+                                    # The party with payer role never has businessFunctions array.
+                                    permanent_parties_with_payer_role_array[payer]['persones'] = \
+                                        unique_pe_role_array[pe]['persones']
+
+                                permanent_parties_with_payer_role_array[payer]['roles'] = \
+                                    permanent_parties_with_payer_role_array[payer]['roles'] + \
+                                    unique_pe_role_array[pe]['roles']
+
+            elif len(same_id_into_buyer_and_pe) > 0:
+                for buyer in range(len(permanent_parties_with_buyer_role_array)):
+                    for i_1 in range(len(same_id_into_buyer_and_pe)):
+                        for pe in range(len(unique_pe_role_array)):
+                            if permanent_parties_with_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_pe[i_1] \
+                                    == unique_pe_role_array[pe]['id']:
+
+                                if "persones" in unique_pe_role_array[pe]:
+                                    # The party with buyer role never has businessFunctions array.
+                                    permanent_parties_with_buyer_role_array[buyer]['persones'] = \
+                                        unique_pe_role_array[pe]['persones']
+
+                                permanent_parties_with_buyer_role_array[buyer]['roles'] = \
+                                    permanent_parties_with_buyer_role_array[buyer]['roles'] + \
+                                    unique_pe_role_array[pe]['roles']
+            else:
+                permanent_parties_with_pe_role_array = unique_pe_role_array
+
+            parties_array = \
+                permanent_parties_with_buyer_role_array + permanent_parties_with_payer_role_array + \
+                permanent_parties_with_funder_role_array + permanent_parties_with_pe_role_array
+
+        elif need_fs is False:
+            # Check the same id into party with buyer role and party with procuringEntity role.
+            same_id_into_buyer_and_pe = list(set(unique_buyer_id_array) & set(unique_pe_id_array))
+
+            # Add procuringEntity role to permanent parties with buyer role array or
+            # prepare permanent parties with procuringEntity role array.
+            permanent_parties_with_buyer_role_array = list()
+            permanent_parties_with_pe_role_array = list()
+
+            if len(same_id_into_buyer_and_pe) > 0:
+                for buyer in range(len(unique_buyer_role_array)):
+                    for i_1 in range(len(same_id_into_buyer_and_pe)):
+                        for pe in range(len(unique_pe_role_array)):
+
+                            if unique_buyer_role_array[buyer]['id'] == same_id_into_buyer_and_pe[i_1] \
+                                    == unique_pe_role_array[pe]['id']:
+
+                                if "persones" in unique_pe_role_array[pe]:
+                                    # The party with buyer role never has businessFunctions array.
+                                    unique_buyer_role_array[buyer]['persones'] = unique_pe_role_array[pe]['persones']
+
+                                unique_buyer_role_array[buyer]['roles'] = \
+                                    unique_buyer_role_array[buyer]['roles'] + unique_pe_role_array[pe]['roles']
+
+                                permanent_parties_with_buyer_role_array.append(unique_buyer_role_array[buyer])
+
+                        for pe in range(len(unique_pe_role_array)):
+                            if unique_buyer_role_array[buyer]['id'] != same_id_into_buyer_and_pe[i_1]:
+                                permanent_parties_with_buyer_role_array.append(unique_buyer_role_array[buyer])
+
+                            if unique_pe_role_array[pe]['id'] != same_id_into_buyer_and_pe[i_1]:
+                                permanent_parties_with_pe_role_array.append(unique_pe_role_array[pe])
+            else:
+                permanent_parties_with_buyer_role_array = unique_pe_role_array
+                permanent_parties_with_pe_role_array = unique_buyer_role_array
+
+            parties_array = permanent_parties_with_buyer_role_array + permanent_parties_with_pe_role_array
 
         # Sort parties array.
         expected_parties_array = list()

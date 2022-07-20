@@ -364,7 +364,7 @@ class TestCreatePIN:
                                   f"operation_id = '{operation_id}' ALLOW FILTERING;",
                                   "Cassandra DataBase: steps of process.")
 
-    if country == "LT":
+    elif country == "LT":
         @allure.title("Створити PIN, повна модель, для Литви.")
         def test_case_1(self, get_parameters, connect_to_keyspace, confirm_ei_tc_1):
 
@@ -434,8 +434,7 @@ class TestCreatePIN:
 
                     list_of_classifications = [
                         {
-                            "ei": ei_cpid,
-                            "fs": None
+                            "ei": ei_cpid
                         }
                     ]
                     payload.customize_planning_budget_budgetbreakdown(connect_to_ocds, list_of_classifications)
