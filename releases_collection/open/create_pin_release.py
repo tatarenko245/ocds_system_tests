@@ -633,8 +633,10 @@ class CreatePriorInformationNoticeRelease:
                 ValueError("Impossible to prepare addressDetails object for lots array")
 
             # Set description.
-            expected_lots_array[q_0]['placeOfPerformance']['description'] = \
-                self.payload['tender']['lots'][q_0]['placeOfPerformance']['description']
+            if "description" in self.payload['tender']['lots'][q_0]['placeOfPerformance']:
+                expected_lots_array[q_0]['placeOfPerformance']['description'] = \
+                    self.payload['tender']['lots'][q_0]['placeOfPerformance']['description']
+            del expected_lots_array[q_0]['placeOfPerformance']['description']
 
             # Set hasOptions
             if "hasOptions" in self.payload['tender']['lots'][q_0]:
@@ -1427,8 +1429,11 @@ class CreatePriorInformationNoticeRelease:
                 additional_identifiers[q_1]['legalName'] = \
                     self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['legalName']
 
-                additional_identifiers[q_1]['uri'] = \
-                    self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['uri']
+                if "uri" in self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]:
+                    additional_identifiers[q_1]['uri'] = \
+                        self.payload['tender']['procuringEntity']['additionalIdentifiers'][q_1]['uri']
+                else:
+                    del additional_identifiers[q_1]['uri']
 
                 procuringentity_role_array[0]['additionalIdentifiers'] = additional_identifiers
         else:

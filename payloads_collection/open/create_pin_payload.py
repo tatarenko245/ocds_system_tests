@@ -132,12 +132,12 @@ class PriorInformationNoticePayload:
         return self.payload
 
     def delete_optional_fields(
-            self, *args: tuple, pe_additionalidentifiers_position: int = 0, pe_persones_position: int = 0,
+            self, *args, pe_additionalidentifiers_position: int = 0, pe_persones_position: int = 0,
             pe_persones_bf_position: int = 0, pe_persones_bf_documents_position: int = 0, criteria_position: int = 0,
             conversion_position: int = 0, target_position: int = 0, lot_position: int = 0,
             lot_options_position: int = 0, lot_recurrence_dates_position: int = 0, item_position: int = 0,
-            item_additionalclassification_position: int = 0,
-            document_position: int = 0):
+            item_additionalclassification_position: int = 0, document_position: int = 0,
+            target_observation_position: int = 0):
         """Call this method last! Delete option fields from payload."""
 
         for a in args:
@@ -165,11 +165,11 @@ class PriorInformationNoticePayload:
             elif a == "tender.procuringEntity.additionalIdentifiers":
                 del self.payload['tender']['procuringEntity']['additionalIdentifiers']
 
-            elif a == f"tender.procuringEntity.additionalIdentifiers[{pe_additionalidentifiers_position}]":
+            elif a == "tender.procuringEntity.additionalIdentifiers[?]":
                 del self.payload['tender']['procuringEntity']['additionalIdentifiers'][
                     pe_additionalidentifiers_position]
 
-            elif a == f"tender.procuringEntity.additionalIdentifiers[{pe_additionalidentifiers_position}].uri":
+            elif a == "tender.procuringEntity.additionalIdentifiers[?].uri":
                 del self.payload['tender']['procuringEntity'][
                     'additionalIdentifiers'][pe_additionalidentifiers_position]['uri']
 
@@ -185,24 +185,21 @@ class PriorInformationNoticePayload:
             elif a == "tender.procuringEntity.persones":
                 del self.payload['tender']['procuringEntity']['persones']
 
-            elif a == f"tender.procuringEntity.persones[{pe_persones_position}]":
+            elif a == "tender.procuringEntity.persones[?]":
                 del self.payload['tender']['procuringEntity']['persones'][pe_persones_position]
 
-            elif a == f"tender.procuringEntity.persones[{pe_persones_position}].identifier.uri":
+            elif a == "tender.procuringEntity.persones[?].identifier.uri":
                 del self.payload['tender']['procuringEntity']['persones'][pe_persones_position]['identifier']['uri']
 
-            elif a == f"tender.procuringEntity.persones[{pe_persones_position}].businessFunctions" \
-                      f"[{pe_persones_bf_position}].documents":
+            elif a == "tender.procuringEntity.persones[?].businessFunctions[?].documents":
                 del self.payload['tender']['procuringEntity']['persones'][pe_persones_position][
                     'businessFunctions'][pe_persones_bf_position]['documents']
 
-            elif a == f"tender.procuringEntity.persones[{pe_persones_position}].businessFunctions" \
-                      f"[{pe_persones_bf_position}].documents[{pe_persones_bf_documents_position}]":
+            elif a == "tender.procuringEntity.persones[?].businessFunctions[?].documents[?]":
                 del self.payload['tender']['procuringEntity']['persones'][pe_persones_position][
                     'businessFunctions'][pe_persones_bf_position]['documents'][pe_persones_bf_documents_position]
 
-            elif a == f"tender.procuringEntity.persones[{pe_persones_position}].businessFunctions" \
-                      f"[{pe_persones_bf_position}].documents[{pe_persones_bf_documents_position}].description":
+            elif a == "tender.procuringEntity.persones[?].businessFunctions[?].documents[?].description":
                 del self.payload['tender']['procuringEntity']['persones'][pe_persones_position][
                     'businessFunctions'][pe_persones_bf_position]['documents'][pe_persones_bf_documents_position][
                     'description']
@@ -210,157 +207,166 @@ class PriorInformationNoticePayload:
             elif a == "tender.criteria":
                 del self.payload['tender']['criteria']
 
-            elif a == f"tender.criteria[{criteria_position}]":
+            elif a == "tender.criteria[?]":
                 del self.payload['tender']['criteria'][criteria_position]
 
             elif a == "tender.conversions":
                 del self.payload['tender']['conversions']
 
-            elif a == f"tender.conversions[{conversion_position}]":
+            elif a == "tender.conversions[?]":
                 del self.payload['tender']['conversions'][conversion_position]
 
-            elif a == f"tender.conversions[{conversion_position}].description":
+            elif a == "tender.conversions[?].description":
                 del self.payload['tender']['conversions'][conversion_position]['description']
 
             elif a == "tender.targets":
                 del self.payload['tender']['targets']
 
-            elif a == f"tender.targets[{target_position}]":
+            elif a == "tender.targets[?]":
                 del self.payload['tender']['targets'][target_position]
 
-            elif a == f"tender.targets[{target_position}].relatedItem":
+            elif a == "tender.targets[?].relatedItem":
                 del self.payload['tender']['targets'][target_position]['relatedItem']
 
-            elif a == f"tender.targets[{target_position}].observations.period":
+            elif a == "tender.targets[?].observations.period":
                 del self.payload['tender']['targets'][target_position]['observations']['period']
 
-            elif a == f"tender.targets[{target_position}].observations.period.startDate":
+            elif a == "tender.targets[?].observations.period.startDate":
                 del self.payload['tender']['targets'][target_position]['observations']['period']['startDate']
 
-            elif a == f"tender.targets[{target_position}].observations.period.endDate":
-                del self.payload['tender']['targets'][target_position]['observations']['period']['endDate']
+            elif a == "tender.targets[?].observations[?].period.endDate":
+                del self.payload['tender']['targets'][target_position]['observations'][target_observation_position][
+                    'period']['endDate']
 
-            elif a == f"tender.targets[{target_position}].unit":
+            elif a == "tender.targets[?].unit":
                 del self.payload['tender']['targets'][target_position]['unit']
 
-            elif a == f"tender.targets[{target_position}].dimensions":
+            elif a == "tender.targets[?].dimensions":
                 del self.payload['tender']['targets'][target_position]['dimensions']
 
-            elif a == f"tender.targets[{target_position}].relatedRequirementId":
+            elif a == "tender.targets[?].relatedRequirementId":
                 del self.payload['tender']['targets'][target_position]['relatedRequirementId']
 
             elif a == "tender.lots":
                 del self.payload['tender']['lots']
 
-            elif a == f"tender.lots[{lot_position}]":
+            elif a == "tender.lots[?]":
                 del self.payload['tender']['lots'][{lot_position}]
 
-            elif a == f"tender.lots[{lot_position}].internalId":
+            elif a == "tender.lots[?].internalId":
                 del self.payload['tender']['lots'][lot_position]['internalId']
 
-            elif a == f"tender.lots[{lot_position}].placeOfPerformance.address.postalCode":
+            elif a == "tender.lots[?].placeOfPerformance.address.postalCode":
                 del self.payload['tender']['lots'][lot_position]['placeOfPerformance']['address']['postalCode']
 
-            elif a == f"tender.lots[{lot_position}].placeOfPerformance.description":
+            elif a == "tender.lots[?].placeOfPerformance.description":
                 del self.payload['tender']['lots'][lot_position]['placeOfPerformance']['description']
 
-            elif a == f"tender.lots[{lot_position}].hasOptions":
+            elif a == "tender.lots[?].hasOptions":
                 del self.payload['tender']['lots'][lot_position]['hasOptions']
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}]":
+            elif a == "tender.lots[?].options":
+                del self.payload['tender']['lots'][lot_position]['options']
+
+            elif a == "tender.lots[?].options[?]":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}].description":
+            elif a == "tender.lots[?].options[?].description":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]['description']
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}].period":
+            elif a == "tender.lots[?].options[?].period":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]['period']
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}].period.durationInDays":
+            elif a == "tender.lots[?].options[?].period.durationInDays":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]['period'][
                     'durationInDays']
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}].period.startDate":
+            elif a == "tender.lots[?].options[?].period.startDate":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]['period'][
                     'startDate']
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}].period.endDate":
+            elif a == "tender.lots[?].options[?].period.endDate":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]['period']['endDate']
 
-            elif a == f"tender.lots[{lot_position}].options[{lot_options_position}].period.maxExtentDate":
+            elif a == "tender.lots[?].options[?].period.maxExtentDate":
                 del self.payload['tender']['lots'][lot_position]['options'][lot_options_position]['period'][
                     'maxExtentDate']
 
-            elif a == f"tender.lots[{lot_position}].hasRecurrence":
+            elif a == "tender.lots[?].hasRecurrence":
                 del self.payload['tender']['lots'][lot_position]['hasRecurrence']
 
-            elif a == f"tender.lots[{lot_position}].recurrence.dates":
+            elif a == "tender.lots[?].recurrence":
+                del self.payload['tender']['lots'][lot_position]['recurrence']
+
+            elif a == "tender.lots[?].recurrence.dates":
                 del self.payload['tender']['lots'][lot_position]['recurrence']['dates']
 
-            elif a == f"tender.lots[{lot_position}].recurrence.dates[{lot_recurrence_dates_position}]":
+            elif a == "tender.lots[?].recurrence.dates[?]":
                 del self.payload['tender']['lots'][lot_position]['recurrence']['dates'][lot_recurrence_dates_position]
 
-            elif a == f"tender.lots[{lot_position}].recurrence.dates[" \
-                      f"{lot_recurrence_dates_position}].startDate":
+            elif a == "tender.lots[?].recurrence.dates[?].startDate":
                 del self.payload['tender']['lots'][lot_position]['recurrence']['dates'][
                     lot_recurrence_dates_position]['startDate']
 
-            elif a == f"tender.lots[{lot_position}].recurrence.description":
+            elif a == "tender.lots[?].recurrence.description":
                 del self.payload['tender']['lots'][lot_position]['recurrence']['description']
 
-            elif a == f"tender.lots[{lot_position}].hasRenewal.":
-                del self.payload['tender']['lots'][lot_position]['haRenewal']
+            elif a == "tender.lots[?].hasRenewal":
+                del self.payload['tender']['lots'][lot_position]['hasRenewal']
 
-            elif a == f"tender.lots[{lot_position}].renewal.description":
+            elif a == "tender.lots[?].renewal":
+                del self.payload['tender']['lots'][lot_position]['renewal']
+
+            elif a == "tender.lots[?].renewal.description":
                 del self.payload['tender']['lots'][lot_position]['renewal']['description']
 
-            elif a == f"tender.lots[{lot_position}].renewal.minimumRenewals":
+            elif a == "tender.lots[?].renewal.minimumRenewals":
                 del self.payload['tender']['lots'][lot_position]['renewal']['minimumRenewals']
 
-            elif a == f"tender.lots[{lot_position}].renewal.maximumRenewals":
+            elif a == "tender.lots[?].renewal.maximumRenewals":
                 del self.payload['tender']['lots'][lot_position]['renewal']['maximumRenewals']
 
-            elif a == f"tender.lots[{lot_position}].renewal.period":
+            elif a == "tender.lots[?].renewal.period":
                 del self.payload['tender']['lots'][lot_position]['renewal']['period']
 
-            elif a == f"tender.lots[{lot_position}].renewal.period.durationInDays":
+            elif a == "tender.lots[?].renewal.period.durationInDays":
                 del self.payload['tender']['lots'][lot_position]['renewal']['period']['durationInDays']
 
-            elif a == f"tender.lots[{lot_position}].renewal.period.startDate":
+            elif a == "tender.lots[?].renewal.period.startDate":
                 del self.payload['tender']['lots'][lot_position]['renewal']['period']['startDate']
 
-            elif a == f"tender.lots[{lot_position}].renewal.period.endDate":
+            elif a == "tender.lots[?].renewal.period.endDate":
                 del self.payload['tender']['lots'][lot_position]['renewal']['period']['endDate']
 
-            elif a == f"tender.lots[{lot_position}].renewal.period.maxExtentDate":
+            elif a == "tender.lots[?].renewal.period.maxExtentDate":
                 del self.payload['tender']['lots'][lot_position]['renewal']['period']['maxExtentDate']
 
             elif a == "tender.items":
                 del self.payload['tender']['items']
 
-            elif a == f"tender.items[{item_position}]":
+            elif a == "tender.items[?]":
                 del self.payload['tender']['items'][item_position]
 
-            elif a == "tender.items.internalId":
+            elif a == "tender.items[?].internalId":
                 del self.payload['tender']['items'][item_position]['internalId']
 
-            elif a == "tender.items.additionalClassifications":
+            elif a == "tender.items[?].additionalClassifications":
                 del self.payload['tender']['items'][item_position]['additionalClassifications']
 
-            elif a == f"tender.items.additionalClassifications[{item_additionalclassification_position}]":
+            elif a == "tender.items[?].additionalClassifications[?]":
                 del self.payload['tender']['items'][item_position][
                     'additionalClassifications'][item_additionalclassification_position]
 
             elif a == "tender.documents":
                 del self.payload['tender']['documents']
 
-            elif a == f"tender.documents[{document_position}]":
+            elif a == "tender.documents[?]":
                 del self.payload['tender']['documents'][document_position]
 
-            elif a == "tender.documents.description":
+            elif a == "tender.documents[?].description":
                 del self.payload['tender']['documents'][document_position]['description']
 
-            elif a == "tender.documents.relatedLots":
+            elif a == "tender.documents[?].relatedLots":
                 del self.payload['tender']['documents'][document_position]["relatedLots"]
 
             else:
@@ -373,6 +379,14 @@ class PriorInformationNoticePayload:
         for q in range(len(self.payload['tender']['lots'])):
             lot_id_list.append(self.payload['tender']['lots'][q]['id'])
         return lot_id_list
+
+    def get_items_id_from_payload(self):
+        """Get items.id from payload."""
+
+        item_id_list = list()
+        for q in range(len(self.payload['tender']['items'])):
+            item_id_list.append(self.payload['tender']['items'][q]['id'])
+        return item_id_list
 
     def customize_planning_budget_budgetbreakdown(self, connect_to_ocds: str, list_of_classifications: list):
         """Customize planning.budget.budgetBreakdown array."""
@@ -509,11 +523,21 @@ class PriorInformationNoticePayload:
                 for q_1 in range(quantity_of_options):
                     options_object = copy.deepcopy(self.payload['tender']['lots'][q_0]['options'][0])
 
-                    options_object['description'] = f"create pin: tender.lots{q_0}.options[{q_1}].description"
-                    options_object['period']['durationInDays'] = 90
-                    options_object['period']['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
-                    options_object['period']['endDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
-                    options_object['period']['maxExtentDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
+                    if "description" in options_object:
+                        options_object['description'] = f"create pin: tender.lots{q_0}.options[{q_1}].description"
+
+                    if "period" in options_object:
+                        if "durationInDays" in options_object:
+                            options_object['period']['durationInDays'] = 90
+
+                        if "startDate" in options_object['period']:
+                            options_object['period']['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
+
+                        if "endDate" in options_object['period']:
+                            options_object['period']['endDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
+
+                        if "maxExtentDate" in options_object['period']:
+                            options_object['period']['maxExtentDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
                     options_array.append(options_object)
 
                 new_lots_array[q_0]['options'] = options_array
@@ -524,39 +548,53 @@ class PriorInformationNoticePayload:
             if quantity_of_recurrence_dates > 0:
                 new_lots_array[q_0]['hasRecurrence'] = True
 
-                new_lots_array[q_0]['recurrence']['description'] = \
-                    f"create pin: tender.lots{q_0}.recurrence.description"
+                if "description" in new_lots_array[q_0]['recurrence']:
+                    new_lots_array[q_0]['recurrence']['description'] = \
+                        f"create pin: tender.lots{q_0}.recurrence.description"
 
-                recurrence_dates_array = list()
-                for q_1 in range(quantity_of_recurrence_dates):
-                    recurrence_dates_object = copy.deepcopy(
-                        self.payload['tender']['lots'][q_0]['recurrence']['dates'][0]
-                    )
+                if "dates" in new_lots_array[q_0]['recurrence']:
+                    recurrence_dates_array = list()
+                    for q_1 in range(quantity_of_recurrence_dates):
+                        recurrence_dates_object = copy.deepcopy(
+                            self.payload['tender']['lots'][q_0]['recurrence']['dates'][0]
+                        )
 
-                    recurrence_dates_object['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
+                        if "startDate" in recurrence_dates_object:
+                            recurrence_dates_object['startDate'] = new_lots_array[q_0]['contractPeriod']['startDate']
 
-                    recurrence_dates_array.append(recurrence_dates_object)
+                        recurrence_dates_array.append(recurrence_dates_object)
 
-                new_lots_array[q_0]['recurrence']['dates'] = recurrence_dates_array
+                    new_lots_array[q_0]['recurrence']['dates'] = recurrence_dates_array
             else:
                 new_lots_array[q_0]['hasRecurrence'] = False
                 del new_lots_array[q_0]['recurrence']
 
             if quantity_of_renewal == 1:
                 new_lots_array[q_0]['hasRenewal'] = True
-                new_lots_array[q_0]['renewal']['description'] = f"create pin: tender.lots{q_0}.renewal.description"
-                new_lots_array[q_0]['renewal']['minimumRenewals'] = q_0 + 1.23
-                new_lots_array[q_0]['renewal']['maximumRenewals'] = q_0 + 2.24
+                if "description" in new_lots_array[q_0]['renewal']:
+                    new_lots_array[q_0]['renewal']['description'] = f"create pin: tender.lots{q_0}.renewal.description"
 
-                new_lots_array[q_0]['renewal']['period']['durationInDays'] = 7.7
+                if "minimumRenewals" in new_lots_array[q_0]['renewal']:
+                    new_lots_array[q_0]['renewal']['minimumRenewals'] = q_0 + 1.23
 
-                new_lots_array[q_0]['renewal']['period']['startDate'] = \
-                    new_lots_array[q_0]['contractPeriod']['startDate']
+                if "maximumRenewals" in new_lots_array[q_0]['renewal']:
+                    new_lots_array[q_0]['renewal']['maximumRenewals'] = q_0 + 2.24
 
-                new_lots_array[q_0]['renewal']['period']['endDate'] = new_lots_array[q_0]['contractPeriod']['endDate']
+                if "period" in new_lots_array[q_0]['renewal']:
+                    if "durationInDays" in new_lots_array[q_0]['renewal']['period']:
+                        new_lots_array[q_0]['renewal']['period']['durationInDays'] = 7.7
 
-                new_lots_array[q_0]['renewal']['period']['maxExtentDate'] = \
-                    new_lots_array[q_0]['contractPeriod']['endDate']
+                    if "startDate" in new_lots_array[q_0]['renewal']['period']:
+                        new_lots_array[q_0]['renewal']['period']['startDate'] = \
+                            new_lots_array[q_0]['contractPeriod']['startDate']
+
+                    if "endDate" in new_lots_array[q_0]['renewal']['period']:
+                        new_lots_array[q_0]['renewal']['period']['endDate'] = \
+                            new_lots_array[q_0]['contractPeriod']['endDate']
+
+                    if "maxExtentDate" in new_lots_array[q_0]['renewal']['period']:
+                        new_lots_array[q_0]['renewal']['period']['maxExtentDate'] = \
+                            new_lots_array[q_0]['contractPeriod']['endDate']
 
             else:
                 new_lots_array[q_0]['hasRenewal'] = False
@@ -612,9 +650,12 @@ class PriorInformationNoticePayload:
             new_documents_array[q_0]['id'] = document_two_was_uploaded[0]["data"]["id"]
             new_documents_array[q_0]['documentType'] = f"{random.choice(documentType_tuple)}"
             new_documents_array[q_0]['title'] = f"create pin: tender.documents{q_0}.title"
-            new_documents_array[q_0]['description'] = f"create pin: tender.documents{q_0}.description"
 
-            new_documents_array[q_0]['relatedLots'] = [lot_id_list[q_0]]
+            if "description" in new_documents_array[q_0]:
+                new_documents_array[q_0]['description'] = f"create pin: tender.documents{q_0}.description"
+
+            if "relatedLots" in new_documents_array[q_0]:
+                new_documents_array[q_0]['relatedLots'] = [lot_id_list[q_0]]
 
         ee_documents_array = list()
         if "criteria" in self.payload['tender']:
@@ -855,7 +896,10 @@ class PriorInformationNoticePayload:
         conversion_object['id'] = "0"
         conversion_object['relatesTo'] = "requirement"
         conversion_object['rationale'] = "create pin: tender.conversion.rationale"
-        conversion_object['description'] = "create pin: tender.conversion.description"
+
+        if "description" in conversion_object:
+            conversion_object['description'] = "create pin: tender.conversion.description"
+
         conversion_object['coefficients'] = [{}, {}]
 
         conversion_object['coefficients'][0].update(copy.deepcopy(
@@ -884,7 +928,6 @@ class PriorInformationNoticePayload:
             conversion_object=conversion_object,
             requirements_array=requirements_objects
         )
-
         return conversion_array_for_selection_criteria
 
     def prepare_other_conversions(self, other_criteria_array: list):
@@ -905,7 +948,10 @@ class PriorInformationNoticePayload:
         conversion_object['id'] = "0"
         conversion_object['relatesTo'] = "requirement"
         conversion_object['rationale'] = "create pin: tender.conversion.rationale"
-        conversion_object['description'] = "create pin: tender.conversion.description"
+
+        if "description" in conversion_object:
+            conversion_object['description'] = "create pin: tender.conversion.description"
+
         conversion_object['coefficients'] = [{}, {}]
 
         conversion_object['coefficients'][0].update(copy.deepcopy(
@@ -957,7 +1003,9 @@ class PriorInformationNoticePayload:
             targets_list[q_0]['id'] = f"{q_0}"
             targets_list[q_0]['title'] = f"create pin: tender.targets[{q_0}].title"
             targets_list[q_0]['relatesTo'] = targets_dict['targets_dict']['relatesTo']
-            targets_list[q_0]['relatedItem'] = targets_dict['targets_dict']['relatedItems'][q_0]
+
+            if "relatedItem" in targets_list[q_0]:
+                targets_list[q_0]['relatedItem'] = targets_dict['targets_dict']['relatedItems'][q_0]
 
             observations_list = list()
             for q_1 in range(quantity_of_observations):

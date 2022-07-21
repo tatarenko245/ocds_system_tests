@@ -138,7 +138,8 @@ class CriteriaArray:
 
             new_criteria_object['relatesTo'] = criteria_relates_to
 
-            new_criteria_object['classification'] = self.standard_criteria[self.type_of_standardCriteria][q_0]
+            if "classification" in new_criteria_object:
+                new_criteria_object['classification'] = self.standard_criteria[self.type_of_standardCriteria][q_0]
 
             new_requirement_groups_array = list()
             for q_1 in range(self.quantity_of_requirementGroups_objects):
