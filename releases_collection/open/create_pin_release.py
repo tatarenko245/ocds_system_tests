@@ -636,7 +636,8 @@ class CreatePriorInformationNoticeRelease:
             if "description" in self.payload['tender']['lots'][q_0]['placeOfPerformance']:
                 expected_lots_array[q_0]['placeOfPerformance']['description'] = \
                     self.payload['tender']['lots'][q_0]['placeOfPerformance']['description']
-            del expected_lots_array[q_0]['placeOfPerformance']['description']
+            else:
+                del expected_lots_array[q_0]['placeOfPerformance']['description']
 
             # Set hasOptions
             if "hasOptions" in self.payload['tender']['lots'][q_0]:

@@ -674,8 +674,8 @@ class PriorInformationNoticePayload:
 
                                 if "relatedDocument" in self.payload['tender']['criteria'][e_0][
                                         'requirementGroups'][e_1]['requirements'][e_2]['eligibleEvidences'][e_3]:
-                                    ee_document_object = copy.deepcopy(
-                                        self.payload['tender']['documents'][0])
+
+                                    ee_document_object = copy.deepcopy(self.payload['tender']['documents'][0])
 
                                     ee_document_object['id'] = \
                                         self.payload['tender']['criteria'][e_0]['requirementGroups'][e_1][
@@ -690,7 +690,9 @@ class PriorInformationNoticePayload:
                                         f"create fe: tender.documents{len(ee_documents_array)}." \
                                         f"description"
 
-                                    del ee_document_object['relatedLots']
+                                    if "relatedLots" in ee_document_object:
+                                        del ee_document_object['relatedLots']
+
                                     ee_documents_array.append(ee_document_object)
 
         self.payload['tender']['documents'] = new_documents_array + ee_documents_array

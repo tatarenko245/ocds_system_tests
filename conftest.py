@@ -21,4 +21,6 @@ pytest_plugins = [
     "fixtures_collection.prepare_procedure.budget.prepare_create_ei_process",
     "fixtures_collection.prepare_procedure.budget.prepare_confirm_ei_process",
     "fixtures_collection.prepare_procedure.budget.prepare_create_fs_process",
+    "fixtures_collection.prepare_procedure.budget.prepare_withdraw_ei_process",
+    "fixtures_collection.prepare_procedure.budget.prepare_update_ei_process",
 ]
