@@ -10,6 +10,7 @@ from functions_collection.cassandra_methods import cleanup_orchestrator_steps_by
     cleanup_table_of_services_for_prior_information_notice
 from functions_collection.get_message_for_platform import get_message_for_platform
 from functions_collection.requests_collection import create_pin_process
+from functions_collection.some_functions import prepared_cpid
 from messages_collection.open.create_pin_message import CreatePriorInformationNoticeMessage
 from payloads_collection.open.create_pin_payload import PriorInformationNoticePayload
 from releases_collection.open.create_pin_release import CreatePriorInformationNoticeRelease
@@ -5667,8 +5668,242 @@ class TestCreatePIN:
         #                           "Cassandra DataBase: steps of process.")
         #
         #
-        @allure.title("В запиті є budget.budgetBreakdown[*].classifications.fs, для Литви.")
-        def test_case_13(self, get_parameters, connect_to_keyspace, confirm_ei_tc_1, create_fs_tc_1_new):
+        # @allure.title("В запиті є budget.budgetBreakdown[*].classifications.fs, для Литви.")
+        # def test_case_13(self, get_parameters, connect_to_keyspace, confirm_ei_tc_1, create_fs_tc_1_new):
+        #
+        #     environment = get_parameters[0]
+        #     bpe_host = get_parameters[2]
+        #     service_host = get_parameters[3]
+        #     country = get_parameters[4]
+        #     language = get_parameters[5]
+        #     pmd = get_parameters[6]
+        #     tender_classification_id = get_parameters[9]
+        #     clean_up_database = get_parameters[10]
+        #
+        #     connect_to_ocds = connect_to_keyspace[0]
+        #     connect_to_orchestrator = connect_to_keyspace[1]
+        #     connect_to_access = connect_to_keyspace[2]
+        #     connect_to_clarification = connect_to_keyspace[3]
+        #     connect_to_auctions = connect_to_keyspace[8]
+        #
+        #     ei_cpid = confirm_ei_tc_1[0]
+        #     ei_url = confirm_ei_tc_1[3]
+        #     currency = confirm_ei_tc_1[4]
+        #     buyer_id = confirm_ei_tc_1[5]
+        #     buyer_scheme = confirm_ei_tc_1[6]
+        #
+        #     fs_ocid = create_fs_tc_1_new[7]
+        #
+        #     previous_ei_release = requests.get(ei_url).json()
+        #
+        #     """
+        #     VR.COM-14.4.3 Check EI state.
+        #     """
+        #     if previous_ei_release['releases'][0]['tender']['status'] == "planned":
+        #         pass
+        #     else:
+        #         raise ValueError(f"The EI release has invalid state: "
+        #                          f"{previous_ei_release['releases'][0]['tender']['status']}.")
+        #
+        #     step_number = 1
+        #     with allure.step(f"# {step_number}. Authorization platform one: Create PIN process."):
+        #         """
+        #         Tender platform authorization for Create PIN process.
+        #         As result, get tender platform's access token and process operation-id.
+        #         """
+        #         platform_one = PlatformAuthorization(bpe_host)
+        #         access_token = platform_one.get_access_token_for_platform_one()
+        #         operation_id = platform_one.get_x_operation_id(access_token)
+        #
+        #     step_number += 1
+        #     with allure.step(f"# {step_number}. Send a request to create a Create PIN process."):
+        #         """
+        #         Send api request to BPE host to create a Create PIN process.
+        #         """
+        #
+        #         try:
+        #             """
+        #             Build payload for Create PIN process.
+        #             """
+        #             payload = copy.deepcopy(PriorInformationNoticePayload(
+        #                 environment=environment,
+        #                 language=language,
+        #                 host_to_service=service_host,
+        #                 country=country,
+        #                 amount=5000.00,
+        #                 currency=currency,
+        #                 tender_classification_id=tender_classification_id,
+        #                 procurinentity_id=buyer_id,
+        #                 procurinentity_scheme=buyer_scheme
+        #             ))
+        #
+        #             list_of_classifications = [
+        #                 {
+        #                     "ei": ei_cpid
+        #                 }
+        #             ]
+        #             payload.customize_planning_budget_budgetbreakdown(connect_to_ocds, list_of_classifications)
+        #
+        #             payload.customize_tender_lots(
+        #                 quantity_of_lots=1,
+        #                 quantity_of_options=1,
+        #                 quantity_of_recurrence_dates=1,
+        #                 quantity_of_renewal=1
+        #             )
+        #
+        #             lots_id = payload.get_lots_id_from_payload()
+        #
+        #             payload.customize_tender_items(
+        #                 quantity_of_items=1,
+        #                 quantity_of_items_additionalclassifications=1
+        #             )
+        #
+        #             payload.customize_tender_electronicauctions_object(connect_to_auctions, pmd)
+        #
+        #             payload.customize_tender_procuringentity_additionalidentifiers(
+        #                 quantity_of_tender_procuring_entity_additional_identifiers=1
+        #             )
+        #
+        #             payload.customize_tender_procuringentity_bf_persones_array(
+        #                 quantity_of_persones_objects=1,
+        #                 quantity_of_bf_objects=1,
+        #                 quantity_of_documents_objects=1
+        #             )
+        #             exclusion_criteria_array = payload.prepare_exclusion_criteria(
+        #                 "criteria.relatedItem",
+        #                 "criteria.requirementGroups.requirements.minValue",
+        #                 "criteria.requirementGroups.requirements.maxValue",
+        #                 language=language,
+        #                 environment=environment,
+        #                 criteria_relates_to="tenderer"
+        #             )
+        #
+        #             selection_criteria_array = payload.prepare_selection_criteria(
+        #                 "criteria.relatedItem",
+        #                 "criteria.requirementGroups.requirements.expectedValue",
+        #                 language=language,
+        #                 environment=environment,
+        #                 criteria_relates_to="tenderer"
+        #             )
+        #
+        #             other_criteria_array = payload.prepare_other_criteria(
+        #                 "criteria.requirementGroups.requirements.minValue",
+        #                 "criteria.requirementGroups.requirements.maxValue",
+        #                 language=language,
+        #                 environment=environment,
+        #                 criteria_relates_to="lot",
+        #                 criteria_related_item=lots_id[0]
+        #             )
+        #
+        #             payload.customize_tender_criteria(
+        #                 exclusion_criteria_array, selection_criteria_array, other_criteria_array
+        #             )
+        #
+        #             selection_conversions_array = payload.prepare_selection_conversions(selection_criteria_array)
+        #             other_conversions_array = payload.prepare_other_conversions(other_criteria_array)
+        #             payload.customize_tender_conversions(selection_conversions_array, other_conversions_array)
+        #
+        #             relates_to = {
+        #                 "relatesTo": "lot",
+        #                 "relatedItems": lots_id
+        #             }
+        #
+        #             payload.customize_tender_targets(
+        #                 targets_dict=relates_to
+        #             )
+        #
+        #             payload.customize_tender_documents(
+        #                 quantity_of_documents=1
+        #             )
+        #
+        #             payload = payload.build_payload()
+        #
+        #             payload['planning']['budget']['budgetBreakdown'][0]['classifications']['fs'] = fs_ocid
+        #         except ValueError:
+        #             raise ValueError("Impossible to build payload for Create PIN process.")
+        #
+        #         synchronous_result = create_pin_process(
+        #             host=bpe_host,
+        #             access_token=access_token,
+        #             x_operation_id=operation_id,
+        #             country=country,
+        #             language=language,
+        #             pmd=pmd,
+        #             payload=payload,
+        #             test_mode=True
+        #         )
+        #         message = get_message_for_platform(operation_id)
+        #         cpid = message['data']['ocid'][:28]
+        #         ocid = message['data']['outcomes']['pin'][0]['id']
+        #         allure.attach(str(message), "Message for platform.")
+        #
+        #     step_number += 1
+        #     with allure.step(f"# {step_number}. See result"):
+        #         """
+        #         Check the results of TestCase.
+        #         """
+        #
+        #         with allure.step(f"# {step_number}.1. Check status code"):
+        #             """
+        #             Check the status code of sending the request.
+        #             """
+        #             with allure.step('Compare actual status code and expected status code of sending request.'):
+        #                 allure.attach(str(synchronous_result.status_code), "Actual status code.")
+        #                 allure.attach(str(202), "Expected status code.")
+        #                 assert synchronous_result.status_code == 202
+        #
+        #         with allure.step(f'# {step_number}.2. Check the message for the platform, the Create PIN process.'):
+        #             """
+        #             Check the message for platform.
+        #             """
+        #             actual_message = message
+        #
+        #             try:
+        #                 """
+        #                 Build expected message for platform.
+        #                 """
+        #                 expected_message = copy.deepcopy(CreatePriorInformationNoticeMessage(
+        #                     environment=environment,
+        #                     country=country,
+        #                     actual_message=actual_message,
+        #                     test_mode=True)
+        #                 )
+        #
+        #                 expected_message = expected_message.build_expected_failure_message(
+        #                     error_code="VR.COM-14.4.16/10",
+        #                     error_description=""
+        #                 )
+        #             except ValueError:
+        #                 ValueError("Impossible to build expected message for platform.")
+        #
+        #             with allure.step('Compare actual and expected message for platform.'):
+        #                 allure.attach(json.dumps(actual_message), "Actual message.")
+        #                 allure.attach(json.dumps(expected_message), "Expected message.")
+        #
+        #                 assert actual_message == expected_message, \
+        #                     allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+        #                                   f"operation_id = '{operation_id}' "
+        #                                   f"ALLOW FILTERING;", "Cassandra DataBase: steps of process.")
+        #     if clean_up_database is True:
+        #         try:
+        #             """
+        #             CLean up the database.
+        #             """
+        #             # Clean after Create PIN process:
+        #             cleanup_orchestrator_steps_by_cpid(connect_to_orchestrator, cpid)
+        #             cleanup_table_of_services_for_prior_information_notice(
+        #                 connect_to_ocds, connect_to_auctions, connect_to_clarification, connect_to_access, cpid
+        #             )
+        #         except ValueError:
+        #             ValueError("Impossible to cLean up the database.")
+        #     else:
+        #         with allure.step("The steps of process."):
+        #             allure.attach(f"SELECT * FROM orchestrator.steps WHERE "
+        #                           f"operation_id = '{operation_id}' ALLOW FILTERING;",
+        #                           "Cassandra DataBase: steps of process.")
+        #
+        @allure.title("Передано EI, стан якого не x (один EI в запиті), для Литви.")
+        def test_case_17(self, get_parameters, connect_to_keyspace, confirm_ei_tc_1):
 
             environment = get_parameters[0]
             bpe_host = get_parameters[2]
@@ -5690,8 +5925,6 @@ class TestCreatePIN:
             currency = confirm_ei_tc_1[4]
             buyer_id = confirm_ei_tc_1[5]
             buyer_scheme = confirm_ei_tc_1[6]
-
-            fs_ocid = create_fs_tc_1_new[7]
 
             previous_ei_release = requests.get(ei_url).json()
 
@@ -5750,14 +5983,10 @@ class TestCreatePIN:
                         quantity_of_renewal=1
                     )
 
-                    lots_id = payload.get_lots_id_from_payload()
-
                     payload.customize_tender_items(
                         quantity_of_items=1,
                         quantity_of_items_additionalclassifications=1
                     )
-
-                    payload.customize_tender_electronicauctions_object(connect_to_auctions, pmd)
 
                     payload.customize_tender_procuringentity_additionalidentifiers(
                         quantity_of_tender_procuring_entity_additional_identifiers=1
@@ -5768,56 +5997,21 @@ class TestCreatePIN:
                         quantity_of_bf_objects=1,
                         quantity_of_documents_objects=1
                     )
-                    exclusion_criteria_array = payload.prepare_exclusion_criteria(
-                        "criteria.relatedItem",
-                        "criteria.requirementGroups.requirements.minValue",
-                        "criteria.requirementGroups.requirements.maxValue",
-                        language=language,
-                        environment=environment,
-                        criteria_relates_to="tenderer"
+
+                    payload.delete_optional_fields(
+                        "planning.rationale",
+                        "tender.procurementMethodRationale",
+                        "tender.enquiryPeriod",
+                        "tender.procurementMethodModalities",
+                        "tender.electronicAuctions",
+                        "tender.criteria",
+                        "tender.conversions",
+                        "tender.targets",
+                        "tender.documents"
                     )
-
-                    selection_criteria_array = payload.prepare_selection_criteria(
-                        "criteria.relatedItem",
-                        "criteria.requirementGroups.requirements.expectedValue",
-                        language=language,
-                        environment=environment,
-                        criteria_relates_to="tenderer"
-                    )
-
-                    other_criteria_array = payload.prepare_other_criteria(
-                        "criteria.requirementGroups.requirements.minValue",
-                        "criteria.requirementGroups.requirements.maxValue",
-                        language=language,
-                        environment=environment,
-                        criteria_relates_to="lot",
-                        criteria_related_item=lots_id[0]
-                    )
-
-                    payload.customize_tender_criteria(
-                        exclusion_criteria_array, selection_criteria_array, other_criteria_array
-                    )
-
-                    selection_conversions_array = payload.prepare_selection_conversions(selection_criteria_array)
-                    other_conversions_array = payload.prepare_other_conversions(other_criteria_array)
-                    payload.customize_tender_conversions(selection_conversions_array, other_conversions_array)
-
-                    relates_to = {
-                        "relatesTo": "lot",
-                        "relatedItems": lots_id
-                    }
-
-                    payload.customize_tender_targets(
-                        targets_dict=relates_to
-                    )
-
-                    payload.customize_tender_documents(
-                        quantity_of_documents=1
-                    )
-
                     payload = payload.build_payload()
-
-                    payload['planning']['budget']['budgetBreakdown'][0]['classifications']['fs'] = fs_ocid
+                    payload['tender']['awardCriteria'] = "priceOnly"
+                    payload['tender']['awardCriteriaDetails'] = "automated"
                 except ValueError:
                     raise ValueError("Impossible to build payload for Create PIN process.")
 
@@ -5869,7 +6063,7 @@ class TestCreatePIN:
                         )
 
                         expected_message = expected_message.build_expected_failure_message(
-                            error_code="VR.COM-14.4.16/10",
+                            error_code="VR.COM-14.4.3/3",
                             error_description=""
                         )
                     except ValueError:

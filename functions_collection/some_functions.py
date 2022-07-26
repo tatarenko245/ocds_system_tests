@@ -663,3 +663,13 @@ def set_conversions_unique_temporary_id(payload_conversions_array):
                 iterator_2 -= 1
 
     return payload_conversions_array
+
+
+def prepared_cpid():
+    cp_id = "ocds-t1s2t3-MD-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+    return cp_id
+
+
+def prepared_fs_ocid(prepared_cpid):
+    oc_id = f"{prepared_cpid}-EV-" + str(int(time.time()) * 1000 + random.randint(1, 100))
+    return oc_id
