@@ -62,6 +62,7 @@ class TestCreateFS:
                 Build payload for Create FS process.
                 """
                 payload = copy.deepcopy(FinancialSourcePayload(
+                    country=country,
                     ei_payload=ei_payload,
                     amount=89999.89,
                     currency=currency,
@@ -331,6 +332,7 @@ class TestCreateFS:
                 Build payload for Create FS process.
                 """
                 payload = copy.deepcopy(FinancialSourcePayload(
+                    country=country,
                     ei_payload=ei_payload,
                     amount=89999.89,
                     currency=currency,

@@ -105,7 +105,7 @@ def create_ei_tc_1(get_parameters, connect_to_keyspace):
 
 
 @pytest.fixture(scope="function")
-# Create EI: Створення EI, опціональна модель, без айтемів
+# Create EI: Створення EI, обов'язкова модель, без айтемів
 def create_ei_tc_2(get_parameters, connect_to_keyspace):
     bpe_host = get_parameters[2]
     country = get_parameters[4]
@@ -183,7 +183,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
         ei_url = f"{message['data']['url']}/{cpid}"
         allure.attach(str(message), "Message for platform.")
 
-        yield payload, cpid, message, ei_url, token, buyer_id, buyer_scheme
+        yield payload, cpid, message, ei_url, token, buyer_id, buyer_scheme, currency
 
         if clean_up_database is True:
             try:
@@ -203,7 +203,7 @@ def create_ei_tc_2(get_parameters, connect_to_keyspace):
 
 
 @pytest.fixture(scope="function")
-# Створення EI, опціональна модель, з айтемами.
+# Створення EI, обов'язкова модель, з айтемами.
 def create_ei_tc_3(get_parameters, connect_to_keyspace):
 
     bpe_host = get_parameters[2]
